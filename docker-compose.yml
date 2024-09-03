@@ -1,0 +1,51 @@
+services:
+  laravel:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tis_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=tis_mariadb
+      - DB_PORT=3306
+      - DB_USERNAME=root
+      - DB_DATABASE=tis-evaluacion
+      - DB_PASSWORD=tis
+    volumes:
+      - ./backend:/app
+    networks:
+      - tis_network
+    depends_on:
+      - mariadb
+
+  mariadb:
+    image: mariadb:10.6.3
+    container_name: tis_mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      - MARIADB_ROOT_PASSWORD=tis
+      - MARIADB_DATABASE=tis-evaluacion
+    volumes:
+      - tis_mariadb_data:/var/lib/mysql
+    networks:
+      - tis_network
+
+  react:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tis_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+    networks:
+      - tis_network
+
+volumes:
+  tis_mariadb_data:
+
+networks:
+  tis_network:
