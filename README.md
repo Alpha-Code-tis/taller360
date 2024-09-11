@@ -53,7 +53,7 @@ El sistema está construido sobre una arquitectura de tres capas que incluye la 
 
 ## Tecnologías Utilizadas
 
-- **Laravel 10.x**: Framework PHP para el desarrollo de aplicaciones web.
+- **Laravel 8.x**: Framework PHP para el desarrollo de aplicaciones web.
 - **MariaDB**: Sistema de gestión de bases de datos SQL, robusto y escalable.
 - **Bootstrap 5**: Framework de diseño frontend para crear interfaces modernas y responsivas.
 - **React**: Biblioteca de JavaScript para construir interfaces de usuario.
@@ -66,7 +66,7 @@ El sistema está construido sobre una arquitectura de tres capas que incluye la 
 
 ### Requisitos Previos
 
-- **PHP 8.x**
+- **PHP 8.2.7**
 - **Composer**
 - **Docker** (opcional pero recomendado para despliegue)
 
@@ -127,14 +127,13 @@ Si prefieres utilizar Docker, sigue estos pasos:
 
 2. **Acceder a la aplicación**:
 
-    - **Laravel**: [http://localhost:8000](http://localhost:8000)
-    - **React**: [http://localhost:3000](http://localhost:3000)
+    - **Backend - Laravel**: [http://localhost:8000](http://localhost:8000)
+    - **Frontend - React**: [http://localhost:3000](http://localhost:3000)
 
 ## Uso del Sistema
 
 El sistema ofrece una interfaz intuitiva para que los usuarios puedan gestionar proyectos y evaluaciones de manera sencilla. Las funcionalidades principales incluyen:
 
-- **Dashboard**
 - **Gestión de Equipos**
 - **Evaluaciones**
 
