@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('planificacion', function (Blueprint $table) {
             $table->integer('id', true);
-            $table->date('fecha_creacion')->nullable()->default('CURRENT_DATE');
             $table->integer('id_grupo')->nullable()->index('fk_planificacion_grupo');
         });
     }

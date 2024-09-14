@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Planificacion;
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
 class PlanificacionController extends Controller
@@ -35,10 +36,17 @@ class PlanificacionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
-    {
-        return Planificacion::find($id);
-    }
+    public function show($id, $n_sprint)
+{
+    $data = Planificacion::with(['sprints' => function($query) use ($n_sprint) {
+            $query->where('n_sprint', $n_sprint)
+                  ->with('alcances.tareas');
+        }])
+        ->where('id', $id)
+        ->get();
+
+    return response()->json($data, Response::HTTP_OK);
+}
 
     /**
      * Update the specified resource in storage.
