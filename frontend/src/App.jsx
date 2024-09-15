@@ -1,16 +1,23 @@
-import { useState } from 'react'
-import Header from './Componentes/Header';
-import './App.css'
 
+//import { useState } from 'react'
+// src/App.jsx
+import React from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Header from './Componentes/Header';
+import Footer from './Componentes/Footer';
+import Docentes from './Representante_legal/Docentes';
+import './App.css';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-      <div>
-        <Header/>
-      </div>
-  )
+    <div>
+      <Header />
+      <Routes>
+        <Route path="/Docentes" element={<Docentes />} />
+      </Routes>
+      <Footer />
+    </div>
+  );
 }
 
-export default App
+export default App;

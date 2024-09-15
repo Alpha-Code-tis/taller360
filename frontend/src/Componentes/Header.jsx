@@ -1,3 +1,4 @@
+// src/Componentes/PersistentDrawerLeft.jsx
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -18,9 +19,9 @@ import logo from '../img/logo.jpeg';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SchoolIcon from '@mui/icons-material/School';
 import { Link } from 'react-router-dom';
-import {useState} from 'react';
-
+import { useState } from 'react';
 
 const drawerWidth = 240;
 
@@ -74,15 +75,13 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
   justifyContent: 'flex-end',
 }));
 
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  
+  const [open, setOpen] = useState(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -92,44 +91,39 @@ export default function PersistentDrawerLeft() {
     setOpen(false);
   };
 
-  const[selectedButton, setSelectedButton]= useState(null);
-  const handleButtonClick = (buttonName)=>{
+  const [selectedButton, setSelectedButton] = useState(null);
+  const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
   };
 
-
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
       <AppBar position="fixed" open={open}>
-        <Toolbar 
+        <Toolbar
           sx={{
-            backgroundColor: '#FFFFFF', // Cambia el fondo al color deseado
-            color: 'black', // Cambia el color del texto a blanco para mejor contraste
+            backgroundColor: '#FFFFFF',
+            color: 'black',
           }}
         >
           <IconButton
             color="inherit"
             aria-label="toggle drawer"
-            onClick={() => setOpen(!open)} // Cambia el estado de open con cada clic
+            onClick={() => setOpen(!open)}
             edge="start"
-            sx={[
-              {
-                mr: 2,
-              },
-              // Puedes eliminar la condición open && { display: 'none' } para que el botón siempre esté visible
-            ]}
+            sx={{
+              mr: 2,
+            }}
           >
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
-            <FaUserCircle size={30} className="me-2" /> {/* Ícono de usuario */}
-            <span className="m-0">Nombre de Usuario</span> {/* Nombre del usuario */}
-            <ExpandMoreIcon/>
+            <FaUserCircle size={30} className="me-2" />
+            <span className="m-0">Nombre de Usuario</span>
+            <ExpandMoreIcon />
           </div>
-          
-
         </Toolbar>
       </AppBar>
       <Drawer
@@ -139,37 +133,38 @@ export default function PersistentDrawerLeft() {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            backgroundColor: '#2D5981', // Cambia el fondo al color deseado
+            backgroundColor: '#2D5981',
             color: 'white',
-            paddingTop:'30px'
+            paddingTop: '30px',
           },
         }}
         variant={isMobile ? 'temporary' : 'persistent'}
         anchor="left"
         open={open}
-        onClose={handleDrawerClose} // Cerrar el drawer en pantallas pequeñ
+        onClose={handleDrawerClose}
       >
-            <div className="d-flex flex-column align-items-center ">
-              <img
-                src={logo}
-                alt="Logo"
-                className="rounded-circle"
-                style={{ width: '100px', height: '100px'}}
-              />
-            </div>
+        <div className="d-flex flex-column align-items-center">
+          <img
+            src={logo}
+            alt="Logo"
+            className="rounded-circle"
+            style={{ width: '100px', height: '100px' }}
+          />
+        </div>
         <Divider />
 
         <List sx={{ mt: 3 }}>
+          {/* Planificación */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
               to="/Planificacion"
-              onClick={()=> handleButtonClick('planificacion')}
+              onClick={() => handleButtonClick('planificacion')}
               sx={{
                 borderRadius: '8px',
-                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent', // Color al estar seleccionado
+                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
                 '&:hover': {
-                  backgroundColor: '#1A3254', // Color de fondo al hacer hover
+                  backgroundColor: '#1A3254',
                 },
               }}
             >
@@ -178,15 +173,32 @@ export default function PersistentDrawerLeft() {
               </ListItemIcon>
               <ListItemText primary="Planificación" sx={{ color: 'white' }} />
             </ListItemButton>
+          </ListItem>
 
-
-            
+          {/* Docentes */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Docentes"
+              onClick={() => handleButtonClick('docentes')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
+            </ListItemButton>
           </ListItem>
         </List>
         <Divider />
       </Drawer>
-      <Main open={open}>
-      </Main>
+      <Main open={open}></Main>
     </Box>
   );
 }
