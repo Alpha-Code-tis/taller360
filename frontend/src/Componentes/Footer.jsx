@@ -1,14 +1,18 @@
 // src/Componentes/Footer.jsx
 import React from 'react';
-import { FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaFacebook } from 'react-icons/fa'; // Cambia FaXing a FaTwitter
+import { FaTwitter, FaInstagram, FaYoutube, FaLinkedin, FaFacebook } from 'react-icons/fa';
 import './Footer.css';
+import logo from '../assets/logoALPHA.png';
 
 const Footer = () => {
   return (
     <div className="footer">
+      <div className="logo-container">
+        <img src={logo} alt="Logo de la Empresa" className="company-logo" />
+      </div>
       <div className="social-icons">
-        <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer"> {/* Enlace corregido */}
-          <FaTwitter className="icon" /> {/* Cambiado a FaTwitter */}
+        <a href="https://www.twitter.com" target="_blank" rel="noopener noreferrer">
+          <FaTwitter className="icon" />
         </a>
         <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer">
           <FaInstagram className="icon" />
