@@ -1,0 +1,44 @@
+  /* Estilos para el header inicialmente */
+.header-navbar {
+   /* Ancho completo de la pantalla */
+    background-color: #4CAF50; /* Color de fondo (puedes cambiar el código hexadecimal) */
+    color: rgb(12, 12, 12); /* Color del texto */
+    align-items: center; /* Centra verticalmente el contenido */
+    justify-content: center; /* Centra horizontalmente el contenido */
+    font-size: 22px; /* Tamaño de la fuente */
+  }
+  
+  .header-navbar.move-right {
+    transform: translateX(0px); /* Se mueve 250px a la derecha cuando se hace clic */
+    transition: transform 0.3s ease; /* Transición suave */
+  }
+  
+  /* Responsividad */
+  @media (max-width: 768px) {
+    .header-navbar h4 {
+      font-size: 16px; /* Ajustar tamaño de texto para pantallas pequeñas */
+    }
+  
+    .header-navbar {
+      padding: 10px; /* Reducir el padding en pantallas pequeñas */
+    }
+  }
+
+  .custom-offcanvas {
+    background-color: #2D5981; /* Color de fondo deseado */
+    color: white; /* Asegúrate de que el texto sea visible */
+  }
+
+  .custom-offcanvas .text-primary {
+    color: #fff; /* Cambia el color del texto en los enlaces, si es necesario */
+}
+
+.header-navbar .ms-auto {
+  color: #0e1013; /* Cambia el color del texto del nombre del usuario */
+  font-size: medium;
+}
+
+.navbar-toggler-icon{
+  font-style: normal;
+}
+

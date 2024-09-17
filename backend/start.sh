@@ -1,6 +1,7 @@
 #!/bin/bash
 
-if [ ! -f /app/vendor/autoload.php ]; then
+if [ ! -f /app/vendor/autoload.php ]; 
+then
   echo "Instalando dependencias de Composer..."
   composer install
 fi
