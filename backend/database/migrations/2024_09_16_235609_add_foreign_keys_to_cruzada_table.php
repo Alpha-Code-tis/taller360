@@ -13,9 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('planificacion', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->integer('id_grupo')->nullable()->index('fk_planificacion_grupo');
+        Schema::table('cruzada', function (Blueprint $table) {
+            $table->foreign(['id_evaluacion'], 'fk_cruzada_es_un2_evaluaci')->references(['id_evaluacion'])->on('evaluacion');
         });
     }
 
@@ -26,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('planificacion');
+        Schema::table('cruzada', function (Blueprint $table) {
+            $table->dropForeign('fk_cruzada_es_un2_evaluaci');
+        });
     }
 };

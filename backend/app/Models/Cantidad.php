@@ -10,34 +10,39 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Planificacion
+ * Class Cantidad
  * 
- * @property int $id_planificacion
+ * @property int $id_cantidad
  * @property int|null $id_empresa
- * @property int|null $cant_sprints
+ * @property int|null $cantidad
+ * @property int|null $cant_min
+ * @property int|null $cant_max
  * 
  * @property Empresa|null $empresa
  * @property Collection|Empresa[] $empresas
- * @property Collection|Sprint[] $sprints
  *
  * @package App\Models
  */
-class Planificacion extends Model
+class Cantidad extends Model
 {
-	protected $table = 'planificacion';
-	protected $primaryKey = 'id_planificacion';
+	protected $table = 'cantidad';
+	protected $primaryKey = 'id_cantidad';
 	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_planificacion' => 'int',
+		'id_cantidad' => 'int',
 		'id_empresa' => 'int',
-		'cant_sprints' => 'int'
+		'cantidad' => 'int',
+		'cant_min' => 'int',
+		'cant_max' => 'int'
 	];
 
 	protected $fillable = [
 		'id_empresa',
-		'cant_sprints'
+		'cantidad',
+		'cant_min',
+		'cant_max'
 	];
 
 	public function empresa()
@@ -47,11 +52,6 @@ class Planificacion extends Model
 
 	public function empresas()
 	{
-		return $this->hasMany(Empresa::class, 'id_planificacion');
-	}
-
-	public function sprints()
-	{
-		return $this->hasMany(Sprint::class, 'id_planificacion');
+		return $this->hasMany(Empresa::class, 'id_cantidad');
 	}
 }

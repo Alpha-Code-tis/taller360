@@ -13,9 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('grupo', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('nombre', 60)->nullable();
+        Schema::create('representate_legal', function (Blueprint $table) {
+            $table->integer('id_representante')->primary();
+            $table->integer('id_empresa')->nullable()->index('inscribe_fk');
+            $table->smallInteger('estado')->nullable();
+
+            $table->unique(['id_representante'], 'representate_legal_pk');
         });
     }
 
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('grupo');
+        Schema::dropIfExists('representate_legal');
     }
 };

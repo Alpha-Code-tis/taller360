@@ -11,9 +11,9 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Tarea
  * 
- * @property int $id
- * @property string|null $nombre
+ * @property int $id_tarea
  * @property int|null $id_alcance
+ * @property string|null $nombre_tarea
  * 
  * @property Alcance|null $alcance
  *
@@ -22,15 +22,18 @@ use Illuminate\Database\Eloquent\Model;
 class Tarea extends Model
 {
 	protected $table = 'tarea';
+	protected $primaryKey = 'id_tarea';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
+		'id_tarea' => 'int',
 		'id_alcance' => 'int'
 	];
 
 	protected $fillable = [
-		'nombre',
-		'id_alcance'
+		'id_alcance',
+		'nombre_tarea'
 	];
 
 	public function alcance()

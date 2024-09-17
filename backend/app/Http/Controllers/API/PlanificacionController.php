@@ -36,17 +36,23 @@ class PlanificacionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id, $n_sprint)
-{
-    $data = Planificacion::with(['sprints' => function($query) use ($n_sprint) {
+    public function showSprint($id, $n_sprint)
+    {
+        $data = Planificacion::with(['sprints' => function ($query) use ($n_sprint) {
             $query->where('n_sprint', $n_sprint)
-                  ->with('alcances.tareas');
+                ->with('alcances.tareas');
         }])
-        ->where('id', $id)
-        ->get();
+            ->where('id', $id)
+            ->get();
 
-    return response()->json($data, Response::HTTP_OK);
-}
+        return response()->json($data, Response::HTTP_OK);
+    }
+
+    public function show($id)
+    {
+        $data = Planificacion::find($id);
+        return response()->json($data, Response::HTTP_OK);
+    }
 
     /**
      * Update the specified resource in storage.

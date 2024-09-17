@@ -10,34 +10,34 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * Class Planificacion
+ * Class RepresentateLegal
  * 
- * @property int $id_planificacion
+ * @property int $id_representante
  * @property int|null $id_empresa
- * @property int|null $cant_sprints
+ * @property int|null $estado
  * 
  * @property Empresa|null $empresa
  * @property Collection|Empresa[] $empresas
- * @property Collection|Sprint[] $sprints
+ * @property Collection|Estudiante[] $estudiantes
  *
  * @package App\Models
  */
-class Planificacion extends Model
+class RepresentateLegal extends Model
 {
-	protected $table = 'planificacion';
-	protected $primaryKey = 'id_planificacion';
+	protected $table = 'representate_legal';
+	protected $primaryKey = 'id_representante';
 	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_planificacion' => 'int',
+		'id_representante' => 'int',
 		'id_empresa' => 'int',
-		'cant_sprints' => 'int'
+		'estado' => 'int'
 	];
 
 	protected $fillable = [
 		'id_empresa',
-		'cant_sprints'
+		'estado'
 	];
 
 	public function empresa()
@@ -47,11 +47,11 @@ class Planificacion extends Model
 
 	public function empresas()
 	{
-		return $this->hasMany(Empresa::class, 'id_planificacion');
+		return $this->hasMany(Empresa::class, 'id_representante');
 	}
 
-	public function sprints()
+	public function estudiantes()
 	{
-		return $this->hasMany(Sprint::class, 'id_planificacion');
+		return $this->hasMany(Estudiante::class, 'id_representante');
 	}
 }

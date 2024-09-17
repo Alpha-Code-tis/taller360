@@ -6,40 +6,66 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Estudiante
  * 
- * @property int $id
- * @property string|null $nombre
- * @property string|null $apellido
- * @property string|null $email
+ * @property int $id_estudiante
+ * @property string|null $id_notificacion
  * @property int|null $id_grupo
+ * @property int|null $id_representante
+ * @property string|null $nombre_estudiante
+ * @property string|null $ap_pat
+ * @property string|null $ap_mat
+ * @property int|null $codigo_sis
+ * @property string|null $correo
+ * @property string|null $contrasenia
  * 
- * @property Collection|RepresentanteLegal[] $representante_legals
+ * @property Notificacion|null $notificacion
+ * @property Grupo|null $grupo
+ * @property RepresentateLegal|null $representate_legal
  *
  * @package App\Models
  */
 class Estudiante extends Model
 {
 	protected $table = 'estudiante';
+	protected $primaryKey = 'id_estudiante';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_grupo' => 'int'
+		'id_estudiante' => 'int',
+		'id_grupo' => 'int',
+		'id_representante' => 'int',
+		'codigo_sis' => 'int'
 	];
 
 	protected $fillable = [
-		'nombre',
-		'apellido',
-		'email',
-		'id_grupo'
+		'id_notificacion',
+		'id_grupo',
+		'id_representante',
+		'nombre_estudiante',
+		'ap_pat',
+		'ap_mat',
+		'codigo_sis',
+		'correo',
+		'contrasenia'
 	];
 
-	public function representante_legals()
+	public function notificacion()
 	{
-		return $this->hasMany(RepresentanteLegal::class, 'id_estudiante');
+		return $this->belongsTo(Notificacion::class, 'id_notificacion');
+	}
+
+	public function grupo()
+	{
+		return $this->belongsTo(Grupo::class, 'id_grupo');
+	}
+
+	public function representate_legal()
+	{
+		return $this->belongsTo(RepresentateLegal::class, 'id_representante');
 	}
 }

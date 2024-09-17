@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tarea', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('nombre', 60)->nullable();
-            $table->integer('id_alcance')->nullable()->index('id_alcance');
+        Schema::table('pares', function (Blueprint $table) {
+            $table->foreign(['id_evaluacion'], 'fk_pares_es2_evaluaci')->references(['id_evaluacion'])->on('evaluacion');
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tarea');
+        Schema::table('pares', function (Blueprint $table) {
+            $table->dropForeign('fk_pares_es2_evaluaci');
+        });
     }
 };

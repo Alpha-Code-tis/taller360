@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('alcance', function (Blueprint $table) {
-            $table->foreign(['id_sprint'], 'alcance_ibfk_1')->references(['id'])->on('sprint')->onUpdate('NO ACTION')->onDelete('NO ACTION');
+        Schema::create('detalle_reporte', function (Blueprint $table) {
+            $table->integer('id_rep_det')->unique('reporte_detalle_pk');
+            $table->integer('id_cruzada')->nullable()->index('cuenta_con_su_fk');
+            $table->string('descripcion_cruzada', 250)->nullable();
+
+            $table->primary(['id_rep_det']);
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('alcance', function (Blueprint $table) {
-            $table->dropForeign('alcance_ibfk_1');
-        });
+        Schema::dropIfExists('detalle_reporte');
     }
 };

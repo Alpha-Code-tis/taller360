@@ -10,11 +10,11 @@ services:
       - DB_HOST=tis_mariadb
       - DB_PORT=3306
       - DB_USERNAME=root
-      - DB_DATABASE=tis
+      - DB_DATABASE=taller360
       - DB_PASSWORD=tis
     volumes:
       - ./backend:/app
-    entrypoint: ["sh", "/app/init.sh"]
+    entrypoint: ["sh", "/app/start.sh"]
     networks:
       - tis_network
     depends_on:
@@ -27,7 +27,7 @@ services:
       - "3306:3306"
     environment:
       - MARIADB_ROOT_PASSWORD=tis
-      - MARIADB_DATABASE=tis
+      - MARIADB_DATABASE=taller360
     volumes:
       - tis_mariadb_data:/var/lib/mysql
     networks:
@@ -44,7 +44,7 @@ services:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./frontend:/app
-    entrypoint: ["sh", "/app/init.sh"]
+    entrypoint: ["sh", "/app/start.sh"]
     networks:
       - tis_network
 

@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('sprint', function (Blueprint $table) {
-            $table->foreign(['id_planificacion'], 'sprint_ibfk_1')->references(['id'])->on('planificacion')->onUpdate('NO ACTION')->onDelete('NO ACTION');
+        Schema::create('administrador', function (Blueprint $table) {
+            $table->integer('id_admi')->unique('administrador_pk');
+            $table->string('nombre', 35)->nullable();
+            $table->string('contrasenia', 64)->nullable();
+
+            $table->primary(['id_admi']);
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('sprint', function (Blueprint $table) {
-            $table->dropForeign('sprint_ibfk_1');
-        });
+        Schema::dropIfExists('administrador');
     }
 };

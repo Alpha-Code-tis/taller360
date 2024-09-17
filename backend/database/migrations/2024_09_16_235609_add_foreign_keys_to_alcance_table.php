@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('comentario', function (Blueprint $table) {
-            $table->foreign(['id_alcance'], 'comentario_ibfk_1')->references(['id'])->on('alcance')->onUpdate('NO ACTION')->onDelete('CASCADE');
+        Schema::table('alcance', function (Blueprint $table) {
+            $table->foreign(['id_sprint'], 'fk_alcance_tiene_sus_sprint')->references(['id_sprint'])->on('sprint');
         });
     }
 
@@ -25,8 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('comentario', function (Blueprint $table) {
-            $table->dropForeign('comentario_ibfk_1');
+        Schema::table('alcance', function (Blueprint $table) {
+            $table->dropForeign('fk_alcance_tiene_sus_sprint');
         });
     }
 };

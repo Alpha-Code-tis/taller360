@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('alcance', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('nombre', 60)->nullable();
-            $table->integer('id_sprint')->nullable()->index('id_sprint');
+        Schema::table('representate_legal', function (Blueprint $table) {
+            $table->foreign(['id_empresa'], 'fk_represen_inscribe_empresa')->references(['id_empresa'])->on('empresa');
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('alcance');
+        Schema::table('representate_legal', function (Blueprint $table) {
+            $table->dropForeign('fk_represen_inscribe_empresa');
+        });
     }
 };

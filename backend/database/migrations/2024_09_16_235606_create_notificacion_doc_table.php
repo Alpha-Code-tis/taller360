@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('estudiante', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->string('nombre', 60)->nullable();
-            $table->string('apellido', 60)->nullable();
-            $table->string('email', 100)->nullable()->unique('email');
-            $table->integer('id_grupo')->nullable();
+        Schema::create('notificacion_doc', function (Blueprint $table) {
+            $table->integer('id_noti')->primary();
+            $table->string('descripcion_not', 150)->nullable();
+
+            $table->unique(['id_noti'], 'notificacion_doc_pk');
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('estudiante');
+        Schema::dropIfExists('notificacion_doc');
     }
 };

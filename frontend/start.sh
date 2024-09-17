@@ -6,3 +6,4 @@ if [ ! -f /node_modules ]; then
 fi
 
 exec npm run dev
+

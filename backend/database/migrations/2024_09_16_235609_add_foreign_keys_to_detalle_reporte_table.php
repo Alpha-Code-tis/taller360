@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('comentario', function (Blueprint $table) {
-            $table->integer('id', true);
-            $table->text('comentario');
-            $table->timestamp('fecha_comentario')->useCurrent();
-            $table->integer('id_alcance')->nullable()->index('id_alcance');
+        Schema::table('detalle_reporte', function (Blueprint $table) {
+            $table->foreign(['id_cruzada'], 'fk_detalle__cuenta_co_cruzada')->references(['id_cruzada'])->on('cruzada');
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comentario');
+        Schema::table('detalle_reporte', function (Blueprint $table) {
+            $table->dropForeign('fk_detalle__cuenta_co_cruzada');
+        });
     }
 };

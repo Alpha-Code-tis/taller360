@@ -12,30 +12,45 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Grupo
  * 
- * @property int $id
- * @property string|null $nombre
+ * @property int $id_grupo
+ * @property int|null $id_docente
+ * @property string|null $nro_grupo
  * 
- * @property Collection|Planificacion[] $planificacions
- * @property Collection|RepresentanteLegal[] $representante_legals
+ * @property Docente|null $docente
+ * @property Collection|Docente[] $docentes
+ * @property Collection|Estudiante[] $estudiantes
  *
  * @package App\Models
  */
 class Grupo extends Model
 {
 	protected $table = 'grupo';
+	protected $primaryKey = 'id_grupo';
+	public $incrementing = false;
 	public $timestamps = false;
 
-	protected $fillable = [
-		'nombre'
+	protected $casts = [
+		'id_grupo' => 'int',
+		'id_docente' => 'int'
 	];
 
-	public function planificacions()
+	protected $fillable = [
+		'id_docente',
+		'nro_grupo'
+	];
+
+	public function docente()
 	{
-		return $this->hasMany(Planificacion::class, 'id_grupo');
+		return $this->belongsTo(Docente::class, 'id_docente');
 	}
 
-	public function representante_legals()
+	public function docentes()
 	{
-		return $this->hasMany(RepresentanteLegal::class, 'id_grupo');
+		return $this->hasMany(Docente::class, 'id_grupo');
+	}
+
+	public function estudiantes()
+	{
+		return $this->hasMany(Estudiante::class, 'id_grupo');
 	}
 }

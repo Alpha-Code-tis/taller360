@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('representante_legal', function (Blueprint $table) {
-            $table->integer('id_estudiante');
-            $table->integer('id_grupo')->index('id_grupo');
-
-            $table->primary(['id_estudiante', 'id_grupo']);
+        Schema::table('detalle_auto', function (Blueprint $table) {
+            $table->foreign(['id_autoe'], 'fk_detalle__contiene_autoeval')->references(['id_autoe'])->on('autoevaluacion');
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('representante_legal');
+        Schema::table('detalle_auto', function (Blueprint $table) {
+            $table->dropForeign('fk_detalle__contiene_autoeval');
+        });
     }
 };

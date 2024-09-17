@@ -12,12 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Alcance
  * 
- * @property int $id
- * @property string|null $nombre
+ * @property int $id_alcance
  * @property int|null $id_sprint
+ * @property string|null $descripcion
  * 
  * @property Sprint|null $sprint
- * @property Collection|Comentario[] $comentarios
  * @property Collection|Tarea[] $tareas
  *
  * @package App\Models
@@ -25,25 +24,23 @@ use Illuminate\Database\Eloquent\Model;
 class Alcance extends Model
 {
 	protected $table = 'alcance';
+	protected $primaryKey = 'id_alcance';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
+		'id_alcance' => 'int',
 		'id_sprint' => 'int'
 	];
 
 	protected $fillable = [
-		'nombre',
-		'id_sprint'
+		'id_sprint',
+		'descripcion'
 	];
 
 	public function sprint()
 	{
 		return $this->belongsTo(Sprint::class, 'id_sprint');
-	}
-
-	public function comentarios()
-	{
-		return $this->hasMany(Comentario::class, 'id_alcance');
 	}
 
 	public function tareas()

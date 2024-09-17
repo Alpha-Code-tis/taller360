@@ -13,12 +13,12 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class Sprint
  * 
- * @property int $id
- * @property int|null $n_sprint
+ * @property int $id_sprint
+ * @property int|null $id_planificacion
  * @property Carbon|null $fecha_inicio
  * @property Carbon|null $fecha_fin
  * @property string|null $color
- * @property int|null $id_planificacion
+ * @property int|null $nro_sprint
  * 
  * @property Planificacion|null $planificacion
  * @property Collection|Alcance[] $alcances
@@ -28,21 +28,24 @@ use Illuminate\Database\Eloquent\Model;
 class Sprint extends Model
 {
 	protected $table = 'sprint';
+	protected $primaryKey = 'id_sprint';
+	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'n_sprint' => 'int',
+		'id_sprint' => 'int',
+		'id_planificacion' => 'int',
 		'fecha_inicio' => 'datetime',
 		'fecha_fin' => 'datetime',
-		'id_planificacion' => 'int'
+		'nro_sprint' => 'int'
 	];
 
 	protected $fillable = [
-		'n_sprint',
+		'id_planificacion',
 		'fecha_inicio',
 		'fecha_fin',
 		'color',
-		'id_planificacion'
+		'nro_sprint'
 	];
 
 	public function planificacion()
