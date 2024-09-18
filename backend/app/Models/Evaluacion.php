@@ -35,11 +35,9 @@ class Evaluacion extends Model
 {
 	protected $table = 'evaluacion';
 	protected $primaryKey = 'id_evaluacion';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_evaluacion' => 'int',
 		'id_pares' => 'int',
 		'id_cruzada' => 'int',
 		'id_empresa' => 'int',

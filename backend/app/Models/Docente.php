@@ -33,11 +33,9 @@ class Docente extends Model
 {
 	protected $table = 'docente';
 	protected $primaryKey = 'id_docente';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_docente' => 'int',
 		'id_noti' => 'int',
 		'id_admi' => 'int',
 		'id_grupo' => 'int'

@@ -32,11 +32,9 @@ class Estudiante extends Model
 {
 	protected $table = 'estudiante';
 	protected $primaryKey = 'id_estudiante';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_estudiante' => 'int',
 		'id_grupo' => 'int',
 		'id_representante' => 'int',
 		'codigo_sis' => 'int'

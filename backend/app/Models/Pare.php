@@ -25,11 +25,9 @@ class Pare extends Model
 {
 	protected $table = 'pares';
 	protected $primaryKey = 'id_pares';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_pares' => 'int',
 		'id_evaluacion' => 'int'
 	];
 

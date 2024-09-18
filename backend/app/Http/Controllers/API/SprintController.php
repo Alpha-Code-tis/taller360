@@ -53,17 +53,6 @@ class SprintController extends Controller
         try {
 
             $validated = $validator->validated();
-            $sprint = new Sprint;
-            $sprint->nro_sprint = $validated['n_sprint'];
-            $sprint->id_planificacion = $validated['id_planificacion'];
-            $sprint->color = $validated['color'];
-            $sprint->fecha_inicio = $validated['fecha_inicio'];
-            $sprint->fecha_fin = $validated['fecha_fin'];
-            $sprint->save();
-            $alcance = new Alcance();
-            $alcance->nombre = $validated['alcance'];
-            $alcance->id_sprint = $sprint->id;
-            $sprint->save();
             
             $id_planificacion = 1;
             $sprint = Sprint::where('nro_sprint', $validated['nro_sprint'])

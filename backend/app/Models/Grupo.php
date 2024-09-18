@@ -26,11 +26,9 @@ class Grupo extends Model
 {
 	protected $table = 'grupo';
 	protected $primaryKey = 'id_grupo';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_grupo' => 'int',
 		'id_docente' => 'int'
 	];
 

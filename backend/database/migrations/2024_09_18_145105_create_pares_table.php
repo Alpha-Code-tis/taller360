@@ -13,11 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('autoevaluacion', function (Blueprint $table) {
-            $table->integer('id_autoe')->unique('autoevaluacion_pk');
-            $table->integer('id_evaluacion')->nullable()->index('es_una2_fk');
+        Schema::create('pares', function (Blueprint $table) {
+            $table->integer('id_pares', true);
+            $table->integer('id_evaluacion')->nullable()->index('es2_fk');
 
-            $table->primary(['id_autoe']);
+            $table->unique(['id_pares'], 'pares_pk');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('autoevaluacion');
+        Schema::dropIfExists('pares');
     }
 };
