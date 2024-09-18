@@ -3,7 +3,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import Header from './Componentes/Header';
 import Footer from './Componentes/Footer';
-import Docentes from './Representante_legal/Docentes';
+import Docentes from './Administrador/Docentes';
 import './App.css';
 
 function App() {
