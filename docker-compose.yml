@@ -14,7 +14,6 @@ services:
       - DB_PASSWORD=tis
     volumes:
       - ./backend:/app
-    entrypoint: ["sh", "/app/init.sh"]
     networks:
       - tis_network
     depends_on:
@@ -44,7 +43,6 @@ services:
       - CHOKIDAR_USEPOLLING=true
     volumes:
       - ./frontend:/app
-    entrypoint: ["sh", "/app/init.sh"]
     networks:
       - tis_network
 
