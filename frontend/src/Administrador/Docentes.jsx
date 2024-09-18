@@ -231,19 +231,23 @@ const Docentes = () => {
               <Col md={6}>
                 <Form.Group controlId="formGrupo">
                   <Form.Label>Grupo</Form.Label>
-                  <Form.Control
-                    type="text"
+                  <Form.Select
                     name="grupo"
                     value={formValues.grupo}
                     onChange={handleInputChange}
-                    placeholder="Grupo"
-                    isInvalid={!!formErrors.grupo}
-                  />
+                    isInvalid={!!formErrors.grupo}>
+                    <option value="">Selecciona un grupo</option>
+                    <option value="1">Grupo 1</option>
+                    <option value="2">Grupo 2</option>
+                    <option value="3">Grupo 3</option>
+                    <option value="4">Grupo 4</option>
+                    <option value="5">Grupo 5</option>
+                  </Form.Select>
                   <Form.Control.Feedback type="invalid">
                     {formErrors.grupo}
                   </Form.Control.Feedback>
                 </Form.Group>
-              </Col>
+              </Col>
             </Row>
           </Form>
         </Modal.Body>
