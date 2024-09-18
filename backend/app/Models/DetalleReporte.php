@@ -23,11 +23,9 @@ class DetalleReporte extends Model
 {
 	protected $table = 'detalle_reporte';
 	protected $primaryKey = 'id_rep_det';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_rep_det' => 'int',
 		'id_cruzada' => 'int'
 	];
 

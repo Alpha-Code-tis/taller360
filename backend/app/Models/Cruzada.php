@@ -25,11 +25,9 @@ class Cruzada extends Model
 {
 	protected $table = 'cruzada';
 	protected $primaryKey = 'id_cruzada';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_cruzada' => 'int',
 		'id_evaluacion' => 'int'
 	];
 

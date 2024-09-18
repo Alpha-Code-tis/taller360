@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('docente', function (Blueprint $table) {
-            $table->integer('id_docente')->unique('docente_pk');
+            $table->integer('id_docente', true);
             $table->integer('id_noti')->nullable()->index('le_llega_fk');
             $table->integer('id_admi')->nullable()->index('registra_a_fk');
             $table->integer('id_grupo')->nullable()->index('tiene_su_fk');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('contrasenia', 64)->nullable();
             $table->string('correo', 50)->nullable();
 
-            $table->primary(['id_docente']);
+            $table->unique(['id_docente'], 'docente_pk');
         });
     }
 

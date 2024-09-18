@@ -14,14 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::create('sprint', function (Blueprint $table) {
-            $table->integer('id_sprint')->unique('sprint_pk');
+            $table->integer('id_sprint', true);
             $table->integer('id_planificacion')->nullable()->index('cuent_fk');
             $table->date('fecha_inicio')->nullable();
             $table->date('fecha_fin')->nullable();
             $table->string('color', 7)->nullable();
             $table->integer('nro_sprint')->nullable();
 
-            $table->primary(['id_sprint']);
+            $table->unique(['id_sprint'], 'sprint_pk');
         });
     }
 

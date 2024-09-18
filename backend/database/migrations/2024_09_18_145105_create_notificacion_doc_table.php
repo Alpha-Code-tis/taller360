@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('administrador', function (Blueprint $table) {
-            $table->integer('id_admi')->unique('administrador_pk');
-            $table->string('nombre', 35)->nullable();
-            $table->string('contrasenia', 64)->nullable();
+        Schema::create('notificacion_doc', function (Blueprint $table) {
+            $table->integer('id_noti', true);
+            $table->string('descripcion_not', 150)->nullable();
 
-            $table->primary(['id_admi']);
+            $table->unique(['id_noti'], 'notificacion_doc_pk');
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('administrador');
+        Schema::dropIfExists('notificacion_doc');
     }
 };

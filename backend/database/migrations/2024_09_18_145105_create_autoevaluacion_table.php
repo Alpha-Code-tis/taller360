@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detalle_reporte', function (Blueprint $table) {
-            $table->integer('id_rep_det')->unique('reporte_detalle_pk');
-            $table->integer('id_cruzada')->nullable()->index('cuenta_con_su_fk');
-            $table->string('descripcion_cruzada', 250)->nullable();
+        Schema::create('autoevaluacion', function (Blueprint $table) {
+            $table->integer('id_autoe', true);
+            $table->integer('id_evaluacion')->nullable()->index('es_una2_fk');
 
-            $table->primary(['id_rep_det']);
+            $table->unique(['id_autoe'], 'autoevaluacion_pk');
         });
     }
 
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detalle_reporte');
+        Schema::dropIfExists('autoevaluacion');
     }
 };

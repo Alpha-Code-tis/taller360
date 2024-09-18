@@ -32,8 +32,7 @@ class SprintController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'n_sprint' => 'required|integer',
-            'id_planificacion' => 'required|integer',
+            'nro_sprint' => 'required|integer',
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
@@ -54,21 +53,40 @@ class SprintController extends Controller
         try {
 
             $validated = $validator->validated();
-            $sprint = new Sprint;
-            $sprint->nro_sprint = $validated['n_sprint'];
-            $sprint->id_planificacion = $validated['id_planificacion'];
-            $sprint->color = $validated['color'];
-            $sprint->fecha_inicio = $validated['fecha_inicio'];
-            $sprint->fecha_fin = $validated['fecha_fin'];
-            $sprint->save();
-            $alcance = new Alcance();
-            $alcance->nombre = $validated['alcance'];
-            $alcance->id_sprint = $sprint->id;
-            $sprint->save();
             
+            $id_planificacion = 1;
+            $sprint = Sprint::where('nro_sprint', $validated['nro_sprint'])
+                ->where('fecha_inicio', $validated['fecha_inicio'])
+                ->where('fecha_fin', $validated['fecha_fin'])
+                ->where('id_planificacion', $id_planificacion)
+                ->first();
+            if (!$sprint) {
+                $sprint = new Sprint;
+                $sprint->nro_sprint = $validated['nro_sprint'];
+                $sprint->id_planificacion = $id_planificacion;
+                $sprint->color = $validated['color'];
+                $sprint->fecha_inicio = $validated['fecha_inicio'];
+                $sprint->fecha_fin = $validated['fecha_fin'];
+                $sprint->save();
+            }
+            $alcance = Alcance::where('descripcion', $validated['alcance'])
+                ->where('id_sprint', $sprint->id)
+                ->first();
+            if (!$alcance) {
+                $alcance = new Alcance();
+                $alcance->descripcion = $validated['alcance'];
+                $alcance->id_sprint = $sprint->id;
+                $sprint->save();
+            } else {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'El alcance ya existe',
+                    'alcance' => $alcance,
+                ], Response::HTTP_CONFLICT);
+            }
             foreach ($validated['tareas'] as $tarea) {
                 $tareaN = new Tarea();
-                $tareaN->nombre = $tarea['nombre'];
+                $tareaN->nombre = $tarea['nombre_tarea'];
                 $tareaN->id_alcance = $alcance->id;
                 $tareaN->save();
             }
@@ -79,7 +97,6 @@ class SprintController extends Controller
                 'alcance' => $alcance,
                 'tareas' => $validated['tareas'],
             ], Response::HTTP_CREATED);
-            
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([

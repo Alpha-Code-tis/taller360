@@ -13,11 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('notificacion_doc', function (Blueprint $table) {
-            $table->integer('id_noti')->primary();
-            $table->string('descripcion_not', 150)->nullable();
+        Schema::create('tarea', function (Blueprint $table) {
+            $table->integer('id_tarea', true);
+            $table->integer('id_alcance')->nullable()->index('tiene_varias_fk');
+            $table->string('nombre_tarea', 35)->nullable();
 
-            $table->unique(['id_noti'], 'notificacion_doc_pk');
+            $table->unique(['id_tarea'], 'tarea_pk');
         });
     }
 
@@ -28,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('notificacion_doc');
+        Schema::dropIfExists('tarea');
     }
 };

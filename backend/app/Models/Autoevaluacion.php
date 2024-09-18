@@ -25,11 +25,9 @@ class Autoevaluacion extends Model
 {
 	protected $table = 'autoevaluacion';
 	protected $primaryKey = 'id_autoe';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_autoe' => 'int',
 		'id_evaluacion' => 'int'
 	];
 

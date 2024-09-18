@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('detalle_par', function (Blueprint $table) {
-            $table->integer('id_det_par')->unique('detalle_rep_par_pk');
-            $table->integer('id_pares')->nullable()->index('cuenta_con_fk');
-            $table->string('descripcion_par', 250)->nullable();
+        Schema::create('detalle_auto', function (Blueprint $table) {
+            $table->integer('id_rep_auto', true);
+            $table->integer('id_autoe')->nullable()->index('contiene_fk');
+            $table->string('descripcion_auto', 250)->nullable();
 
-            $table->primary(['id_det_par']);
+            $table->unique(['id_rep_auto'], 'detalle_rep_auto_pk');
         });
     }
 
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('detalle_par');
+        Schema::dropIfExists('detalle_auto');
     }
 };

@@ -36,11 +36,9 @@ class Empresa extends Model
 {
 	protected $table = 'empresa';
 	protected $primaryKey = 'id_empresa';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_empresa' => 'int',
 		'id_cantidad' => 'int',
 		'id_representante' => 'int',
 		'id_planificacion' => 'int'

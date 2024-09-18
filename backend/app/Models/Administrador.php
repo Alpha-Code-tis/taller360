@@ -24,12 +24,7 @@ class Administrador extends Model
 {
 	protected $table = 'administrador';
 	protected $primaryKey = 'id_admi';
-	public $incrementing = false;
 	public $timestamps = false;
-
-	protected $casts = [
-		'id_admi' => 'int'
-	];
 
 	protected $fillable = [
 		'nombre',
