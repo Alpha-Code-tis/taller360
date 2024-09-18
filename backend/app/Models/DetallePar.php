@@ -23,11 +23,9 @@ class DetallePar extends Model
 {
 	protected $table = 'detalle_par';
 	protected $primaryKey = 'id_det_par';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_det_par' => 'int',
 		'id_pares' => 'int'
 	];
 

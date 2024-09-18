@@ -14,13 +14,13 @@ return new class extends Migration
     public function up()
     {
         Schema::create('cantidad', function (Blueprint $table) {
-            $table->integer('id_cantidad')->unique('cantidad_pk');
+            $table->integer('id_cantidad', true);
             $table->integer('id_empresa')->nullable()->index('relationship_20_fk');
             $table->integer('cantidad')->nullable();
             $table->integer('cant_min')->nullable();
             $table->integer('cant_max')->nullable();
 
-            $table->primary(['id_cantidad']);
+            $table->unique(['id_cantidad'], 'cantidad_pk');
         });
     }
 

@@ -25,11 +25,9 @@ class Alcance extends Model
 {
 	protected $table = 'alcance';
 	protected $primaryKey = 'id_alcance';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_alcance' => 'int',
 		'id_sprint' => 'int'
 	];
 

@@ -27,11 +27,9 @@ class Cantidad extends Model
 {
 	protected $table = 'cantidad';
 	protected $primaryKey = 'id_cantidad';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_cantidad' => 'int',
 		'id_empresa' => 'int',
 		'cantidad' => 'int',
 		'cant_min' => 'int',

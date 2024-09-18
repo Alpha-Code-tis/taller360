@@ -26,11 +26,9 @@ class Planificacion extends Model
 {
 	protected $table = 'planificacion';
 	protected $primaryKey = 'id_planificacion';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_planificacion' => 'int',
 		'id_empresa' => 'int',
 		'cant_sprints' => 'int'
 	];

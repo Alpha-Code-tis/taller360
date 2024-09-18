@@ -29,11 +29,9 @@ class Sprint extends Model
 {
 	protected $table = 'sprint';
 	protected $primaryKey = 'id_sprint';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_sprint' => 'int',
 		'id_planificacion' => 'int',
 		'fecha_inicio' => 'datetime',
 		'fecha_fin' => 'datetime',

@@ -26,11 +26,9 @@ class RepresentateLegal extends Model
 {
 	protected $table = 'representate_legal';
 	protected $primaryKey = 'id_representante';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_representante' => 'int',
 		'id_empresa' => 'int',
 		'estado' => 'int'
 	];

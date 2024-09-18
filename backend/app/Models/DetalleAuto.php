@@ -23,11 +23,9 @@ class DetalleAuto extends Model
 {
 	protected $table = 'detalle_auto';
 	protected $primaryKey = 'id_rep_auto';
-	public $incrementing = false;
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_rep_auto' => 'int',
 		'id_autoe' => 'int'
 	];
 

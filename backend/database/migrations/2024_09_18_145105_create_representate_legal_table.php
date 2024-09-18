@@ -13,12 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tarea', function (Blueprint $table) {
-            $table->integer('id_tarea')->unique('tarea_pk');
-            $table->integer('id_alcance')->nullable()->index('tiene_varias_fk');
-            $table->string('nombre_tarea', 35)->nullable();
+        Schema::create('representate_legal', function (Blueprint $table) {
+            $table->integer('id_representante', true);
+            $table->integer('id_empresa')->nullable()->index('inscribe_fk');
+            $table->smallInteger('estado')->nullable();
 
-            $table->primary(['id_tarea']);
+            $table->unique(['id_representante'], 'representate_legal_pk');
         });
     }
 
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tarea');
+        Schema::dropIfExists('representate_legal');
     }
 };

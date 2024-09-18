@@ -23,12 +23,7 @@ class NotificacionDoc extends Model
 {
 	protected $table = 'notificacion_doc';
 	protected $primaryKey = 'id_noti';
-	public $incrementing = false;
 	public $timestamps = false;
-
-	protected $casts = [
-		'id_noti' => 'int'
-	];
 
 	protected $fillable = [
 		'descripcion_not'
