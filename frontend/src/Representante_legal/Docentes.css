@@ -1,0 +1,65 @@
+/* src/Representante_legal/Docentes.css */
+.table-container {
+    max-width: 100%;
+  }
+  
+  .docentes-table {
+    width: 100%;
+    min-width: 60vw;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  
+  .docentes-table th,
+  .docentes-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+  }
+  
+  .docentes-table th {
+    background-color: #f4f4f4;
+    font-weight: bold;
+  }
+  
+  .docentes-table th:last-child,
+  .docentes-table td:last-child {
+    width: 120px;
+    text-align: center;
+  }
+  
+  .btn-add-docente {
+    background-color: #3f72af;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 10px;
+  }
+  
+  .btn-add-docente:hover {
+    background-color: #2c5f8a;
+  }
+  
+  .icon-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    margin: 0 2px;
+    color: #6c757d;
+    transition: background-color 0.3s, color 0.3s;
+  }
+  
+  .icon-button:hover {
+    color: #495057;
+    background-color: rgba(0, 0, 0, 0.05);
+    border-radius: 4px; 
+  }
+  
+  .error {
+    color: red;
+    margin-top: 10px;
+  }
+  
