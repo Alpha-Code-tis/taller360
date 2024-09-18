@@ -55,7 +55,7 @@ class SprintController extends Controller
 
             $validated = $validator->validated();
             $sprint = new Sprint;
-            $sprint->n_sprint = $validated['n_sprint'];
+            $sprint->nro_sprint = $validated['n_sprint'];
             $sprint->id_planificacion = $validated['id_planificacion'];
             $sprint->color = $validated['color'];
             $sprint->fecha_inicio = $validated['fecha_inicio'];
