@@ -46,9 +46,12 @@ class DocenteController extends Controller
                 'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
         DB::beginTransaction();
+
         try{
             $validated = $validator->validated();
+
             $Docente = new Docente;
             $Docente->nombre_docente = $validated['nombre_docente'];
             $Docente->ap_pat = $validated['ap_pat'];
@@ -61,6 +64,12 @@ class DocenteController extends Controller
             $Grupo->save();
             $Docente->id_grupo = $Grupo->id_grupo;
             $Docente->save();
+
+            $id_docente = 1;
+            $Docente = Docente::where('correo', $validated['correo'])
+           
+
+            ->first();
 
         }catch (\Exception $e) {
             DB::rollBack();
