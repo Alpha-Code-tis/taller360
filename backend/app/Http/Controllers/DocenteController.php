@@ -23,10 +23,9 @@ class DocenteController extends Controller
     public function index()
     {
         try {
-            // Obtener todos los docentes con sus grupos asociados
-            $docentes = Docente::with('grupo')->get();
 
-            // Obtener la lista de grupos disponibles para el desplegable
+            $docentes = Docente::with('grupo')->get();
+            
             $grupos = Grupo::all();
 
             return response()->json([
@@ -103,7 +102,6 @@ class DocenteController extends Controller
     public function show($id)
     {
         try {
-            // Buscar el docente por su ID
             $Docente = Docente::with('grupo')->findOrFail($id);
 
             return response()->json([
