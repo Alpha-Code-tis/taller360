@@ -165,7 +165,7 @@ const Docentes = () => {
           <Form>
             <Row>
               <Col md={12}>
-                <Form.Group controlId="formNombre">
+                <Form.Group controlId="formNombre"className="mb-3"> 
                   <Form.Label>Nombres</Form.Label>
                   <Form.Control
                     type="text"
@@ -184,7 +184,7 @@ const Docentes = () => {
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formApellidoPaterno">
+                <Form.Group controlId="formApellidoPaterno"className="mb-3">
                   <Form.Label>Apellido Paterno</Form.Label>
                   <Form.Control
                     type="text"
@@ -197,7 +197,7 @@ const Docentes = () => {
               </Col>
 
               <Col md={6}>
-                <Form.Group controlId="formApellidoMaterno">
+                <Form.Group controlId="formApellidoMaterno"className="mb-3">
                   <Form.Label>Apellido Materno</Form.Label>
                   <Form.Control
                     type="text"
@@ -212,7 +212,7 @@ const Docentes = () => {
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formCorreo">
+                <Form.Group controlId="formCorreo"className="mb-3">
                   <Form.Label>Correo Electrónico</Form.Label>
                   <Form.Control
                     type="email"
@@ -231,19 +231,23 @@ const Docentes = () => {
               <Col md={6}>
                 <Form.Group controlId="formGrupo">
                   <Form.Label>Grupo</Form.Label>
-                  <Form.Control
-                    type="text"
+                  <Form.Select
                     name="grupo"
                     value={formValues.grupo}
                     onChange={handleInputChange}
-                    placeholder="Grupo"
-                    isInvalid={!!formErrors.grupo}
-                  />
+                    isInvalid={!!formErrors.grupo}>
+                    <option value="">Selecciona un grupo</option>
+                    <option value="1">Grupo 1</option>
+                    <option value="2">Grupo 2</option>
+                    <option value="3">Grupo 3</option>
+                    <option value="4">Grupo 4</option>
+                    <option value="5">Grupo 5</option>
+                  </Form.Select>
                   <Form.Control.Feedback type="invalid">
                     {formErrors.grupo}
                   </Form.Control.Feedback>
                 </Form.Group>
-              </Col>
+              </Col>
             </Row>
           </Form>
         </Modal.Body>
