@@ -44,7 +44,7 @@ class Grupo extends Model
 
 	public function docentes()
 	{
-		return $this->hasMany(Docente::class, 'id_grupo');
+		return $this->hasOne(Docente::class, 'id_grupo'); 
 	}
 
 	public function estudiantes()

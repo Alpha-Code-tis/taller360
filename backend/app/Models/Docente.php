@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * Class Docente
@@ -66,6 +67,16 @@ class Docente extends Model
 	{
 		return $this->belongsTo(Grupo::class, 'id_grupo');
 	}
+
+	public function setCorreoAttribute($value)
+    {
+        $this->attributes['correo'] = strtolower($value);
+    }
+
+	public function setContraseniaAttribute($value)
+    {
+        $this->attributes['contrasenia'] = Hash::make($value);
+    }
 
 	public function grupos()
 	{

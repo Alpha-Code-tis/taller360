@@ -17,7 +17,7 @@ class DocenteController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function index()
@@ -53,7 +53,7 @@ class DocenteController extends Controller
             'nombre_docente'=> 'required|String',   
             'ap_pat'=> 'required|String', 
             'ap_mat'=> 'required|String',  
-            'correo'=> 'required|String', 
+            'correo'=> 'required|string|email|max:255|unique:docente,correo', 
             'nro_grupo'=> 'required|exists:grupo,nro_grupo', 
         ]);
         if ($validator->fails()) {
@@ -68,12 +68,14 @@ class DocenteController extends Controller
         try{
             $validated = $validator->validated();
 
+            $grupo = Grupo::where('nro_grupo', $validated['nro_grupo'])->firstOrFail();
+
             $Docente = new Docente;
             $Docente->nombre_docente = $validated['nombre_docente'];
             $Docente->ap_pat = $validated['ap_pat'];
             $Docente->ap_mat = $validated['ap_mat'];
             $Docente->correo = $validated['correo'];
-            $Docente->nro_grupo = $validated['nro_grupo']; 
+            $Docente->id_grupo = $grupo->id_grupo;
             $Docente->save();
 
             DB::commit();
@@ -129,7 +131,7 @@ class DocenteController extends Controller
             'ap_pat' => 'sometimes|required|string',
             'ap_mat' => 'sometimes|required|string',
             'correo' => 'sometimes|required|email|unique:docente,correo,' . $id,
-            'id_grupo' => 'sometimes|required|exists:grupo,id_grupo',
+            'nro_grupo' => 'sometimes|required|exists:grupo,nro_grupo',
         ]);
 
         if ($validator->fails()) {
@@ -141,7 +143,12 @@ class DocenteController extends Controller
 
         try {
             $docente = Docente::findOrFail($id);
+            $validated = $validator->validated();
 
+            if (isset($validated['nro_grupo'])) {
+                $grupo = Grupo::where('nro_grupo', $validated['nro_grupo'])->firstOrFail();
+                $validated['id_grupo'] = $grupo->id_grupo;
+            }
             // Actualizar los datos del docente si están presentes en la solicitud
             $docente->update($validator->validated());
 
