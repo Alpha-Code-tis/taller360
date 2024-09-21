@@ -7,6 +7,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
+import PersonIcon from '@mui/icons-material/Person';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -195,6 +196,28 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Docentes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
+          {/* Estudiantes */}
+          <ListItem disablePadding>
+  <ListItemButton
+    component={Link}
+    to="/Estudiantes"
+    onClick={() => handleButtonClick('estudiantes')}
+    sx={{
+      borderRadius: '8px',
+      backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
+      '&:hover': {
+        backgroundColor: '#1A3254',
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: 'white' }}>
+      <PersonIcon /> {/* Aquí cambiamos el icono a una persona */}
+    </ListItemIcon>
+    <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+  </ListItemButton>
+</ListItem>
+
         </List>
         <Divider />
       </Drawer>
