@@ -6,6 +6,7 @@ import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Componentes/Header';
 import Footer from './Componentes/Footer';
+import { Toaster } from 'react-hot-toast';
 import Planificacion from './Representante_legal/Planificacion';
 
 import Docentes from './Administrador/Docentes';
@@ -18,6 +19,7 @@ function App() {
   return (
     <div>
       <Header />
+      <Toaster position="bottom-center" />
       <Routes>
         <Route path="/Planificacion" element={<Planificacion/>}/>
         <Route path="/Docentes" element={<Docentes />} />
