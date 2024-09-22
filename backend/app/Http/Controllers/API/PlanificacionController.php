@@ -39,10 +39,10 @@ class PlanificacionController extends Controller
     public function showSprint($id, $n_sprint)
     {
         $data = Planificacion::with(['sprints' => function ($query) use ($n_sprint) {
-            $query->where('n_sprint', $n_sprint)
+            $query->where('nro_sprint', $n_sprint)
                 ->with('alcances.tareas');
         }])
-            ->where('id', $id)
+            ->where('id_planificacion', $id)
             ->get();
 
         return response()->json($data, Response::HTTP_OK);
