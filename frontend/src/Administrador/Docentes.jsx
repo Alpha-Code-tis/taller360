@@ -1,7 +1,7 @@
-// src/Representante_legal/Docentes.jsx
 import React, { useEffect, useState } from 'react';
 import { FaEye, FaTrash, FaEdit } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import toast from 'react-hot-toast';
 import './Docentes.css';
 
 const Docentes = () => {
@@ -31,6 +31,7 @@ const Docentes = () => {
         setDocentes(initialDocentes);
       } catch (err) {
         setError('Error al cargar los docentes');
+        toast.error('Error al cargar los docentes');
       }
     };
 
@@ -38,17 +39,34 @@ const Docentes = () => {
   }, []);
 
   const handleDelete = (id) => {
-    try {
-      const updatedDocentes = docentes.filter((docente) => docente.id !== id);
-      setDocentes(updatedDocentes);
-    } catch (err) {
-      setError('Error al eliminar el docente');
-    }
+    toast((t) => (
+      <div>
+        <span>¿Estás seguro de que deseas eliminar este docente?</span>
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={() => {
+              const updatedDocentes = docentes.filter((docente) => docente.id !== id);
+              setDocentes(updatedDocentes);
+              toast.dismiss(t.id); // Cerrar el toast
+              toast.success('Docente eliminado exitosamente');
+            }}
+className="btn btn-danger me-2"
+          >
+            Sí, eliminar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)} // Cancelar la eliminación
+            className="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ));
   };
 
   const handleShowModal = (docente = null) => {
     if (docente) {
-      // Si se edita, se cargan los valores del docente seleccionado
       setFormValues({
         nombre: docente.nombre.split(' ')[2] || '',
         apellidoPaterno: docente.nombre.split(' ')[0],
@@ -58,7 +76,6 @@ const Docentes = () => {
       });
       setCurrentDocente(docente);
     } else {
-      // Si es nuevo, los campos están vacíos
       setFormValues({
         nombre: '',
         apellidoPaterno: '',
@@ -97,17 +114,19 @@ const Docentes = () => {
   };
 
   const handleSave = () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error('Por favor, revisa los errores en el formulario.');
+      return;
+    }
 
     if (currentDocente) {
-      // Editar docente existente
       setDocentes((prevDocentes) =>
         prevDocentes.map((docente) =>
           docente.id === currentDocente.id ? { ...docente, ...formValues } : docente
         )
       );
+      toast.success('Docente editado exitosamente');
     } else {
-      // Añadir nuevo docente
       const newDocente = {
         id: docentes.length + 1,
         nombre: `${formValues.apellidoPaterno} ${formValues.apellidoMaterno} ${formValues.nombre}`,
@@ -115,6 +134,7 @@ const Docentes = () => {
         grupo: parseInt(formValues.grupo),
       };
       setDocentes([...docentes, newDocente]);
+      toast.success('Docente agregado exitosamente');
     }
     handleCloseModal();
   };
@@ -123,7 +143,9 @@ const Docentes = () => {
     <div className="container mt-2 pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="m-0">Docentes</h1>
-        <button className="btn btn-primary" onClick={() => handleShowModal()}>+ Agregar Docente</button>
+        <button className="btn btn-primary" onClick={() => handleShowModal()}>
+          + Agregar Docente
+        </button>
       </div>
       {error && <p className="text-danger">{error}</p>}
       <div className="table-container">
@@ -143,10 +165,18 @@ const Docentes = () => {
                 <td>{docente.correo}</td>
                 <td>{docente.grupo}</td>
                 <td>
-                  <button className="icon-button" title="Editar" onClick={() => handleShowModal(docente)}>
+                  <button
+                    className="icon-button"
+                    title="Editar"
+                    onClick={() => handleShowModal(docente)}
+                  >
                     <FaEdit />
                   </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(docente.id)}>
+                  <button
+                    className="icon-button"
+                    title="Eliminar"
+                    onClick={() => handleDelete(docente.id)}
+                  >
                     <FaTrash />
                   </button>
                 </td>
@@ -165,7 +195,7 @@ const Docentes = () => {
           <Form>
             <Row>
               <Col md={12}>
-                <Form.Group controlId="formNombre"className="mb-3"> 
+                <Form.Group controlId="formNombre" className="mb-3">
                   <Form.Label>Nombres</Form.Label>
                   <Form.Control
                     type="text"
@@ -184,7 +214,7 @@ const Docentes = () => {
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formApellidoPaterno"className="mb-3">
+                <Form.Group controlId="formApellidoPaterno" className="mb-3">
                   <Form.Label>Apellido Paterno</Form.Label>
                   <Form.Control
                     type="text"
@@ -197,7 +227,7 @@ const Docentes = () => {
               </Col>
 
               <Col md={6}>
-                <Form.Group controlId="formApellidoMaterno"className="mb-3">
+                <Form.Group controlId="formApellidoMaterno" className="mb-3">
                   <Form.Label>Apellido Materno</Form.Label>
                   <Form.Control
                     type="text"
@@ -212,7 +242,7 @@ const Docentes = () => {
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formCorreo"className="mb-3">
+                <Form.Group controlId="formCorreo" className="mb-3">
                   <Form.Label>Correo Electrónico</Form.Label>
                   <Form.Control
                     type="email"
@@ -229,13 +259,14 @@ const Docentes = () => {
               </Col>
 
               <Col md={6}>
-                <Form.Group controlId="formGrupo">
+                <Form.Group controlId="formGrupo" className="mb-3">
                   <Form.Label>Grupo</Form.Label>
                   <Form.Select
                     name="grupo"
                     value={formValues.grupo}
                     onChange={handleInputChange}
-                    isInvalid={!!formErrors.grupo}>
+                    isInvalid={!!formErrors.grupo}
+                  >
                     <option value="">Selecciona un grupo</option>
                     <option value="1">Grupo 1</option>
                     <option value="2">Grupo 2</option>
@@ -247,7 +278,7 @@ const Docentes = () => {
                     {formErrors.grupo}
                   </Form.Control.Feedback>
                 </Form.Group>
-              </Col>
+              </Col>
             </Row>
           </Form>
         </Modal.Body>
@@ -265,3 +296,4 @@ const Docentes = () => {
 };
 
 export default Docentes;
+  
