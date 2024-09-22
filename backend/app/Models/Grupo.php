@@ -17,7 +17,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $nro_grupo
  * 
  * @property Docente|null $docente
- * @property Collection|Docente[] $docentes
  * @property Collection|Estudiante[] $estudiantes
  *
  * @package App\Models
@@ -40,11 +39,6 @@ class Grupo extends Model
 	public function docente()
 	{
 		return $this->belongsTo(Docente::class, 'id_docente');
-	}
-
-	public function docentes()
-	{
-		return $this->hasOne(Docente::class, 'id_grupo'); 
 	}
 
 	public function estudiantes()
