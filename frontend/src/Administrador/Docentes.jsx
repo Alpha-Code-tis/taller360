@@ -1,18 +1,13 @@
-// src/Representante_legal/Docentes.jsx
 import React, { useEffect, useState } from 'react';
-import { FaEye, FaTrash, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import toast from 'react-hot-toast';
+import axios from 'axios'; // Importamos axios
 import './Docentes.css';
 
 const Docentes = () => {
-  const initialDocentes = [
-    { id: 1, nombre: 'Flores Villarroel Corina', correo: 'florescorina@gmail.com', grupo: 1 },
-    { id: 2, nombre: 'Blanco Coca Leticia', correo: 'blancoleticia23@gmail.com', grupo: 2 },
-    { id: 3, nombre: 'Escalera Fernandez David', correo: 'escaleradavid@gmail.com', grupo: 3 },
-    { id: 4, nombre: 'Rodriguez Bilbao Erika Patricia', correo: 'rodriguezpatricia@gmail.com', grupo: 4 },
-  ];
-
   const [docentes, setDocentes] = useState([]);
+  const [grupos, setGrupos] = useState([]); // Nuevo estado para almacenar los grupos
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [currentDocente, setCurrentDocente] = useState(null);
@@ -25,40 +20,76 @@ const Docentes = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  // Fetching docentes and grupos from the backend
   useEffect(() => {
-    const fetchDocentes = () => {
+    const fetchDocentes = async () => {
       try {
-        setDocentes(initialDocentes);
+        const response = await axios.get('http://localhost:8000/api/docentes'); // GET request to fetch docentes
+        setDocentes(response.data);
       } catch (err) {
         setError('Error al cargar los docentes');
+        toast.error('Error al cargar los docentes');
+      }
+    };
+
+    const fetchGrupos = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/grupos'); // GET request to fetch grupos
+        setGrupos(response.data); // Guardamos los grupos en el estado
+      } catch (err) {
+        toast.error('Error al cargar los grupos');
       }
     };
 
     fetchDocentes();
+    fetchGrupos(); // Llamamos para obtener los grupos al cargar el componente
   }, []);
 
-  const handleDelete = (id) => {
-    try {
-      const updatedDocentes = docentes.filter((docente) => docente.id !== id);
-      setDocentes(updatedDocentes);
-    } catch (err) {
-      setError('Error al eliminar el docente');
-    }
+  // Handle Delete Docente
+  const handleDelete = async (id) => {
+    toast((t) => (
+      <div>
+        <span>¿Estás seguro de que deseas eliminar este docente?</span>
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={async () => {
+              try {
+                await axios.delete(`http://localhost:8000/api/docentes/${id}`); // DELETE request
+                const updatedDocentes = docentes.filter((docente) => docente.id_docente !== id);
+                setDocentes(updatedDocentes);
+                toast.dismiss(t.id); // Cerrar el toast
+                toast.success('Docente eliminado exitosamente');
+              } catch (err) {
+                toast.error('Error al eliminar el docente');
+              }
+            }}
+            className="btn btn-danger me-2"
+          >
+            Sí, eliminar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)} // Cancelar la eliminación
+            className="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ));
   };
 
+  // Show Modal for adding or editing docentes
   const handleShowModal = (docente = null) => {
     if (docente) {
-      // Si se edita, se cargan los valores del docente seleccionado
       setFormValues({
-        nombre: docente.nombre.split(' ')[2] || '',
-        apellidoPaterno: docente.nombre.split(' ')[0],
-        apellidoMaterno: docente.nombre.split(' ')[1] || '',
+        nombre: docente.nombre_docente || '',
+        apellidoPaterno: docente.ap_pat || '',
+        apellidoMaterno: docente.ap_mat || '',
         correo: docente.correo,
-        grupo: docente.grupo.toString(),
+        grupo: docente.id_grupo.toString(),
       });
       setCurrentDocente(docente);
     } else {
-      // Si es nuevo, los campos están vacíos
       setFormValues({
         nombre: '',
         apellidoPaterno: '',
@@ -96,34 +127,51 @@ const Docentes = () => {
     return Object.keys(errors).length === 0;
   };
 
-  const handleSave = () => {
-    if (!validateForm()) return;
-
-    if (currentDocente) {
-      // Editar docente existente
-      setDocentes((prevDocentes) =>
-        prevDocentes.map((docente) =>
-          docente.id === currentDocente.id ? { ...docente, ...formValues } : docente
-        )
-      );
-    } else {
-      // Añadir nuevo docente
-      const newDocente = {
-        id: docentes.length + 1,
-        nombre: `${formValues.apellidoPaterno} ${formValues.apellidoMaterno} ${formValues.nombre}`,
-        correo: formValues.correo,
-        grupo: parseInt(formValues.grupo),
-      };
-      setDocentes([...docentes, newDocente]);
+  // Handle Save (Create or Update Docente)
+  const handleSave = async () => {
+    if (!validateForm()) {
+      toast.error('Por favor, revisa los errores en el formulario.');
+      return;
     }
-    handleCloseModal();
+
+    const docenteData = {
+      id_grupo: parseInt(formValues.grupo),
+      nombre_docente: formValues.nombre,
+      ap_pat: formValues.apellidoPaterno,
+      ap_mat: formValues.apellidoMaterno,
+      correo: formValues.correo,
+      contrasenia: 'default_password', // Puedes actualizar esto según la lógica del sistema
+    };
+
+    try {
+      if (currentDocente) {
+        // PUT request to update the docente
+        await axios.put(`http://localhost:8000/api/docentes/${currentDocente.id_docente}`, docenteData);
+        setDocentes((prevDocentes) =>
+          prevDocentes.map((docente) =>
+            docente.id_docente === currentDocente.id_docente ? { ...docente, ...docenteData } : docente
+          )
+        );
+        toast.success('Docente editado exitosamente');
+      } else {
+        // POST request to create a new docente
+        const response = await axios.post('http://localhost:8000/api/docentes', docenteData);
+        setDocentes([...docentes, response.data]);
+        toast.success('Docente agregado exitosamente');
+      }
+      handleCloseModal();
+    } catch (err) {
+      toast.error('Error al guardar el docente');
+    }
   };
 
   return (
     <div className="container mt-2 pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="m-0">Docentes</h1>
-        <button className="btn btn-primary" onClick={() => handleShowModal()}>+ Agregar Docente</button>
+        <button className="btn btn-primary" onClick={() => handleShowModal()}>
+          + Agregar Docente
+        </button>
       </div>
       {error && <p className="text-danger">{error}</p>}
       <div className="table-container">
@@ -138,15 +186,23 @@ const Docentes = () => {
           </thead>
           <tbody>
             {docentes.map((docente) => (
-              <tr key={docente.id}>
-                <td>{docente.nombre}</td>
+              <tr key={docente.id_docente}>
+                <td>{`${docente.ap_pat} ${docente.ap_mat} ${docente.nombre_docente}`}</td>
                 <td>{docente.correo}</td>
-                <td>{docente.grupo}</td>
+                <td>{docente.grupo.nro_grupo}</td>
                 <td>
-                  <button className="icon-button" title="Editar" onClick={() => handleShowModal(docente)}>
+                  <button
+                    className="icon-button"
+                    title="Editar"
+                    onClick={() => handleShowModal(docente)}
+                  >
                     <FaEdit />
                   </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(docente.id)}>
+                  <button
+                    className="icon-button"
+                    title="Eliminar"
+                    onClick={() => handleDelete(docente.id_docente)}
+                  >
                     <FaTrash />
                   </button>
                 </td>
@@ -165,7 +221,7 @@ const Docentes = () => {
           <Form>
             <Row>
               <Col md={12}>
-                <Form.Group controlId="formNombre"className="mb-3"> 
+                <Form.Group controlId="formNombre" className="mb-3">
                   <Form.Label>Nombres</Form.Label>
                   <Form.Control
                     type="text"
@@ -184,7 +240,7 @@ const Docentes = () => {
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formApellidoPaterno"className="mb-3">
+                <Form.Group controlId="formApellidoPaterno" className="mb-3">
                   <Form.Label>Apellido Paterno</Form.Label>
                   <Form.Control
                     type="text"
@@ -197,7 +253,7 @@ const Docentes = () => {
               </Col>
 
               <Col md={6}>
-                <Form.Group controlId="formApellidoMaterno"className="mb-3">
+                <Form.Group controlId="formApellidoMaterno" className="mb-3">
                   <Form.Label>Apellido Materno</Form.Label>
                   <Form.Control
                     type="text"
@@ -212,7 +268,7 @@ const Docentes = () => {
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formCorreo"className="mb-3">
+                <Form.Group controlId="formCorreo" className="mb-3">
                   <Form.Label>Correo Electrónico</Form.Label>
                   <Form.Control
                     type="email"
@@ -229,25 +285,27 @@ const Docentes = () => {
               </Col>
 
               <Col md={6}>
-                <Form.Group controlId="formGrupo">
+                <Form.Group controlId="formGrupo" className="mb-3">
                   <Form.Label>Grupo</Form.Label>
                   <Form.Select
                     name="grupo"
                     value={formValues.grupo}
                     onChange={handleInputChange}
-                    isInvalid={!!formErrors.grupo}>
+                    isInvalid={!!formErrors.grupo}
+                  >
                     <option value="">Selecciona un grupo</option>
-                    <option value="1">Grupo 1</option>
-                    <option value="2">Grupo 2</option>
-                    <option value="3">Grupo 3</option>
-                    <option value="4">Grupo 4</option>
-                    <option value="5">Grupo 5</option>
+                    {/* Renderizamos los grupos obtenidos del backend */}
+                    {grupos.map((grupo) => (
+                      <option key={grupo.id_grupo} value={grupo.id_grupo}>
+                        {grupo.nro_grupo}
+                      </option>
+                    ))}
                   </Form.Select>
                   <Form.Control.Feedback type="invalid">
                     {formErrors.grupo}
                   </Form.Control.Feedback>
                 </Form.Group>
-              </Col>
+              </Col>
             </Row>
           </Form>
         </Modal.Body>
