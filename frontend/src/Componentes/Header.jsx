@@ -218,6 +218,27 @@ export default function PersistentDrawerLeft() {
   </ListItemButton>
 </ListItem>
 
+ {/* Equipos */}
+          <ListItem disablePadding>
+  <ListItemButton
+    component={Link}
+    to="/Equipos"
+    onClick={() => handleButtonClick('equipos')}
+    sx={{
+      borderRadius: '8px',
+      backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
+      '&:hover': {
+        backgroundColor: '#1A3254',
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: 'white' }}>
+      <PersonIcon /> {/* Aquí cambiamos el icono a una persona */}
+    </ListItemIcon>
+    <ListItemText primary="Equipos" sx={{ color: 'white' }} />
+  </ListItemButton>
+</ListItem>
+
         </List>
         <Divider />
       </Drawer>

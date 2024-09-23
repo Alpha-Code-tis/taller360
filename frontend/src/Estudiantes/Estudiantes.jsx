@@ -30,7 +30,7 @@ const Estudiantes = () => {
         setEstudiantes(response.data);
         setFilteredEstudiantes(response.data);
       } catch (error) {
-        setError('Error al cargar los estudiantes');
+        setError('Error al cargar los estudiantes'); 
       }
     };
 
