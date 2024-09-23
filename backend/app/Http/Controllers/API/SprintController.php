@@ -36,9 +36,9 @@ class SprintController extends Controller
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'fecha_inicio' => 'required|date',
             'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
-            'alcance' => ['required', 'string', 'regex:/^[\w\s]+$/'],
+            'alcance' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas' => 'required|array',
-            'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\s]+$/'],
+            'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
         ]);
 
         if ($validator->fails()) {
@@ -53,8 +53,29 @@ class SprintController extends Controller
         try {
 
             $validated = $validator->validated();
-            
             $id_planificacion = 1;
+
+            $sprintsExistentes = Sprint::where('id_planificacion', $id_planificacion)
+                ->orderBy('nro_sprint')
+                ->pluck('nro_sprint')
+                ->toArray();
+
+            $solapamiento = Sprint::where('id_planificacion', $id_planificacion)
+                ->where('nro_sprint', '!=', $validated['nro_sprint'])
+                ->where(function ($query) use ($validated) {
+                    $query->where(function ($q) use ($validated) {
+                        $q->where('fecha_inicio', '<=', $validated['fecha_fin'])
+                            ->where('fecha_fin', '>=', $validated['fecha_inicio']);
+                    })
+                        ->orWhere('color', $validated['color']);
+                })
+                ->exists();
+
+            if ($solapamiento) {
+                return response()->json([
+                    'message' => 'Hay solapamientos de fechas o el color ya está en uso.',
+                ], Response::HTTP_CONFLICT);
+            }
             $sprint = Sprint::where('nro_sprint', $validated['nro_sprint'])
                 ->where('fecha_inicio', $validated['fecha_inicio'])
                 ->where('fecha_fin', $validated['fecha_fin'])
@@ -70,13 +91,13 @@ class SprintController extends Controller
                 $sprint->save();
             }
             $alcance = Alcance::where('descripcion', $validated['alcance'])
-                ->where('id_sprint', $sprint->id)
+                ->where('id_sprint', $sprint->id_sprint)
                 ->first();
             if (!$alcance) {
-                $alcance = new Alcance();
+                $alcance = new Alcance;
                 $alcance->descripcion = $validated['alcance'];
-                $alcance->id_sprint = $sprint->id;
-                $sprint->save();
+                $alcance->id_sprint = $sprint->id_sprint;
+                $alcance->save();
             } else {
                 DB::rollBack();
                 return response()->json([
@@ -86,8 +107,8 @@ class SprintController extends Controller
             }
             foreach ($validated['tareas'] as $tarea) {
                 $tareaN = new Tarea();
-                $tareaN->nombre = $tarea['nombre_tarea'];
-                $tareaN->id_alcance = $alcance->id;
+                $tareaN->nombre_tarea = $tarea['nombre'];
+                $tareaN->id_alcance = $alcance->id_alcance;
                 $tareaN->save();
             }
             DB::commit();

@@ -42,9 +42,22 @@ const Planificacion = () => {
   });
 
   const [showModal, setShowModal] = useState(false);
-  const handleSave = () => {
-    // lógica para guardar
-};
+  const handleSave = async () => {
+    try {
+      const response = await axios.post('http://localhost:8000/api/planificacion', {
+        nro_sprint: formValues.nSprint,
+        color: formValues.color,
+        fecha_inicio: formValues.fechaInicio,
+        fecha_fin: formValues.fechaFinal,
+        alcance: formValues.alcance,
+        tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
+      });
+      console.log('Datos guardados exitosamente:', response.data);
+    } catch (error) {
+      console.error('Error al guardar los datos:', error.response ? error.response.data : error.message);
+      setError(error.response ? error.response.data.message : 'Error desconocido');
+    }
+  };  
 
   const handleShowModal = () => {
     setFormValues({
@@ -355,7 +368,7 @@ const Planificacion = () => {
           <Button variant="secondary" onClick={handleCloseModal}>
             Cancelar
           </Button>
-          <Button type="button" className="btn btn-primary">Guardar</Button>
+          <Button type="button" className="btn btn-primary" onClick={handleSave} >Guardar</Button>
         </Modal.Footer>
       </Modal>
 
