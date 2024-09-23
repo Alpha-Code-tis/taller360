@@ -5,6 +5,8 @@ use App\Http\Controllers\API\PlanificacionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstudianteController;
+use App\Http\Controllers\GrupoController;
+use App\Http\Controllers\DocenteController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -28,3 +30,19 @@ Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
 Route::post('/estudiantes', [EstudianteController::class, 'store']);
 Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
 Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
+
+
+
+//grupo
+Route::get('/grupos', [GrupoController::class, 'index']);
+Route::get('/grupos/{id}', [GrupoController::class, 'show']);
+Route::post('/grupos', [GrupoController::class, 'store']);
+Route::put('/grupos/{id}', [GrupoController::class, 'update']);
+Route::delete('/grupos/{id}', [GrupoController::class, 'destroy']);
+
+//docente
+Route::get('/docentes', [DocenteController::class, 'index']);
+Route::get('/docentes/{id}', [DocenteController::class, 'show']);
+Route::post('/docentes', [DocenteController::class, 'store']);
+Route::put('/docentes/{id}', [DocenteController::class, 'update']);
+Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
