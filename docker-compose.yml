@@ -46,6 +46,18 @@ services:
     networks:
       - tis_network
 
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: tis_phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      - PMA_HOST=tis_mariadb
+      - PMA_USER=root
+      - PMA_PASSWORD=tis
+    networks:
+      - tis_network
+
 volumes:
   tis_mariadb_data:
 
