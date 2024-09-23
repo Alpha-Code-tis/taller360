@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Docente;
 use App\Models\Grupo;
 use Illuminate\Http\Request;
 
@@ -10,11 +11,19 @@ class GrupoController extends Controller
     // Mostrar todos los grupos
     public function index()
     {
+        // Obtener todos los grupos
         $grupos = Grupo::all();
-        return response()->json($grupos);
+
+        // Obtener los grupos que ya están asignados a docentes
+        $gruposOcupados = Docente::pluck('id_grupo')->toArray();
+
+        // Filtrar los grupos que no están en uso
+        $gruposDisponibles = $grupos->filter(function($grupo) use ($gruposOcupados) {
+            return !in_array($grupo->id_grupo, $gruposOcupados);
+        });
+        return response()->json($gruposDisponibles->values()->all());
     }
 
-    // Mostrar un grupo en específico
     public function show($id)
     {
         $grupo = Grupo::find($id);
@@ -26,7 +35,6 @@ class GrupoController extends Controller
         }
     }
 
-    // Crear un nuevo grupo
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -37,7 +45,6 @@ class GrupoController extends Controller
         return response()->json($grupo, 201);
     }
 
-    // Actualizar un grupo existente
     public function update(Request $request, $id)
     {
         $grupo = Grupo::find($id);
@@ -54,7 +61,6 @@ class GrupoController extends Controller
         return response()->json($grupo);
     }
 
-    // Eliminar un grupo
     public function destroy($id)
     {
         $grupo = Grupo::find($id);

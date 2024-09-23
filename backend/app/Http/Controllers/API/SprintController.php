@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Alcance;
 use App\Models\Sprint;
 use App\Models\Tarea;
+use Carbon\Carbon;
 use \Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -34,8 +35,8 @@ class SprintController extends Controller
         $validator = Validator::make($request->all(), [
             'nro_sprint' => 'required|integer',
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
-            'fecha_inicio' => 'required|date',
-            'fecha_fin' => 'required|date|after_or_equal:fecha_inicio',
+            'fecha_inicio' => 'required|date_format:d/m/Y',
+            'fecha_fin' => 'required|date_format:d/m/Y|after_or_equal:fecha_inicio',
             'alcance' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas' => 'required|array',
             'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
@@ -59,6 +60,14 @@ class SprintController extends Controller
                 ->orderBy('nro_sprint')
                 ->pluck('nro_sprint')
                 ->toArray();
+
+            $siguienteSprint = count($sprintsExistentes) + 1;
+
+            if ($validated['nro_sprint'] !== $siguienteSprint) {
+                return response()->json([
+                    'message' => "El siguiente sprint debe ser el $siguienteSprint.",
+                ], Response::HTTP_CONFLICT);
+            }
 
             $solapamiento = Sprint::where('id_planificacion', $id_planificacion)
                 ->where('nro_sprint', '!=', $validated['nro_sprint'])
@@ -86,8 +95,8 @@ class SprintController extends Controller
                 $sprint->nro_sprint = $validated['nro_sprint'];
                 $sprint->id_planificacion = $id_planificacion;
                 $sprint->color = $validated['color'];
-                $sprint->fecha_inicio = $validated['fecha_inicio'];
-                $sprint->fecha_fin = $validated['fecha_fin'];
+                $sprint->fecha_inicio = Carbon::createFromFormat('d/m/Y', $validated['fecha_inicio'])->format('Y-m-d');
+                $sprint->fecha_fin = Carbon::createFromFormat('d/m/Y', $validated['fecha_fin'])->format('Y-m-d');
                 $sprint->save();
             }
             $alcance = Alcance::where('descripcion', $validated['alcance'])

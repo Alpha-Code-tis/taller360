@@ -9,12 +9,10 @@ class DocenteController extends Controller
 {
     // Mostrar todos los docentes
     public function index()
-{
-    $docentes = Docente::with('grupo')->get(); // Incluir el grupo relacionado
-    return response()->json($docentes);
-}
-
-    // Mostrar un docente en específico
+    {
+        $docentes = Docente::with('grupo')->get(); // Incluir el grupo relacionado
+        return response()->json($docentes);
+    }
     public function show($id)
     {
         $docente = Docente::find($id);
@@ -26,7 +24,6 @@ class DocenteController extends Controller
         }
     }
 
-    // Crear un nuevo docente
     public function store(Request $request)
     {
         $validatedData = $request->validate([
@@ -39,10 +36,12 @@ class DocenteController extends Controller
         ]);
 
         $docente = Docente::create($validatedData);
-        return response()->json($docente, 201);
+        return response()->json([
+            'message' => 'Docente agregado correctamente',
+            'docente' => $docente
+        ], 201);
     }
 
-    // Actualizar un docente existente
     public function update(Request $request, $id)
     {
         $docente = Docente::find($id);
@@ -64,7 +63,6 @@ class DocenteController extends Controller
         return response()->json($docente);
     }
 
-    // Eliminar un docente
     public function destroy($id)
     {
         $docente = Docente::find($id);
