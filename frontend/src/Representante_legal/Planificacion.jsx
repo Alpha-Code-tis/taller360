@@ -14,6 +14,7 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment'
 import axios from 'axios';
+import toast, { Toaster } from 'react-hot-toast';
 
 // Setup the localizer by providing the moment (or globalize, or Luxon) Object
 // to the correct localizer.
@@ -33,10 +34,11 @@ const Planificacion = () => {
   let formatter = useDateFormatter({ dateStyle: "long" });
   const[currentTareas, setCurrentTareas] = useState(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [value, setValue] = React.useState(dayjs('2022-04-17'));
+  const [value, setValue] = React.useState(dayjs());
   const [myEventsList, setMyEventsList] = useState([]); 
   const [hu, setHu] = useState(initialTareas);
-  const [selectedDate, setSelectedDate] = useState(dayjs()); 
+  const [fechaInicio, setFechaInicio] = useState(dayjs());
+  const [fechaFinal,setFechaFinal] = useState(dayjs());
   const [formValues, setFormValues] = useState({
     tarea: '',
   });
@@ -52,10 +54,20 @@ const Planificacion = () => {
         alcance: formValues.alcance,
         tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
       });
-      console.log('Datos guardados exitosamente:', response.data);
+      toast.success('Datos guardados exitosamente:');
     } catch (error) {
-      console.error('Error al guardar los datos:', error.response ? error.response.data : error.message);
-      setError(error.response ? error.response.data.message : 'Error desconocido');
+      // Verificar si hay una respuesta del servidor y mostrar los errores
+    if (error.response && error.response.data.errors) {
+      const backendErrors = error.response.data.errors;
+      
+      // Recorre cada error y muestra un toast para cada uno
+      Object.values(backendErrors).forEach(errMsg => {
+        toast.error(errMsg); // Muestra cada mensaje de error
+      });
+    } else {
+      toast.error('Ocurrió un error.'); // Muestra un mensaje general en caso de error sin detalles
+    }
+
     }
   };  
 
@@ -112,9 +124,9 @@ const Planificacion = () => {
     }
     
     if (formValues.fechaInicio && formValues.fechaFinal) {
-      const startDate = dayjs(formValues.fechaInicio);
-      const endDate = dayjs(formValues.fechaFinal);
-      if (startDate.isAfter(endDate)) {
+      const startDate = dayjs(formValues.fechaInicio).startOf('day');
+      const endDate = dayjs(formValues.fechaFinal).startOf('day');
+      if (startDate.isSameOrAfter(endDate)) {
         errors.fechaFinal = 'La fecha de fin debe ser posterior a la fecha de inicio.';
       }
     }
@@ -208,8 +220,8 @@ const Planificacion = () => {
                   <Form.Label>Fecha Inicio</Form.Label>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      value={dayjs.isDayjs(formValues.fechaInicio) ? formValues.fechaInicio : dayjs(formValues.fechaInicio)} 
-                      onChange={(newValue) => setFormValues({ ...formValues, fechaInicio: newValue })}         
+                      value={fechaInicio}
+                      onChange={(newValue) => setFechaInicio(dayjs(newValue))}     
                       slotProps={{ textField: { variant: 'outlined',fullWidth: true } }}
                       sx={{
                         width: '100%',
@@ -229,8 +241,8 @@ const Planificacion = () => {
                   <Form.Label>Fecha Final</Form.Label>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      value={dayjs.isDayjs(formValues.fechaInicio) ? formValues.fechaFinal : dayjs(formValues.fechaFinal)}
-                      onChange={(newValue) => setFormValues({ ...formValues, fechaFinal: newValue })}
+                      value={fechaFinal}
+                      onChange={(newValue) => setFechaFinal(dayjs(newValue))}
                       slotProps={{ textField: { variant: 'outlined',fullWidth: true } }}
                       sx={{
                         width: '100%',
