@@ -4,22 +4,27 @@
 }
 
 .custom{
-  height: 200px; /* Cambia este valor a la altura deseada */
-  width: 580px;  /*Ancho de la tabla*/
-  max-height: 600px; /* Altura máxima */
+  width: 587px;  /*Ancho de la tabla*/
   margin-left: 0%;
+  margin-bottom: 0; /* Eliminar margen inferior */
+  padding-bottom: 0; /* Eliminar padding inferior si lo hubiera */
 }
 
 
 table-container {
-    max-width: 50%;
+    max-width: 100%;
+    overflow: visible; 
+    margin-bottom: 0; /* Elimina cualquier margen debajo del contenedor */
+    padding-bottom: 0; /* Asegúrate de que no haya padding inferior */
   }
   
   .hu-table {
-    width: 3%;
-    min-width: 10vw;
+    width: 100%;
+    max-height: none;
     border-collapse: collapse;
-    margin-top: 20px;
+    margin-bottom: 0; /* Elimina cualquier margen debajo del contenedor */
+    padding-bottom: 0; /* Asegúrate de que no haya padding inferior */
+
   }
   
   .hu-table th,
@@ -83,12 +88,13 @@ table-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 4px;
+  transform: translateX(-60px); 
 }
 
 .pagination-button {
-  margin: 0 5px;
-  padding: 10px 15px;
+  margin: 4px;
+  padding: 6px 12px;
   border: none;
   border-radius: 5px;
   background-color: #007bff; /* Color de fondo */

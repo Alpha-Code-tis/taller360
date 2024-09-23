@@ -15,8 +15,6 @@ return new class extends Migration
     {
         Schema::create('docente', function (Blueprint $table) {
             $table->integer('id_docente', true);
-            $table->integer('id_noti')->nullable()->index('le_llega_fk');
-            $table->integer('id_admi')->nullable()->index('registra_a_fk');
             $table->integer('id_grupo')->nullable()->index('tiene_su_fk');
             $table->string('nombre_docente', 35)->nullable();
             $table->string('ap_pat', 35)->nullable();
