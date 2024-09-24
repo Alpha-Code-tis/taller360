@@ -22,9 +22,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('planificacion',[SprintController::class, 'store']);
-Route::get('planificacion/{id}',[PlanificacionController::class, 'show']);
-Route::get('planificacion/{id}/sprint={n_sprint}', [PlanificacionController::class, 'showSprint']);
+Route::post('/planificacion',[SprintController::class, 'store']);
+Route::get('/planificacion/{id}',[PlanificacionController::class, 'show']);
+Route::get('/planificacion/{id}/sprint={n_sprint}', [PlanificacionController::class, 'showSprint']);
 Route::get('/estudiantes', [EstudianteController::class, 'index']);
 Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
 Route::post('/estudiantes', [EstudianteController::class, 'store']);
