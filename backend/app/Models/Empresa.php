@@ -55,7 +55,7 @@ class Empresa extends Model
 		'correo_empresa',
 		'logo',
 	];
-	
+
 	public function representate_legal()
 	{
 		return $this->belongsTo(RepresentateLegal::class, 'id_representante');
@@ -90,4 +90,7 @@ class Empresa extends Model
 	{
 		return $this->hasMany(RepresentateLegal::class, 'id_empresa');
 	}
+	public function estudiantes() // Nueva relación en Empresa
+	{
+		return $this->hasMany(Estudiante::class, 'id_empresa', 'id_empresa');	}
 }

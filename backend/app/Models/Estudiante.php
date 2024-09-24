@@ -65,4 +65,8 @@ class Estudiante extends Model
     {
         return $this->belongsTo(RepresentateLegal::class, 'id_representante');
     }
+    public function empresa() // Nueva relación
+    {
+        return $this->belongsTo(Empresa::class, 'id_empresa');
+    }
 }

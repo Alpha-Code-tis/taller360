@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Empresa;
 use App\Models\Estudiante;
 use App\Models\Planificacion;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class EmpresaController extends Controller
@@ -45,16 +47,60 @@ class EmpresaController extends Controller
         }
     }
 
-    public function show(Empresa $empresa)
+    public function show($id_empresa)
     {
-        return $empresa->load(['cantidad', 'representate_legal', 'planificacion']);
-    }
+        try {
+            // Busca la empresa por su ID
+            $empresa = Empresa::with('estudiantes')->findOrFail($id_empresa);
 
-    public function destroy(Empresa $empresa)
-    {
-        $empresa->delete();
-        return response()->json(null, 204);
+            // Devuelve los datos de la empresa junto con los estudiantes
+            return response()->json([
+                'empresa' => [
+                    'id_empresa' => $empresa->id_empresa,
+                    'nombre_empresa' => $empresa->nombre_empresa,
+                    'nombre_corto' => $empresa->nombre_corto,
+                    'direccion' => $empresa->direccion,
+                    'telefono' => $empresa->telefono,
+                    'correo_empresa' => $empresa->correo_empresa,
+                    'estudiantes' => $empresa->estudiantes,
+                ],
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Empresa no encontrada'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al recuperar la empresa: ' . $e->getMessage()], 500);
+        }
     }
+    public function destroy($id_empresa)
+    {
+        try {
+            // Buscar la empresa por ID
+            $empresa = Empresa::findOrFail($id_empresa);
+    
+            // Eliminar todas las planificaciones relacionadas
+            foreach ($empresa->planificacions as $planificacion) {
+                // Eliminar cualquier otra relación asociada, como sprints
+                // Si tienes una relación con sprints, elimínalos aquí
+                // $planificacion->sprints()->delete();
+    
+                // Eliminar la planificación
+                $planificacion->delete();
+            }
+    
+            // Actualizar estudiantes para quitar la relación con la empresa
+            $empresa->estudiantes()->update(['id_empresa' => null]);
+    
+            // Finalmente, eliminar la empresa
+            $empresa->delete();
+    
+            return response()->json(['message' => 'Empresa y sus planificaciones eliminadas correctamente.'], 200);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['error' => 'Empresa no encontrada.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al eliminar la empresa: ' . $e->getMessage()], 500);
+        }
+    }
+    
     public function store(Request $request)
     {
         // Validar los datos recibidos
@@ -70,11 +116,11 @@ class EmpresaController extends Controller
 
         // Crear la empresa
         $empresa = Empresa::create([
-            'nombre_empresa' => $request->nombreEquipo, // Ajusta el nombre de la propiedad
-            'nombre_corto' => $request->nombreCorto,
+            'nombre_empresa' => $request->nombre_empresa, // Ajusta el nombre de la propiedad
+            'nombre_corto' => $request->nombre_corto,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
-            'correo_empresa' => $request->correoEmpresa,
+            'correo_empresa' => $request->correo_empresa,
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos') : null,
         ]);
 

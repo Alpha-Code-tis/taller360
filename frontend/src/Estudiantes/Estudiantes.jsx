@@ -300,7 +300,7 @@ const Estudiantes = () => {
                 <Form.Group controlId="formCodigoSis" className="mb-3">
                   <Form.Label>Código SIS</Form.Label>
                   <Form.Control
-                    type="text"
+                    type="number"
                     name="codigoSis"
                     value={formValues.codigoSis}
                     onChange={handleInputChange}

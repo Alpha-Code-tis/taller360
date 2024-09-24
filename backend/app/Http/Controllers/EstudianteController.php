@@ -38,7 +38,7 @@ class EstudianteController extends Controller
             'nombre_estudiante' => 'required|string|max:255',
             'ap_pat' => 'required|string|max:255',
             'ap_mat' => 'nullable|string|max:255',
-            'correo' => 'required|email|unique:estudiante,correo',
+            'correo' => 'nullable|email|unique:estudiante,correo',
             'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis',
         ]);
 

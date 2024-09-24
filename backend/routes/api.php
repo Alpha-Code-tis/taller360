@@ -51,6 +51,10 @@ Route::put('/docentes/{id}', [DocenteController::class, 'update']);
 Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
 
 //Empresa-equipo
-Route::apiResource('/equipos', EmpresaController::class);
+Route::get('/equipos', [EmpresaController::class, 'index']);
+Route::post('/equipos', [EmpresaController::class, 'store']);
+Route::get('/equipos/{id_empresa}', [EmpresaController::class, 'show']);
+Route::put('/equipos/{id_empresa}', [EmpresaController::class, 'update']);
+Route::delete('/equipos/{id_empresa}', [EmpresaController::class, 'destroy']);
 Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
 Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
