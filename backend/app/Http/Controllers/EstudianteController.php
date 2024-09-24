@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\EstudiantesImport;
 use App\Models\Estudiante;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class EstudianteController extends Controller
 {
@@ -93,6 +95,20 @@ class EstudianteController extends Controller
             return response()->json(['message' => 'Estudiante eliminado exitosamente'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al eliminar el estudiante'], 500);
+        }
+    }
+
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt'
+        ]);
+
+        try {
+            Excel::import(new EstudiantesImport, $request->file('file'));
+            return redirect()->back()->with('success', 'Estudiantes importados exitosamente.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withErrors(['error' => 'Error al importar estudiantes: ' . $e->getMessage()]);
         }
     }
 }
