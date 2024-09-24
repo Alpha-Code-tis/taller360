@@ -27,7 +27,6 @@ const Estudiantes = () => {
         const response = await axios.get('http://localhost:8000/api/estudiantes'); // GET request to fetch estudiantes
         setEstudiantes(response.data);
       } catch (err) {
-        setError('Error al cargar los estudiantes');
         toast.error('Error al cargar los estudiantes');
       }
     };
