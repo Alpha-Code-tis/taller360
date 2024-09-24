@@ -18,6 +18,7 @@ const Estudiantes = () => {
     codigoSis: '',
   });
   const [formErrors, setFormErrors] = useState({});
+  const [filteredEstudiantes, setFilteredEstudiantes] = useState([]);
 
   // Fetching estudiantes from the backend
   useEffect(() => {
@@ -169,7 +170,7 @@ const Estudiantes = () => {
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-    
+  
     if (!file) {
       setError('Por favor, selecciona un archivo.');
       return;
@@ -184,17 +185,23 @@ const Estudiantes = () => {
           'Content-Type': 'multipart/form-data',
         },
       });
-      
-      // Actualiza el estado con la nueva lista de estudiantes
-      setEstudiantes([...estudiantes, ...response.data]); // Asumiendo que la respuesta devuelve la lista actualizada
-      setFilteredEstudiantes([...filteredEstudiantes, ...response.data]);
-      setSuccessMessage('Estudiantes importados exitosamente.');
-      setTimeout(() => setSuccessMessage(null), 3000);
+  
+      console.log('Respuesta de la API:', response.data); // Verifica la respuesta
+      if (Array.isArray(response.data)) {
+        setEstudiantes((prev) => [...prev, ...response.data]);
+        setFilteredEstudiantes((prev) => [...prev, ...response.data]);
+        toast.success('Estudiantes importados exitosamente.');
+      } else {
+        throw new Error('La respuesta no es un array.');
+      }
+  
       handleCloseImportModal();
     } catch (error) {
       setError('Error al importar estudiantes: ' + error.message);
+      console.error(error);
     }
   };
+  
   
 
   return (
@@ -354,7 +361,7 @@ const Estudiantes = () => {
           <Button variant="secondary" onClick={handleCloseImportModal}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={() => console.log('Subir archivo')}>
+          <Button variant="primary" onClick={handleFileUpload}>
             Subir
           </Button>
         </Modal.Footer>

@@ -24,7 +24,7 @@ class EstudianteController extends Controller
     public function show($id)
     {
         try {
-            $estudiante = Estudiante::where('id_estudiante',$id)->first();
+            $estudiante = Estudiante::where('id_estudiante', $id)->first();
             return response()->json($estudiante, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Estudiante no encontrado'], 404);
@@ -65,12 +65,12 @@ class EstudianteController extends Controller
             'nombre_estudiante' => 'required|string|max:255',
             'ap_pat' => 'required|string|max:255',
             'ap_mat' => 'nullable|string|max:255',
-            'correo' => 'nullable|email|unique:estudiante,correo,' . $id .',id_estudiante',
-            'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id .',id_estudiante',
+            'correo' => 'nullable|email|unique:estudiante,correo,' . $id . ',id_estudiante',
+            'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id . ',id_estudiante',
         ]);
 
         try {
-            $estudiante = Estudiante::where('id_estudiante',$id)->first();
+            $estudiante = Estudiante::where('id_estudiante', $id)->first();
             $estudiante->update([
                 'nombre_estudiante' => $request->input('nombre_estudiante'),
                 'ap_pat' => $request->input('ap_pat'),
@@ -106,9 +106,9 @@ class EstudianteController extends Controller
 
         try {
             Excel::import(new EstudiantesImport, $request->file('file'));
-            return redirect()->back()->with('success', 'Estudiantes importados exitosamente.');
+            return response()->json(['success' => 'Estudiantes importados exitosamente.'], 200);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => 'Error al importar estudiantes: ' . $e->getMessage()]);
+            return response()->json(['error' => 'Error al importar estudiantes: ' . $e->getMessage()], 500);
         }
     }
 }
