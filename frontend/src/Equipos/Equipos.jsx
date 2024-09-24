@@ -158,59 +158,80 @@ const Equipos = () => {
     setFormValues({ ...formValues, logo: e.target.files[0] });
   };
 
+  // Función para validar el formulario
+  const validateForm = () => {
+    const errors = {};
+    let isValid = true;
+
+    // Validación del campo "nombre_empresa"
+    if (!formValues.nombre_empresa.trim()) {
+      errors.nombre_empresa = 'El nombre del equipo es requerido';
+      isValid = false;
+    }
+
+    // Validación del campo "correo_empresa"
+    if (!formValues.correo_empresa.trim()) {
+      errors.correo_empresa = 'El correo de la empresa es requerido';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formValues.correo_empresa)) {
+      errors.correo_empresa = 'El formato del correo es inválido';
+      isValid = false;
+    }
+
+    // Validación del campo "telefono"
+    if (!formValues.telefono.trim()) {
+      errors.telefono = 'El teléfono es requerido';
+      isValid = false;
+    } else if (!/^\d{8}$/.test(formValues.telefono)) {
+      errors.telefono = 'El teléfono debe tener 10 dígitos';
+      isValid = false;
+    }
+
+    // Validación del campo "direccion"
+    if (!formValues.direccion.trim()) {
+      errors.direccion = 'La dirección es requerida';
+      isValid = false;
+    }
+
+    setFormErrors(errors); // Almacenar los errores para mostrarlos en el UI
+    return isValid;
+  };
+
+
   const handleSave = async () => {
-    // Validación y lógica para guardar el equipo
-    const handleSave = async () => {
-      // Validación de formulario antes de proceder
-      if (!validateForm()) {
-        toast.error('Por favor, revisa los errores en el formulario.');
-        return;
-      }
-    
-      // Crea un objeto FormData para manejar el envío de archivos
-      const formData = new FormData();
-      formData.append('nombre_empresa', formValues.nombre_empresa);
-      formData.append('nombre_corto', formValues.nombre_corto);
-      formData.append('correo_empresa', formValues.correo_empresa);
-      formData.append('telefono', formValues.telefono);
-      formData.append('direccion', formValues.direccion);
-    
-      // Agrega el logo si está presente
-      if (formValues.logo) {
-        formData.append('logo', formValues.logo);
-      }
-    
-      // Agrega los estudiantes seleccionados en formato JSON
-      formData.append('estudiantesSeleccionados', JSON.stringify(formValues.estudiantesSeleccionados.map(est => est.value)));
-    
-      try {
-        if (currentEquipo) {
-          // Actualización de un equipo existente (PUT o POST, dependiendo de tu backend)
-          await axios.post(`http://localhost:8000/api/equipos/${currentEquipo.id}`, formData);
-          // Actualiza el estado de equipos después de la edición
-          setEquipos((prevEquipos) =>
-            prevEquipos.map((equipo) =>
-              equipo.id === currentEquipo.id ? { ...equipo, ...formValues } : equipo
-            )
-          );
-          toast.success('Equipo editado exitosamente');
-        } else {
-          // Registro de un nuevo equipo (POST)
-          const response = await axios.post('http://localhost:8000/api/equipos', formData);
-          // Agrega el nuevo equipo al estado
-          setEquipos([...equipos, response.data]);
-          toast.success('Equipo registrado exitosamente');
-        }
-    
-        // Cierra el modal y resetea el formulario
-        handleCloseModal();
-      } catch (error) {
-        // Manejo de errores
-        console.error('Error al guardar el equipo:', error.response ? error.response.data : error.message);
-        toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
-      }
+    if (!validateForm()) {
+      toast.error('Por favor, revisa los errores en el formulario.');
+      return;
+    }
+
+    const data = {
+      nombre_empresa: formValues.nombre_empresa,
+      nombre_corto: formValues.nombre_corto,
+      correo_empresa: formValues.correo_empresa,
+      telefono: formValues.telefono,
+      direccion: formValues.direccion,
+      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
     };
-    
+
+    try {
+      if (currentEquipo) {
+        await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, data);
+        setEquipos(prevEquipos =>
+          prevEquipos.map(equipo =>
+            equipo.id_empresa === currentEquipo.id_empresa ? { ...equipo, ...formValues } : equipo
+          )
+        );
+        toast.success('Equipo editado exitosamente');
+      } else {
+        const response = await axios.post('http://localhost:8000/api/equipos', data);
+        setEquipos([...equipos, response.data]);
+        toast.success('Equipo registrado exitosamente');
+      }
+      handleCloseModal();
+    } catch (error) {
+      console.error('Error al guardar el equipo:', error.response ? error.response.data : error.message);
+      toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
+    }
   };
 
   return (
@@ -243,7 +264,7 @@ const Equipos = () => {
           </thead>
           <tbody>
             {filteredEquipos.map((equipo) => (
-              <tr key={equipo.id}>
+              <tr key={equipo.id_empresa}>
                 <td>{equipo.nombre_empresa}</td>
                 <td>{equipo.correo_empresa}</td>
                 <td>{equipo.telefono}</td>
@@ -254,7 +275,7 @@ const Equipos = () => {
                   <button className="icon-button" title="Editar" onClick={() => handleShowModal(equipo)}>
                     <FaEdit />
                   </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(equipo.id)}>
+                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(equipo.id_empresa)}>
                     <FaTrash />
                   </button>
                 </td>

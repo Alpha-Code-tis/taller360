@@ -13,43 +13,41 @@ use Illuminate\Database\Eloquent\Model;
  * Class RepresentateLegal
  * 
  * @property int $id_representante
- * @property int|null $id_empresa
  * @property int|null $estado
  * 
- * @property Empresa|null $empresa
- * @property Collection|Empresa[] $empresas
  * @property Collection|Estudiante[] $estudiantes
  *
  * @package App\Models
  */
 class RepresentateLegal extends Model
 {
-	protected $table = 'representate_legal';
-	protected $primaryKey = 'id_representante';
-	public $timestamps = false;
+    protected $table = 'representate_legal';
+    protected $primaryKey = 'id_representante';
+    public $timestamps = false;
 
-	protected $casts = [
-		'id_empresa' => 'int',
-		'estado' => 'int'
-	];
+    protected $casts = [
+        'estado' => 'int'
+    ];
 
-	protected $fillable = [
-		'id_empresa',
-		'estado'
-	];
+    protected $fillable = [
+        'estado'
+    ];
 
-	public function empresa()
-	{
-		return $this->belongsTo(Empresa::class, 'id_empresa');
-	}
+    // Eliminar relación con empresa, ya que no se requiere
+    // public function empresa()
+    // {
+    //     return $this->belongsTo(Empresa::class, 'id_empresa');
+    // }
 
-	public function empresas()
-	{
-		return $this->hasMany(Empresa::class, 'id_representante');
-	}
+    // Eliminar método de empresas, ya que no se requiere
+    // public function empresas()
+    // {
+    //     return $this->hasMany(Empresa::class, 'id_representante');
+    // }
 
-	public function estudiantes()
-	{
-		return $this->hasMany(Estudiante::class, 'id_representante');
-	}
+    // Mantener relación con Estudiante
+    public function estudiantes()
+    {
+        return $this->hasMany(Estudiante::class, 'id_representante');
+    }
 }

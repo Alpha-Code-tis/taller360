@@ -16,6 +16,7 @@ const Estudiantes = () => {
     apellidoPaterno: '',
     apellidoMaterno: '',
     codigoSis: '',
+    esRepresentante: false, // Nuevo campo
   });
   const [formErrors, setFormErrors] = useState({});
   const [filteredEstudiantes, setFilteredEstudiantes] = useState([]);
@@ -75,6 +76,7 @@ const Estudiantes = () => {
         apellidoPaterno: estudiante.ap_pat || '',
         apellidoMaterno: estudiante.ap_mat || '',
         codigoSis: estudiante.codigo_sis,
+        esRepresentante: estudiante.id_representante ? true : false, // Asignar verdadero si hay un representante
       });
       setCurrentEstudiante(estudiante);
     } else {
@@ -83,11 +85,12 @@ const Estudiantes = () => {
         apellidoPaterno: '',
         apellidoMaterno: '',
         codigoSis: '',
+        esRepresentante: false, // Resetear el campo
       });
       setCurrentEstudiante(null);
     }
     setShowModal(true);
-  };
+  };  
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -95,8 +98,8 @@ const Estudiantes = () => {
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormValues({ ...formValues, [name]: value });
+    const { name, value, type, checked } = e.target;
+    setFormValues({ ...formValues, [name]: type === 'checkbox' ? checked : value });
   };
 
   const validateForm = () => {
@@ -123,12 +126,12 @@ const Estudiantes = () => {
       ap_pat: formValues.apellidoPaterno,
       ap_mat: formValues.apellidoMaterno,
       codigo_sis: formValues.codigoSis,
+      es_representante: formValues.esRepresentante, // Agregar este campo
     };
 
     try {
       if (currentEstudiante) {
         // PUT request to update the estudiante
-        console.log(estudianteData);
         await axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData);
         setEstudiantes((prevEstudiantes) =>
           prevEstudiantes.map((estudiante) =>
@@ -201,8 +204,6 @@ const Estudiantes = () => {
     }
   };
   
-  
-
   return (
     <div className="container mt-2 pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -219,6 +220,7 @@ const Estudiantes = () => {
             <tr>
               <th>Nombre Completo</th>
               <th>Código SIS</th>
+              <th>¿Es Representante?</th> {/* Nueva columna */}
               <th>Acciones</th>
             </tr>
           </thead>
@@ -227,6 +229,7 @@ const Estudiantes = () => {
               <tr key={estudiante.id_estudiante}>
                 <td>{`${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`}</td>
                 <td>{estudiante.codigo_sis}</td>
+                <td>{estudiante.id_representante ? 'Sí' : 'No'}</td> {/* Mostrar si es representante */}
                 <td>
                   <button className="icon-button" title="Editar" onClick={() => handleShowModal(estudiante)}>
                     <FaEdit />
@@ -249,26 +252,20 @@ const Estudiantes = () => {
         <Modal.Body>
           <Form>
             <Row>
-              <Col md={12}>
+              <Col>
                 <Form.Group controlId="formNombre" className="mb-3">
-                  <Form.Label>Nombres</Form.Label>
+                  <Form.Label>Nombre</Form.Label>
                   <Form.Control
                     type="text"
                     name="nombre"
                     value={formValues.nombre}
                     onChange={handleInputChange}
-                    placeholder="Nombres"
                     isInvalid={!!formErrors.nombre}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.nombre}
-                  </Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">{formErrors.nombre}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
-            </Row>
-
-            <Row>
-              <Col md={6}>
+              <Col>
                 <Form.Group controlId="formApellidoPaterno" className="mb-3">
                   <Form.Label>Apellido Paterno</Form.Label>
                   <Form.Control
@@ -276,12 +273,12 @@ const Estudiantes = () => {
                     name="apellidoPaterno"
                     value={formValues.apellidoPaterno}
                     onChange={handleInputChange}
-                    placeholder="Apellido Paterno"
                   />
                 </Form.Group>
               </Col>
-
-              <Col md={6}>
+            </Row>
+            <Row>
+              <Col>
                 <Form.Group controlId="formApellidoMaterno" className="mb-3">
                   <Form.Label>Apellido Materno</Form.Label>
                   <Form.Control
@@ -289,30 +286,32 @@ const Estudiantes = () => {
                     name="apellidoMaterno"
                     value={formValues.apellidoMaterno}
                     onChange={handleInputChange}
-                    placeholder="Apellido Materno"
                   />
                 </Form.Group>
               </Col>
-            </Row>
-
-            <Row>
-              <Col md={12}>
+              <Col>
                 <Form.Group controlId="formCodigoSis" className="mb-3">
                   <Form.Label>Código SIS</Form.Label>
                   <Form.Control
-                    type="number"
+                    type="text"
                     name="codigoSis"
                     value={formValues.codigoSis}
                     onChange={handleInputChange}
-                    placeholder="Código SIS"
                     isInvalid={!!formErrors.codigoSis}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.codigoSis}
-                  </Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">{formErrors.codigoSis}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
+            <Form.Group controlId="formEsRepresentante" className="mb-3">
+              <Form.Check
+                type="checkbox"
+                label="¿Es representante?"
+                name="esRepresentante"
+                checked={formValues.esRepresentante}
+                onChange={handleInputChange}
+              />
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -320,41 +319,24 @@ const Estudiantes = () => {
             Cancelar
           </Button>
           <Button variant="primary" onClick={handleSave}>
-            {currentEstudiante ? 'Guardar Cambios' : 'Registrar'}
+            Guardar
           </Button>
         </Modal.Footer>
       </Modal>
 
-      {/* Modal para importar archivo */}
+      {/* Modal para importar lista */}
       <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>Importar Lista de Estudiantes</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div
-            className="drop-zone"
-            onDrop={handleFileDrop}
-            onDragOver={(e) => e.preventDefault()}
-            style={{
-              border: '2px dashed #cccccc',
-              padding: '20px',
-              textAlign: 'center',
-              borderRadius: '8px',
-              marginBottom: '20px',
-            }}
-          >
-            Arrastra el archivo aquí o{' '}
-            <input
-              type="file"
-              onChange={handleFileUpload}
-              style={{ display: 'none' }}
-              accept='.csv'
-              id="file-upload"
-            />
-            <label htmlFor="file-upload" style={{ color: '#007bff', cursor: 'pointer' }}>
-              selecciona un archivo
-            </label>
-          </div>
+          <Form>
+            <Form.Group controlId="formFile" className="mb-3">
+              <Form.Label>Selecciona un archivo para importar</Form.Label>
+              <Form.Control type="file" accept=".csv" onChange={handleFileUpload} />
+            </Form.Group>
+          </Form>
+          {error && <p className="text-danger">{error}</p>}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseImportModal}>
