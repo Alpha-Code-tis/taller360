@@ -166,11 +166,35 @@ const Estudiantes = () => {
     console.log("Archivo arrastrado:", file);
   };
 
-  // Manejar la subida de archivo seleccionado
-  const handleFileUpload = (event) => {
+  const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-    console.log("Archivo subido:", file);
+    
+    if (!file) {
+      setError('Por favor, selecciona un archivo.');
+      return;
+    }
+  
+    const formData = new FormData();
+    formData.append('file', file);
+  
+    try {
+      const response = await axios.post('http://localhost:8000/api/estudiantes/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      // Actualiza el estado con la nueva lista de estudiantes
+      setEstudiantes([...estudiantes, ...response.data]); // Asumiendo que la respuesta devuelve la lista actualizada
+      setFilteredEstudiantes([...filteredEstudiantes, ...response.data]);
+      setSuccessMessage('Estudiantes importados exitosamente.');
+      setTimeout(() => setSuccessMessage(null), 3000);
+      handleCloseImportModal();
+    } catch (error) {
+      setError('Error al importar estudiantes: ' + error.message);
+    }
   };
+  
 
   return (
     <div className="container mt-2 pt-3">
