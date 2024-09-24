@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaTrash, FaEdit } from 'react-icons/fa';
+import { FaTrash, FaEdit, FaEye } from 'react-icons/fa'; // Agregar FaEye para el ícono de vista
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import Select from 'react-select';
@@ -13,6 +13,7 @@ const Equipos = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [successMessage, setSuccessMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false); // Modal para la vista
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentEquipo, setCurrentEquipo] = useState(null);
   const [formValues, setFormValues] = useState({
@@ -72,15 +73,36 @@ const Equipos = () => {
 
   // Manejar la eliminación de equipos
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/equipos/${id}`);
-      setEquipos(equipos.filter((equipo) => equipo.id !== id));
-      setFilteredEquipos(filteredEquipos.filter((equipo) => equipo.id !== id));
-      setShowDeleteModal(false);
-      toast.success('Equipo eliminado exitosamente');
-    } catch (error) {
-      toast.error('Error al eliminar el equipo');
-    }
+    toast((t) => (
+      <div>
+        <span>¿Estás seguro de que deseas eliminar este equipo?</span>
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={async () => {
+              try {
+                await axios.delete(`http://localhost:8000/api/equipos/${id}`); // DELETE request
+                const updatedEquipos = equipos.filter((equipo) => equipo.id !== id);
+                setEquipos(updatedEquipos);
+                setFilteredEquipos(updatedEquipos);
+                toast.dismiss(t.id); // Cerrar el toast
+                toast.success('Equipo eliminado exitosamente');
+              } catch (err) {
+                toast.error('Error al eliminar el equipo');
+              }
+            }}
+            className="btn btn-danger me-2"
+          >
+            Sí, eliminar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)} // Cancelar la eliminación
+            className="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ));
   };
 
   // Mostrar el modal para agregar/editar equipo
@@ -97,6 +119,7 @@ const Equipos = () => {
       });
       setCurrentEquipo(equipo);
     } else {
+      // Reiniciar formValues para agregar un nuevo equipo
       setFormValues({
         nombre_empresa: '',
         nombre_corto: '',
@@ -111,9 +134,19 @@ const Equipos = () => {
     setShowModal(true);
   };
 
+  // Mostrar el modal de vista de equipo
+  const handleShowViewModal = (equipo) => {
+    setCurrentEquipo(equipo);
+    setShowViewModal(true);
+  };
+
   const handleCloseModal = () => {
     setShowModal(false);
     setFormErrors({});
+  };
+
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
   };
 
   const handleInputChange = (e) => {
@@ -125,65 +158,60 @@ const Equipos = () => {
     setFormValues({ ...formValues, logo: e.target.files[0] });
   };
 
-  const validateForm = () => {
-    const errors = {};
-    const emailRegex = /\S+@\S+\.\S+/;
-    const telefonoRegex = /^\d{8,10}$/; // Asumiendo que el teléfono debe tener entre 8 y 10 dígitos
-
-    if (!formValues.nombre_empresa) {
-      errors.nombre_empresa = 'El nombre del equipo es obligatorio.';
-    }
-    if (!formValues.nombre_corto) {
-      errors.nombre_corto = 'El nombre corto es obligatorio.';
-    }
-    if (!emailRegex.test(formValues.correo_empresa)) {
-      errors.correo_empresa = 'El correo electrónico no es válido.';
-    }
-    if (!telefonoRegex.test(formValues.telefono)) {
-      errors.telefono = 'El número de teléfono debe contener entre 8 y 10 dígitos.';
-    }
-    if (!formValues.direccion) {
-      errors.direccion = 'La dirección es obligatoria.';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
   const handleSave = async () => {
-    if (!validateForm()) return;
-
-    const formData = new FormData();
-    formData.append('nombre_empresa', formValues.nombre_empresa);
-    formData.append('nombre_corto', formValues.nombre_corto);
-    formData.append('correo_empresa', formValues.correo_empresa);
-    formData.append('telefono', formValues.telefono);
-    formData.append('direccion', formValues.direccion);
-    if (formValues.logo) formData.append('logo', formValues.logo);
-    formData.append('estudiantesSeleccionados', JSON.stringify(formValues.estudiantesSeleccionados.map((est) => est.value)));
-
-    try {
+    // Validación y lógica para guardar el equipo
+    const handleSave = async () => {
+      // Validación de formulario antes de proceder
+      if (!validateForm()) {
+        toast.error('Por favor, revisa los errores en el formulario.');
+        return;
+      }
+    
+      // Crea un objeto FormData para manejar el envío de archivos
+      const formData = new FormData();
+      formData.append('nombre_empresa', formValues.nombre_empresa);
+      formData.append('nombre_corto', formValues.nombre_corto);
+      formData.append('correo_empresa', formValues.correo_empresa);
+      formData.append('telefono', formValues.telefono);
+      formData.append('direccion', formValues.direccion);
+    
+      // Agrega el logo si está presente
+      if (formValues.logo) {
+        formData.append('logo', formValues.logo);
+      }
+    
+      // Agrega los estudiantes seleccionados en formato JSON
+      formData.append('estudiantesSeleccionados', JSON.stringify(formValues.estudiantesSeleccionados.map(est => est.value)));
+    
+      try {
         if (currentEquipo) {
-            await axios.post(`http://localhost:8000/api/equipos/${currentEquipo.id}`, formData);
-            setEquipos((prevEquipos) =>
-                prevEquipos.map((equipo) =>
-                    equipo.id === currentEquipo.id ? { ...equipo, ...formValues } : equipo
-                )
-            );
-            toast.success('Equipo editado exitosamente');
+          // Actualización de un equipo existente (PUT o POST, dependiendo de tu backend)
+          await axios.post(`http://localhost:8000/api/equipos/${currentEquipo.id}`, formData);
+          // Actualiza el estado de equipos después de la edición
+          setEquipos((prevEquipos) =>
+            prevEquipos.map((equipo) =>
+              equipo.id === currentEquipo.id ? { ...equipo, ...formValues } : equipo
+            )
+          );
+          toast.success('Equipo editado exitosamente');
         } else {
-            const response = await axios.post('http://localhost:8000/api/equipos', formData);
-            setEquipos([...equipos, response.data]);
-            toast.success('Equipo agregado exitosamente');
+          // Registro de un nuevo equipo (POST)
+          const response = await axios.post('http://localhost:8000/api/equipos', formData);
+          // Agrega el nuevo equipo al estado
+          setEquipos([...equipos, response.data]);
+          toast.success('Equipo registrado exitosamente');
         }
+    
+        // Cierra el modal y resetea el formulario
         handleCloseModal();
-    } catch (error) {
-        // Mostrar detalles del error
+      } catch (error) {
+        // Manejo de errores
         console.error('Error al guardar el equipo:', error.response ? error.response.data : error.message);
         toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
-    }
-};
-
+      }
+    };
+    
+  };
 
   return (
     <div className="container mt-2 pt-3">
@@ -203,7 +231,6 @@ const Equipos = () => {
         />
       </div>
 
-      {successMessage && <Alert variant="success">{successMessage}</Alert>}
       <div className="table-container">
         <table className="table table-hover estudiantes-table">
           <thead className="table-light">
@@ -221,10 +248,13 @@ const Equipos = () => {
                 <td>{equipo.correo_empresa}</td>
                 <td>{equipo.telefono}</td>
                 <td>
+                  <button className="icon-button" title="Ver" onClick={() => handleShowViewModal(equipo)}>
+                    <FaEye />
+                  </button>
                   <button className="icon-button" title="Editar" onClick={() => handleShowModal(equipo)}>
                     <FaEdit />
                   </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleShowDeleteModal(equipo)}>
+                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(equipo.id)}>
                     <FaTrash />
                   </button>
                 </td>
@@ -243,7 +273,7 @@ const Equipos = () => {
           <Form>
             <Row>
               <Col md={12}>
-                <Form.Group controlId="formNombre_empresa" className="mb-3">
+                <Form.Group controlId="formNombreEmpresa" className="mb-3">
                   <Form.Label>Nombre del Equipo</Form.Label>
                   <Form.Control
                     type="text"
@@ -251,18 +281,14 @@ const Equipos = () => {
                     value={formValues.nombre_empresa}
                     onChange={handleInputChange}
                     placeholder="Nombre del Equipo"
-                    isInvalid={!!formErrors.nombre_empresa}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.nombre_equipo}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formNombre_corto" className="mb-3">
+                <Form.Group controlId="formNombreCorto" className="mb-3">
                   <Form.Label>Nombre Corto</Form.Label>
                   <Form.Control
                     type="text"
@@ -270,16 +296,12 @@ const Equipos = () => {
                     value={formValues.nombre_corto}
                     onChange={handleInputChange}
                     placeholder="Nombre Corto"
-                    isInvalid={!!formErrors.nombre_corto}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.nombre_corto}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
 
               <Col md={6}>
-                <Form.Group controlId="formCorreo_empresa" className="mb-3">
+                <Form.Group controlId="formCorreoEmpresa" className="mb-3">
                   <Form.Label>Correo de la Empresa</Form.Label>
                   <Form.Control
                     type="email"
@@ -287,11 +309,7 @@ const Equipos = () => {
                     value={formValues.correo_empresa}
                     onChange={handleInputChange}
                     placeholder="Correo de la Empresa"
-                    isInvalid={!!formErrors.correo_empresa}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.correo_empresa}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -306,11 +324,7 @@ const Equipos = () => {
                     value={formValues.telefono}
                     onChange={handleInputChange}
                     placeholder="Teléfono"
-                    isInvalid={!!formErrors.telefono}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.telefono}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
 
@@ -323,11 +337,7 @@ const Equipos = () => {
                     value={formValues.direccion}
                     onChange={handleInputChange}
                     placeholder="Dirección"
-                    isInvalid={!!formErrors.direccion}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.direccion}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -371,6 +381,30 @@ const Equipos = () => {
           </Button>
           <Button variant="primary" onClick={handleSave}>
             {currentEquipo ? 'Guardar Cambios' : 'Registrar'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal de vista para ver detalles del equipo */}
+      <Modal show={showViewModal} onHide={handleCloseViewModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Detalles del Equipo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {currentEquipo && (
+            <div>
+              <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
+              <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
+              <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
+              <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
+              <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
+              <p><strong>Estudiantes:</strong> {currentEquipo.estudiantesSeleccionados?.map(est => est.label).join(', ')}</p>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseViewModal}>
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>
