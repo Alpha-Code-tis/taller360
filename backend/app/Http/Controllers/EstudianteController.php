@@ -22,7 +22,7 @@ class EstudianteController extends Controller
     public function show($id)
     {
         try {
-            $estudiante = Estudiante::findOrFail($id);
+            $estudiante = Estudiante::where('id_estudiante',$id)->first();
             return response()->json($estudiante, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Estudiante no encontrado'], 404);
@@ -63,12 +63,12 @@ class EstudianteController extends Controller
             'nombre_estudiante' => 'required|string|max:255',
             'ap_pat' => 'required|string|max:255',
             'ap_mat' => 'nullable|string|max:255',
-            'correo' => 'required|email|unique:estudiante,correo,' . $id,
-            'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id,
+            'correo' => 'nullable|email|unique:estudiante,correo,' . $id .',id_estudiante',
+            'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id .',id_estudiante',
         ]);
 
         try {
-            $estudiante = Estudiante::findOrFail($id);
+            $estudiante = Estudiante::where('id_estudiante',$id)->first();
             $estudiante->update([
                 'nombre_estudiante' => $request->input('nombre_estudiante'),
                 'ap_pat' => $request->input('ap_pat'),
