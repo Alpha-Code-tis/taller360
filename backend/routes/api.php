@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
+use App\Http\Controllers\EmpresaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -47,3 +49,8 @@ Route::get('/docentes/{id}', [DocenteController::class, 'show']);
 Route::post('/docentes', [DocenteController::class, 'store']);
 Route::put('/docentes/{id}', [DocenteController::class, 'update']);
 Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
+
+//Empresa-equipo
+Route::apiResource('/equipos', EmpresaController::class);
+Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
+Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);

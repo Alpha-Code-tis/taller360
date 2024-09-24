@@ -52,9 +52,10 @@ class Empresa extends Model
 		'nombre_corto',
 		'direccion',
 		'telefono',
-		'correo_empresa'
+		'correo_empresa',
+		'logo',
 	];
-
+	
 	public function representate_legal()
 	{
 		return $this->belongsTo(RepresentateLegal::class, 'id_representante');
