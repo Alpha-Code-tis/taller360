@@ -54,43 +54,54 @@ class SprintController extends Controller
         try {
 
             $validated = $validator->validated();
-            $id_planificacion = 1;
-
-            $sprintsExistentes = Sprint::where('id_planificacion', $id_planificacion)
-                ->orderBy('nro_sprint')
-                ->pluck('nro_sprint')
-                ->toArray();
-
-            $siguienteSprint = count($sprintsExistentes) + 1;
-
-            if ($validated['nro_sprint'] !== $siguienteSprint) {
-                return response()->json([
-                    'message' => "El siguiente sprint debe ser el $siguienteSprint.",
-                ], Response::HTTP_CONFLICT);
-            }
+            $id_planificacion = 4;
 
             $solapamiento = Sprint::where('id_planificacion', $id_planificacion)
                 ->where('nro_sprint', '!=', $validated['nro_sprint'])
                 ->where(function ($query) use ($validated) {
                     $query->where(function ($q) use ($validated) {
-                        $q->where('fecha_inicio', '<=', $validated['fecha_fin'])
-                            ->where('fecha_fin', '>=', $validated['fecha_inicio']);
-                    })
-                        ->orWhere('color', $validated['color']);
+                        $q->where('fecha_inicio', '<=', Carbon::createFromFormat('d/m/Y', $validated['fecha_fin'])->format('Y-m-d'))
+                            ->where('fecha_fin', '>=', Carbon::createFromFormat('d/m/Y', $validated['fecha_inicio'])->format('Y-m-d'));
+                    });
                 })
                 ->exists();
-
             if ($solapamiento) {
+                DB::rollBack();
                 return response()->json([
-                    'message' => 'Hay solapamientos de fechas o el color ya está en uso.',
+                    'message' => 'Hay solapamientos de fechas',
                 ], Response::HTTP_CONFLICT);
             }
+            $colorExistente = Sprint::where('id_planificacion', $id_planificacion)
+                ->where('color', $validated['color'])
+                ->exists();
+
+            if ($colorExistente) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'El color ya está en uso por otro sprint.',
+                ], Response::HTTP_CONFLICT);
+            }
+
             $sprint = Sprint::where('nro_sprint', $validated['nro_sprint'])
-                ->where('fecha_inicio', $validated['fecha_inicio'])
-                ->where('fecha_fin', $validated['fecha_fin'])
+                ->where('fecha_inicio', Carbon::createFromFormat('d/m/Y', $validated['fecha_inicio'])->format('Y-m-d'))
+                ->where('fecha_fin', Carbon::createFromFormat('d/m/Y', $validated['fecha_fin'])->format('Y-m-d'))
                 ->where('id_planificacion', $id_planificacion)
                 ->first();
             if (!$sprint) {
+                $sprintsExistentes = Sprint::where('id_planificacion', $id_planificacion)
+                    ->orderBy('nro_sprint')
+                    ->pluck('nro_sprint')
+                    ->toArray();
+
+                $siguienteSprint = count($sprintsExistentes) + 1;
+
+                // Verificar si el número de sprint es el siguiente
+                if ($validated['nro_sprint'] !== $siguienteSprint) {
+                    DB::rollBack();
+                    return response()->json([
+                        'message' => 'El número de sprint debe ser ' . $siguienteSprint . '.',
+                    ], Response::HTTP_CONFLICT);
+                }
                 $sprint = new Sprint;
                 $sprint->nro_sprint = $validated['nro_sprint'];
                 $sprint->id_planificacion = $id_planificacion;
@@ -109,9 +120,16 @@ class SprintController extends Controller
                 $alcance->save();
             } else {
                 DB::rollBack();
+                $sprintsExistentes = Sprint::where('id_planificacion', $id_planificacion)
+                    ->orderBy('nro_sprint')
+                    ->pluck('nro_sprint')
+                    ->toArray();
+
+                $siguienteSprint = count($sprintsExistentes) + 1;
                 return response()->json([
                     'message' => 'El alcance ya existe',
                     'alcance' => $alcance,
+                    'error' => "El siguiente sprint debe ser el $siguienteSprint.",
                 ], Response::HTTP_CONFLICT);
             }
             foreach ($validated['tareas'] as $tarea) {
