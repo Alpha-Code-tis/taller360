@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
+use App\Http\Controllers\EmpresaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -30,6 +32,7 @@ Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
 Route::post('/estudiantes', [EstudianteController::class, 'store']);
 Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
 Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
+Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
 
 
 
@@ -46,3 +49,12 @@ Route::get('/docentes/{id}', [DocenteController::class, 'show']);
 Route::post('/docentes', [DocenteController::class, 'store']);
 Route::put('/docentes/{id}', [DocenteController::class, 'update']);
 Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
+
+//Empresa-equipo
+Route::get('/equipos', [EmpresaController::class, 'index']);
+Route::post('/equipos', [EmpresaController::class, 'store']);
+Route::get('/equipos/{id_empresa}', [EmpresaController::class, 'show']);
+Route::put('/equipos/{id_empresa}', [EmpresaController::class, 'update']);
+Route::delete('/equipos/{id_empresa}', [EmpresaController::class, 'destroy']);
+Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
+Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);

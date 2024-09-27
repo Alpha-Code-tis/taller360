@@ -1,26 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaTrash, FaEdit } from 'react-icons/fa';
-import { Modal, Button, Form, Row, Col, Alert } from 'react-bootstrap';
-import './Equipos.css'; 
+import { FaTrash, FaEdit, FaEye } from 'react-icons/fa'; // Agregar FaEye para el ícono de vista
+import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import toast from 'react-hot-toast';
+import Select from 'react-select';
+import './Equipos.css';
 
 const Equipos = () => {
   const [equipos, setEquipos] = useState([]);
   const [filteredEquipos, setFilteredEquipos] = useState([]);
+  const [estudiantes, setEstudiantes] = useState([]); // Para cargar estudiantes
   const [searchTerm, setSearchTerm] = useState('');
-  const [error, setError] = useState(null);
   const [successMessage, setSuccessMessage] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showViewModal, setShowViewModal] = useState(false); // Modal para la vista
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentEquipo, setCurrentEquipo] = useState(null);
   const [formValues, setFormValues] = useState({
-    nombreCompleto: '',
-    correoElectronico: '',
+    nombre_empresa: '',
+    nombre_corto: '',
+    correo_empresa: '',
     telefono: '',
+    direccion: '',
+    logo: null, // Para subir el archivo
+    estudiantesSeleccionados: [], // Para almacenar los estudiantes seleccionados
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // Cargar equipos desde el backend
+  // Cargar equipos y estudiantes desde el backend
   useEffect(() => {
     const fetchEquipos = async () => {
       try {
@@ -28,11 +35,26 @@ const Equipos = () => {
         setEquipos(response.data);
         setFilteredEquipos(response.data);
       } catch (error) {
-        setError('Error al cargar los equipos');
+        toast.error('Error al cargar los equipos');
+      }
+    };
+
+    const fetchEstudiantes = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/sin-empresa');
+        setEstudiantes(
+          response.data.map((estudiante) => ({
+            value: estudiante.id_estudiante,
+            label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
+          }))
+        );
+      } catch (error) {
+        toast.error('Error al cargar los estudiantes');
       }
     };
 
     fetchEquipos();
+    fetchEstudiantes();
   }, []);
 
   // Manejar la búsqueda de equipos
@@ -42,49 +64,80 @@ const Equipos = () => {
       setFilteredEquipos(equipos);
     } else {
       const filtered = equipos.filter((equipo) =>
-        equipo.nombreCompleto.toLowerCase().includes(e.target.value.toLowerCase()) ||
-        equipo.correoElectronico.toLowerCase().includes(e.target.value.toLowerCase())
+        equipo.nombre_empresa.toLowerCase().includes(e.target.value.toLowerCase()) ||
+        equipo.correo_empresa.toLowerCase().includes(e.target.value.toLowerCase())
       );
       setFilteredEquipos(filtered);
     }
   };
 
+  // Manejar la eliminación de equipos
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/equipos/${id}`);
-      setEquipos(equipos.filter((equipo) => equipo.id !== id));
-      setFilteredEquipos(filteredEquipos.filter((equipo) => equipo.id !== id));
-      setShowDeleteModal(false);
-      setSuccessMessage('Equipo eliminado exitosamente.');
-      setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (error) {
-      setError('Error al eliminar el equipo');
-    }
+    toast((t) => (
+      <div>
+        <span>¿Estás seguro de que deseas eliminar este equipo?</span>
+        <div style={{ marginTop: '10px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={async () => {
+              try {
+                await axios.delete(`http://localhost:8000/api/equipos/${id}`); // DELETE request
+                const updatedEquipos = equipos.filter((equipo) => equipo.id !== id);
+                setEquipos(updatedEquipos);
+                setFilteredEquipos(updatedEquipos);
+                toast.dismiss(t.id); // Cerrar el toast
+                toast.success('Equipo eliminado exitosamente');
+              } catch (err) {
+                toast.error('Error al eliminar el equipo');
+              }
+            }}
+            className="btn btn-danger me-2"
+          >
+            Sí, eliminar
+          </button>
+          <button
+            onClick={() => toast.dismiss(t.id)} // Cancelar la eliminación
+            className="btn btn-secondary"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    ));
   };
 
+  // Mostrar el modal para agregar/editar equipo
   const handleShowModal = (equipo = null) => {
     setSuccessMessage(null);
     if (equipo) {
       setFormValues({
-        nombreCompleto: equipo.nombreCompleto || '',
-        correoElectronico: equipo.correoElectronico,
-        telefono: equipo.telefono,
+        nombre_empresa: equipo.nombre_empresa || '',
+        nombre_corto: equipo.nombre_corto || '',
+        correo_empresa: equipo.correo_empresa || '',
+        telefono: equipo.telefono || '',
+        direccion: equipo.direccion || '',
+        estudiantesSeleccionados: equipo.estudiantes || [],
       });
       setCurrentEquipo(equipo);
     } else {
+      // Reiniciar formValues para agregar un nuevo equipo
       setFormValues({
-        nombreCompleto: '',
-        correoElectronico: '',
+        nombre_empresa: '',
+        nombre_corto: '',
+        correo_empresa: '',
         telefono: '',
+        direccion: '',
+        logo: null,
+        estudiantesSeleccionados: [],
       });
       setCurrentEquipo(null);
     }
     setShowModal(true);
   };
 
-  const handleShowDeleteModal = (equipo) => {
+  // Mostrar el modal de vista de equipo
+  const handleShowViewModal = (equipo) => {
     setCurrentEquipo(equipo);
-    setShowDeleteModal(true);
+    setShowViewModal(true);
   };
 
   const handleCloseModal = () => {
@@ -92,8 +145,8 @@ const Equipos = () => {
     setFormErrors({});
   };
 
-  const handleCloseDeleteModal = () => {
-    setShowDeleteModal(false);
+  const handleCloseViewModal = () => {
+    setShowViewModal(false);
   };
 
   const handleInputChange = (e) => {
@@ -101,48 +154,83 @@ const Equipos = () => {
     setFormValues({ ...formValues, [name]: value });
   };
 
-  const validateForm = () => {
-    const errors = {};
-    const emailRegex = /\S+@\S+\.\S+/;
-    const telefonoRegex = /^\d{8,10}$/; // Asumiendo que el teléfono debe tener entre 8 y 10 dígitos
-
-    if (!formValues.nombreCompleto) {
-      errors.nombreCompleto = 'El nombre completo es obligatorio.';
-    }
-
-    if (!emailRegex.test(formValues.correoElectronico)) {
-      errors.correoElectronico = 'El correo electrónico no es válido.';
-    }
-
-    if (!telefonoRegex.test(formValues.telefono)) {
-      errors.telefono = 'El número de teléfono debe contener entre 8 y 10 dígitos.';
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
+  const handleFileChange = (e) => {
+    setFormValues({ ...formValues, logo: e.target.files[0] });
   };
 
+  // Función para validar el formulario
+  const validateForm = () => {
+    const errors = {};
+    let isValid = true;
+
+    // Validación del campo "nombre_empresa"
+    if (!formValues.nombre_empresa.trim()) {
+      errors.nombre_empresa = 'El nombre del equipo es requerido';
+      isValid = false;
+    }
+
+    // Validación del campo "correo_empresa"
+    if (!formValues.correo_empresa.trim()) {
+      errors.correo_empresa = 'El correo de la empresa es requerido';
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(formValues.correo_empresa)) {
+      errors.correo_empresa = 'El formato del correo es inválido';
+      isValid = false;
+    }
+
+    // Validación del campo "telefono"
+    if (!formValues.telefono.trim()) {
+      errors.telefono = 'El teléfono es requerido';
+      isValid = false;
+    } else if (!/^\d{8}$/.test(formValues.telefono)) {
+      errors.telefono = 'El teléfono debe tener 10 dígitos';
+      isValid = false;
+    }
+
+    // Validación del campo "direccion"
+    if (!formValues.direccion.trim()) {
+      errors.direccion = 'La dirección es requerida';
+      isValid = false;
+    }
+
+    setFormErrors(errors); // Almacenar los errores para mostrarlos en el UI
+    return isValid;
+  };
+
+
   const handleSave = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      toast.error('Por favor, revisa los errores en el formulario.');
+      return;
+    }
+
+    const data = {
+      nombre_empresa: formValues.nombre_empresa,
+      nombre_corto: formValues.nombre_corto,
+      correo_empresa: formValues.correo_empresa,
+      telefono: formValues.telefono,
+      direccion: formValues.direccion,
+      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
+    };
 
     try {
       if (currentEquipo) {
-        await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id}`, formValues);
-        setEquipos(equipos.map((equipo) =>
-          equipo.id === currentEquipo.id ? formValues : equipo
-        ));
-        setFilteredEquipos(equipos);
+        await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, data);
+        setEquipos(prevEquipos =>
+          prevEquipos.map(equipo =>
+            equipo.id_empresa === currentEquipo.id_empresa ? { ...equipo, ...formValues } : equipo
+          )
+        );
+        toast.success('Equipo editado exitosamente');
       } else {
-        const response = await axios.post('http://localhost:8000/api/equipos', formValues);
+        const response = await axios.post('http://localhost:8000/api/equipos', data);
         setEquipos([...equipos, response.data]);
-        setFilteredEquipos([...filteredEquipos, response.data]);
+        toast.success('Equipo registrado exitosamente');
       }
-
-      setSuccessMessage(currentEquipo ? 'Equipo editado exitosamente.' : 'Equipo agregado exitosamente.');
-      setTimeout(() => setSuccessMessage(null), 3000);
       handleCloseModal();
     } catch (error) {
-      setError('Error al guardar el equipo');
+      console.error('Error al guardar el equipo:', error.response ? error.response.data : error.message);
+      toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
     }
   };
 
@@ -164,29 +252,30 @@ const Equipos = () => {
         />
       </div>
 
-      {error && <p className="text-danger">{error}</p>}
-      {successMessage && <Alert variant="success">{successMessage}</Alert>}
       <div className="table-container">
         <table className="table table-hover estudiantes-table">
           <thead className="table-light">
             <tr>
-              <th>Nombre Completo</th>
-              <th>Correo Electrónico</th>
+              <th>Nombre del Equipo</th>
+              <th>Correo de la Empresa</th>
               <th>Teléfono</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
             {filteredEquipos.map((equipo) => (
-              <tr key={equipo.id}>
-                <td>{equipo.nombreCompleto}</td>
-                <td>{equipo.correoElectronico}</td>
+              <tr key={equipo.id_empresa}>
+                <td>{equipo.nombre_empresa}</td>
+                <td>{equipo.correo_empresa}</td>
                 <td>{equipo.telefono}</td>
                 <td>
+                  <button className="icon-button" title="Ver" onClick={() => handleShowViewModal(equipo)}>
+                    <FaEye />
+                  </button>
                   <button className="icon-button" title="Editar" onClick={() => handleShowModal(equipo)}>
                     <FaEdit />
                   </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleShowDeleteModal(equipo)}>
+                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(equipo.id_empresa)}>
                     <FaTrash />
                   </button>
                 </td>
@@ -205,41 +294,48 @@ const Equipos = () => {
           <Form>
             <Row>
               <Col md={12}>
-                <Form.Group controlId="formNombreCompleto" className="mb-3">
-                  <Form.Label>Nombre Completo</Form.Label>
+                <Form.Group controlId="formNombreEmpresa" className="mb-3">
+                  <Form.Label>Nombre del Equipo</Form.Label>
                   <Form.Control
                     type="text"
-                    name="nombreCompleto"
-                    value={formValues.nombreCompleto}
+                    name="nombre_empresa"
+                    value={formValues.nombre_empresa}
                     onChange={handleInputChange}
-                    placeholder="Nombre Completo"
-                    isInvalid={!!formErrors.nombreCompleto}
+                    placeholder="Nombre del Equipo"
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.nombreCompleto}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
 
             <Row>
               <Col md={6}>
-                <Form.Group controlId="formCorreoElectronico" className="mb-3">
-                  <Form.Label>Correo Electrónico</Form.Label>
+                <Form.Group controlId="formNombreCorto" className="mb-3">
+                  <Form.Label>Nombre Corto</Form.Label>
                   <Form.Control
-                    type="email"
-                    name="correoElectronico"
-                    value={formValues.correoElectronico}
+                    type="text"
+                    name="nombre_corto"
+                    value={formValues.nombre_corto}
                     onChange={handleInputChange}
-                    placeholder="Correo Electrónico"
-                    isInvalid={!!formErrors.correoElectronico}
+                    placeholder="Nombre Corto"
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.correoElectronico}
-                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
 
+              <Col md={6}>
+                <Form.Group controlId="formCorreoEmpresa" className="mb-3">
+                  <Form.Label>Correo de la Empresa</Form.Label>
+                  <Form.Control
+                    type="email"
+                    name="correo_empresa"
+                    value={formValues.correo_empresa}
+                    onChange={handleInputChange}
+                    placeholder="Correo de la Empresa"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
               <Col md={6}>
                 <Form.Group controlId="formTelefono" className="mb-3">
                   <Form.Label>Teléfono</Form.Label>
@@ -249,11 +345,52 @@ const Equipos = () => {
                     value={formValues.telefono}
                     onChange={handleInputChange}
                     placeholder="Teléfono"
-                    isInvalid={!!formErrors.telefono}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {formErrors.telefono}
-                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+
+              <Col md={6}>
+                <Form.Group controlId="formDireccion" className="mb-3">
+                  <Form.Label>Dirección</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="direccion"
+                    value={formValues.direccion}
+                    onChange={handleInputChange}
+                    placeholder="Dirección"
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={12}>
+                <Form.Group controlId="formLogo" className="mb-3">
+                  <Form.Label>Logo</Form.Label>
+                  <Form.Control
+                    type="file"
+                    name="logo"
+                    accept=".png"
+                    onChange={handleFileChange}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col md={12}>
+                <Form.Group controlId="formEstudiantes" className="mb-3">
+                  <Form.Label>Añadir Estudiantes</Form.Label>
+                  <Select
+                    isMulti
+                    name="estudiantesSeleccionados"
+                    value={formValues.estudiantesSeleccionados}
+                    options={estudiantes}
+                    onChange={(selectedOptions) =>
+                      setFormValues({ ...formValues, estudiantesSeleccionados: selectedOptions })
+                    }
+                    placeholder="Selecciona estudiantes"
+                  />
                 </Form.Group>
               </Col>
             </Row>
@@ -269,24 +406,26 @@ const Equipos = () => {
         </Modal.Footer>
       </Modal>
 
-      {/* Modal para confirmar eliminación */}
-      <Modal show={showDeleteModal} onHide={handleCloseDeleteModal} centered>
+      {/* Modal de vista para ver detalles del equipo */}
+      <Modal show={showViewModal} onHide={handleCloseViewModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>¿Seguro que quieres eliminar el equipo?</Modal.Title>
+          <Modal.Title>Detalles del Equipo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p>
-            <center>
-              {`${currentEquipo?.nombreCompleto || ''} - ${currentEquipo?.correoElectronico || ''} - ${currentEquipo?.telefono || ''}`}
-            </center>
-          </p>
+          {currentEquipo && (
+            <div>
+              <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
+              <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
+              <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
+              <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
+              <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
+              <p><strong>Estudiantes:</strong> {currentEquipo.estudiantesSeleccionados?.map(est => est.label).join(', ')}</p>
+            </div>
+          )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseDeleteModal}>
-            Cancelar
-          </Button>
-          <Button variant="danger" onClick={() => handleDelete(currentEquipo.id)}>
-            Eliminar
+          <Button variant="secondary" onClick={handleCloseViewModal}>
+            Cerrar
           </Button>
         </Modal.Footer>
       </Modal>

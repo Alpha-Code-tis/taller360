@@ -67,3 +67,31 @@
     color: red;
     margin-top: 10px;
 }
+
+/* Asegura que el modal tenga un margen superior para evitar que choque con la barra */
+.modal {
+    margin-top: 40px; /* Aumenta la separación desde la parte superior */
+}
+
+.modal-dialog {
+    max-width: 600px; /* Controla el ancho máximo del modal */
+    margin: 30px auto; /* Controla el margen superior del modal */
+}
+
+.modal-content {
+    padding: 20px; /* Añade un poco de espacio interior al contenido del modal */
+    border-radius: 8px; /* Un ligero borde redondeado para un mejor diseño */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Sombra para dar profundidad */
+}
+
+/* Para asegurar que en pantallas pequeñas el modal se ajuste correctamente */
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%; /* Asegura que el modal se ajuste a pantallas más pequeñas */
+        margin: 15px auto; /* Reduce el margen superior en pantallas pequeñas */
+    }
+
+    .modal-content {
+        padding: 15px; /* Reduce el padding en pantallas pequeñas */
+    }
+}

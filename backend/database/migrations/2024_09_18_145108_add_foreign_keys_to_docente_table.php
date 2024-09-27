@@ -14,8 +14,6 @@ return new class extends Migration
     public function up()
     {
         Schema::table('docente', function (Blueprint $table) {
-            $table->foreign(['id_admi'], 'fk_docente_registra__administ')->references(['id_admi'])->on('administrador');
-            $table->foreign(['id_noti'], 'fk_docente_le_llega_notifica')->references(['id_noti'])->on('notificacion_doc');
             $table->foreign(['id_grupo'], 'fk_docente_tiene_su_grupo')->references(['id_grupo'])->on('grupo');
         });
     }
