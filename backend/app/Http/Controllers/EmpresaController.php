@@ -111,7 +111,7 @@ class EmpresaController extends Controller
             'telefono' => 'required|string',
             'correo_empresa' => 'required|email',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validar el logo
-            'estudiantesSeleccionados' => 'nullable|string', // Aceptar el JSON de IDs de estudiantes
+            'estudiantesSeleccionados' => 'nullable|array', // Aceptar el JSON de IDs de estudiantes
         ]);
 
         // Crear la empresa
@@ -131,14 +131,9 @@ class EmpresaController extends Controller
         ]);
 
         // Actualizar estudiantes
-        $estudiantesIds = json_decode($request->estudiantesSeleccionados);
-
-        // Si $estudiantesIds es un arreglo, lo manejamos como tal
+        $estudiantesIds = $request->estudiantesSeleccionados;  // Recibir directamente el array
         if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
             Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
-        } elseif ($estudiantesIds) {
-            // Si es un solo ID (no en arreglo)
-            Estudiante::where('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
         }
 
         return response()->json([
@@ -158,6 +153,7 @@ class EmpresaController extends Controller
             'telefono' => 'required|string',
             'direccion' => 'required|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación del logo
+            'estudiantesSeleccionados' => 'nullable|array',  // Cambia para aceptar array
         ]);
 
         try {
@@ -188,6 +184,7 @@ class EmpresaController extends Controller
                 'logo' => $logoPath,
             ];
 
+            
             // Comparar datos antes de la actualización
             Log::info('Datos a actualizar', ['datos' => $datosActualizados]);
 

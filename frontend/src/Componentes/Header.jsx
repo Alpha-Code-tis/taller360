@@ -1,4 +1,3 @@
-// src/Componentes/PersistentDrawerLeft.jsx
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -21,6 +20,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
+import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -199,46 +199,45 @@ export default function PersistentDrawerLeft() {
 
           {/* Estudiantes */}
           <ListItem disablePadding>
-  <ListItemButton
-    component={Link}
-    to="/Estudiantes"
-    onClick={() => handleButtonClick('estudiantes')}
-    sx={{
-      borderRadius: '8px',
-      backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
-      '&:hover': {
-        backgroundColor: '#1A3254',
-      },
-    }}
-  >
-    <ListItemIcon sx={{ color: 'white' }}>
-      <PersonIcon /> {/* Aquí cambiamos el icono a una persona */}
-    </ListItemIcon>
-    <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
-  </ListItemButton>
-</ListItem>
+            <ListItemButton
+              component={Link}
+              to="/Estudiantes"
+              onClick={() => handleButtonClick('estudiantes')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
+              </ListItemIcon>
+              <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
 
- {/* Equipos */}
+          {/* Equipos */}
           <ListItem disablePadding>
-  <ListItemButton
-    component={Link}
-    to="/Equipos"
-    onClick={() => handleButtonClick('equipos')}
-    sx={{
-      borderRadius: '8px',
-      backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
-      '&:hover': {
-        backgroundColor: '#1A3254',
-      },
-    }}
-  >
-    <ListItemIcon sx={{ color: 'white' }}>
-      <PersonIcon /> {/* Aquí cambiamos el icono a una persona */}
-    </ListItemIcon>
-    <ListItemText primary="Equipos" sx={{ color: 'white' }} />
-  </ListItemButton>
-</ListItem>
-
+            <ListItemButton
+              component={Link}
+              to="/Equipos"
+              onClick={() => handleButtonClick('equipos')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+              </ListItemIcon>
+              <ListItemText primary="Equipos" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
         </List>
         <Divider />
       </Drawer>
