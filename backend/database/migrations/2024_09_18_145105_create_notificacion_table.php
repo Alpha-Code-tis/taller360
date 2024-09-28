@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('descripcion', 250)->nullable();
             $table->date('fecha')->nullable();
 
-            $table->unique(['id_notificacion'], 'notificacion_pk');
         });
     }
 

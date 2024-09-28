@@ -13,9 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('grupo', function (Blueprint $table) {
-            $table->foreign(['id_docente'], 'fk_grupo_tiene_su2_docente')->references(['id_docente'])->on('docente');
-        });
+        
     }
 
     /**

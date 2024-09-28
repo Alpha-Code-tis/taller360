@@ -3,7 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Models\Docente;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\DocenteRegistered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class DocenteController extends Controller
 {
@@ -34,8 +37,12 @@ class DocenteController extends Controller
             'contrasenia' => 'nullable|string|max:64',
             'correo' => 'nullable|string|email|max:50',
         ]);
-
-        $docente = Docente::create($validatedData);
+        $contrasenia = Str::random(10);
+        $docente = Docente::create(array_merge($validatedData, [
+            'contrasenia' => bcrypt($contrasenia),
+        ]));
+        Notification::route('mail', $docente->correo)
+            ->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia));
         return response()->json([
             'message' => 'Docente agregado correctamente',
             'docente' => $docente

@@ -189,7 +189,7 @@ const Docentes = () => {
               <tr key={docente.id_docente}>
                 <td>{`${docente.ap_pat} ${docente.ap_mat} ${docente.nombre_docente}`}</td>
                 <td>{docente.correo}</td>
-                <td>{docente.grupo.nro_grupo}</td>
+                <td>{docente.grupo?.nro_grupo || 'No asignado'}</td>                
                 <td>
                   <button
                     className="icon-button"

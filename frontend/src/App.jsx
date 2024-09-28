@@ -11,7 +11,7 @@ import Planificacion from './Representante_legal/Planificacion';
 
 import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
-
+import Equipos from './Equipos/Equipos';
 import './App.css';
 
 
@@ -24,6 +24,7 @@ function App() {
         <Route path="/Planificacion" element={<Planificacion/>}/>
         <Route path="/Docentes" element={<Docentes />} />
         <Route path="/Estudiantes" element={<Estudiantes />} />
+        <Route path="/Equipos" element={<Equipos />} />
       </Routes>
       <Footer />
     </div>

@@ -5,7 +5,11 @@ return [
 
     'allowed_methods' => ['*'], // Permite todos los métodos (GET, POST, etc.)
 
-    'allowed_origins' => ['http://localhost:3000'], // Permite localhost:3000
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => ['http://localhost:3000'],
 
     'allowed_origins_patterns' => [],
 

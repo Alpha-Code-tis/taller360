@@ -8,6 +8,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -35,6 +36,7 @@ class Docente extends Model
 	protected $table = 'docente';
 	protected $primaryKey = 'id_docente';
 	public $timestamps = false;
+	use Notifiable;
 
 	protected $casts = [
 		'id_noti' => 'int',
