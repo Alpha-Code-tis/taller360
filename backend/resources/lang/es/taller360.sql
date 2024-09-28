@@ -2,10 +2,10 @@
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: tis_mariadb
--- Generation Time: Sep 24, 2024 at 02:43 PM
--- Server version: 10.6.3-MariaDB-1:10.6.3+maria~focal
--- PHP Version: 8.2.8
+-- Servidor: tis_mariadb
+-- Tiempo de generación: 24-09-2024 a las 06:43:44
+-- Versión del servidor: 10.6.3-MariaDB-1:10.6.3+maria~focal
+-- Versión de PHP: 8.2.8
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,13 +18,13 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `taller360`
+-- Base de datos: `taller360`
 --
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `administrador`
+-- Estructura de tabla para la tabla `administrador`
 --
 
 CREATE TABLE `administrador` (
@@ -34,7 +34,7 @@ CREATE TABLE `administrador` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `administrador`
+-- Volcado de datos para la tabla `administrador`
 --
 
 INSERT INTO `administrador` (`id_admi`, `nombre`, `contrasenia`) VALUES
@@ -80,7 +80,7 @@ INSERT INTO `administrador` (`id_admi`, `nombre`, `contrasenia`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `alcance`
+-- Estructura de tabla para la tabla `alcance`
 --
 
 CREATE TABLE `alcance` (
@@ -90,7 +90,7 @@ CREATE TABLE `alcance` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `alcance`
+-- Volcado de datos para la tabla `alcance`
 --
 
 INSERT INTO `alcance` (`id_alcance`, `id_sprint`, `descripcion`) VALUES
@@ -107,7 +107,7 @@ INSERT INTO `alcance` (`id_alcance`, `id_sprint`, `descripcion`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `autoevaluacion`
+-- Estructura de tabla para la tabla `autoevaluacion`
 --
 
 CREATE TABLE `autoevaluacion` (
@@ -118,7 +118,7 @@ CREATE TABLE `autoevaluacion` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cantidad`
+-- Estructura de tabla para la tabla `cantidad`
 --
 
 CREATE TABLE `cantidad` (
@@ -130,7 +130,7 @@ CREATE TABLE `cantidad` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `cantidad`
+-- Volcado de datos para la tabla `cantidad`
 --
 
 INSERT INTO `cantidad` (`id_cantidad`, `id_empresa`, `cantidad`, `cant_min`, `cant_max`) VALUES
@@ -162,7 +162,7 @@ INSERT INTO `cantidad` (`id_cantidad`, `id_empresa`, `cantidad`, `cant_min`, `ca
 -- --------------------------------------------------------
 
 --
--- Table structure for table `cruzada`
+-- Estructura de tabla para la tabla `cruzada`
 --
 
 CREATE TABLE `cruzada` (
@@ -173,7 +173,7 @@ CREATE TABLE `cruzada` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `detalle_auto`
+-- Estructura de tabla para la tabla `detalle_auto`
 --
 
 CREATE TABLE `detalle_auto` (
@@ -185,7 +185,7 @@ CREATE TABLE `detalle_auto` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `detalle_par`
+-- Estructura de tabla para la tabla `detalle_par`
 --
 
 CREATE TABLE `detalle_par` (
@@ -197,7 +197,7 @@ CREATE TABLE `detalle_par` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `detalle_reporte`
+-- Estructura de tabla para la tabla `detalle_reporte`
 --
 
 CREATE TABLE `detalle_reporte` (
@@ -209,7 +209,7 @@ CREATE TABLE `detalle_reporte` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `docente`
+-- Estructura de tabla para la tabla `docente`
 --
 
 CREATE TABLE `docente` (
@@ -225,7 +225,7 @@ CREATE TABLE `docente` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `docente`
+-- Volcado de datos para la tabla `docente`
 --
 
 INSERT INTO `docente` (`id_docente`, `id_noti`, `id_admi`, `id_grupo`, `nombre_docente`, `ap_pat`, `ap_mat`, `contrasenia`, `correo`) VALUES
@@ -253,7 +253,7 @@ INSERT INTO `docente` (`id_docente`, `id_noti`, `id_admi`, `id_grupo`, `nombre_d
 -- --------------------------------------------------------
 
 --
--- Table structure for table `empresa`
+-- Estructura de tabla para la tabla `empresa`
 --
 
 CREATE TABLE `empresa` (
@@ -265,46 +265,39 @@ CREATE TABLE `empresa` (
   `nombre_corto` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `direccion` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `telefono` varchar(12) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `correo_empresa` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `logo` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL
+  `correo_empresa` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `empresa`
+-- Volcado de datos para la tabla `empresa`
 --
 
-INSERT INTO `empresa` (`id_empresa`, `id_cantidad`, `id_representante`, `id_planificacion`, `nombre_empresa`, `nombre_corto`, `direccion`, `telefono`, `correo_empresa`, `logo`) VALUES
-(1, NULL, NULL, NULL, 'Tech Solutions', 'TechSol', '1234 Tech Road', '555-0123', 'info@techsol.com', NULL),
-(2, NULL, NULL, NULL, 'Green Innovations', 'GreenInc', '4321 Green Way', '555-0456', 'contact@greeninc.com', NULL),
-(11, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(12, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(13, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(14, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(15, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(16, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(17, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(18, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(19, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(20, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(21, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(22, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(23, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(24, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(25, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(26, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(27, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com', NULL),
-(28, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com', NULL),
-(29, NULL, NULL, NULL, 'ssad', 'asd', 'asd', '76910725', 'asd@gmail.copm', 'logos/grAP55AipnBuAN9YSws3CGphOiQsgay7sWPcQUOu.png'),
-(30, NULL, NULL, NULL, 'ssad', 'asd', 'asd', '76910725', 'asd@gmail.copm', 'logos/o1RJMJ2AeZVcw0gLKZcBB8Ghxmk4Qv1oAQqimHMd.png'),
-(31, NULL, NULL, NULL, 's', 'a', 'asd', '76810725', 'asd@gmail.com', 'logos/QLCDij5mtr996Fnqe0sih0AoYu1m2ehVYDN9AqpL.png'),
-(32, NULL, NULL, NULL, 's', 'a', 'asd', '76810725', 'asd@gmail.com', 'logos/ITqXFW3Uq8VK39FVSaOtKS4iWUALG4VAPxdLXZFc.png'),
-(33, NULL, NULL, NULL, 's', 'a', 'asd', '76810725', 'asd@gmail.com', 'logos/IXoAWdFUrBwRQHXYk7UmRXwSTSeShG2UXrNhRmNi.png'),
-(34, NULL, NULL, NULL, 'sdfg', 'sdfgsdf', 'adsd', '45750248', 'asddd@gmail.com', 'logos/LhUWFNqR0EYQtpOLRMcncO7DNzfJEM03ns9YXnFd.png');
+INSERT INTO `empresa` (`id_empresa`, `id_cantidad`, `id_representante`, `id_planificacion`, `nombre_empresa`, `nombre_corto`, `direccion`, `telefono`, `correo_empresa`) VALUES
+(1, NULL, NULL, NULL, 'Tech Solutions', 'TechSol', '1234 Tech Road', '555-0123', 'info@techsol.com'),
+(2, NULL, NULL, NULL, 'Green Innovations', 'GreenInc', '4321 Green Way', '555-0456', 'contact@greeninc.com'),
+(11, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(12, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(13, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(14, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(15, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(16, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(17, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(18, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(19, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(20, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(21, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(22, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(23, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(24, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(25, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(26, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com'),
+(27, 1, 1, 1, 'empresa a', 'empa', 'calle 1', '123456789', 'contacto@empresaa.com'),
+(28, 2, 2, 2, 'empresa b', 'empb', 'calle 2', '987654321', 'contacto@empresab.com');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `estudiante`
+-- Estructura de tabla para la tabla `estudiante`
 --
 
 CREATE TABLE `estudiante` (
@@ -312,7 +305,6 @@ CREATE TABLE `estudiante` (
   `id_notificacion` char(10) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `id_grupo` int(11) DEFAULT NULL,
   `id_representante` int(11) DEFAULT NULL,
-  `id_empresa` int(10) UNSIGNED DEFAULT NULL,
   `nombre_estudiante` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ap_pat` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `ap_mat` varchar(35) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -322,22 +314,29 @@ CREATE TABLE `estudiante` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `estudiante`
+-- Volcado de datos para la tabla `estudiante`
 --
 
-INSERT INTO `estudiante` (`id_estudiante`, `id_notificacion`, `id_grupo`, `id_representante`, `id_empresa`, `nombre_estudiante`, `ap_pat`, `ap_mat`, `codigo_sis`, `correo`, `contrasenia`) VALUES
-(3, 'not001', 1, 1, 34, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
-(22, NULL, NULL, NULL, 33, 'Luis', 'Ramírez', 'Cruz', 56789012, 'luis.ramirez@example.com', '$2y$10$14FV74q.m0cC9KObyRGZGOhUa3D/v.0crCtLLnKtxoPs5UeIjQ7/u'),
-(23, NULL, NULL, NULL, 34, 'Juan', 'Pérez', 'García', 12345678, 'juan.perez@example.com', '$2y$10$t1eH31W3vi3efhMxtOLuSO/irRjUtNvec/1LgMS/eYTTGD/EUBZsO'),
-(24, NULL, NULL, NULL, 34, 'María', 'Gómez', 'López', 23456789, 'maria.gomez@example.com', '$2y$10$2dCihZv9RO7ut/upusuXOu6azjSAMcjtqfpH9aCcQU1lrl31baLLO'),
-(25, NULL, NULL, NULL, NULL, 'Carlos', 'López', 'Morales', 34567890, 'carlos.lopez@example.com', '$2y$10$i1kZ7NDwAKrcvZlwW5DvDePrpg4DTHbbjwgVgNVSLBXLq487bqlIu'),
-(26, NULL, NULL, NULL, NULL, 'Ana', 'Morales', 'Ramírez', 45678901, 'ana.morales@example.com', '$2y$10$XcvAh9kYTjfiVfQoDr7cV.JPO297NJlD7GrossAbLSS3uv0qHqvSy'),
-(27, NULL, NULL, NULL, NULL, 'Luis', 'Ramírez', 'Cruz', 56789012, 'luis.ramirez@example.com', '$2y$10$qEccCE6PUbRbhSpvqF5tP.bcipARUqhG2/PMOZwBG2VDhebE2cPKa');
+INSERT INTO `estudiante` (`id_estudiante`, `id_notificacion`, `id_grupo`, `id_representante`, `nombre_estudiante`, `ap_pat`, `ap_mat`, `codigo_sis`, `correo`, `contrasenia`) VALUES
+(3, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(4, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6'),
+(5, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(6, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6'),
+(7, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(8, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6'),
+(9, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(10, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6'),
+(11, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(12, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6'),
+(13, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(14, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6'),
+(15, 'not001', 1, 1, 'pedro ruiz', 'ruiz', 'torres', 123456, 'pedro@example.com', 'hashed_password_5'),
+(16, 'not002', 2, 2, 'maría lópez', 'lópez', 'hernández', 654321, 'maria@example.com', 'hashed_password_6');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `evaluacion`
+-- Estructura de tabla para la tabla `evaluacion`
 --
 
 CREATE TABLE `evaluacion` (
@@ -353,7 +352,7 @@ CREATE TABLE `evaluacion` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `grupo`
+-- Estructura de tabla para la tabla `grupo`
 --
 
 CREATE TABLE `grupo` (
@@ -363,7 +362,7 @@ CREATE TABLE `grupo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `grupo`
+-- Volcado de datos para la tabla `grupo`
 --
 
 INSERT INTO `grupo` (`id_grupo`, `id_docente`, `nro_grupo`) VALUES
@@ -395,7 +394,7 @@ INSERT INTO `grupo` (`id_grupo`, `id_docente`, `nro_grupo`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `migrations`
+-- Estructura de tabla para la tabla `migrations`
 --
 
 CREATE TABLE `migrations` (
@@ -405,7 +404,7 @@ CREATE TABLE `migrations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `migrations`
+-- Volcado de datos para la tabla `migrations`
 --
 
 INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
@@ -446,14 +445,12 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (35, '2024_09_18_145108_add_foreign_keys_to_planificacion_table', 1),
 (36, '2024_09_18_145108_add_foreign_keys_to_representate_legal_table', 1),
 (37, '2024_09_18_145108_add_foreign_keys_to_sprint_table', 1),
-(38, '2024_09_18_145108_add_foreign_keys_to_tarea_table', 1),
-(39, '2024_09_24_125043_add_logo_to_empresa_table', 2),
-(40, '2024_09_24_131523_add_id_empresa_to_estudiantes_table', 3);
+(38, '2024_09_18_145108_add_foreign_keys_to_tarea_table', 1);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notificacion`
+-- Estructura de tabla para la tabla `notificacion`
 --
 
 CREATE TABLE `notificacion` (
@@ -463,7 +460,7 @@ CREATE TABLE `notificacion` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `notificacion`
+-- Volcado de datos para la tabla `notificacion`
 --
 
 INSERT INTO `notificacion` (`id_notificacion`, `descripcion`, `fecha`) VALUES
@@ -473,7 +470,7 @@ INSERT INTO `notificacion` (`id_notificacion`, `descripcion`, `fecha`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `notificacion_doc`
+-- Estructura de tabla para la tabla `notificacion_doc`
 --
 
 CREATE TABLE `notificacion_doc` (
@@ -482,7 +479,7 @@ CREATE TABLE `notificacion_doc` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `notificacion_doc`
+-- Volcado de datos para la tabla `notificacion_doc`
 --
 
 INSERT INTO `notificacion_doc` (`id_noti`, `descripcion_not`) VALUES
@@ -518,7 +515,7 @@ INSERT INTO `notificacion_doc` (`id_noti`, `descripcion_not`) VALUES
 -- --------------------------------------------------------
 
 --
--- Table structure for table `pares`
+-- Estructura de tabla para la tabla `pares`
 --
 
 CREATE TABLE `pares` (
@@ -529,7 +526,7 @@ CREATE TABLE `pares` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `personal_access_tokens`
+-- Estructura de tabla para la tabla `personal_access_tokens`
 --
 
 CREATE TABLE `personal_access_tokens` (
@@ -547,7 +544,7 @@ CREATE TABLE `personal_access_tokens` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `planificacion`
+-- Estructura de tabla para la tabla `planificacion`
 --
 
 CREATE TABLE `planificacion` (
@@ -557,7 +554,7 @@ CREATE TABLE `planificacion` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `planificacion`
+-- Volcado de datos para la tabla `planificacion`
 --
 
 INSERT INTO `planificacion` (`id_planificacion`, `id_empresa`, `cant_sprints`) VALUES
@@ -578,18 +575,12 @@ INSERT INTO `planificacion` (`id_planificacion`, `id_empresa`, `cant_sprints`) V
 (15, 1, 3),
 (16, 2, 5),
 (17, 1, 3),
-(18, 2, 5),
-(19, 29, 6),
-(20, 30, 6),
-(21, 31, 6),
-(22, 32, 6),
-(23, 33, 6),
-(24, 34, 6);
+(18, 2, 5);
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `representate_legal`
+-- Estructura de tabla para la tabla `representate_legal`
 --
 
 CREATE TABLE `representate_legal` (
@@ -599,7 +590,7 @@ CREATE TABLE `representate_legal` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `representate_legal`
+-- Volcado de datos para la tabla `representate_legal`
 --
 
 INSERT INTO `representate_legal` (`id_representante`, `id_empresa`, `estado`) VALUES
@@ -627,7 +618,7 @@ INSERT INTO `representate_legal` (`id_representante`, `id_empresa`, `estado`) VA
 -- --------------------------------------------------------
 
 --
--- Table structure for table `sprint`
+-- Estructura de tabla para la tabla `sprint`
 --
 
 CREATE TABLE `sprint` (
@@ -640,7 +631,7 @@ CREATE TABLE `sprint` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `sprint`
+-- Volcado de datos para la tabla `sprint`
 --
 
 INSERT INTO `sprint` (`id_sprint`, `id_planificacion`, `fecha_inicio`, `fecha_fin`, `color`, `nro_sprint`) VALUES
@@ -655,7 +646,7 @@ INSERT INTO `sprint` (`id_sprint`, `id_planificacion`, `fecha_inicio`, `fecha_fi
 -- --------------------------------------------------------
 
 --
--- Table structure for table `tarea`
+-- Estructura de tabla para la tabla `tarea`
 --
 
 CREATE TABLE `tarea` (
@@ -665,7 +656,7 @@ CREATE TABLE `tarea` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `tarea`
+-- Volcado de datos para la tabla `tarea`
 --
 
 INSERT INTO `tarea` (`id_tarea`, `id_alcance`, `nombre_tarea`) VALUES
@@ -697,18 +688,18 @@ INSERT INTO `tarea` (`id_tarea`, `id_alcance`, `nombre_tarea`) VALUES
 (30, 13, 'API');
 
 --
--- Indexes for dumped tables
+-- Índices para tablas volcadas
 --
 
 --
--- Indexes for table `administrador`
+-- Indices de la tabla `administrador`
 --
 ALTER TABLE `administrador`
   ADD PRIMARY KEY (`id_admi`),
   ADD UNIQUE KEY `administrador_pk` (`id_admi`);
 
 --
--- Indexes for table `alcance`
+-- Indices de la tabla `alcance`
 --
 ALTER TABLE `alcance`
   ADD PRIMARY KEY (`id_alcance`),
@@ -716,7 +707,7 @@ ALTER TABLE `alcance`
   ADD KEY `tiene_sus_fk` (`id_sprint`);
 
 --
--- Indexes for table `autoevaluacion`
+-- Indices de la tabla `autoevaluacion`
 --
 ALTER TABLE `autoevaluacion`
   ADD PRIMARY KEY (`id_autoe`),
@@ -724,7 +715,7 @@ ALTER TABLE `autoevaluacion`
   ADD KEY `es_una2_fk` (`id_evaluacion`);
 
 --
--- Indexes for table `cantidad`
+-- Indices de la tabla `cantidad`
 --
 ALTER TABLE `cantidad`
   ADD PRIMARY KEY (`id_cantidad`),
@@ -732,7 +723,7 @@ ALTER TABLE `cantidad`
   ADD KEY `relationship_20_fk` (`id_empresa`);
 
 --
--- Indexes for table `cruzada`
+-- Indices de la tabla `cruzada`
 --
 ALTER TABLE `cruzada`
   ADD PRIMARY KEY (`id_cruzada`),
@@ -740,7 +731,7 @@ ALTER TABLE `cruzada`
   ADD KEY `es_un2_fk` (`id_evaluacion`);
 
 --
--- Indexes for table `detalle_auto`
+-- Indices de la tabla `detalle_auto`
 --
 ALTER TABLE `detalle_auto`
   ADD PRIMARY KEY (`id_rep_auto`),
@@ -748,7 +739,7 @@ ALTER TABLE `detalle_auto`
   ADD KEY `contiene_fk` (`id_autoe`);
 
 --
--- Indexes for table `detalle_par`
+-- Indices de la tabla `detalle_par`
 --
 ALTER TABLE `detalle_par`
   ADD PRIMARY KEY (`id_det_par`),
@@ -756,7 +747,7 @@ ALTER TABLE `detalle_par`
   ADD KEY `cuenta_con_fk` (`id_pares`);
 
 --
--- Indexes for table `detalle_reporte`
+-- Indices de la tabla `detalle_reporte`
 --
 ALTER TABLE `detalle_reporte`
   ADD PRIMARY KEY (`id_rep_det`),
@@ -764,7 +755,7 @@ ALTER TABLE `detalle_reporte`
   ADD KEY `cuenta_con_su_fk` (`id_cruzada`);
 
 --
--- Indexes for table `docente`
+-- Indices de la tabla `docente`
 --
 ALTER TABLE `docente`
   ADD PRIMARY KEY (`id_docente`),
@@ -774,7 +765,7 @@ ALTER TABLE `docente`
   ADD KEY `tiene_su_fk` (`id_grupo`);
 
 --
--- Indexes for table `empresa`
+-- Indices de la tabla `empresa`
 --
 ALTER TABLE `empresa`
   ADD PRIMARY KEY (`id_empresa`),
@@ -784,7 +775,7 @@ ALTER TABLE `empresa`
   ADD KEY `tiene_fk` (`id_planificacion`);
 
 --
--- Indexes for table `estudiante`
+-- Indices de la tabla `estudiante`
 --
 ALTER TABLE `estudiante`
   ADD PRIMARY KEY (`id_estudiante`),
@@ -794,7 +785,7 @@ ALTER TABLE `estudiante`
   ADD KEY `registra_fk` (`id_representante`);
 
 --
--- Indexes for table `evaluacion`
+-- Indices de la tabla `evaluacion`
 --
 ALTER TABLE `evaluacion`
   ADD PRIMARY KEY (`id_evaluacion`),
@@ -805,7 +796,7 @@ ALTER TABLE `evaluacion`
   ADD KEY `es_una_fk` (`id_autoe`);
 
 --
--- Indexes for table `grupo`
+-- Indices de la tabla `grupo`
 --
 ALTER TABLE `grupo`
   ADD PRIMARY KEY (`id_grupo`),
@@ -813,27 +804,27 @@ ALTER TABLE `grupo`
   ADD KEY `tiene_su2_fk` (`id_docente`);
 
 --
--- Indexes for table `migrations`
+-- Indices de la tabla `migrations`
 --
 ALTER TABLE `migrations`
   ADD PRIMARY KEY (`id`);
 
 --
--- Indexes for table `notificacion`
+-- Indices de la tabla `notificacion`
 --
 ALTER TABLE `notificacion`
   ADD PRIMARY KEY (`id_notificacion`),
   ADD UNIQUE KEY `notificacion_pk` (`id_notificacion`);
 
 --
--- Indexes for table `notificacion_doc`
+-- Indices de la tabla `notificacion_doc`
 --
 ALTER TABLE `notificacion_doc`
   ADD PRIMARY KEY (`id_noti`),
   ADD UNIQUE KEY `notificacion_doc_pk` (`id_noti`);
 
 --
--- Indexes for table `pares`
+-- Indices de la tabla `pares`
 --
 ALTER TABLE `pares`
   ADD PRIMARY KEY (`id_pares`),
@@ -841,7 +832,7 @@ ALTER TABLE `pares`
   ADD KEY `es2_fk` (`id_evaluacion`);
 
 --
--- Indexes for table `personal_access_tokens`
+-- Indices de la tabla `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
   ADD PRIMARY KEY (`id`),
@@ -849,7 +840,7 @@ ALTER TABLE `personal_access_tokens`
   ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`);
 
 --
--- Indexes for table `planificacion`
+-- Indices de la tabla `planificacion`
 --
 ALTER TABLE `planificacion`
   ADD PRIMARY KEY (`id_planificacion`),
@@ -857,7 +848,7 @@ ALTER TABLE `planificacion`
   ADD KEY `tiene_fk` (`id_empresa`);
 
 --
--- Indexes for table `representate_legal`
+-- Indices de la tabla `representate_legal`
 --
 ALTER TABLE `representate_legal`
   ADD PRIMARY KEY (`id_representante`),
@@ -865,7 +856,7 @@ ALTER TABLE `representate_legal`
   ADD KEY `inscribe_fk` (`id_empresa`);
 
 --
--- Indexes for table `sprint`
+-- Indices de la tabla `sprint`
 --
 ALTER TABLE `sprint`
   ADD PRIMARY KEY (`id_sprint`),
@@ -873,7 +864,7 @@ ALTER TABLE `sprint`
   ADD KEY `cuent_fk` (`id_planificacion`);
 
 --
--- Indexes for table `tarea`
+-- Indices de la tabla `tarea`
 --
 ALTER TABLE `tarea`
   ADD PRIMARY KEY (`id_tarea`),
@@ -881,183 +872,183 @@ ALTER TABLE `tarea`
   ADD KEY `tiene_varias_fk` (`id_alcance`);
 
 --
--- AUTO_INCREMENT for dumped tables
+-- AUTO_INCREMENT de las tablas volcadas
 --
 
 --
--- AUTO_INCREMENT for table `administrador`
+-- AUTO_INCREMENT de la tabla `administrador`
 --
 ALTER TABLE `administrador`
   MODIFY `id_admi` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
--- AUTO_INCREMENT for table `alcance`
+-- AUTO_INCREMENT de la tabla `alcance`
 --
 ALTER TABLE `alcance`
   MODIFY `id_alcance` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
--- AUTO_INCREMENT for table `autoevaluacion`
+-- AUTO_INCREMENT de la tabla `autoevaluacion`
 --
 ALTER TABLE `autoevaluacion`
   MODIFY `id_autoe` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
--- AUTO_INCREMENT for table `cantidad`
+-- AUTO_INCREMENT de la tabla `cantidad`
 --
 ALTER TABLE `cantidad`
   MODIFY `id_cantidad` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
--- AUTO_INCREMENT for table `cruzada`
+-- AUTO_INCREMENT de la tabla `cruzada`
 --
 ALTER TABLE `cruzada`
   MODIFY `id_cruzada` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `detalle_auto`
+-- AUTO_INCREMENT de la tabla `detalle_auto`
 --
 ALTER TABLE `detalle_auto`
   MODIFY `id_rep_auto` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `detalle_par`
+-- AUTO_INCREMENT de la tabla `detalle_par`
 --
 ALTER TABLE `detalle_par`
   MODIFY `id_det_par` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `detalle_reporte`
+-- AUTO_INCREMENT de la tabla `detalle_reporte`
 --
 ALTER TABLE `detalle_reporte`
   MODIFY `id_rep_det` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `docente`
+-- AUTO_INCREMENT de la tabla `docente`
 --
 ALTER TABLE `docente`
   MODIFY `id_docente` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
 
 --
--- AUTO_INCREMENT for table `empresa`
+-- AUTO_INCREMENT de la tabla `empresa`
 --
 ALTER TABLE `empresa`
-  MODIFY `id_empresa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
+  MODIFY `id_empresa` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
--- AUTO_INCREMENT for table `estudiante`
+-- AUTO_INCREMENT de la tabla `estudiante`
 --
 ALTER TABLE `estudiante`
-  MODIFY `id_estudiante` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `id_estudiante` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
--- AUTO_INCREMENT for table `evaluacion`
+-- AUTO_INCREMENT de la tabla `evaluacion`
 --
 ALTER TABLE `evaluacion`
   MODIFY `id_evaluacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `grupo`
+-- AUTO_INCREMENT de la tabla `grupo`
 --
 ALTER TABLE `grupo`
   MODIFY `id_grupo` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
--- AUTO_INCREMENT for table `migrations`
+-- AUTO_INCREMENT de la tabla `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
--- AUTO_INCREMENT for table `notificacion_doc`
+-- AUTO_INCREMENT de la tabla `notificacion_doc`
 --
 ALTER TABLE `notificacion_doc`
   MODIFY `id_noti` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
--- AUTO_INCREMENT for table `pares`
+-- AUTO_INCREMENT de la tabla `pares`
 --
 ALTER TABLE `pares`
   MODIFY `id_pares` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT for table `personal_access_tokens`
+-- AUTO_INCREMENT de la tabla `personal_access_tokens`
 --
 ALTER TABLE `personal_access_tokens`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `planificacion`
+-- AUTO_INCREMENT de la tabla `planificacion`
 --
 ALTER TABLE `planificacion`
-  MODIFY `id_planificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id_planificacion` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
--- AUTO_INCREMENT for table `representate_legal`
+-- AUTO_INCREMENT de la tabla `representate_legal`
 --
 ALTER TABLE `representate_legal`
   MODIFY `id_representante` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
--- AUTO_INCREMENT for table `sprint`
+-- AUTO_INCREMENT de la tabla `sprint`
 --
 ALTER TABLE `sprint`
   MODIFY `id_sprint` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
--- AUTO_INCREMENT for table `tarea`
+-- AUTO_INCREMENT de la tabla `tarea`
 --
 ALTER TABLE `tarea`
   MODIFY `id_tarea` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
--- Constraints for dumped tables
+-- Restricciones para tablas volcadas
 --
 
 --
--- Constraints for table `alcance`
+-- Filtros para la tabla `alcance`
 --
 ALTER TABLE `alcance`
   ADD CONSTRAINT `fk_alcance_tiene_sus_sprint` FOREIGN KEY (`id_sprint`) REFERENCES `sprint` (`id_sprint`);
 
 --
--- Constraints for table `autoevaluacion`
+-- Filtros para la tabla `autoevaluacion`
 --
 ALTER TABLE `autoevaluacion`
   ADD CONSTRAINT `fk_autoeval_es_una2_evaluaci` FOREIGN KEY (`id_evaluacion`) REFERENCES `evaluacion` (`id_evaluacion`);
 
 --
--- Constraints for table `cantidad`
+-- Filtros para la tabla `cantidad`
 --
 ALTER TABLE `cantidad`
   ADD CONSTRAINT `fk_cantidad_relations_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `empresa` (`id_empresa`);
 
 --
--- Constraints for table `cruzada`
+-- Filtros para la tabla `cruzada`
 --
 ALTER TABLE `cruzada`
   ADD CONSTRAINT `fk_cruzada_es_un2_evaluaci` FOREIGN KEY (`id_evaluacion`) REFERENCES `evaluacion` (`id_evaluacion`);
 
 --
--- Constraints for table `detalle_auto`
+-- Filtros para la tabla `detalle_auto`
 --
 ALTER TABLE `detalle_auto`
   ADD CONSTRAINT `fk_detalle__contiene_autoeval` FOREIGN KEY (`id_autoe`) REFERENCES `autoevaluacion` (`id_autoe`);
 
 --
--- Constraints for table `detalle_par`
+-- Filtros para la tabla `detalle_par`
 --
 ALTER TABLE `detalle_par`
   ADD CONSTRAINT `fk_detalle__cuenta_co_pares` FOREIGN KEY (`id_pares`) REFERENCES `pares` (`id_pares`);
 
 --
--- Constraints for table `detalle_reporte`
+-- Filtros para la tabla `detalle_reporte`
 --
 ALTER TABLE `detalle_reporte`
   ADD CONSTRAINT `fk_detalle__cuenta_co_cruzada` FOREIGN KEY (`id_cruzada`) REFERENCES `cruzada` (`id_cruzada`);
 
 --
--- Constraints for table `docente`
+-- Filtros para la tabla `docente`
 --
 ALTER TABLE `docente`
   ADD CONSTRAINT `fk_docente_le_llega_notifica` FOREIGN KEY (`id_noti`) REFERENCES `notificacion_doc` (`id_noti`),
@@ -1065,7 +1056,7 @@ ALTER TABLE `docente`
   ADD CONSTRAINT `fk_docente_tiene_su_grupo` FOREIGN KEY (`id_grupo`) REFERENCES `grupo` (`id_grupo`);
 
 --
--- Constraints for table `empresa`
+-- Filtros para la tabla `empresa`
 --
 ALTER TABLE `empresa`
   ADD CONSTRAINT `fk_empresa_inscribe2_represen` FOREIGN KEY (`id_representante`) REFERENCES `representate_legal` (`id_representante`),
@@ -1073,7 +1064,7 @@ ALTER TABLE `empresa`
   ADD CONSTRAINT `fk_empresa_tiene_planific` FOREIGN KEY (`id_planificacion`) REFERENCES `planificacion` (`id_planificacion`);
 
 --
--- Constraints for table `estudiante`
+-- Filtros para la tabla `estudiante`
 --
 ALTER TABLE `estudiante`
   ADD CONSTRAINT `fk_estudian_llega_notifica` FOREIGN KEY (`id_notificacion`) REFERENCES `notificacion` (`id_notificacion`),
@@ -1081,7 +1072,7 @@ ALTER TABLE `estudiante`
   ADD CONSTRAINT `fk_estudian_registra_represen` FOREIGN KEY (`id_representante`) REFERENCES `representate_legal` (`id_representante`);
 
 --
--- Constraints for table `evaluacion`
+-- Filtros para la tabla `evaluacion`
 --
 ALTER TABLE `evaluacion`
   ADD CONSTRAINT `fk_evaluaci_es_pares` FOREIGN KEY (`id_pares`) REFERENCES `pares` (`id_pares`),
@@ -1090,37 +1081,37 @@ ALTER TABLE `evaluacion`
   ADD CONSTRAINT `fk_evaluaci_realiza_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `empresa` (`id_empresa`);
 
 --
--- Constraints for table `grupo`
+-- Filtros para la tabla `grupo`
 --
 ALTER TABLE `grupo`
   ADD CONSTRAINT `fk_grupo_tiene_su2_docente` FOREIGN KEY (`id_docente`) REFERENCES `docente` (`id_docente`);
 
 --
--- Constraints for table `pares`
+-- Filtros para la tabla `pares`
 --
 ALTER TABLE `pares`
   ADD CONSTRAINT `fk_pares_es2_evaluaci` FOREIGN KEY (`id_evaluacion`) REFERENCES `evaluacion` (`id_evaluacion`);
 
 --
--- Constraints for table `planificacion`
+-- Filtros para la tabla `planificacion`
 --
 ALTER TABLE `planificacion`
   ADD CONSTRAINT `fk_planific_tiene2_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `empresa` (`id_empresa`);
 
 --
--- Constraints for table `representate_legal`
+-- Filtros para la tabla `representate_legal`
 --
 ALTER TABLE `representate_legal`
   ADD CONSTRAINT `fk_represen_inscribe_empresa` FOREIGN KEY (`id_empresa`) REFERENCES `empresa` (`id_empresa`);
 
 --
--- Constraints for table `sprint`
+-- Filtros para la tabla `sprint`
 --
 ALTER TABLE `sprint`
   ADD CONSTRAINT `fk_sprint_cuent_planific` FOREIGN KEY (`id_planificacion`) REFERENCES `planificacion` (`id_planificacion`);
 
 --
--- Constraints for table `tarea`
+-- Filtros para la tabla `tarea`
 --
 ALTER TABLE `tarea`
   ADD CONSTRAINT `fk_tarea_tiene_var_alcance` FOREIGN KEY (`id_alcance`) REFERENCES `alcance` (`id_alcance`);

@@ -5,8 +5,12 @@ namespace App\Http\Controllers;
 use App\Imports\EstudiantesImport;
 use App\Models\Estudiante;
 use App\Models\RepresentateLegal;
+use App\Notifications\EstudianteRegistered;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Notification;
+
 
 class EstudianteController extends Controller
 {
@@ -45,13 +49,17 @@ class EstudianteController extends Controller
         ]);
 
         $representanteId = null;
-
+        $correo = $validatedData['codigo_sis'] . '@est.umss.edu';
+        $contrasenia = Str::random(10);
         // Si se indica que el estudiante es un representante, crear un nuevo representante
         if ($request->es_representante) {
             $representante = RepresentateLegal::create([
                 'estado' => 1, // Puedes ajustar el estado según sea necesario
             ]);
             $representanteId = $representante->id_representante; // Obtener el ID del representante recién creado
+
+            Notification::route('mail', $correo)
+                ->notify(new EstudianteRegistered($request->nombre_estudiante, $correo, $contrasenia));
         }
 
         // Crear el estudiante, asignando el ID del representante si existe
@@ -61,6 +69,8 @@ class EstudianteController extends Controller
             'ap_mat' => $request->ap_mat,
             'codigo_sis' => $request->codigo_sis,
             'id_representante' => $representanteId, // Asignar el ID del representante
+            'correo' => $correo,
+            'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
         ]);
 
         return response()->json($estudiante, 201); // Retornar el estudiante creado
@@ -75,24 +85,31 @@ class EstudianteController extends Controller
             'nombre_estudiante' => 'required|string|max:255',
             'ap_pat' => 'required|string|max:255',
             'ap_mat' => 'nullable|string|max:255',
-            'correo' => 'nullable|email|unique:estudiante,correo,' . $id . ',id_estudiante',
             'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id . ',id_estudiante',
             'es_representante' => 'boolean', // Validación para es_representante
         ]);
 
         try {
             $estudiante = Estudiante::where('id_estudiante', $id)->first();
+            $isRepresentante = $request->input('es_representante');
+            if ($isRepresentante) {
+                $contrasenia = Str::random(10); 
+                $estudiante->contrasenia = bcrypt($contrasenia); 
+            } else {
+                $contrasenia = $estudiante->contrasenia;
+            }
 
-            // Actualizar el estudiante con el nuevo id_representante
             $estudiante->update([
                 'nombre_estudiante' => $request->input('nombre_estudiante'),
                 'ap_pat' => $request->input('ap_pat'),
                 'ap_mat' => $request->input('ap_mat'),
                 'codigo_sis' => $request->input('codigo_sis'),
-                'correo' => $request->input('correo'),
-                'contrasenia' => $request->input('contrasenia') ? bcrypt($request->input('contrasenia')) : $estudiante->contrasenia,
-                'id_representante' => $request->input('es_representante') ? 1 : null, // Asignar 1 o null según es_representante
+                'id_representante' => $isRepresentante ? 1 : null, // Asignar 1 o null según es_representante
             ]);
+            if ($isRepresentante) {
+                Notification::route('mail', $estudiante->correo)
+                    ->notify(new EstudianteRegistered($estudiante->nombre_estudiante, $estudiante->correo, $contrasenia));
+            }
 
             return response()->json($estudiante, 200);
         } catch (\Exception $e) {
@@ -100,21 +117,21 @@ class EstudianteController extends Controller
         }
     }
 
-    // Eliminar un estudiante
+
     // Eliminar un estudiante y su representante
-public function destroy($id)
-{
-    try {
-        $estudiante = Estudiante::findOrFail($id);
-        
-        // Eliminar el estudiante
-        $estudiante->delete();
-        
-        return response()->json(['message' => 'Estudiante y su representante eliminado exitosamente'], 200);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Error al eliminar el estudiante'], 500);
+    public function destroy($id)
+    {
+        try {
+            $estudiante = Estudiante::findOrFail($id);
+
+            // Eliminar el estudiante
+            $estudiante->delete();
+
+            return response()->json(['message' => 'Estudiante y su representante eliminado exitosamente'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al eliminar el estudiante'], 500);
+        }
     }
-}
 
 
     public function import(Request $request)
