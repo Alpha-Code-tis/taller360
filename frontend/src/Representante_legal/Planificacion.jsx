@@ -45,6 +45,8 @@ const Planificacion = () => {
 
   const [showModal, setShowModal] = useState(false);
   const handleSave = async () => {
+    console.log('Fecha de Inicio:', formValues.fechaInicio);
+  console.log('Fecha de Fin:', formValues.fechaFinal);
     try {
       const response = await axios.post('http://localhost:8000/api/planificacion', {
         nro_sprint: formValues.nSprint,
@@ -220,16 +222,17 @@ const Planificacion = () => {
                   <Form.Label>Fecha Inicio</Form.Label>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      value={fechaInicio}
-                      onChange={(newValue) => setFechaInicio(dayjs(newValue))}     
-                      slotProps={{ textField: { variant: 'outlined',fullWidth: true } }}
-                      sx={{
-                        width: '100%',
-                        '@media (max-width:600px)': {
-                          fontSize: '0.875rem', // Tamaño de fuente reducido en pantallas pequeñas
-                        },
-                        '& .MuiInputBase-root': { height: '39px' },
-                      }}
+
+value={dayjs.isDayjs(formValues.fechaInicio) ? formValues.fechaInicio : dayjs(formValues.fechaInicio)} 
+onChange={(newValue) => setFormValues({ ...formValues, fechaInicio: newValue })}         
+slotProps={{ textField: { variant: 'outlined',fullWidth: true } }}
+sx={{
+  width: '100%',
+  '@media (max-width:600px)': {
+    fontSize: '0.875rem', // Tamaño de fuente reducido en pantallas pequeñas
+  },
+  '& .MuiInputBase-root': { height: '39px' },
+}}
                     />
                   </LocalizationProvider>
                   {formErrors.fechaInicio && <div className="text-danger">{formErrors.fechaInicio}</div>}
@@ -241,16 +244,21 @@ const Planificacion = () => {
                   <Form.Label>Fecha Final</Form.Label>
                   <LocalizationProvider dateAdapter={AdapterDayjs}>
                     <DatePicker
-                      value={fechaFinal}
-                      onChange={(newValue) => setFechaFinal(dayjs(newValue))}
-                      slotProps={{ textField: { variant: 'outlined',fullWidth: true } }}
-                      sx={{
-                        width: '100%',
-                        '@media (max-width:600px)': {
-                          fontSize: '0.875rem', // Tamaño de fuente reducido en pantallas pequeñas
-                        },
-                        '& .MuiInputBase-root': { height: '39px' },
-                      }}
+value={dayjs.isDayjs(formValues.fechaFinal) ? formValues.fechaFinal : dayjs(formValues.fechaFinal)}
+onChange={(newValue) => setFormValues({ ...formValues, fechaFinal: newValue })}
+slotProps={{ textField: { variant: 'outlined', fullWidth: true } }}
+sx={{
+  width: '100%',
+  '@media (max-width:600px)': {
+    fontSize: '0.875rem', // Tamaño de fuente reducido en pantallas pequeñas
+  },
+  '& .MuiInputBase-root': { height: '39px' },
+}}
+
+
+
+
+                      
                     />
                   </LocalizationProvider>
                   {formErrors.fechaFinal && <div className="text-danger">{formErrors.fechaFinal}</div>}
