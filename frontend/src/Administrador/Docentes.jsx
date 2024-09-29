@@ -241,7 +241,7 @@ const Docentes = () => {
         <Modal.Body>
           <Form>
             <Row>
-              <Col md={6}>
+              <Col md={12}>
                 <Form.Group controlId="formNombre" className="mb-3">
                   <Form.Label>Nombres</Form.Label>
                   <Form.Control
