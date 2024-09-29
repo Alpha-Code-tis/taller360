@@ -7,6 +7,10 @@ use Illuminate\Support\Facades\Notification;
 use App\Notifications\DocenteRegistered;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Laravel\Sanctum\PersonalAccessToken;
+use App\Models\Administrador;
+use App\Models\Estudiante;
+
 
 class DocenteController extends Controller
 {
@@ -41,12 +45,67 @@ class DocenteController extends Controller
         $docente = Docente::create(array_merge($validatedData, [
             'contrasenia' => bcrypt($contrasenia),
         ]));
+        $url = 'http://localhost:3000/Estudiantes';
         Notification::route('mail', $docente->correo)
-            ->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia));
+            ->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia, $url));
         return response()->json([
             'message' => 'Docente agregado correctamente',
             'docente' => $docente
         ], 201);
+    }
+
+    public function loginWithToken(Request $request)
+    {
+        // Obtener el token desde la query string
+        $token = $request->query('token');
+
+        if (!$token) {
+            return response()->json(['error' => 'Token no proporcionado'], 400);
+        }
+
+        // Verificar si el token es válido en la base de datos
+        $tokenData = PersonalAccessToken::findToken($token);
+        if (!$tokenData) {
+            return response()->json(['error' => 'Token inválido'], 404);
+        }
+
+        // Obtener el usuario relacionado con el token
+        $user = $tokenData->tokenable;
+
+        // Verificar el rol del usuario y autenticar según corresponda
+        if ($user instanceof Docente) {
+            //auth()->login($user);
+            return response()->json([
+                'message' => 'Inicio de sesión exitoso (Docente)',
+                'role' => 'Docente',
+                'nombre' => $user->nombre_docente,
+                'apellido_paterno' => $user->ap_pat,
+                'apellido_materno' => $user->ap_mat,
+                'correo' => $user->correo
+            ]);
+        } elseif ($user instanceof Administrador) {
+            //auth()->login($user);
+            return response()->json([
+                'message' => 'Inicio de sesión exitoso (Administrador)',
+                'role' => 'Administrador',
+                'nombre' => 'Administrador',
+                'apellido_paterno' => '',
+                'apellido_materno' => '',
+                'correo' => $user->correo
+            ]);
+        } elseif ($user instanceof Estudiante) {
+            //auth()->login($user);
+            return response()->json([
+                'message' => 'Inicio de sesión exitoso (Estudiante)',
+                'role' => 'Estudiante',
+                'nombre' => $user->nombre_estudiante,
+                'apellido_paterno' => $user->ap_pat,
+                'apellido_materno' => $user->ap_mat,
+                'correo' => $user->correo
+            ]);
+        } else {
+            return response()->json(['error' => 'Rol no reconocido'], 403);
+        }
     }
 
     public function update(Request $request, $id)
