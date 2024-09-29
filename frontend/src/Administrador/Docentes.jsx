@@ -10,7 +10,9 @@ const Docentes = () => {
   const [grupos, setGrupos] = useState([]); // Nuevo estado para almacenar los grupos
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showNewGroupModal, setShowNewGroupModal] = useState(false);
   const [currentDocente, setCurrentDocente] = useState(null);
+  const [newGroupName, setNewGroupName] = useState('');
   const [formValues, setFormValues] = useState({
     nombre: '',
     apellidoPaterno: '',
@@ -110,6 +112,9 @@ const Docentes = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormValues({ ...formValues, [name]: value });
+    if (name === 'grupo' && value === 'nuevo') {
+      setShowNewGroupModal(true);
+    }
   };
 
   const validateForm = () => {
@@ -162,6 +167,22 @@ const Docentes = () => {
       handleCloseModal();
     } catch (err) {
       toast.error('Error al guardar el docente');
+    }
+  };
+  const handleSaveNewGroup = async () => {
+    if (newGroupName.trim() === '') {
+      toast.error('El nombre del grupo no puede estar vacío.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/grupos', { nro_grupo: newGroupName });
+      setGrupos([...grupos, response.data]);
+      setNewGroupName('');
+      setShowNewGroupModal(false);
+      toast.success('Grupo agregado exitosamente');
+    } catch (err) {
+      toast.error('Error al agregar el grupo');
     }
   };
 
@@ -237,7 +258,6 @@ const Docentes = () => {
                 </Form.Group>
               </Col>
             </Row>
-
             <Row>
               <Col md={6}>
                 <Form.Group controlId="formApellidoPaterno" className="mb-3">
@@ -282,12 +302,12 @@ const Docentes = () => {
                     {formErrors.correo}
                   </Form.Control.Feedback>
                 </Form.Group>
-              </Col>
-
+              </Col>              
               <Col md={6}>
                 <Form.Group controlId="formGrupo" className="mb-3">
                   <Form.Label>Grupo</Form.Label>
-                  <Form.Select
+                  <Form.Control
+                    as="select"
                     name="grupo"
                     value={formValues.grupo}
                     onChange={handleInputChange}
@@ -300,7 +320,8 @@ const Docentes = () => {
                         {grupo.nro_grupo}
                       </option>
                     ))}
-                  </Form.Select>
+                  <option value="nuevo">+ Añadir nuevo grupo</option>
+                  </Form.Control>
                   <Form.Control.Feedback type="invalid">
                     {formErrors.grupo}
                   </Form.Control.Feedback>
@@ -315,6 +336,34 @@ const Docentes = () => {
           </Button>
           <Button variant="primary" onClick={handleSave}>
             {currentDocente ? 'Guardar Cambios' : 'Registrar'}
+            </Button>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Modal para añadir nuevo grupo */}
+      <Modal show={showNewGroupModal} onHide={() => setShowNewGroupModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Nuevo Grupo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formNewGroup" className="mb-3">
+              <Form.Label>Nombre del Nuevo Grupo</Form.Label>
+              <Form.Control
+                type="text"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="Ingrese el nombre del nuevo grupo"
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowNewGroupModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSaveNewGroup}>
+            Guardar Grupo
           </Button>
         </Modal.Footer>
       </Modal>
