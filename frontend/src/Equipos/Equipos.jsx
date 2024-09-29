@@ -16,6 +16,7 @@ const Equipos = () => {
   const [showViewModal, setShowViewModal] = useState(false); // Modal para la vista
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentEquipo, setCurrentEquipo] = useState(null);
+
   const [formValues, setFormValues] = useState({
     nombre_empresa: '',
     nombre_corto: '',
@@ -34,6 +35,7 @@ const Equipos = () => {
         const response = await axios.get('http://localhost:8000/api/equipos');
         setEquipos(response.data);
         setFilteredEquipos(response.data);
+        console.log(data);  // Verificar los datos antes de enviarlos
       } catch (error) {
         toast.error('Error al cargar los equipos');
       }
@@ -42,14 +44,14 @@ const Equipos = () => {
     const fetchEstudiantes = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/sin-empresa');
-        setEstudiantes(
-          response.data.map((estudiante) => ({
-            value: estudiante.id_estudiante,
-            label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
-          }))
-        );
+        const formattedEstudiantes = response.data.map((estudiante) => ({
+          value: estudiante.id_estudiante,
+          label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
+        }));
+        setEstudiantes(formattedEstudiantes);
       } catch (error) {
         toast.error('Error al cargar los estudiantes');
+        console.log(error); // Inspeccionar el error si ocurre
       }
     };
 
@@ -204,18 +206,18 @@ const Equipos = () => {
       return;
     }
 
-    const data = {
+    const Equipodata = {
       nombre_empresa: formValues.nombre_empresa,
       nombre_corto: formValues.nombre_corto,
       correo_empresa: formValues.correo_empresa,
       telefono: formValues.telefono,
       direccion: formValues.direccion,
-      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
+      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(estudiante => estudiante.value),
     };
 
     try {
       if (currentEquipo) {
-        await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, data);
+        await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, Equipodata);
         setEquipos(prevEquipos =>
           prevEquipos.map(equipo =>
             equipo.id_empresa === currentEquipo.id_empresa ? { ...equipo, ...formValues } : equipo
@@ -223,13 +225,13 @@ const Equipos = () => {
         );
         toast.success('Equipo editado exitosamente');
       } else {
-        const response = await axios.post('http://localhost:8000/api/equipos', data);
+        const response = await axios.post('http://localhost:8000/api/equipos', Equipodata);
         setEquipos([...equipos, response.data]);
         toast.success('Equipo registrado exitosamente');
+
       }
       handleCloseModal();
     } catch (error) {
-      console.error('Error al guardar el equipo:', error.response ? error.response.data : error.message);
       toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
     }
   };
