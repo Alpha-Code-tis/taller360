@@ -31,6 +31,8 @@ class EmpresaController extends Controller
         }
     }
 
+
+
     public function getEstudiantesPorEmpresa($id_empresa)
     {
         try {
@@ -105,7 +107,7 @@ class EmpresaController extends Controller
     {
         // Validar los datos recibidos
         $request->validate([
-            'nombre_empresa' => 'required|string',
+        'nombre_empresa' => 'required|string|unique:empresas,nombre_empresa', // Asegura que el nombre sea único
             'nombre_corto' => 'required|string',
             'direccion' => 'required|string',
             'telefono' => 'required|string',
@@ -147,7 +149,7 @@ class EmpresaController extends Controller
     {
         // Validar los datos del request
         $request->validate([
-            'nombre_empresa' => 'required|string|max:255',
+            'nombre_empresa' => 'required|string|unique:empresas,nombre_empresa,' . $id . ',id_empresa', // Asegura que el nombre sea único, excepto el actual
             'nombre_corto' => 'required|string|max:100',
             'correo_empresa' => 'required|email',
             'telefono' => 'required|string',
@@ -174,36 +176,25 @@ class EmpresaController extends Controller
                 $logoPath = $request->file('logo')->store('logos', 'public');
             }
 
-            // Datos a actualizar
-            $datosActualizados = [
-                'nombre_empresa' => $request->input('nombre_empresa'),
-                'nombre_corto' => $request->input('nombre_corto'),
-                'correo_empresa' => $request->input('correo_empresa'),
-                'telefono' => $request->input('telefono'),
-                'direccion' => $request->input('direccion'),
-                'logo' => $logoPath,
-            ];
+             // Actualizar los datos de la empresa
+        $empresa->update([
+            'nombre_empresa' => $request->nombre_empresa,
+            'nombre_corto' => $request->nombre_corto,
+            'correo_empresa' => $request->correo_empresa,
+            'telefono' => $request->telefono,
+            'direccion' => $request->direccion,
+            'logo' => $logoPath,
+        ]);
 
-            
-            // Comparar datos antes de la actualización
-            Log::info('Datos a actualizar', ['datos' => $datosActualizados]);
-
-            // Actualizar los datos de la empresa
-            $actualizado = $empresa->update($datosActualizados);
-
-            // Verificar si realmente se actualizó algo
-            if ($actualizado) {
-                // Si se actualizó, registrar los nuevos valores
-                Log::info('Datos de la empresa después de la actualización', ['empresa_actualizada' => $empresa->fresh()->toArray()]);
-                return response()->json($empresa->fresh(), 200); // Usar fresh() para obtener los datos actualizados
-            } else {
-                Log::warning('No se actualizaron los datos.');
-                return response()->json(['error' => 'No se realizaron cambios en los datos de la empresa.'], 400);
-            }
-        } catch (\Exception $e) {
-            // Manejo de errores
-            Log::error('Error al actualizar la empresa', ['error' => $e->getMessage()]);
-            return response()->json(['error' => 'Error al actualizar la empresa: ' . $e->getMessage()], 500);
+        // Actualizar los estudiantes asignados
+        $estudiantesIds = $request->estudiantesSeleccionados;
+        if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
+            Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
         }
+
+        return response()->json($empresa->fresh(), 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al actualizar la empresa: ' . $e->getMessage()], 500);
     }
+}
 }
