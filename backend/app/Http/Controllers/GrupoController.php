@@ -8,18 +8,19 @@ use Illuminate\Http\Request;
 
 class GrupoController extends Controller
 {
-    // Mostrar todos los grupos
     public function index()
     {
         $grupos = Grupo::all();
-        return response()->json($grupos);
+        $gruposOcupados = Docente::pluck('id_grupo')->toArray();
+        $gruposDisponibles = $grupos->filter(function($grupo) use ($gruposOcupados) {
+            return !in_array($grupo->id_grupo, $gruposOcupados);
+        });
+        return response()->json($gruposDisponibles->values()->all());
     }
 
-    // Mostrar un grupo en específico
     public function show($id)
     {
         $grupo = Grupo::find($id);
-
         if ($grupo) {
             return response()->json($grupo);
         } else {
@@ -30,7 +31,7 @@ class GrupoController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'nro_grupo' => 'nullable|numeric|max:10',  // Changed to numeric
+            'nro_grupo' => 'required|numeric|unique:grupos,nro_grupo|max:10',
         ]);
     
         $grupo = Grupo::create($validatedData);
@@ -46,7 +47,7 @@ class GrupoController extends Controller
         }
     
         $validatedData = $request->validate([
-            'nro_grupo' => 'nullable|numeric|max:10',  // Changed to numeric
+            'nro_grupo' => 'required|numeric|unique:grupos,nro_grupo,' . $grupo->id . '|max:10',
         ]);
     
         $grupo->update($validatedData);

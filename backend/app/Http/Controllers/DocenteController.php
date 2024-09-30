@@ -34,13 +34,23 @@ class DocenteController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'id_grupo' => 'nullable|integer',
-            'nombre_docente' => 'nullable|string|max:35',
-            'ap_pat' => 'nullable|string|max:35',
-            'ap_mat' => 'nullable|string|max:35',
-            'contrasenia' => 'nullable|string|max:64',
-            'correo' => 'nullable|string|email|max:50',
-        ]);
+            'id_grupo' => 'required|integer',
+            'nombre_docente' => 'required|string|max:35',
+            'ap_pat' => 'required|string|max:35',
+            'ap_mat' => 'required|string|max:35',
+            'contrasenia' => 'required|string|max:64',
+            'correo' => 'required|string|email|max:50',
+        ],
+        [
+            'id_grupo.required' => 'El grupo es obligatorio.',
+            'nombre_docente.required' => 'El nombre del docente es obligatorio.',
+            'ap_pat.required' => 'El apellido paterno es obligatorio.',
+            'ap_mat.required' => 'El apellido materno es obligatorio.',
+            'contrasenia.required' => 'La contraseña es obligatoria.',
+            'correo.required' => 'El correo electrónico es obligatorio.',
+            'correo.email' => 'El correo electrónico debe ser válido.',
+        ]
+    );
         $contrasenia = Str::random(10);
         $docente = Docente::create(array_merge($validatedData, [
             'contrasenia' => bcrypt($contrasenia),
@@ -117,12 +127,12 @@ class DocenteController extends Controller
         }
 
         $validatedData = $request->validate([
-            'id_grupo' => 'nullable|integer',
-            'nombre_docente' => 'nullable|string|max:35',
-            'ap_pat' => 'nullable|string|max:35',
-            'ap_mat' => 'nullable|string|max:35',
-            'contrasenia' => 'nullable|string|max:64',
-            'correo' => 'nullable|string|email|max:50',
+            'id_grupo' => 'required|integer',
+            'nombre_docente' => 'required|string|max:35',
+            'ap_pat' => 'required|string|max:35',
+            'ap_mat' => 'required|string|max:35',
+            'contrasenia' => 'required|string|max:64',
+            'correo' => 'required|string|email|max:50',
         ]);
 
         $docente->update($validatedData);
