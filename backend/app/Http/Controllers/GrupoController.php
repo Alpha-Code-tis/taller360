@@ -23,6 +23,7 @@ class GrupoController extends Controller
         });
         return response()->json($gruposDisponibles->values()->all());
     }
+    // Mostrar un grupo en específico
 
     public function show($id)
     {
