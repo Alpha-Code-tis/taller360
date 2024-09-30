@@ -176,48 +176,6 @@ export default function PersistentDrawerLeft() {
             </ListItemButton>
           </ListItem>
 
-          {/* Docentes */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Docentes"
-              onClick={() => handleButtonClick('docentes')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-          {/* Estudiantes */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Estudiantes"
-              onClick={() => handleButtonClick('estudiantes')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
-              </ListItemIcon>
-              <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
           {/* Equipos */}
           <ListItem disablePadding>
             <ListItemButton

@@ -22,7 +22,6 @@ const localizer = momentLocalizer(moment) // or globalizeLocalizer
 
 const Planificacion = () => {
   const initialTareas = [];
-
   const [error, setError] = useState(null);
   let formatter = useDateFormatter({ dateStyle: "long" });
   const [currentTareas, setCurrentTareas] = useState(null);
@@ -201,7 +200,7 @@ const Planificacion = () => {
     setShowEditModal(false); // Cerrar el modal después de guardar
   };
 
-
+  const totalPages = Math.ceil(hu.length / itemsPerPage);
   return (
     <div className="container custom-container pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -390,10 +389,10 @@ const Planificacion = () => {
             >
               Anterior
             </Button>
-            <span className="pagination-info">{`Página ${currentPage} de ${Math.ceil(hu.length / itemsPerPage)}`}</span>
-            <Button
+            <span className="pagination-info">{`Página ${currentPage} de ${totalPages}`}</span>
+            <Button 
               className="pagination-button"
-              disabled={currentPage === Math.ceil(hu.length / itemsPerPage)}
+              disabled={currentPage === totalPages ||hu.length <= itemsPerPage}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
               Siguiente
