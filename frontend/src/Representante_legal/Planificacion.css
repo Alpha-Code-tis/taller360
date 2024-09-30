@@ -89,7 +89,7 @@ table-container {
   justify-content: center;
   align-items: center;
   margin-top: 4px;
-  transform: translateX(-60px); 
+  transform: translateX(-30px); 
 }
 
 .pagination-button {
