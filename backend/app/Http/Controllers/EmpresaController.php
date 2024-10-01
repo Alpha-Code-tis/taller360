@@ -107,7 +107,7 @@ class EmpresaController extends Controller
     {
         // Validar los datos recibidos
         $request->validate([
-        'nombre_empresa' => 'required|string|unique:empresas,nombre_empresa', // Asegura que el nombre sea único
+        'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa', // Asegura que el nombre sea único
             'nombre_corto' => 'required|string',
             'direccion' => 'required|string',
             'telefono' => 'required|string',
@@ -149,7 +149,7 @@ class EmpresaController extends Controller
     {
         // Validar los datos del request
         $request->validate([
-            'nombre_empresa' => 'required|string|unique:empresas,nombre_empresa,' . $id . ',id_empresa', // Asegura que el nombre sea único, excepto el actual
+            'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa,' . $id . ',id_empresa', // Asegura que el nombre sea único, excepto el actual
             'nombre_corto' => 'required|string|max:100',
             'correo_empresa' => 'required|email',
             'telefono' => 'required|string',
