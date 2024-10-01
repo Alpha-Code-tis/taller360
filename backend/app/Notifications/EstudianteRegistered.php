@@ -13,14 +13,12 @@ class EstudianteRegistered extends Notification
     public $correo;
     public $contrasenia;
     public $nombre;
-    public $url;
 
-    public function __construct($nombre, $correo, $contrasenia, $url)
+    public function __construct($nombre, $correo, $contrasenia)
     {
         $this->correo = $correo;
         $this->contrasenia = $contrasenia;
         $this->nombre = $nombre;
-        $this->url = $url;
     }
 
     public function via($notifiable)
@@ -31,12 +29,11 @@ class EstudianteRegistered extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Registro exitoso como docente')
+            ->subject('Registro exitoso como estudiante')
             ->view('emails.docente_registered', [
-                'nombre_docente' => $this->nombre,
+                'nombre_estudiante' => $this->nombre,
                 'correo' => $this->correo,
                 'contrasenia' => $this->contrasenia,
-                'url' => $this->url,
             ]);
     }
 }

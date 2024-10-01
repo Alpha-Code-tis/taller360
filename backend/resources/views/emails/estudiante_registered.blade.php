@@ -51,7 +51,7 @@
         </header>
 
         <div style="margin: 10px; word-break: break-all; text-align:justify; font-family: 'Arial', sans-serif; font-size: 16px;">
-            <p>Hola {{ $nombre_docente ?? 'Docente' }},</p>
+            <p>Hola {{ $nombre_estudiante ?? 'Estudiante' }},</p>
             <p>Estamos muy contentos de tenerte a bordo. Estos son algunos de tus detalles: </p>
           <div style="margin-left: 110px">
               <p><strong>Usuario:</strong>
@@ -59,7 +59,7 @@
               </p>
               <p><strong>contraseña:</strong><a> {{ $contrasenia }}</a></p>
               <p><strong>Plataforma: </strong>
-              <a href="https://app.taller360.org/" target="_blank" data-saferedirecturl="http://localhost:3000/">https://app.taller360.org/</a>
+              <a href="https://app.taller360.org/" target="_blank" data-saferedirecturl="http://localhost:3000/Equipos">https://app.taller360.org/</a>
               </p>
           </div>
         

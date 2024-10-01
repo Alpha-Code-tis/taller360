@@ -56,7 +56,7 @@ class SprintController extends Controller
         try {
 
             $validated = $validator->validated();
-            $id_planificacion = 4;
+            $id_planificacion = 1;
 
             $solapamiento = Sprint::where('id_planificacion', $id_planificacion)
                 ->where('nro_sprint', '!=', $validated['nro_sprint'])
