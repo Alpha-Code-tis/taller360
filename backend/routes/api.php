@@ -8,7 +8,6 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
