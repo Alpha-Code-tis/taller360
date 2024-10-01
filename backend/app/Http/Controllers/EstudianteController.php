@@ -154,7 +154,8 @@ class EstudianteController extends Controller
 
         try {
             Excel::import(new EstudiantesImport, $request->file('file'));
-            return response()->json(['success' => 'Estudiantes importados exitosamente.'], 200);
+            $estudiantes = Estudiante::all();
+            return response()->json($estudiantes, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al importar estudiantes: ' . $e->getMessage()], 500);
         }

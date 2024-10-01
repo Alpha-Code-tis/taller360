@@ -21,6 +21,7 @@ const Estudiantes = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [file, setFile] = useState(null);
 
   // Fetching estudiantes from the backend
   useEffect(() => {
@@ -181,10 +182,9 @@ const Estudiantes = () => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     console.log("Archivo arrastrado:", file);
-  };
+  };   
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
 
     if (!file) {
       setError('Por favor, selecciona un archivo.');
@@ -357,7 +357,7 @@ const Estudiantes = () => {
           <Form>
             <Form.Group controlId="formFile" className="mb-3">
               <Form.Label>Selecciona un archivo para importar</Form.Label>
-              <Form.Control type="file" accept=".csv" onChange={handleFileUpload} />
+              <Form.Control type="file" accept=".csv" onChange={(e) => setFile(e.target.files[0])} />
             </Form.Group>
           </Form>
           {error && <p className="text-danger">{error}</p>}
