@@ -2,6 +2,8 @@
 import { useState } from 'react'
 // src/App.jsx
 import React from 'react';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Componentes/Header';

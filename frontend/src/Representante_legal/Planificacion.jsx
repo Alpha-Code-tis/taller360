@@ -22,7 +22,6 @@ const localizer = momentLocalizer(moment) // or globalizeLocalizer
 
 const Planificacion = () => {
   const initialTareas = [];
-
   const [error, setError] = useState(null);
   let formatter = useDateFormatter({ dateStyle: "long" });
   const [currentTareas, setCurrentTareas] = useState(null);
@@ -38,6 +37,7 @@ const Planificacion = () => {
 
   const [showModal, setShowModal] = useState(false);
   const handleSave = async () => {
+    const loadingToastId = toast.loading('Cargando datos...');
     try {
       const response = await axios.post('http://localhost:8000/api/planificacion', {
         nro_sprint: formValues.nSprint,
@@ -47,8 +47,12 @@ const Planificacion = () => {
         alcance: formValues.alcance,
         tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
       });
+      toast.dismiss(loadingToastId);
       toast.success('Datos guardados exitosamente:');
     } catch (error) {
+    // Cerrar el toast de carga antes de mostrar el error
+    toast.dismiss(loadingToastId); // Cerrar el toast de carga
+    // Verificar si hay una respuesta del servidor y mostrar los errores
       // Verificar si hay una respuesta del servidor y mostrar los errores
       let errorMessage = 'Ocurrió un error.';
 
@@ -201,7 +205,7 @@ const Planificacion = () => {
     setShowEditModal(false); // Cerrar el modal después de guardar
   };
 
-
+  const totalPages = Math.ceil(hu.length / itemsPerPage);
   return (
     <div className="container custom-container pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -390,10 +394,10 @@ const Planificacion = () => {
             >
               Anterior
             </Button>
-            <span className="pagination-info">{`Página ${currentPage} de ${Math.ceil(hu.length / itemsPerPage)}`}</span>
-            <Button
+            <span className="pagination-info">{`Página ${currentPage} de ${totalPages}`}</span>
+            <Button 
               className="pagination-button"
-              disabled={currentPage === Math.ceil(hu.length / itemsPerPage)}
+              disabled={currentPage === totalPages ||hu.length <= itemsPerPage}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
               Siguiente
