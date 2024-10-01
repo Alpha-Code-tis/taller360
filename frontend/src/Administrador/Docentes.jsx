@@ -138,7 +138,7 @@ const Docentes = () => {
       toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
-
+    
     const docenteData = {
       id_grupo: parseInt(formValues.grupo),
       nombre_docente: formValues.nombre,
@@ -147,11 +147,22 @@ const Docentes = () => {
       correo: formValues.correo,
       contrasenia: 'default_password', // Puedes actualizar esto según la lógica del sistema
     };
+    const promise = currentDocente
+      ? axios.put(`http://localhost:8000/api/docentes/${currentDocente.id_docente}`, docenteData)
+      : axios.post('http://localhost:8000/api/docentes', docenteData);
 
+    toast.promise(
+      promise,
+      {
+        loading: 'Guardando...',
+        success: <b>{currentDocente ? 'Docente editado exitosamente' : 'Docente agregado exitosamente'}</b>,
+        error: <b>Error al guardar el docente</b>,
+      }
+    );
     try {
       if (currentDocente) {
         // PUT request to update the docente
-        await axios.put(`http://localhost:8000/api/docentes/${currentDocente.id_docente}`, docenteData);
+        await axios.put('http://localhost:8000/api/docentes/${currentDocente.id_docente}', docenteData);
         setDocentes((prevDocentes) =>
           prevDocentes.map((docente) =>
             docente.id_docente === currentDocente.id_docente ? { ...docente, ...docenteData } : docente
@@ -160,8 +171,12 @@ const Docentes = () => {
         toast.success('Docente editado exitosamente');
       } else {
         // POST request to create a new docente
+        //const response = await axios.post('http://localhost:8000/api/docentes', docenteData);
+        //setDocentes([...docentes, response.data]);
+        //setDocentes((prevDocentes) => [...prevDocentes, nuevoDocente]);
         const response = await axios.post('http://localhost:8000/api/docentes', docenteData);
-        setDocentes([...docentes, response.data]);
+        setDocentes((prevDocentes) => [...prevDocentes, response.data]);
+        console.log(response.data);
         toast.success('Docente agregado exitosamente');
       }
       handleCloseModal();
