@@ -29,35 +29,55 @@ const Equipos = () => {
   const [formErrors, setFormErrors] = useState({});
 
   // Cargar equipos y estudiantes desde el backend
+  const fetchEquipos = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/equipos');
+      setEquipos(response.data);
+      setFilteredEquipos(response.data);
+    } catch (error) {
+      toast.error('Error al cargar los equipos');
+    }
+  };
+
+  const fetchEstudiantes = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/sin-empresa');
+      const estudiantesData = response.data;
+  
+      // Verificar si estudiantes y equipos contienen los datos esperados antes de filtrar
+      if (!Array.isArray(estudiantesData) || !Array.isArray(equipos)) {
+        console.error('Datos inválidos recibidos para estudiantes o equipos.');
+        return;
+      }
+  
+      // Filtrar los estudiantes que ya están asignados a algún equipo
+      const estudiantesAsignados = equipos.flatMap(equipo => equipo.estudiantesSeleccionados || []);
+  
+      const estudiantesDisponibles = estudiantesData.filter(estudiante => {
+        if (!estudiante || !estudiante.id_estudiante) {
+          console.error('Estudiante inválido detectado:', estudiante);
+          return false;
+        }
+  
+        // Asegurarse de que `asignado` y `estudiante` no sean undefined
+        return !estudiantesAsignados.some(asignado => asignado && asignado.value === estudiante.id_estudiante);
+      });
+  
+      const formattedEstudiantes = estudiantesDisponibles.map((estudiante) => ({
+        value: estudiante.id_estudiante,
+        label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
+      }));
+  
+      setEstudiantes(formattedEstudiantes);
+    } catch (error) {
+      toast.error('Error al cargar los estudiantes');
+    }
+  };
+
   useEffect(() => {
-    const fetchEquipos = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/equipos');
-        setEquipos(response.data);
-        setFilteredEquipos(response.data);
-        console.log(data);  // Verificar los datos antes de enviarlos
-      } catch (error) {
-        toast.error('Error al cargar los equipos');
-      }
-    };
-
-    const fetchEstudiantes = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/sin-empresa');
-        const formattedEstudiantes = response.data.map((estudiante) => ({
-          value: estudiante.id_estudiante,
-          label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
-        }));
-        setEstudiantes(formattedEstudiantes);
-      } catch (error) {
-        toast.error('Error al cargar los estudiantes');
-        console.log(error); // Inspeccionar el error si ocurre
-      }
-    };
-
     fetchEquipos();
     fetchEstudiantes();
-  }, []);
+  }, []); // Se ejecuta una sola vez cuando se monta el componente
 
   // Manejar la búsqueda de equipos
   const handleSearchChange = (e) => {
@@ -202,19 +222,18 @@ const Equipos = () => {
 
   const handleSave = async () => {
     if (!validateForm()) {
-      toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
-
+  
     const Equipodata = {
       nombre_empresa: formValues.nombre_empresa,
       nombre_corto: formValues.nombre_corto,
       correo_empresa: formValues.correo_empresa,
       telefono: formValues.telefono,
       direccion: formValues.direccion,
-      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(estudiante => estudiante.value),
+      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
     };
-
+  
     try {
       if (currentEquipo) {
         await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, Equipodata);
@@ -228,13 +247,34 @@ const Equipos = () => {
         const response = await axios.post('http://localhost:8000/api/equipos', Equipodata);
         setEquipos([...equipos, response.data]);
         toast.success('Equipo registrado exitosamente');
-
       }
       handleCloseModal();
+      // Actualizar la lista de estudiantes disponibles después de guardar el equipo
+      fetchEstudiantes();  // Actualizar lista de estudiantes
     } catch (error) {
-      toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
+      // Verificar si hay una respuesta del servidor y mostrar los errores
+      let errorMessage = 'Ocurrió un error.';
+
+      if (error.response) {
+        const responseData = error.response.data;
+
+        // Verificar si hay un mensaje de conflicto específico
+        if (responseData.message) {
+          errorMessage = responseData.message;
+        }
+
+        // Si hay errores de validación
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
+      }
+
+      // Mostrar el mensaje de error junto con los datos que se intentaron enviar
+      toast.error(errorMessage);
     }
   };
+  
 
   return (
     <div className="container mt-2 pt-3">
@@ -416,14 +456,26 @@ const Equipos = () => {
         <Modal.Body>
           {currentEquipo && (
             <div>
+                  {console.log('Estudiantes del equipo:', currentEquipo.estudiantesSeleccionados)} {/* Ver en consola */}
               <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
               <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
               <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
               <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
               <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
-              <p><strong>Estudiantes:</strong> {currentEquipo.estudiantesSeleccionados?.map(est => est.label).join(', ')}</p>
-            </div>
+              <p><strong>Estudiantes:</strong></p>
+              <ul>
+          {currentEquipo.estudiantesSeleccionados && currentEquipo.estudiantesSeleccionados.length > 0 ? (
+            currentEquipo.estudiantesSeleccionados.map(est => (
+              <li key={est.id_estudiante}>
+                {est.nombre_estudiante} {/* Mostrar nombre completo */}
+              </li>
+            ))
+          ) : (
+            <p>No hay estudiantes asignados a este equipo.</p>
           )}
+        </ul>
+      </div>
+    )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseViewModal}>
