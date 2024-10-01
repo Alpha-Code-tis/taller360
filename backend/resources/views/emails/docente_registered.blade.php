@@ -150,7 +150,7 @@
               </p>
               <p><strong>contraseña:</strong><a>{{ $contrasenia }}</a></p>
               <p><strong>Plataforma: </strong>
-              <a href="https://app.taller360.org/" target="_blank" data-saferedirecturl="http://localhost:3000/Estudiantes">https://app.taller360.org/</a>
+              <a href="http://localhost:3000/Estudiantes" target="_blank">https://app.taller360.org/</a>
               </p>
           </div>
         

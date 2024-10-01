@@ -23,8 +23,8 @@ function App() {
       <Header />
       <Toaster position="bottom-center" />
       <Routes>
-     {/*   <Route path="/Planificacion" element={<Planificacion/>}/>
-       <Route path="/Docentes" element={<Docentes />} /> */}
+        <Route path="/Planificacion" element={<Planificacion/>}/>
+       <Route path="/Docentes" element={<Docentes />} /> 
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
       </Routes>

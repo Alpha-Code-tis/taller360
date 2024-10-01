@@ -154,8 +154,7 @@ export default function PersistentDrawerLeft() {
         </div>
         <Divider />
 
-        <List sx={{ mt: 3 }}>
-  {/*      
+        <List sx={{ mt: 3 }}>     
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -175,7 +174,6 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Planificación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          {/* Docentes */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
