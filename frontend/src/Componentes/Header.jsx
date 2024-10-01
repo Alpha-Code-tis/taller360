@@ -155,7 +155,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List sx={{ mt: 3 }}>
-          {/* Planificación */}
+  {/*      
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -191,11 +191,12 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+                <GroupsIcon /> 
               </ListItemIcon>
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
         </List>
         <Divider />
       </Drawer>
