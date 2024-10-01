@@ -13,12 +13,14 @@ class EstudianteRegistered extends Notification
     public $correo;
     public $contrasenia;
     public $nombre;
+    public $url;
 
-    public function __construct($nombre, $correo, $contrasenia)
+    public function __construct($nombre, $correo, $contrasenia, $url)
     {
         $this->correo = $correo;
         $this->contrasenia = $contrasenia;
         $this->nombre = $nombre;
+        $this->url = $url;
     }
 
     public function via($notifiable)
@@ -34,6 +36,7 @@ class EstudianteRegistered extends Notification
                 'nombre_docente' => $this->nombre,
                 'correo' => $this->correo,
                 'contrasenia' => $this->contrasenia,
+                'url' => $this->url,
             ]);
     }
 }

@@ -4,12 +4,14 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alcance;
+use App\Models\Estudiante;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use Carbon\Carbon;
 use \Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SprintController extends Controller

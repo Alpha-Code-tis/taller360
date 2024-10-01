@@ -8,16 +8,10 @@ use Illuminate\Http\Request;
 
 class GrupoController extends Controller
 {
-    // Mostrar todos los grupos
     public function index()
     {
-        // Obtener todos los grupos
         $grupos = Grupo::all();
-
-        // Obtener los grupos que ya están asignados a docentes
         $gruposOcupados = Docente::pluck('id_grupo')->toArray();
-
-        // Filtrar los grupos que no están en uso
         $gruposDisponibles = $grupos->filter(function($grupo) use ($gruposOcupados) {
             return !in_array($grupo->id_grupo, $gruposOcupados);
         });
@@ -27,7 +21,6 @@ class GrupoController extends Controller
     public function show($id)
     {
         $grupo = Grupo::find($id);
-
         if ($grupo) {
             return response()->json($grupo);
         } else {
@@ -38,28 +31,29 @@ class GrupoController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
-            'nro_grupo' => 'nullable|string|max:10',
+            'nro_grupo' => 'required|numeric|unique:grupos,nro_grupo|max:10',
         ]);
-
+    
         $grupo = Grupo::create($validatedData);
         return response()->json($grupo, 201);
     }
-
+    
     public function update(Request $request, $id)
     {
         $grupo = Grupo::find($id);
-
+    
         if (!$grupo) {
             return response()->json(['error' => 'Grupo no encontrado'], 404);
         }
-
+    
         $validatedData = $request->validate([
-            'nro_grupo' => 'nullable|string|max:10',
+            'nro_grupo' => 'required|numeric|unique:grupos,nro_grupo,' . $grupo->id . '|max:10',
         ]);
-
+    
         $grupo->update($validatedData);
         return response()->json($grupo);
     }
+    
 
     public function destroy($id)
     {
