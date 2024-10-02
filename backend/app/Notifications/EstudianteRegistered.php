@@ -30,7 +30,7 @@ class EstudianteRegistered extends Notification
     {
         return (new MailMessage)
             ->subject('Registro exitoso como estudiante')
-            ->view('emails.docente_registered', [
+            ->view('emails.estudiante_registered', [
                 'nombre_estudiante' => $this->nombre,
                 'correo' => $this->correo,
                 'contrasenia' => $this->contrasenia,

@@ -465,6 +465,7 @@ const Equipos = () => {
         <Modal.Body>
         {currentEquipo && (
           <div>
+          <div>
             <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
             <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
             <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
@@ -482,6 +483,10 @@ const Equipos = () => {
                 <p>No hay estudiantes asignados a este equipo.</p>
               )}
             </ul>
+          </div>
+          <div className="logo-container">
+        <img src='../assets/logoALPHA.png' alt="Logo de la Empresa" className="company-logo" />
+      </div>
           </div>
         )}
         </Modal.Body>
