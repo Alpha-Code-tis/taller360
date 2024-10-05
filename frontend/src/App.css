@@ -1,7 +1,8 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  /*Elimine limite maximo de margen u tamaño*/
+  /*padding cero para completar a imagen toda la pantalla*/
+  padding: 0rem;
   text-align: center;
 }
 

@@ -2,31 +2,33 @@ import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import toast from 'react-hot-toast';
-import axios from 'axios'; // Importamos axios
+import axios from 'axios';
 import './Estudiantes.css';
 
 const Estudiantes = () => {
   const [estudiantes, setEstudiantes] = useState([]);
+  const [filteredEstudiantes, setFilteredEstudiantes] = useState([]);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showImportModal, setShowImportModal] = useState(false); // Modal para importar lista
+  const [showImportModal, setShowImportModal] = useState(false);
   const [currentEstudiante, setCurrentEstudiante] = useState(null);
   const [formValues, setFormValues] = useState({
     nombre: '',
     apellidoPaterno: '',
     apellidoMaterno: '',
     codigoSis: '',
-    esRepresentante: false, // Nuevo campo
+    esRepresentante: false,
   });
   const [formErrors, setFormErrors] = useState({});
-  const [filteredEstudiantes, setFilteredEstudiantes] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
   // Fetching estudiantes from the backend
   useEffect(() => {
     const fetchEstudiantes = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/estudiantes'); // GET request to fetch estudiantes
+        const response = await axios.get('http://localhost:8000/api/estudiantes');
         setEstudiantes(response.data);
+        setFilteredEstudiantes(response.data);
       } catch (err) {
         toast.error('Error al cargar los estudiantes');
       }
@@ -34,6 +36,17 @@ const Estudiantes = () => {
 
     fetchEstudiantes();
   }, []);
+
+  // Update filteredEstudiantes based on searchTerm
+  useEffect(() => {
+    const filtered = estudiantes.filter((estudiante) => {
+      const fullName = `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`.toLowerCase();
+      const codigoSis = estudiante.codigo_sis.toString();
+      const searchValue = searchTerm.toLowerCase();
+      return fullName.includes(searchValue) || codigoSis.includes(searchValue);
+    });
+    setFilteredEstudiantes(filtered);
+  }, [searchTerm, estudiantes]);
 
   // Handle Delete Estudiante
   const handleDelete = async (id) => {
@@ -44,10 +57,11 @@ const Estudiantes = () => {
           <button
             onClick={async () => {
               try {
-                await axios.delete(`http://localhost:8000/api/estudiantes/${id}`); // DELETE request
+                await axios.delete(`http://localhost:8000/api/estudiantes/${id}`);
                 const updatedEstudiantes = estudiantes.filter((estudiante) => estudiante.id_estudiante !== id);
                 setEstudiantes(updatedEstudiantes);
-                toast.dismiss(t.id); // Cerrar el toast
+                setFilteredEstudiantes(updatedEstudiantes);
+                toast.dismiss(t.id);
                 toast.success('Estudiante eliminado exitosamente');
               } catch (err) {
                 toast.error('Error al eliminar el estudiante');
@@ -58,7 +72,7 @@ const Estudiantes = () => {
             Sí, eliminar
           </button>
           <button
-            onClick={() => toast.dismiss(t.id)} // Cancelar la eliminación
+            onClick={() => toast.dismiss(t.id)}
             className="btn btn-secondary"
           >
             Cancelar
@@ -76,7 +90,7 @@ const Estudiantes = () => {
         apellidoPaterno: estudiante.ap_pat || '',
         apellidoMaterno: estudiante.ap_mat || '',
         codigoSis: estudiante.codigo_sis,
-        esRepresentante: estudiante.id_representante ? true : false, // Asignar verdadero si hay un representante
+        esRepresentante: estudiante.id_representante ? true : false,
       });
       setCurrentEstudiante(estudiante);
     } else {
@@ -85,12 +99,12 @@ const Estudiantes = () => {
         apellidoPaterno: '',
         apellidoMaterno: '',
         codigoSis: '',
-        esRepresentante: false, // Resetear el campo
+        esRepresentante: false,
       });
       setCurrentEstudiante(null);
     }
     setShowModal(true);
-  };  
+  };
 
   const handleCloseModal = () => {
     setShowModal(false);
@@ -126,25 +140,24 @@ const Estudiantes = () => {
       ap_pat: formValues.apellidoPaterno,
       ap_mat: formValues.apellidoMaterno,
       codigo_sis: formValues.codigoSis,
-      es_representante: formValues.esRepresentante, // Agregar este campo
+      es_representante: formValues.esRepresentante,
     };
 
     try {
       if (currentEstudiante) {
-        // PUT request to update the estudiante
         await axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData);
-        setEstudiantes((prevEstudiantes) =>
-          prevEstudiantes.map((estudiante) =>
-            estudiante.id_estudiante === currentEstudiante.id_estudiante
-              ? { ...estudiante, ...estudianteData }
-              : estudiante
-          )
+        const updatedEstudiantes = estudiantes.map((estudiante) =>
+          estudiante.id_estudiante === currentEstudiante.id_estudiante
+            ? { ...estudiante, ...estudianteData }
+            : estudiante
         );
+        setEstudiantes(updatedEstudiantes);
+        setFilteredEstudiantes(updatedEstudiantes);
         toast.success('Estudiante editado exitosamente');
       } else {
-        // POST request to create a new estudiante
         const response = await axios.post('http://localhost:8000/api/estudiantes', estudianteData);
         setEstudiantes([...estudiantes, response.data]);
+        setFilteredEstudiantes([...filteredEstudiantes, response.data]);
         toast.success('Estudiante agregado exitosamente');
       }
       handleCloseModal();
@@ -172,23 +185,22 @@ const Estudiantes = () => {
 
   const handleFileUpload = async (event) => {
     const file = event.target.files[0];
-  
+
     if (!file) {
       setError('Por favor, selecciona un archivo.');
       return;
     }
-  
+
     const formData = new FormData();
     formData.append('file', file);
-  
+
     try {
       const response = await axios.post('http://localhost:8000/api/estudiantes/import', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-  
-      console.log('Respuesta de la API:', response.data); // Verifica la respuesta
+
       if (Array.isArray(response.data)) {
         setEstudiantes((prev) => [...prev, ...response.data]);
         setFilteredEstudiantes((prev) => [...prev, ...response.data]);
@@ -196,14 +208,14 @@ const Estudiantes = () => {
       } else {
         throw new Error('La respuesta no es un array.');
       }
-  
+
       handleCloseImportModal();
     } catch (error) {
       setError('Error al importar estudiantes: ' + error.message);
       console.error(error);
     }
   };
-  
+
   return (
     <div className="container mt-2 pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -213,6 +225,18 @@ const Estudiantes = () => {
           <button className="btn btn-secondary" onClick={handleShowImportModal}>+ Importar Lista</button>
         </div>
       </div>
+
+      {/* Barra de búsqueda */}
+      <div className="mb-3">
+        <input
+          type="text"
+          className="form-control"
+          placeholder="Buscar por nombre, apellido o código SIS"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
+
       {error && <p className="text-danger">{error}</p>}
       <div className="table-container">
         <table className="table table-hover estudiantes-table">
@@ -220,16 +244,16 @@ const Estudiantes = () => {
             <tr>
               <th>Nombre Completo</th>
               <th>Código SIS</th>
-              <th>¿Es Representante?</th> {/* Nueva columna */}
+              <th>¿Es Representante?</th>
               <th>Acciones</th>
             </tr>
           </thead>
           <tbody>
-            {estudiantes.map((estudiante) => (
+            {filteredEstudiantes.map((estudiante) => (
               <tr key={estudiante.id_estudiante}>
                 <td>{`${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`}</td>
                 <td>{estudiante.codigo_sis}</td>
-                <td>{estudiante.id_representante ? 'Sí' : 'No'}</td> {/* Mostrar si es representante */}
+                <td>{estudiante.id_representante ? 'Sí' : 'No'}</td>
                 <td>
                   <button className="icon-button" title="Editar" onClick={() => handleShowModal(estudiante)}>
                     <FaEdit />

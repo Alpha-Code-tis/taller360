@@ -21,7 +21,8 @@ return new class extends Migration
             $table->string('ap_mat', 35)->nullable();
             $table->string('contrasenia', 64)->nullable();
             $table->string('correo', 50)->nullable();
-
+            $table->integer('id_admi')->nullable()->index(); // Agrega la columna id_admi
+            $table->integer('id_noti')->nullable()->index(); // Agregar la columna id_noti
             $table->unique(['id_docente'], 'docente_pk');
         });
     }
