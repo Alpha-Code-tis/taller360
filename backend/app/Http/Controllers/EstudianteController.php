@@ -57,21 +57,30 @@ class EstudianteController extends Controller
                 'estado' => 1, // Puedes ajustar el estado según sea necesario
             ]);
             $representanteId = $representante->id_representante; // Obtener el ID del representante recién creado
-
+            // Crear el estudiante, asignando el ID del representante si existe
+            $estudiante = Estudiante::create([
+                'nombre_estudiante' => $request->nombre_estudiante,
+                'ap_pat' => $request->ap_pat,
+                'ap_mat' => $request->ap_mat,
+                'codigo_sis' => $request->codigo_sis,
+                'id_representante' => $representanteId, // Asignar el ID del representante
+                'correo' => $correo,
+                'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
+            ]);
             Notification::route('mail', $correo)
                 ->notify(new EstudianteRegistered($request->nombre_estudiante, $correo, $contrasenia));
+        } else {
+            // Crear el estudiante, asignando el ID del representante si existe
+            $estudiante = Estudiante::create([
+                'nombre_estudiante' => $request->nombre_estudiante,
+                'ap_pat' => $request->ap_pat,
+                'ap_mat' => $request->ap_mat,
+                'codigo_sis' => $request->codigo_sis,
+                'id_representante' => $representanteId, // Asignar el ID del representante
+                'correo' => $correo,
+                'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
+            ]);
         }
-
-        // Crear el estudiante, asignando el ID del representante si existe
-        $estudiante = Estudiante::create([
-            'nombre_estudiante' => $request->nombre_estudiante,
-            'ap_pat' => $request->ap_pat,
-            'ap_mat' => $request->ap_mat,
-            'codigo_sis' => $request->codigo_sis,
-            'id_representante' => $representanteId, // Asignar el ID del representante
-            'correo' => $correo,
-            'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
-        ]);
 
         return response()->json($estudiante, 201); // Retornar el estudiante creado
     }
@@ -93,8 +102,8 @@ class EstudianteController extends Controller
             $estudiante = Estudiante::where('id_estudiante', $id)->first();
             $isRepresentante = $request->input('es_representante');
             if ($isRepresentante) {
-                $contrasenia = Str::random(10); 
-                $estudiante->contrasenia = bcrypt($contrasenia); 
+                $contrasenia = Str::random(10);
+                $estudiante->contrasenia = bcrypt($contrasenia);
             } else {
                 $contrasenia = $estudiante->contrasenia;
             }
@@ -142,7 +151,8 @@ class EstudianteController extends Controller
 
         try {
             Excel::import(new EstudiantesImport, $request->file('file'));
-            return response()->json(['success' => 'Estudiantes importados exitosamente.'], 200);
+            $estudiantes = Estudiante::all();
+            return response()->json($estudiantes, 200);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al importar estudiantes: ' . $e->getMessage()], 500);
         }

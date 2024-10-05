@@ -29,9 +29,9 @@ class EstudianteRegistered extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('Registro exitoso como docente')
-            ->view('emails.docente_registered', [
-                'nombre_docente' => $this->nombre,
+            ->subject('Registro exitoso como estudiante')
+            ->view('emails.estudiante_registered', [
+                'nombre_estudiante' => $this->nombre,
                 'correo' => $this->correo,
                 'contrasenia' => $this->contrasenia,
             ]);

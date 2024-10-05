@@ -11,6 +11,14 @@
     min-width: 60vw;
     border-collapse: collapse;
 }
+.logo-container {
+    margin-left: 230px;
+  }
+  
+  .company-logo {
+    height: 60px;
+    object-fit: contain; 
+  }
 
 .equipos-table th,
 .equipos-table td {

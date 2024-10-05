@@ -8,7 +8,6 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
-
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -34,7 +33,7 @@ Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
 Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
 Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
 
-
+Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 
 //grupo
 Route::get('/grupos', [GrupoController::class, 'index']);

@@ -29,49 +29,65 @@ const Equipos = () => {
   const [formErrors, setFormErrors] = useState({});
 
   // Cargar equipos y estudiantes desde el backend
+  const fetchEquipos = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/equipos');
+      setEquipos(response.data);
+      setFilteredEquipos(response.data);
+    } catch (error) {
+      toast.error('Error al cargar los equipos');
+    }
+  };
+
+  const fetchEstudiantes = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/sin-empresa');
+      const estudiantesData = response.data;
+  
+      // Filtrar los estudiantes que ya están asignados a algún equipo
+      const estudiantesAsignados = equipos.flatMap(equipo => equipo.estudiantesSeleccionados || []);
+  
+      const estudiantesDisponibles = estudiantesData.filter(estudiante => {
+        return !estudiantesAsignados.some(asignado => asignado && asignado.value === estudiante.id_estudiante);
+      });
+  
+      const formattedEstudiantes = estudiantesDisponibles.map((estudiante) => ({
+        value: estudiante.id_estudiante,
+        label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
+      }));
+  
+      setEstudiantes(formattedEstudiantes);
+    } catch (error) {
+      toast.error('Error al cargar los estudiantes');
+    }
+  };
+
   useEffect(() => {
-    const fetchEquipos = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/equipos');
-        setEquipos(response.data);
-        setFilteredEquipos(response.data);
-        console.log(data);  // Verificar los datos antes de enviarlos
-      } catch (error) {
-        toast.error('Error al cargar los equipos');
-      }
-    };
-
-    const fetchEstudiantes = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/sin-empresa');
-        const formattedEstudiantes = response.data.map((estudiante) => ({
-          value: estudiante.id_estudiante,
-          label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
-        }));
-        setEstudiantes(formattedEstudiantes);
-      } catch (error) {
-        toast.error('Error al cargar los estudiantes');
-        console.log(error); // Inspeccionar el error si ocurre
-      }
-    };
-
     fetchEquipos();
     fetchEstudiantes();
-  }, []);
+  }, []); 
 
   // Manejar la búsqueda de equipos
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  
     if (e.target.value === '') {
-      setFilteredEquipos(equipos);
+      setFilteredEquipos(equipos); // Si el campo de búsqueda está vacío, mostrar todos los equipos
     } else {
-      const filtered = equipos.filter((equipo) =>
-        equipo.nombre_empresa.toLowerCase().includes(e.target.value.toLowerCase()) ||
-        equipo.correo_empresa.toLowerCase().includes(e.target.value.toLowerCase())
-      );
+      const searchValue = e.target.value.toLowerCase();
+  
+      const filtered = equipos.filter((equipo) => {
+        const nombreEmpresa = equipo.nombre_empresa ? equipo.nombre_empresa.toLowerCase() : ''; // Verificar si existe
+        const correoEmpresa = equipo.correo_empresa ? equipo.correo_empresa.toLowerCase() : '';  // Verificar si existe
+  
+        // Filtrar equipos basados en nombre o correo de la empresa
+        return nombreEmpresa.includes(searchValue) || correoEmpresa.includes(searchValue);
+      });
+  
       setFilteredEquipos(filtered);
     }
   };
+  
 
   // Manejar la eliminación de equipos
   const handleDelete = async (id) => {
@@ -137,9 +153,22 @@ const Equipos = () => {
   };
 
   // Mostrar el modal de vista de equipo
-  const handleShowViewModal = (equipo) => {
-    setCurrentEquipo(equipo);
-    setShowViewModal(true);
+  const handleShowViewModal = async (equipo) => {
+    // Llamar a un endpoint que devuelva los estudiantes del equipo
+    try {
+      const response = await axios.get(`http://localhost:8000/api/empresa/${equipo.id_empresa}/estudiantes`);
+      const estudiantesDelEquipo = response.data;
+
+      // Actualizar el equipo actual con los estudiantes cargados
+      setCurrentEquipo({
+        ...equipo,
+        estudiantesSeleccionados: estudiantesDelEquipo
+      });
+
+      setShowViewModal(true);
+    } catch (error) {
+      toast.error('Error al cargar los estudiantes del equipo.');
+    }
   };
 
   const handleCloseModal = () => {
@@ -185,7 +214,7 @@ const Equipos = () => {
       errors.telefono = 'El teléfono es requerido';
       isValid = false;
     } else if (!/^\d{8}$/.test(formValues.telefono)) {
-      errors.telefono = 'El teléfono debe tener 10 dígitos';
+      errors.telefono = 'El teléfono debe tener 8 dígitos';
       isValid = false;
     }
 
@@ -202,19 +231,18 @@ const Equipos = () => {
 
   const handleSave = async () => {
     if (!validateForm()) {
-      toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
-
+  
     const Equipodata = {
       nombre_empresa: formValues.nombre_empresa,
       nombre_corto: formValues.nombre_corto,
       correo_empresa: formValues.correo_empresa,
       telefono: formValues.telefono,
       direccion: formValues.direccion,
-      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(estudiante => estudiante.value),
+      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
     };
-
+  
     try {
       if (currentEquipo) {
         await axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, Equipodata);
@@ -228,13 +256,34 @@ const Equipos = () => {
         const response = await axios.post('http://localhost:8000/api/equipos', Equipodata);
         setEquipos([...equipos, response.data]);
         toast.success('Equipo registrado exitosamente');
-
       }
       handleCloseModal();
+      // Actualizar la lista de estudiantes disponibles después de guardar el equipo
+      fetchEstudiantes();  // Actualizar lista de estudiantes
     } catch (error) {
-      toast.error(`Error al guardar el equipo: ${error.response ? error.response.data.message : error.message}`);
+      // Verificar si hay una respuesta del servidor y mostrar los errores
+      let errorMessage = 'Ocurrió un error.';
+
+      if (error.response) {
+        const responseData = error.response.data;
+
+        // Verificar si hay un mensaje de conflicto específico
+        if (responseData.message) {
+          errorMessage = responseData.message;
+        }
+
+        // Si hay errores de validación
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
+      }
+
+      // Mostrar el mensaje de error junto con los datos que se intentaron enviar
+      toast.error(errorMessage);
     }
   };
+  
 
   return (
     <div className="container mt-2 pt-3">
@@ -414,16 +463,32 @@ const Equipos = () => {
           <Modal.Title>Detalles del Equipo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {currentEquipo && (
-            <div>
-              <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
-              <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
-              <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
-              <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
-              <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
-              <p><strong>Estudiantes:</strong> {currentEquipo.estudiantesSeleccionados?.map(est => est.label).join(', ')}</p>
-            </div>
-          )}
+        {currentEquipo && (
+          <div>
+          <div>
+            <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
+            <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
+            <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
+            <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
+            <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
+            <p><strong>Estudiantes Añadidos:</strong></p>
+            <ul>
+              {currentEquipo.estudiantesSeleccionados && currentEquipo.estudiantesSeleccionados.length > 0 ? (
+                currentEquipo.estudiantesSeleccionados.map((est) => (
+                  <li key={est.id_estudiante}>
+                    {`${est.ap_pat} ${est.ap_mat} ${est.nombre_estudiante}`}
+                  </li>
+                ))
+              ) : (
+                <p>No hay estudiantes asignados a este equipo.</p>
+              )}
+            </ul>
+          </div>
+          <div className="logo-container">
+        <img src='../assets/logoALPHA.png' alt="Logo de la Empresa" className="company-logo" />
+      </div>
+          </div>
+        )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseViewModal}>
