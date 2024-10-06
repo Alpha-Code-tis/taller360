@@ -14,7 +14,7 @@ function App() {
 
   const handleLogin = () => {
     setIsAuthenticated(true);
-    navigate('/Docentes'); // Redirige a la página de Planificación después de iniciar sesión
+    navigate('/Planificacion'); // Redirige a la página de Planificación después de iniciar sesión
   };
 
   return (
