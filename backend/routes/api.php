@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\SprintController;
 use App\Http\Controllers\API\PlanificacionController;
 use Illuminate\Http\Request;
@@ -8,6 +9,8 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
+use Illuminate\Support\Facades\Auth;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,6 +24,22 @@ use App\Http\Controllers\EmpresaController;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth.api');
+
+Route::middleware(['auth.api', 'role'])->group(function () {
+    Route::get('/dashboard', function (Request $request) {
+        return response()->json([
+            'message' => 'Bienvenido al dashboard',
+            'role' => $request->user_role,
+            'user' => Auth::guard('docente')->check() ? Auth::guard('docente')->user()
+                    : (Auth::guard('admin')->check() ? Auth::guard('admin')->user()
+                    : Auth::guard('estudiante')->user())
+        ]);
+    });
+
 });
 
 Route::post('/planificacion',[SprintController::class, 'store']);

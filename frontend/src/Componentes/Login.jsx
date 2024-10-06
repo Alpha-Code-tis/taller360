@@ -41,7 +41,7 @@ export default function Login({ onLogin }) {
       email: email,
       password: password,
     };
-    axios.post('http://localhost:8000/api/Login',postData)
+    axios.post('http://localhost:8000/api/login',postData)
     .then(response => {
       console.log(response.data);
       if (response.data.success) {

@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Docente
@@ -31,12 +33,12 @@ use Illuminate\Support\Facades\Hash;
  *
  * @package App\Models
  */
-class Docente extends Model
+class Docente extends Authenticatable
 {
 	protected $table = 'docente';
 	protected $primaryKey = 'id_docente';
 	public $timestamps = false;
-	use Notifiable;
+	use HasApiTokens, Notifiable;
 
 	protected $casts = [
 		'id_noti' => 'int',
@@ -84,4 +86,12 @@ class Docente extends Model
 	{
 		return $this->hasMany(Grupo::class, 'id_docente');
 	}
+	protected $hidden = [
+        'contrasenia',
+    ];
+
+    public function getAuthPassword()
+    {
+        return $this->contrasenia;
+    }
 }
