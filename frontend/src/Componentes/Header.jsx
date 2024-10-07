@@ -154,11 +154,26 @@ export default function PersistentDrawerLeft() {
         </div>
         <Divider />
 
-        <List sx={{ mt: 3 }}>
-          {/* Planificación */}
-          
-
-          {/* Docentes */}
+        <List sx={{ mt: 3 }}>     
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Planificacion"
+              onClick={() => handleButtonClick('planificacion')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planificación" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -215,11 +230,34 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+                <GroupsIcon /> 
               </ListItemIcon>
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
+
+          <ListItem disablePadding>
+          <ListItemButton
+            component={Link}
+            to="/AsignarTareas"
+            onClick={() => handleButtonClick('asignarTareas')}
+            sx={{
+              borderRadius: '8px',
+              backgroundColor: selectedButton === 'asignarTareas' ? '#1A3254' : 'transparent',
+              '&:hover': {
+                backgroundColor: '#1A3254',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: 'white' }}>
+              <GroupsIcon />
+            </ListItemIcon>
+            <ListItemText primary="Asignar Tareas" sx={{ color: 'white' }} />
+          </ListItemButton>
+        </ListItem>
+
+
         </List>
         <Divider />
       </Drawer>

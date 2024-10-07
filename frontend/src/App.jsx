@@ -2,6 +2,8 @@
 import { useState } from 'react'
 // src/App.jsx
 import React from 'react';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Componentes/Header';
@@ -12,6 +14,7 @@ import Planificacion from './Representante_legal/Planificacion';
 import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
+import AsignarTareas from './Equipos/AsignarTareas';
 import './App.css';
 
 
@@ -22,9 +25,10 @@ function App() {
       <Toaster position="bottom-center" />
       <Routes>
         <Route path="/Planificacion" element={<Planificacion/>}/>
-        <Route path="/Docentes" element={<Docentes />} />
+       <Route path="/Docentes" element={<Docentes />} /> 
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
+        <Route path="/AsignarTareas" element={<AsignarTareas />} />
       </Routes>
       <Footer />
     </div>
