@@ -22,6 +22,7 @@ const Estudiantes = () => {
   const [formErrors, setFormErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
   const [file, setFile] = useState(null);
+  const [isSaving, setIsSaving] = useState(false); // Estado para indicar si se está guardando
 
   // Fetching estudiantes from the backend
   const fetchEstudiantes = async () => {
@@ -30,16 +31,13 @@ const Estudiantes = () => {
       setEstudiantes(response.data);
       setFilteredEstudiantes(response.data);
 
-      // Si no hay estudiantes, mostrar mensaje de error
       if (response.data.length === 0) {
         toast.error('No hay estudiantes registrados.');
       }
     } catch (err) {
-      // Muestra el error si hay un problema en la petición
       toast.error('Error al cargar los estudiantes.');
     }
   };
-  
 
   useEffect(() => {
     fetchEstudiantes();
@@ -68,7 +66,7 @@ const Estudiantes = () => {
                 await axios.delete(`http://localhost:8000/api/estudiantes/${id}`);
                 toast.dismiss(t.id);
                 toast.success('Estudiante eliminado exitosamente');
-                fetchEstudiantes(); // Recargar después de eliminar
+                fetchEstudiantes();
               } catch (err) {
                 toast.error('Error al eliminar el estudiante');
               }
@@ -115,6 +113,7 @@ const Estudiantes = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setFormErrors({});
+    setIsSaving(false); // Reiniciamos el estado de guardado
   };
 
   const handleInputChange = (e) => {
@@ -137,8 +136,11 @@ const Estudiantes = () => {
   // Handle Save (Create or Update Estudiante)
   const handleSave = async () => {
     if (!validateForm()) {
+      toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
+
+    setIsSaving(true); // Deshabilitamos el botón de guardar
 
     const estudianteData = {
       nombre_estudiante: formValues.nombre,
@@ -148,64 +150,27 @@ const Estudiantes = () => {
       es_representante: formValues.esRepresentante,
     };
 
-    try {
-      if (currentEstudiante) {
-        await axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData);
-        toast.success('Estudiante editado exitosamente');
-      } else {
-        await axios.post('http://localhost:8000/api/estudiantes', estudianteData);
-        toast.success('Estudiante agregado exitosamente');
+    const promise = currentEstudiante
+      ? axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData)
+      : axios.post('http://localhost:8000/api/estudiantes', estudianteData);
+
+    toast.promise(
+      promise,
+      {
+        loading: 'Guardando...',
+        success: <b>{currentEstudiante ? 'Estudiante editado exitosamente' : 'Estudiante agregado exitosamente'}</b>,
+        error: <b>Error al guardar el estudiante</b>,
       }
-      fetchEstudiantes(); // Recargar después de guardar o editar
+    );
+
+    try {
+      await promise;
+      await fetchEstudiantes(); // Refrescamos la lista de estudiantes
       handleCloseModal();
     } catch (err) {
-      toast.error('Error al guardar el estudiante');
-    }
-  };
-
-  // Mostrar Modal de Importar Lista
-  const handleShowImportModal = () => {
-    setShowImportModal(true);
-  };
-
-  // Cerrar Modal de Importar Lista
-  const handleCloseImportModal = () => {
-    setShowImportModal(false);
-  };
-
-  // Manejar la subida de archivo arrastrado
-  const handleFileDrop = (event) => {
-    event.preventDefault();
-    const file = event.dataTransfer.files[0];
-    console.log("Archivo arrastrado:", file);
-  };   
-
-  const handleFileUpload = async (event) => {
-
-    if (!file) {
-      setError('Por favor, selecciona un archivo.');
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await axios.post('http://localhost:8000/api/estudiantes/import', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-
-      if (Array.isArray(response.data)) {
-        toast.success('Estudiantes importados exitosamente.');
-        fetchEstudiantes(); // Recargar después de importar
-      }
-
-      handleCloseImportModal();
-    } catch (error) {
-      setError('Error al importar estudiantes: ' + error.message);
-      console.error(error);
+      // El manejo de errores ya se realiza en toast.promise
+    } finally {
+      setIsSaving(false); // Rehabilitamos el botón de guardar
     }
   };
 
@@ -215,7 +180,6 @@ const Estudiantes = () => {
         <h1 className="m-0">Estudiantes</h1>
         <div>
           <button className="btn btn-primary me-2" onClick={() => handleShowModal()}>+ Nuevo Estudiante</button>
-          <button className="btn btn-secondary" onClick={handleShowImportModal}>+ Importar Lista</button>
         </div>
       </div>
 
@@ -332,35 +296,11 @@ const Estudiantes = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+          <Button variant="secondary" onClick={handleCloseModal} disabled={isSaving}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Guardar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Modal para importar lista */}
-      <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Importar Lista de Estudiantes</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label>Selecciona un archivo para importar</Form.Label>
-              <Form.Control type="file" accept=".csv" onChange={(e) => setFile(e.target.files[0])} />
-            </Form.Group>
-          </Form>
-          {error && <p className="text-danger">{error}</p>}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseImportModal}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleFileUpload}>
-            Subir
+          <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Guardando...' : currentEstudiante ? 'Guardar Cambios' : 'Registrar'}
           </Button>
         </Modal.Footer>
       </Modal>

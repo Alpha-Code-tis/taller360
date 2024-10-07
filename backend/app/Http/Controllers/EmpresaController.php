@@ -74,6 +74,7 @@ class EmpresaController extends Controller
                     'direccion' => $empresa->direccion,
                     'telefono' => $empresa->telefono,
                     'correo_empresa' => $empresa->correo_empresa,
+                    'logo' => $empresa->logo, // Aquí está la URL completa del logo
                     'estudiantesSeleccionados' => $empresa->estudiantes->map(function($estudiante) {
                     return [
                         'id_estudiante' => $estudiante->id_estudiante,
