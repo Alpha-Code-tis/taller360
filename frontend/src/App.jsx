@@ -1,4 +1,3 @@
-
 import { useState } from 'react'
 // src/App.jsx
 import React from 'react';
@@ -15,6 +14,7 @@ import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
 import AsignarTareas from './Equipos/AsignarTareas';
+import PlanillasSemanales from './Equipos/PlanillasSemanales';
 import './App.css';
 
 
@@ -24,12 +24,14 @@ function App() {
       <Header />
       <Toaster position="bottom-center" />
       <Routes>
-        <Route path="/Planificacion" element={<Planificacion/>}/>
-       <Route path="/Docentes" element={<Docentes />} /> 
+        <Route path="/Planificacion" element={<Planificacion />} />
+        <Route path="/Docentes" element={<Docentes />} />
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
         <Route path="/AsignarTareas" element={<AsignarTareas />} />
+        <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
       </Routes>
+
       <Footer />
     </div>
   );

@@ -1,3 +1,5 @@
+// Header.jsx
+
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -20,13 +22,13 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import GroupsIcon from '@mui/icons-material/Groups';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })( // Sin cambios
   ({ theme }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -50,7 +52,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   }),
 );
 
-const AppBar = styled(MuiAppBar, {
+const AppBar = styled(MuiAppBar, { // Sin cambios
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
@@ -72,7 +74,7 @@ const AppBar = styled(MuiAppBar, {
   ],
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({
+const DrawerHeader = styled('div')(({ theme }) => ({ // Sin cambios
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
@@ -80,17 +82,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-export default function PersistentDrawerLeft() {
+export default function PersistentDrawerLeft() { // Sin cambios
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
+  const handleDrawerOpen = () => { setOpen(true); };
+  const handleDrawerClose = () => { setOpen(false); };
 
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
@@ -154,7 +150,7 @@ export default function PersistentDrawerLeft() {
         </div>
         <Divider />
 
-        <List sx={{ mt: 3 }}>     
+        <List sx={{ mt: 3 }}>
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -209,7 +205,7 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
+                <PersonIcon />
               </ListItemIcon>
               <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -230,34 +226,51 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> 
+                <GroupsIcon />
               </ListItemIcon>
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
-
+          {/* Asignar Tareas */}
           <ListItem disablePadding>
-          <ListItemButton
-            component={Link}
-            to="/AsignarTareas"
-            onClick={() => handleButtonClick('asignarTareas')}
-            sx={{
-              borderRadius: '8px',
-              backgroundColor: selectedButton === 'asignarTareas' ? '#1A3254' : 'transparent',
-              '&:hover': {
-                backgroundColor: '#1A3254',
-              },
-            }}
-          >
-            <ListItemIcon sx={{ color: 'white' }}>
-              <GroupsIcon />
-            </ListItemIcon>
-            <ListItemText primary="Asignar Tareas" sx={{ color: 'white' }} />
-          </ListItemButton>
-        </ListItem>
-
-
+            <ListItemButton
+              component={Link}
+              to="/AsignarTareas"
+              onClick={() => handleButtonClick('asignarTareas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'asignarTareas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <GroupsIcon />
+              </ListItemIcon>
+              <ListItemText primary="Asignar Tareas" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales" // Agregamos la ruta de las planillas
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
         </List>
         <Divider />
       </Drawer>
