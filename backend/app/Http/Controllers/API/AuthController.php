@@ -60,6 +60,7 @@ class AuthController extends Controller
             $token = $estudiante->createToken('auth_token')->plainTextToken;
             return response()->json([
                 'message' => 'Inicio de sesión exitoso (Estudiante)',
+                'success' => true,
                 'role' => 'Estudiante',
                 'nombre' => $estudiante->nombre_estudiante,
                 'apellido_paterno' => $estudiante->ap_pat,
