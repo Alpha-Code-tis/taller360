@@ -30,12 +30,13 @@ class AuthController extends Controller
             $token = $docente->createToken('auth_token')->plainTextToken;
             return response()->json([
                 'message' => 'Inicio de sesión exitoso (Docente)',
-                'role' => 'Docente',
+                'success' => true,
+                'role' => 'docente',
                 'nombre' => $docente->nombre_docente,
                 'apellido_paterno' => $docente->ap_pat,
                 'apellido_materno' => $docente->ap_mat,
                 'correo' => $docente->correo,
-                'access_token' => $token,
+                'token' => $token,
                 'token_type' => 'Bearer',
             ]);
         }
@@ -46,7 +47,8 @@ class AuthController extends Controller
             $token = $admin->createToken('auth_token')->plainTextToken;
             return response()->json([
                 'message' => 'Inicio de sesión exitoso (Administrador)',
-                'role' => 'Administrador',
+                'success' => true,
+                'role' => 'administrador',
                 'nombre' => 'Administrador', // Ajusta si tienes campos de nombre
                 'correo' => $admin->correo,
                 'access_token' => $token,
@@ -61,12 +63,12 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Inicio de sesión exitoso (Estudiante)',
                 'success' => true,
-                'role' => 'Estudiante',
+                'role' => 'estudiante',
                 'nombre' => $estudiante->nombre_estudiante,
                 'apellido_paterno' => $estudiante->ap_pat,
                 'apellido_materno' => $estudiante->ap_mat,
                 'correo' => $estudiante->correo,
-                'access_token' => $token,
+                'token' => $token,
                 'token_type' => 'Bearer',
             ]);
         }
