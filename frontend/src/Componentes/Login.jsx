@@ -42,7 +42,7 @@ export default function Login({ onLogin }) {
       password: password,
     };
     console.log(postData); 
-    axios.post('http://localhost:8000/api/Login',postData)
+    axios.post('http://localhost:8000/api/login',postData)
     .then(response => {
       console.log(response.success);
 
@@ -54,10 +54,16 @@ export default function Login({ onLogin }) {
 
         if (role === 'estudiante') {
           onLogin();
-          window.location.href = '/Docentes'; 
-        } else {
-          setErrorMessage('Rol no autorizado');
-        }
+          window.location.href = '/PLanificacion'; 
+        } else if(role === 'docente'){
+            onLogin();
+            window.location.href = '/Equipos';
+          }else if(role === 'administrador'){
+            onLogin();
+            window.location.href = '/Docentes';
+          }else{
+            setErrorMessage('Rol no autorizado');
+          }
       } else {
         setErrorMessage('Login incorrecto'); // Solo mostrar si la respuesta no tiene éxito
       }
