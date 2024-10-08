@@ -41,13 +41,25 @@ export default function Login({ onLogin }) {
       email: email,
       password: password,
     };
-    axios.post('http://localhost:8000/api/login',postData)
+    console.log(postData); 
+    axios.post('http://localhost:8000/api/Login',postData)
     .then(response => {
-      console.log(response.data);
+      console.log(response.success);
+
+      // Suponiendo que la API devuelve 'success', 'token' y 'role'
       if (response.data.success) {
-        onLogin(); 
+        const { token, role } = response.data;
+
+        localStorage.setItem('token', token);
+
+        if (role === 'estudiante') {
+          onLogin();
+          window.location.href = '/Docentes'; 
+        } else {
+          setErrorMessage('Rol no autorizado');
+        }
       } else {
-        setErrorMessage('Login incorrecto');
+        setErrorMessage('Login incorrecto'); // Solo mostrar si la respuesta no tiene éxito
       }
     })
     .catch(err =>{
