@@ -147,7 +147,6 @@ class EmpresaController extends Controller
             'correo_empresa' => $request->correo_empresa,
             'logo' => $request->file('logo') ? $request->file('logo')->store('logos') : null,
         ]);
-
         // Crear la planificación
         $planificacion = Planificacion::create([
             'id_empresa' => $empresa->id_empresa,

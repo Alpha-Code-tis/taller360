@@ -60,16 +60,3 @@ Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa'
 Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
 
 
-Route::post('/upload-image', function (Request $request) {
-    // Validar la imagen
-    $request->validate([
-        'image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-    ]);
-
-    // Almacenar la imagen
-    $imageName = time().'.'.$request->image->extension();
-    $request->image->move(public_path('images'), $imageName);
-
-    // Retornar la ruta de la imagen
-    return response()->json(['image_url' => '/images/'.$imageName]);
-});
