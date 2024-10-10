@@ -215,11 +215,11 @@ const Equipos = () => {
 
     const promise = currentEquipo
       ? axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, Equipodata, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
       : axios.post('http://localhost:8000/api/equipos', Equipodata, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
     toast.promise(
       promise,
@@ -423,7 +423,10 @@ const Equipos = () => {
             <div>
               {currentEquipo.logo && (
                 <div className="circular-logo">
-                  <img src={currentEquipo.logo} alt="Logo de la Empresa" />
+                  <img
+                    src={`http://localhost:8000/storage/${currentEquipo.logo}`}
+                    alt="Logo de la Empresa"
+                  />
                 </div>
               )}
               <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>

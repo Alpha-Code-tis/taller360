@@ -43,21 +43,21 @@ class EmpresaController extends Controller
             if (!$empresa) {
                 return response()->json(['message' => 'Empresa no encontrada'], 404);
             }
-    
+
             // Obtener estudiantes que pertenecen a la empresa especificada
             $estudiantes = Estudiante::where('id_empresa', $id_empresa)->get();
-    
+
             if ($estudiantes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron estudiantes para esta empresa'], 404);
             }
-    
+
             return response()->json($estudiantes, 200);
         } catch (\Exception $e) {
             // Manejar errores generales
             return response()->json(['error' => 'Error al consultar los estudiantes: ' . $e->getMessage()], 500);
         }
     }
-    
+
 
     public function show($id_empresa)
     {
@@ -75,13 +75,13 @@ class EmpresaController extends Controller
                     'telefono' => $empresa->telefono,
                     'correo_empresa' => $empresa->correo_empresa,
                     'logo' => $empresa->logo, // Aquí está la URL completa del logo
-                    'estudiantesSeleccionados' => $empresa->estudiantes->map(function($estudiante) {
-                    return [
-                        'id_estudiante' => $estudiante->id_estudiante,
-                    ];
-                }),
-            ],
-        ]);
+                    'estudiantesSeleccionados' => $empresa->estudiantes->map(function ($estudiante) {
+                        return [
+                            'id_estudiante' => $estudiante->id_estudiante,
+                        ];
+                    }),
+                ],
+            ]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Empresa no encontrada'], 404);
         } catch (\Exception $e) {
@@ -122,7 +122,7 @@ class EmpresaController extends Controller
     {
         // Validar los datos recibidos
         $validator = Validator::make($request->all(), [
-        'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa', // Asegura que el nombre sea único
+            'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa', // Asegura que el nombre sea único
             'nombre_corto' => 'required|string',
             'direccion' => 'required|string',
             'telefono' => 'required|string',
@@ -145,7 +145,9 @@ class EmpresaController extends Controller
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
             'correo_empresa' => $request->correo_empresa,
-            'logo' => $request->file('logo') ? $request->file('logo')->store('logos') : null,
+            'logo' => $request->file('logo')
+                ? basename($request->file('logo')->store('public')) // Guardar solo el nombre del archivo
+                : null,
         ]);
         // Crear la planificación
         $planificacion = Planificacion::create([
@@ -197,25 +199,25 @@ class EmpresaController extends Controller
                 $logoPath = $request->file('logo')->store('logos', 'public');
             }
 
-             // Actualizar los datos de la empresa
-        $empresa->update([
-            'nombre_empresa' => $request->nombre_empresa,
-            'nombre_corto' => $request->nombre_corto,
-            'correo_empresa' => $request->correo_empresa,
-            'telefono' => $request->telefono,
-            'direccion' => $request->direccion,
-            'logo' => $logoPath,
-        ]);
+            // Actualizar los datos de la empresa
+            $empresa->update([
+                'nombre_empresa' => $request->nombre_empresa,
+                'nombre_corto' => $request->nombre_corto,
+                'correo_empresa' => $request->correo_empresa,
+                'telefono' => $request->telefono,
+                'direccion' => $request->direccion,
+                'logo' => $logoPath,
+            ]);
 
-        // Actualizar los estudiantes asignados
-        $estudiantesIds = $request->estudiantesSeleccionados;
-        if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
-            Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
+            // Actualizar los estudiantes asignados
+            $estudiantesIds = $request->estudiantesSeleccionados;
+            if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
+                Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
+            }
+
+            return response()->json($empresa->fresh(), 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al actualizar la empresa: ' . $e->getMessage()], 500);
         }
-
-        return response()->json($empresa->fresh(), 200);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Error al actualizar la empresa: ' . $e->getMessage()], 500);
     }
-}
 }
