@@ -42,7 +42,7 @@ export default function Login({ onLogin }) {
       password: password,
     };
     console.log(postData); 
-    axios.post('http://localhost:8000/api/login',postData)
+    axios.post('http://10.16.58.234:8000/api/login',postData)
     .then(response => {
       console.log(response.success);
 
@@ -51,16 +51,17 @@ export default function Login({ onLogin }) {
         const { token, role } = response.data;
 
         localStorage.setItem('token', token);
+        localStorage.setItem('role', role);
 
         if (role === 'estudiante') {
           onLogin();
-          window.location.href = '/PLanificacion'; 
+          window.location.href = '/VistaEstudiante'; 
         } else if(role === 'docente'){
             onLogin();
-            window.location.href = '/Equipos';
+            window.location.href = '/VistaDocente';
           }else if(role === 'administrador'){
             onLogin();
-            window.location.href = '/Docentes';
+            window.location.href = '/VistaAdministrador';
           }else{
             setErrorMessage('Rol no autorizado');
           }
