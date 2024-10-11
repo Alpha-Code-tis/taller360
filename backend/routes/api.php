@@ -29,18 +29,27 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth.api');
 
-Route::middleware(['auth.api', 'role'])->group(function () {
+Route::middleware(['auth:api', 'role'])->group(function () {
     Route::get('/dashboard', function (Request $request) {
+        $user = null;
+
+        // Verifica qué tipo de usuario está autenticado
+        if (Auth::guard('docente')->check()) {
+            $user = Auth::guard('docente')->user();
+        } elseif (Auth::guard('admin')->check()) {
+            $user = Auth::guard('admin')->user();
+        } elseif (Auth::guard('estudiante')->check()) {
+            $user = Auth::guard('estudiante')->user();
+        }
+
         return response()->json([
             'message' => 'Bienvenido al dashboard',
             'role' => $request->user_role,
-            'user' => Auth::guard('docente')->check() ? Auth::guard('docente')->user()
-                    : (Auth::guard('admin')->check() ? Auth::guard('admin')->user()
-                    : Auth::guard('estudiante')->user())
+            'user' => $user,
         ]);
     });
-
 });
+
 
 Route::post('/planificacion',[SprintController::class, 'store']);
 Route::get('/planificacion/{id}',[PlanificacionController::class, 'show']);

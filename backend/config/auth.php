@@ -45,6 +45,11 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Estudiante::class,
         ],
+        
+        'api' => [
+            'driver' => 'sanctum',
+            'provider' => 'users', // O el proveedor que necesites para tus usuarios de la API
+        ],
 
         // Provider por defecto
         'users' => [
