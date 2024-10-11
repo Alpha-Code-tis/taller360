@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Planificacion from './Representante_legal/Planificacion';
@@ -11,7 +11,13 @@ import './App.css';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const navigate = useNavigate();
-
+  useEffect(()=>{
+    const token = localStorage.getItem('token');
+    if(token){
+      setIsAuthenticated(true);
+    }
+  },[]);
+//revisar para eliminar
   const handleLogin = () => {
     setIsAuthenticated(true);
     navigate('/Planificacion'); // Redirige a la página de Planificación después de iniciar sesión
