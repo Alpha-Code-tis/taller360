@@ -19,80 +19,75 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
   const navigate = useNavigate();
-//---------------------------------------------------------------------------------------------------------------------------------------
 
-    //con esto da pero desaparece el header y footer--------------------------------------------------------
-    useEffect(() => {
-      const token = localStorage.getItem('token');
-      const storedRole = localStorage.getItem('role'); // Obtener el rol desde localStorage
-      if (token) {
-        setIsAuthenticated(true);
-        setRole(storedRole); // Establecer el rol
-      }
-    }, []);
-
-    useEffect(() => {
-      const token = localStorage.getItem('token');
-      const storedRole = localStorage.getItem('role');
-      if (token) {
-        setIsAuthenticated(true);
-        setRole(storedRole);
-      } else {
-        navigate('/Login'); // Redirigir a Login si no está autenticado
-      }
-    }, [navigate]);
-    
-  
-    const handleLogin = () => {
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    if (token) {
       setIsAuthenticated(true);
-      const userRole = localStorage.getItem('role'); // Cambiado a userRole para evitar confusión
-      setRole(userRole); // Actualiza el estado del rol
-      
-      
-    };
-  
-  //-----------------------------------------------------------------------------------------------------
-  
-  
+      setRole(storedRole);
+    }
+  }, []);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    const storedRole = localStorage.getItem('role');
+    if (token) {
+      setIsAuthenticated(true);
+      setRole(storedRole);
+    } else {
+      navigate('/Login');
+    }
+  }, [navigate]);
+
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    const userRole = localStorage.getItem('role');
+    setRole(userRole);
+  };
+
   return (
     <div>
       <Toaster />
-      {!isAuthenticated ? (
-        <Routes>
-          <Route path="/" element={<Login onLogin={handleLogin} />} />
-          <Route path="/Login" element={<Login onLogin={handleLogin} />} />
-        </Routes>
-      ) : (
-        <>
+      {/* Solo mostrar Header y Footer si está autenticado */}
+      {isAuthenticated && <Header />}
+
+      <div className="main-content">
+        {!isAuthenticated ? (
+          <Routes>
+            <Route path="/" element={<Login onLogin={handleLogin} />} />
+            <Route path="/Login" element={<Login onLogin={handleLogin} />} />
+          </Routes>
+        ) : (
           <Routes>
             {role === 'administrador' && (
               <>
                 <Route path="/Docentes" element={<Docentes />} />
-                <Route path="/VistaAdministrador" element={<VistaAdministrador/>}/>
+                <Route path="/VistaAdministrador" element={<VistaAdministrador />} />
               </>
             )}
             {role === 'estudiante' && (
               <>
-                <Route path='/VistaEstudiante'element={<VistaEstudiantes/>}/>
+                <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
               </>
             )}
             {role === 'docente' && (
               <>
-                <Route path='/VistaDocente'element={<VistaDocentes/>}/>
+                <Route path="/VistaDocente" element={<VistaDocentes />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
               </>
             )}
             <Route path="*" element={<Login onLogin={handleLogin} />} />
           </Routes>
-        </>
-      )}
+        )}
+      </div>
+
+      {/* Solo mostrar Footer si está autenticado */}
+      {isAuthenticated && <Footer />}
     </div>
   );
 }
 
 export default App;
-
-
-

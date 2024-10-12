@@ -22,7 +22,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Footer from './Footer';
 
 const drawerWidth = 240;
@@ -84,10 +84,22 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [role, setRole] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el nombre
+  
 
   const handleDrawerOpen = () => {
     setOpen(true);
   };
+  useEffect(() => {
+    // Obtener el role del localStorage al montar el componente
+    const storedRole = localStorage.getItem('role');
+    const storedNombre = localStorage.getItem('nombre');
+    if (storedRole) {
+      setRole(storedRole);
+      setNombre(storedNombre);
+    }
+  }, []); // Se ejecuta solo una vez al montar el componente
 
   const handleDrawerClose = () => {
     setOpen(false);
@@ -123,7 +135,7 @@ export default function PersistentDrawerLeft() {
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
-            <span className="m-0">Nombre de Usuario</span>
+            <span className="m-0">{nombre}</span>
             <ExpandMoreIcon />
           </div>
         </Toolbar>

@@ -98,14 +98,17 @@ export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el rol
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
+    const storedNombre = localStorage.getItem('nombre');
     if (storedRole) {
       setRole(storedRole);
+      setNombre(storedNombre);
     }
   }, []); // Se ejecuta solo una vez al montar el componente
 
@@ -129,6 +132,8 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
+    localStorage.removeItem('token');
+    localStorage.removeItem('nombre');
     // Redireccionar al login
     navigate('/login');
   };
@@ -163,7 +168,7 @@ export default function PersistentDrawerLeft() {
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
-            <span className="m-0">{role}</span>
+            <span className="m-0">{nombre}</span>
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
@@ -229,49 +234,7 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Planificación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          {/* Docentes */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Docentes"
-              onClick={() => handleButtonClick('docentes')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
 
-          {/* Estudiantes */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Estudiantes"
-              onClick={() => handleButtonClick('estudiantes')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
-              </ListItemIcon>
-              <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-          {/* Equipos */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -286,11 +249,37 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> 
+                <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
               </ListItemIcon>
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          </>
+          )}
+
+          {/* Docentes */}
+          {role === 'administrador'&&(
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => {
+                handleButtonClick('docentes');
+                navigate('/Docentes');
+              }}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          )}
         </List>
         <Divider />
       </Drawer>
