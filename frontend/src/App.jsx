@@ -13,8 +13,8 @@ import Planificacion from './Representante_legal/Planificacion';
 import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
-import AsignarTareas from './Equipos/AsignarTareas';
-import PlanillasSemanales from './Equipos/PlanillasSemanales';
+//import AsignarTareas from './Equipos/AsignarTareas';
+import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
 
 
@@ -28,7 +28,7 @@ function App() {
         <Route path="/Docentes" element={<Docentes />} />
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
-        <Route path="/AsignarTareas" element={<AsignarTareas />} />
+        
         <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
       </Routes>
 
