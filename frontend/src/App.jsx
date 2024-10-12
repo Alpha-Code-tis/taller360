@@ -16,6 +16,7 @@ import Equipos from './Equipos/Equipos';
 //import AsignarTareas from './Equipos/AsignarTareas';
 import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
+import Seguimiento from './Representante_legal/Seguimiento';
 
 
 function App() {
@@ -28,7 +29,7 @@ function App() {
         <Route path="/Docentes" element={<Docentes />} />
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
-        
+        <Route path="/Seguimiento" element={<Seguimiento />} />
         <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
       </Routes>
 

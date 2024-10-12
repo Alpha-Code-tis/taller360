@@ -33,7 +33,7 @@ function GenerarPlanilla() {
 
   return (
     <div className="generar-planilla">
-      <h2>Planilla de seguimiento</h2>
+      <h2>Planilla Semanal</h2>
       <div className="filters">
         <div className="filter">
           <label>Sprint</label>

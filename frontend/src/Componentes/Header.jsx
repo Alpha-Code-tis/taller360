@@ -271,6 +271,27 @@ export default function PersistentDrawerLeft() { // Sin cambios
               <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Seguimiento" // Ruta a la Planilla de seguimiento
+              onClick={() => handleButtonClick('seguimiento')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
         </List>
         <Divider />
       </Drawer>
