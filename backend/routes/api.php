@@ -9,6 +9,7 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
+use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
 /*
@@ -26,8 +27,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth.api');
+Route::post('/login', [AuthController::class, 'login'])->name("login");
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/usuario', function (Request $request) {
@@ -56,6 +57,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/planificacion', [SprintController::class, 'store']);
+    Route::get('/planificacion', [PlanificacionController::class, 'index']);
     Route::get('/planificacion/{id}', [PlanificacionController::class, 'show']);
     Route::get('/planificacion/{id}/sprint={n_sprint}', [PlanificacionController::class, 'showSprint']);
     Route::get('/estudiantes', [EstudianteController::class, 'index']);

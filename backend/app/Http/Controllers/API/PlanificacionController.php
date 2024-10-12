@@ -16,7 +16,13 @@ class PlanificacionController extends Controller
      */
     public function index()
     {
-        return Planificacion::All();
+        $user = auth()->guard('sanctum')->user();
+        $id_empresa = $user->id_empresa;
+        $planificacion = Planificacion::with(['sprints.alcances.tareas']) // Cargar relaciones anidadas
+            ->where('id_empresa', $id_empresa) // Filtrar por id_empresa
+            ->first(); // Obtener una sola planificación
+
+        return response()->json($planificacion, Response::HTTP_OK);
     }
 
     /**
