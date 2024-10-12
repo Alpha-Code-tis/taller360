@@ -23,6 +23,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import Footer from './Footer';
 
 const drawerWidth = 240;
 
@@ -200,6 +201,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
       </Drawer>
       <Main open={open}></Main>
+      <Footer /> 
     </Box>
   );
 }

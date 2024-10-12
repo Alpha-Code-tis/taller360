@@ -41,8 +41,7 @@ export default function Login({ onLogin }) {
       email: email,
       password: password,
     };
-    console.log(postData); 
-    axios.post('http://10.16.58.234:8000/api/login',postData)
+    axios.post('https://honest-things-unite.loca.lt/api/login',postData)
     .then(response => {
       console.log(response.success);
 
@@ -52,15 +51,13 @@ export default function Login({ onLogin }) {
 
         localStorage.setItem('token', token);
         localStorage.setItem('role', role);
+        onLogin(role);
 
         if (role === 'estudiante') {
-          onLogin();
           window.location.href = '/VistaEstudiante'; 
         } else if(role === 'docente'){
-            onLogin();
             window.location.href = '/VistaDocente';
           }else if(role === 'administrador'){
-            onLogin();
             window.location.href = '/VistaAdministrador';
           }else{
             setErrorMessage('Rol no autorizado');
@@ -70,7 +67,6 @@ export default function Login({ onLogin }) {
       }
     })
     .catch(err =>{
-      console.log(err);
       setErrorMessage('Ocurrió un error al intentar iniciar sesión');
     })
   };

@@ -18,8 +18,13 @@ import logo from '../img/logo.jpeg';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Menu, MenuItem } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import Footer from './Footer'; // Asegúrate de que la ruta sea correcta
+import Docentes from '../Administrador/Docentes';
+
 
 const drawerWidth = 240;
 
@@ -80,6 +85,17 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [role, setRole] = useState(''); // Estado para el rol
+  const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
+  const navigate = useNavigate(); // Para redireccionar
+
+  useEffect(() => {
+    // Obtener el role del localStorage al montar el componente
+    const storedRole = localStorage.getItem('role');
+    if (storedRole) {
+      setRole(storedRole);
+    }
+  }, []); // Se ejecuta solo una vez al montar el componente
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -87,6 +103,21 @@ export default function PersistentDrawerLeft() {
 
   const handleDrawerClose = () => {
     setOpen(false);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null); // Cierra el menú
+  };
+
+  const handleLogout = () => {
+    // Eliminar datos del localStorage (token, rol, etc.)
+    localStorage.removeItem('role');
+    // Redireccionar al login
+    navigate('/login');
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
@@ -119,8 +150,19 @@ export default function PersistentDrawerLeft() {
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
-            <span className="m-0">Nombre de Usuario</span>
-            <ExpandMoreIcon />
+            <span className="m-0">{role}</span>
+            <IconButton onClick={handleMenuOpen}>
+              <ExpandMoreIcon />
+            </IconButton>
+            {/* Menú desplegable */}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              keepMounted
+            >
+              <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+            </Menu>
           </div>
         </Toolbar>
       </AppBar>
@@ -176,6 +218,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
       </Drawer>
       <Main open={open}></Main>
+      <Footer/>
     </Box>
   );
 }
