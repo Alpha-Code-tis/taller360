@@ -41,9 +41,10 @@ class SprintController extends Controller
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'fecha_inicio' => 'required|date_format:d/m/Y',
             'fecha_fin' => 'required|date_format:d/m/Y|after_or_equal:fecha_inicio',
-            'alcance' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'requerimiento' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas' => 'required|array',
             'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'tareas.*.estimacion' => 'required|integer',
         ]);
 
         if ($validator->fails()) {
@@ -128,12 +129,12 @@ class SprintController extends Controller
                 $sprint->fecha_fin = Carbon::createFromFormat('d/m/Y', $validated['fecha_fin'])->format('Y-m-d');
                 $sprint->save();
             }
-            $alcance = Alcance::where('descripcion', $validated['alcance'])
+            $alcance = Alcance::where('descripcion', $validated['requerimiento'])
                 ->where('id_sprint', $sprint->id_sprint)
                 ->first();
             if (!$alcance) {
                 $alcance = new Alcance;
-                $alcance->descripcion = $validated['alcance'];
+                $alcance->descripcion = $validated['requerimiento'];
                 $alcance->id_sprint = $sprint->id_sprint;
                 $alcance->save();
             } else {
@@ -153,6 +154,7 @@ class SprintController extends Controller
             foreach ($validated['tareas'] as $tarea) {
                 $tareaN = new Tarea();
                 $tareaN->nombre_tarea = $tarea['nombre'];
+                $tareaN->estimacion = $tarea['estimacion'];
                 $tareaN->id_alcance = $alcance->id_alcance;
                 $tareaN->save();
             }
