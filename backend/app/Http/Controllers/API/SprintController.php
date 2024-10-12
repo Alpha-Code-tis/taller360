@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Alcance;
+use App\Models\Empresa;
 use App\Models\Estudiante;
+use App\Models\Planificacion;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use Carbon\Carbon;
@@ -56,7 +58,21 @@ class SprintController extends Controller
         try {
 
             $validated = $validator->validated();
-            $id_planificacion = 1;
+            $user = auth()->guard('sanctum')->user(); // Asegurarse de usar el guard correcto
+            $empresa = Empresa::where('id_empresa', $user->id_empresa)
+                ->first();
+            if (!$empresa) {
+                return response()->json([
+                    'message' => 'El estudiante no pertenece a la empresa especificada',
+                ], Response::HTTP_FORBIDDEN);
+            }
+
+            $id_planificacion = Planificacion::where('id_empresa', $empresa->id_empresa)->value('id_planificacion');
+            if (!$id_planificacion) {
+                return response()->json([
+                    'message' => 'El estudiante no tiene planificación asignada',
+                ], Response::HTTP_NOT_FOUND);
+            }
 
             $solapamiento = Sprint::where('id_planificacion', $id_planificacion)
                 ->where('nro_sprint', '!=', $validated['nro_sprint'])

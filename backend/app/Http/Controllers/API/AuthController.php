@@ -49,7 +49,7 @@ class AuthController extends Controller
                 'role' => 'administrador',
                 'nombre' => 'Administrador', // Ajusta si tienes campos de nombre
                 'correo' => $admin->correo,
-                'access_token' => $token,
+                'token' => $token,
                 'token_type' => 'Bearer',
             ]);
         }

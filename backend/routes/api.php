@@ -29,37 +29,42 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth.api');
 
-Route::middleware(['auth:api', 'role'])->group(function () {
-    Route::get('/dashboard', function (Request $request) {
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::get('/usuario', function (Request $request) {
         $user = null;
 
         // Verifica qué tipo de usuario está autenticado
         if (Auth::guard('docente')->check()) {
             $user = Auth::guard('docente')->user();
+            $user_role = "docente";
         } elseif (Auth::guard('admin')->check()) {
             $user = Auth::guard('admin')->user();
+            $user_role = "admin";
         } elseif (Auth::guard('estudiante')->check()) {
             $user = Auth::guard('estudiante')->user();
+            $user_role = "estudiante";
         }
 
         return response()->json([
             'message' => 'Bienvenido al dashboard',
-            'role' => $request->user_role,
+            'role' => $user_role,
             'user' => $user,
         ]);
     });
 });
 
 
-Route::post('/planificacion',[SprintController::class, 'store']);
-Route::get('/planificacion/{id}',[PlanificacionController::class, 'show']);
-Route::get('/planificacion/{id}/sprint={n_sprint}', [PlanificacionController::class, 'showSprint']);
-Route::get('/estudiantes', [EstudianteController::class, 'index']);
-Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
-Route::post('/estudiantes', [EstudianteController::class, 'store']);
-Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
-Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
-Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/planificacion', [SprintController::class, 'store']);
+    Route::get('/planificacion/{id}', [PlanificacionController::class, 'show']);
+    Route::get('/planificacion/{id}/sprint={n_sprint}', [PlanificacionController::class, 'showSprint']);
+    Route::get('/estudiantes', [EstudianteController::class, 'index']);
+    Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
+    Route::post('/estudiantes', [EstudianteController::class, 'store']);
+    Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
+    Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
+    Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
+});
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 
