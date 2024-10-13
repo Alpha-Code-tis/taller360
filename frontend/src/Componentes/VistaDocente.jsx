@@ -94,8 +94,10 @@ export default function PersistentDrawerLeft() {
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
+    const storedNombre = localStorage.getItem('nombre');
     if (storedRole) {
       setRole(storedRole);
+      setNombre(storedNombre);
     }
   }, []); // Se ejecuta solo una vez al montar el componente
 
@@ -152,7 +154,7 @@ export default function PersistentDrawerLeft() {
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
-            <span className="m-0">{role}</span>
+            <span className="m-0">{nombre}</span>
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>

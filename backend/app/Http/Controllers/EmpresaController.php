@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Empresa;
 use App\Models\Estudiante;
 use App\Models\Planificacion;
+use Illuminate\Http\Response;
+use \Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -36,18 +38,26 @@ class EmpresaController extends Controller
     public function getEstudiantesPorEmpresa($id_empresa)
     {
         try {
+            // Verificar si la empresa existe
+            $empresa = Empresa::find($id_empresa);
+            if (!$empresa) {
+                return response()->json(['message' => 'Empresa no encontrada'], 404);
+            }
+    
             // Obtener estudiantes que pertenecen a la empresa especificada
             $estudiantes = Estudiante::where('id_empresa', $id_empresa)->get();
-
+    
             if ($estudiantes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron estudiantes para esta empresa'], 404);
             }
-
-            return response()->json($estudiantes);
+    
+            return response()->json($estudiantes, 200);
         } catch (\Exception $e) {
+            // Manejar errores generales
             return response()->json(['error' => 'Error al consultar los estudiantes: ' . $e->getMessage()], 500);
         }
     }
+    
 
     public function show($id_empresa)
     {
@@ -64,9 +74,13 @@ class EmpresaController extends Controller
                     'direccion' => $empresa->direccion,
                     'telefono' => $empresa->telefono,
                     'correo_empresa' => $empresa->correo_empresa,
-                    'estudiantesSeleccionados' => $empresa->estudiantes,
-                ],
-            ]);
+                    'estudiantesSeleccionados' => $empresa->estudiantes->map(function($estudiante) {
+                    return [
+                        'id_estudiante' => $estudiante->id_estudiante,
+                    ];
+                }),
+            ],
+        ]);
         } catch (ModelNotFoundException $e) {
             return response()->json(['error' => 'Empresa no encontrada'], 404);
         } catch (\Exception $e) {
@@ -106,7 +120,7 @@ class EmpresaController extends Controller
     public function store(Request $request)
     {
         // Validar los datos recibidos
-        $request->validate([
+        $validator = Validator::make($request->all(), [
         'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa', // Asegura que el nombre sea único
             'nombre_corto' => 'required|string',
             'direccion' => 'required|string',
@@ -115,6 +129,13 @@ class EmpresaController extends Controller
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validar el logo
             'estudiantesSeleccionados' => 'nullable|array', // Aceptar el JSON de IDs de estudiantes
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no validos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         // Crear la empresa
         $empresa = Empresa::create([

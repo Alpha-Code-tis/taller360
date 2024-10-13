@@ -41,16 +41,17 @@ export default function Login({ onLogin }) {
       email: email,
       password: password,
     };
-    axios.post('https://honest-things-unite.loca.lt/api/login',postData)
+    axios.post('http://localhost:8000/api/login',postData)
     .then(response => {
       console.log(response.success);
 
       // Suponiendo que la API devuelve 'success', 'token' y 'role'
       if (response.data.success) {
-        const { token, role } = response.data;
+        const { token, role, nombre } = response.data;
 
         localStorage.setItem('token', token);
         localStorage.setItem('role', role);
+        localStorage.setItem('nombre', nombre);
         onLogin(role);
 
         if (role === 'estudiante') {

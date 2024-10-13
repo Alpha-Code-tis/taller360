@@ -31,7 +31,8 @@ class Tarea extends Model
 
 	protected $fillable = [
 		'id_alcance',
-		'nombre_tarea'
+		'nombre_tarea',
+		'estimacion'
 	];
 
 	public function alcance()

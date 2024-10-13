@@ -8,6 +8,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Administrador
@@ -20,19 +23,29 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Administrador extends Model
+class Administrador extends Authenticatable
 {
 	protected $table = 'administrador';
 	protected $primaryKey = 'id_admi';
 	public $timestamps = false;
+	use HasApiTokens, Notifiable;
 
 	protected $fillable = [
 		'nombre',
-		'contrasenia'
+		'contrasenia',
+		'correo'
 	];
 
 	public function docentes()
 	{
 		return $this->hasMany(Docente::class, 'id_admi');
 	}
+	protected $hidden = [
+        'contrasenia',
+    ];
+
+    public function getAuthPassword()
+    {
+        return $this->contrasenia;
+    }
 }
