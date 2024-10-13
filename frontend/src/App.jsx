@@ -14,6 +14,7 @@ import Equipos from './Equipos/Equipos';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
 import './App.css';
+import axios from 'axios';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -27,7 +28,11 @@ function App() {
       const storedRole = localStorage.getItem('role'); // Obtener el rol desde localStorage
       if (token) {
         setIsAuthenticated(true);
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         setRole(storedRole); // Establecer el rol
+      }else{
+        setIsAuthenticated(false);
+        delete axios.defaults.headers.common['Authorization'];
       }
     }, []);
 
