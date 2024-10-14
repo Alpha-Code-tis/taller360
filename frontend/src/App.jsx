@@ -17,6 +17,7 @@ import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
 import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
+import GenerarPlanilla from './Administrador/GenerarPlanilla';
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
         <Route path="/Seguimiento" element={<Seguimiento />} />
         <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
         <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
+        <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
       </Routes>
 
       <Footer />

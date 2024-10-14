@@ -291,6 +291,27 @@ export default function PersistentDrawerLeft() { // Sin cambios
               <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/GenerarPlanilla" // Ruta al generador de planillas
+              onClick={() => handleButtonClick('generarPlanilla')} // Cambia el estado del botón seleccionado
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'generarPlanilla' ? '#004080' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#004080',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon /> {/* Puedes cambiar este ícono si lo prefieres */}
+              </ListItemIcon>
+              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} /> {/* Texto descriptivo */}
+            </ListItemButton>
+          </ListItem>
+
 
         </List>
         <Divider />
