@@ -231,27 +231,7 @@ export default function PersistentDrawerLeft() { // Sin cambios
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-
-          {/* Asignar Tareas */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/AsignarTareas"
-              onClick={() => handleButtonClick('asignarTareas')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'asignarTareas' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon />
-              </ListItemIcon>
-              <ListItemText primary="Asignar Tareas" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
+          
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
