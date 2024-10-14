@@ -16,6 +16,7 @@ import Equipos from './Equipos/Equipos';
 import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
 import Seguimiento from './Representante_legal/Seguimiento';
+import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
         <Route path="/Equipos" element={<Equipos />} />
         <Route path="/Seguimiento" element={<Seguimiento />} />
         <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+        <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
       </Routes>
 
       <Footer />

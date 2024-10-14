@@ -231,7 +231,7 @@ export default function PersistentDrawerLeft() { // Sin cambios
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -269,6 +269,26 @@ export default function PersistentDrawerLeft() { // Sin cambios
                 <NoteAltIcon />
               </ListItemIcon>
               <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/TareasEstudiante" // Agrega la ruta
+              onClick={() => handleButtonClick('tareasEstudiante')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon /> {/* Puedes cambiar el icono si lo deseas */}
+              </ListItemIcon>
+              <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
