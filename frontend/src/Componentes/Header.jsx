@@ -299,16 +299,16 @@ export default function PersistentDrawerLeft() { // Sin cambios
               onClick={() => handleButtonClick('generarPlanilla')} // Cambia el estado del botón seleccionado
               sx={{
                 borderRadius: '8px',
-                backgroundColor: selectedButton === 'generarPlanilla' ? '#004080' : 'transparent',
+                backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
                 '&:hover': {
-                  backgroundColor: '#004080',
+                  backgroundColor: '#1A3254',
                 },
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon /> {/* Puedes cambiar este ícono si lo prefieres */}
+                <NoteAltIcon /> 
               </ListItemIcon>
-              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} /> {/* Texto descriptivo */}
+              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} /> 
             </ListItemButton>
           </ListItem>
 
