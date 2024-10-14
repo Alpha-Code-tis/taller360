@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('nombre_tarea', 35)->nullable();
             $table->string('estado', 12)->default('Pendiente');
             $table->string('progreso', 6)->default('0 %');
+            $table->string('avances', 50)->nullable(); 
 
             $table->unique(['id_tarea'], 'tarea_pk');
         });

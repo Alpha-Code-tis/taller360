@@ -8,6 +8,10 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\PlanillaDocenteController;
+use App\Http\Controllers\PlanillaController;
+use App\Http\Controllers\TareaController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -57,3 +61,24 @@ Route::put('/equipos/{id_empresa}', [EmpresaController::class, 'update']);
 Route::delete('/equipos/{id_empresa}', [EmpresaController::class, 'destroy']);
 Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
 Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
+
+//Planilla-Docente
+Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
+Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']); 
+Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']); 
+Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']); 
+Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']); 
+
+//Planilla-Representante
+Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']);
+Route::get('/sprint/{id}/tareas', [PlanillaController::class, 'mostrarTareas']); 
+Route::post('/tarea/{id}/estudiantes', [PlanillaController::class, 'asignarEstudiante']);
+Route::delete('/tarea/{id}/estudiante/{estudiante_id}', [PlanillaController::class, 'eliminarEstudiante']); 
+Route::put('/tarea/{id}', [PlanillaController::class, 'actualizarTarea']); 
+
+//Tarea
+Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']); 
+Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
+Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']); 
+Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']); 
+Route::delete('/tareas/{tareaId}/avances/{avanceId}', [TareaController::class, 'eliminarAvance']); 

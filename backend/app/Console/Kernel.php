@@ -16,6 +16,10 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         // $schedule->command('inspire')->hourly();
+        // Programar la generación de PDFs cada 7 días
+        $schedule->call(function () {
+            \Illuminate\Support\Facades\Http::get(url('/planilla/generar-pdf'));
+        })->weekly();
     }
 
     /**
