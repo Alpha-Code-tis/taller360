@@ -17,7 +17,24 @@ import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { formGroupClasses } from '@mui/material';
 
-const localizer = momentLocalizer(moment) // or globalizeLocalizer
+const localizer = momentLocalizer(moment); // or globalizeLocalizer
+
+// Función para filtrar sábados y domingos
+const filtrarDiasHabiles = (fechaInicio, fechaFin) => {
+  const fechas = [];
+  let currentDate = dayjs(fechaInicio);
+
+  while (currentDate.isBefore(fechaFin) || currentDate.isSame(fechaFin, 'day')) {
+    const dayOfWeek = currentDate.day();
+    // Excluir sábado (6) y domingo (0)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      fechas.push(currentDate.toDate()); // Agregar solo días de lunes a viernes
+    }
+    currentDate = currentDate.add(1, "day");
+  }
+
+  return fechas;
+};
 
 const Planificacion = () => {
   const initialTareas = [];
@@ -28,8 +45,14 @@ const Planificacion = () => {
   const [value, setValue] = React.useState(dayjs());
   const [myEventsList, setMyEventsList] = useState([]);
   const [hu, setHu] = useState(initialTareas);
-  const [fechaInicio, setFechaInicio] = useState(dayjs());
-  const [fechaFinal, setFechaFinal] = useState(dayjs());
+  const [isOpen, setIsOpen] = useState(false); // Controla si el menú desplegable está abierto
+  const [selectedSprint, setSelectedSprint] = useState(""); // Estado para el sprint seleccionado
+  const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints obtenidos de la API
+  const [fechaInicio, setFechaInicio] = useState(null); // Fecha inicio seleccionada
+  const [fechaFinal, setFechaFinal] = useState(null); // Fecha fin seleccionada
+  const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
+
+
   const [formValues, setFormValues] = useState({
     tarea: '',
     estimacion: '',
@@ -229,16 +252,65 @@ const Planificacion = () => {
 
   const totalPages = Math.ceil(hu.length / itemsPerPage);
   
-  const [selectedSprint, setSelectedSprint] = useState('Todos');
-    const [isOpen, setIsOpen] = useState(false);
-
+  //Funcion para alteraar el menú desplegable
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
     };
 
-    const handleOptionChange = (e) => {
-        setSelectedSprint(e.target.value);
-    };
+    // Función para manejar el cambio de opción seleccionada
+    const handleOptionChange = async (event) => {
+      const selectedId = event.target.value;
+      setSelectedSprint(selectedId);
+
+
+  // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
+  try {
+    const response = await axios.get(`http://localhost:8000/api/planificacion?sprint_id=${selectedId}`);
+    const sprintData = response.data.sprints.find((sprint) => sprint.id_sprint === parseInt(selectedId));
+
+    if (sprintData) {
+      // Actualiza las fechas de inicio y fin
+      const inicio = dayjs(sprintData.fecha_inicio);
+      const fin = dayjs(sprintData.fecha_fin);
+      const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
+
+      setFechaInicio(inicio);
+      setFechaFin(fin);
+
+      // Filtrar los días hábiles entre la fecha de inicio y fin
+      const diasHabiles = filtrarDiasHabiles(inicio, fin);
+      setEventos(
+        diasHabiles.map((fecha) => ({
+          title: "Sprint seleccionado",
+          start: fecha,
+          end: fecha, // Evento de un solo día
+          style: { backgroundColor: color }, // Color del evento
+        }))
+      );
+    }
+  } catch (error) {
+    console.error("Error al obtener los detalles del sprint:", error);
+  }
+};
+
+
+  // Función para obtener los sprints de la API
+  const fetchSprints = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/listarSprints");
+      setSprints(response.data); // Almacena los sprints obtenidos
+    } catch (error) {
+      console.error("Error al obtener los sprints:", error);
+    }
+  };
+
+  // useEffect para cargar los sprints cuando el componente se monta
+  useEffect(() => {
+    fetchSprints();
+  }, []);
+
+
+  
   return (
     <div className="container custom-container pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -249,24 +321,17 @@ const Planificacion = () => {
             </button>
             {isOpen && (
               <div className="dropdown-menu show">
-                <label className="dropdown-item">
-                  <input
-                    type="radio"
-                    value="1"
-                    checked={selectedSprint === '1'}
-                    onChange={handleOptionChange}
-                  />
-                  1
-                </label>
-                <label className="dropdown-item">
-                  <input
-                    type="radio"
-                    value="2"
-                    checked={selectedSprint === '2'}
-                    onChange={handleOptionChange}
-                  />
-                  2
-                </label>
+                {sprints.map((sprint) => (
+                  <label className="dropdown-item" key={sprint.id_sprint}>
+                    <input
+                      type="radio"
+                      value={sprint.id_sprint}
+                      checked={selectedSprint === sprint.id_sprint}
+                      onChange={handleOptionChange}
+                    />
+                    Sprint{sprint.nro_sprint}
+                  </label>
+                ))}
                 <label className="dropdown-item">
                   <input
                     type="radio"
@@ -287,10 +352,18 @@ const Planificacion = () => {
       <div style={{ height: '350px' }}>
         <Calendar
           localizer={localizer}
-          events={myEventsList}
+          events={eventos}
           startAccessor="start"
           endAccessor="end"
-          style={{ margin: '5px' }}
+          style={{margin: "50px" }}
+          eventPropGetter={(event) => ({
+          style: {
+            backgroundColor: event.style.backgroundColor, // Aplicar el color del evento
+            color: 'white', // Color del texto
+            borderRadius: '5px',
+            border: 'none',
+          },
+        })}
         />
       </div>
 
@@ -307,10 +380,6 @@ const Planificacion = () => {
                       value={fechaInicio}
                       onChange={(newValue) => {
                         setFechaInicio(dayjs(newValue)); // Actualiza el estado de la fecha
-                        setFormValues((prevValues) => ({
-                          ...prevValues,
-                          fechaInicio: dayjs(newValue).format('DD/MM/YYYY'), // Actualiza formValues con el valor de la fecha en formato adecuado
-                        }));
                       }}
                       slotProps={{ textField: { variant: 'outlined', fullWidth: true } }}
                       sx={{
@@ -496,7 +565,6 @@ const Planificacion = () => {
           <Button type="button" className="btn btn-primary" onClick={handleSave} >Guardar</Button>
         </Modal.Footer>
       </Modal>
-
     </div>
   );
 };
