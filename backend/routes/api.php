@@ -66,6 +66,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
     Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
     Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
+    Route::get('/listarSprints', [PlanificacionController::class, 'listaSprintsUnicos']);
+    Route::get('/listarSprintsEmpresa/{id_empresa}', [PlanificacionController::class, 'listarSprints']);
+    Route::get('/planificacion/{id_empresa}/{gestion}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
 });
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
@@ -92,3 +95,6 @@ Route::put('/equipos/{id_empresa}', [EmpresaController::class, 'update']);
 Route::delete('/equipos/{id_empresa}', [EmpresaController::class, 'destroy']);
 Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
 Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
+Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
+Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
+

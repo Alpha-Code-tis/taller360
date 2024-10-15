@@ -18,6 +18,13 @@ class EmpresaController extends Controller
     {
         return Empresa::with(['cantidad', 'representate_legal', 'planificacion'])->get();
     }
+
+    public function gestiones()
+    {
+        $gestiones = Empresa::select('gestion')->distinct()->get();
+        return response()->json($gestiones, Response::HTTP_OK);
+    }
+
     public function getEstudiantesSinEmpresa()
     {
         try {
