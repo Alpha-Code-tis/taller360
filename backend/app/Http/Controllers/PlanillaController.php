@@ -10,7 +10,7 @@ use Carbon\Carbon;
 
 class PlanillaController extends Controller
 {
-    // 1. Mostrar los sprints asociados a la empresa del representante legal autenticado
+    // Mostrar los sprints asociados a la empresa del representante legal autenticado
     public function mostrarSprints()
     {
         // Obtener el representante legal autenticado
@@ -24,7 +24,7 @@ class PlanillaController extends Controller
         return response()->json($sprints);
     }
 
-    // 2. Mostrar las tareas de un sprint seleccionado
+    // Mostrar las tareas de un sprint seleccionado
     public function mostrarTareas($sprintId)
     {
         // Verificar si el sprint pertenece a la empresa del representante legal autenticado
@@ -36,7 +36,7 @@ class PlanillaController extends Controller
 
         // Obtener las tareas del sprint con los responsables (estudiantes)
         $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-                       ->with('estudiantes') // Relación para obtener los estudiantes responsables de la tarea
+                       ->with('estudiantes') 
                        ->get();
 
         return response()->json($tareas);
