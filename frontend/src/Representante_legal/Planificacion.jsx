@@ -15,9 +15,8 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment'
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { formGroupClasses } from '@mui/material';
 
-// Setup the localizer by providing the moment (or globalize, or Luxon) Object
-// to the correct localizer.
 const localizer = momentLocalizer(moment) // or globalizeLocalizer
 
 const Planificacion = () => {
@@ -33,6 +32,7 @@ const Planificacion = () => {
   const [fechaFinal, setFechaFinal] = useState(dayjs());
   const [formValues, setFormValues] = useState({
     tarea: '',
+    estimacion: '',
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -45,6 +45,7 @@ const Planificacion = () => {
         fecha_inicio: formValues.fechaInicio,
         fecha_fin: formValues.fechaFinal,
         requerimiento: formValues.requerimiento,
+        estimacion: formValues.estimacion,
         tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
       });
       toast.dismiss(loadingToastId);
@@ -84,6 +85,7 @@ const Planificacion = () => {
       color: '',
       fechaInicio: '',
       fechaFinal: '',
+      estimacion: '',
     });
     setShowModal(true);
   };
@@ -156,23 +158,43 @@ const Planificacion = () => {
       setFormErrors(errors);
       return Object.keys(errors).length === 0;
     }
+    if (!/^\d+$/.test(formValues.estimacion)) {
+      errors.estimacion = 'La estimacion debe contener solo números.';
+    }
   }
 
   const handleAddTarea = () => {
-    if (formValues.tarea.trim() !== '') { // Asegúrate de que el campo no esté vacío
+    console.log(formValues);
+    // Verifica que tarea sea un string no vacío y estimacion sea un número válido
+    const isTareaValid = typeof formValues.tarea === 'string' && formValues.tarea.trim() !== '';
+
+    // Asegúrate de que estimacion sea un string y un número válido
+    const estimacionValue = formValues.estimacion.toString(); // Convierte a string
+    const isEstimacionValid = !isNaN(estimacionValue) && Number(estimacionValue.trim()) > 0;
+
+    if (isTareaValid && isEstimacionValid) { // Asegúrate de que el campo no esté vacío
       const newTarea = {
         id: hu.length + 1, // Genera un ID único (puedes mejorarlo más adelante)
-        tarea: formValues.tarea,
+        tarea: formValues.tarea.trim(),
+        estimacion: Number(estimacionValue.trim()),
       };
       setHu((prevHu) => [...prevHu, newTarea]); // Agrega la nueva tarea
-      setFormValues({ ...formValues, tarea: '' }); // Limpia el campo de entrada
+      setFormValues({ tarea: '' , estimacion:''}); // Limpia el campo de entrada
 
+      const newHuLength = hu.length + 1;
       // Cambiar a la última página si hay más elementos que la página actual
-      if (currentPage < Math.ceil(hu.length / itemsPerPage)) {
-        setCurrentPage(Math.ceil((hu.length + 1) / itemsPerPage));
+      if (currentPage < Math.ceil(newHuLength / itemsPerPage)) {
+        setCurrentPage(Math.ceil(newHuLength / itemsPerPage));
       }
 
+    }else {
+      // Opcional: Agregar retroalimentación para el usuario si la entrada es inválida
+      console.error("Entrada inválida: ", {
+        tarea: isTareaValid,
+        estimacion: isEstimacionValid
+      });
     }
+  
   };
 
 
@@ -206,10 +228,59 @@ const Planificacion = () => {
   };
 
   const totalPages = Math.ceil(hu.length / itemsPerPage);
+  
+  const [selectedSprint, setSelectedSprint] = useState('Todos');
+    const [isOpen, setIsOpen] = useState(false);
+
+    const toggleDropdown = () => {
+        setIsOpen(!isOpen);
+    };
+
+    const handleOptionChange = (e) => {
+        setSelectedSprint(e.target.value);
+    };
   return (
     <div className="container custom-container pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="m-0">Planificación</h1>
+        <div className="d-flex align-items-center">
+          <div className="sprint-dropdown me-5"> {/* Añadido 'me-2' para margen a la derecha */}
+            <button className="btn btn-primary" onClick={toggleDropdown}>
+              Sprint <span className="arrow">{isOpen ? '▲' : '▼'}</span>
+            </button>
+            {isOpen && (
+              <div className="dropdown-menu show">
+                <label className="dropdown-item">
+                  <input
+                    type="radio"
+                    value="1"
+                    checked={selectedSprint === '1'}
+                    onChange={handleOptionChange}
+                  />
+                  1
+                </label>
+                <label className="dropdown-item">
+                  <input
+                    type="radio"
+                    value="2"
+                    checked={selectedSprint === '2'}
+                    onChange={handleOptionChange}
+                  />
+                  2
+                </label>
+                <label className="dropdown-item">
+                  <input
+                    type="radio"
+                    value="Todos"
+                    checked={selectedSprint === 'Todos'}
+                    onChange={handleOptionChange}
+                  />
+                  Todos
+                </label>
+              </div>
+            )}
+          </div>
+          <h1 className="m-0 ms-5">Planificación</h1>
+        </div>
         <button className="btn btn-primary" onClick={() => handleShowModal()}>Registrar</button>
       </div>
       {error && <p className="text-danger">{error}</p>}
@@ -312,7 +383,7 @@ const Planificacion = () => {
             </Row>
 
             <Row className="mb-3">
-              <Col md={4}>
+              <Col md={3}>
                 <Form.Group controlId="formAlcance">
                   <Form.Label>Requerimiento</Form.Label>
                   <Form.Control
@@ -327,7 +398,7 @@ const Planificacion = () => {
                 </Form.Group>
               </Col>
 
-              <Col md={5}>
+              <Col md={3}>
                 <Form.Group controlId="formHU">
                   <Form.Label>HU-Tarea</Form.Label>
                   <Form.Control
@@ -341,7 +412,20 @@ const Planificacion = () => {
                   {formErrors.tarea && <div className="text-danger">{formErrors.tarea}</div>}
                 </Form.Group>
               </Col>                          
-
+              <Col md={3}>
+                <Form.Group controlId="formEstimacion">
+                  <Form.Label>Estimación</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="estimacion"
+                    value={formValues.estimacion}
+                    onChange={handleInputChange}
+                    placeholder="Estimacion"
+                    isInvalid={!!formErrors.estimacion}
+                  />
+                  {formErrors.estimacion && <div className="text-danger">{formErrors.estimacion}</div>}
+                </Form.Group>
+              </Col>
 
               <Col md={3} style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '31px' }}>
                 <Form.Group>
@@ -357,6 +441,7 @@ const Planificacion = () => {
                     <thead className="table-light">
                       <tr>
                         <th>HU-Tareas</th>
+                        <th>Estimacion</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -366,6 +451,7 @@ const Planificacion = () => {
                         currentItems.map((tarea) => (
                           <tr key={tarea.id}>
                             <td>{tarea.tarea}</td>
+                            <td>{tarea.estimacion}</td>
                             <td>
                               <button className="icon-button" title="Eliminar" onClick={() => handleDelete(tarea.id)}>
                                 <FaTrash />

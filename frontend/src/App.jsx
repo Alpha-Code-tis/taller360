@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -21,7 +20,6 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
   const navigate = useNavigate();
-
   useEffect(() => {
     const token = localStorage.getItem('token');
     const storedRole = localStorage.getItem('role');
@@ -29,31 +27,23 @@ function App() {
       setIsAuthenticated(true);
       setRole(storedRole);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-    }
-  }, []);
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const storedRole = localStorage.getItem('role');
-    if (token) {
-      setIsAuthenticated(true);
-      setRole(storedRole);
     } else {
       navigate('/Login');
     }
   }, [navigate]);
-
+  
   const handleLogin = () => {
     setIsAuthenticated(true);
     const userRole = localStorage.getItem('role');
     setRole(userRole);
+
   };
 
   return (
     <div>
       <Toaster />
       {/* Solo mostrar Header y Footer si está autenticado */}
-      {isAuthenticated && <Header />}
+      {isAuthenticated && <Header/>}
 
       <div className="main-content">
         {!isAuthenticated ? (

@@ -24,6 +24,7 @@ import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import Footer from './Footer'; // Asegúrate de que la ruta sea correcta
 import Docentes from '../Administrador/Docentes';
+import axios from 'axios';
 
 
 const drawerWidth = 240;
@@ -119,8 +120,10 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
-    // Redireccionar al login
-    navigate('/login');
+    localStorage.removeItem('nombre');
+    
+    // Redirigir al login recargando la página
+    window.location.href = '/Login';
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
