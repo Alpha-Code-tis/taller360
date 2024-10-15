@@ -70,11 +70,10 @@ Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteCon
 Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']); 
 
 //Planilla-Representante
-Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']);
-Route::get('/sprint/{id}/tareas', [PlanillaController::class, 'mostrarTareas']); 
-Route::post('/tarea/{id}/estudiantes', [PlanillaController::class, 'asignarEstudiante']);
-Route::delete('/tarea/{id}/estudiante/{estudiante_id}', [PlanillaController::class, 'eliminarEstudiante']); 
-Route::put('/tarea/{id}', [PlanillaController::class, 'actualizarTarea']); 
+Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']); 
+Route::get('/sprints/{sprintId}/tareas', [PlanillaController::class, 'mostrarTareas']); 
+Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class, 'asignarEstudiantes']); 
+Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']); 
 
 //Tarea
 Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']); 
