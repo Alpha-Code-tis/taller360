@@ -21,8 +21,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 20,
   },
-  section: {
+  sectionRow: {
     marginBottom: 10,
+    flexDirection: 'row', 
+  },
+  label: {
+    fontWeight: 'bold',
+    marginRight: 10, 
+  },
+  textRight: {
+    marginLeft: 'auto', 
   },
   table: {
     display: 'table',
@@ -67,17 +75,14 @@ const GenerarPlanilla = () => {
   const PlanillaPDF = () => (
     <Document>
       <Page style={styles.page}>
-        <Text style={styles.title}>Planilla PDF de seguimiento</Text>
-
-        <View style={styles.section}>
-          <Text style={styles.label}>Equipo: </Text>
-          <Text>Alpha code</Text>
+        <Text style={styles.title}>Planilla de seguimiento</Text>
+  
+        {/* Coloca el equipo y la fecha en la misma fila */}
+        <View style={styles.sectionRow}>
+          <Text style={styles.label}>Equipo: Alpha code</Text>
+          <Text style={styles.textRight}>Fecha de generación: {obtenerFechaActual()}</Text>
         </View>
-        <View style={styles.section}>
-          <Text style={styles.label}>Fecha: </Text>
-          <Text>{obtenerFechaActual()}</Text> {/* Aquí se muestra la fecha actual */}
-        </View>
-
+  
         <View style={styles.table}>
           <View style={[styles.tableRow, styles.header]}>
             <View style={styles.tableCol}>
@@ -93,7 +98,7 @@ const GenerarPlanilla = () => {
               <Text style={styles.tableCell}>Progreso</Text>
             </View>
           </View>
-
+  
           {datos.map((fila, index) => (
             <View key={index} style={styles.tableRow}>
               <View style={styles.tableCol}>
@@ -116,11 +121,11 @@ const GenerarPlanilla = () => {
   );
 
   return (
-    <div>
+    <div style={{ marginTop: '1px' }}>
       <h1>Generar Planilla</h1>
 
       {/* Vista previa del PDF */}
-      <PDFViewer width="100%" height="600">
+      <PDFViewer width="150%" height="1000">
         <PlanillaPDF />
       </PDFViewer>
 
