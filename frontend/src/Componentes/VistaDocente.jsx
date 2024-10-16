@@ -88,6 +88,7 @@ export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el nombre
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
 
@@ -216,6 +217,26 @@ export default function PersistentDrawerLeft() {
                 <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
               </ListItemIcon>
               <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          {/* ListaAutoevaluacion */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/ListaAutoevaluacion"
+              onClick={() => handleButtonClick('listaAutoevaluacion')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>

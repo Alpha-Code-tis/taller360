@@ -9,6 +9,25 @@ const Autoevaluacion = () => {
     setShowEvaluation((prev) => (prev === task ? null : task));
   };
 
+  // const fetchTareas = async () => {
+  //   try {
+  //     const response = await axios.get('http://localhost:8000/api/estudiantes');
+  //     setEstudiantes(response.data);
+  //     setFilteredEstudiantes(response.data);
+
+  //     // Si no hay estudiantes, mostrar mensaje de error
+  //     if (response.data.length === 0) {
+  //       toast.error('No hay estudiantes registrados.');
+  //     }
+  //   } catch (err) {
+  //     // Muestra el error si hay un problema en la petición
+  //     toast.error('Error al cargar los estudiantes.');
+  //   }
+  // };
+  // useEffect(() => {
+  //   fetchTareas();
+  // }, []);
+
     // Opciones de evaluación con colores
   const evaluationOptions = [
     { value: 1, label: 'Malo', color: '#a9cce3' }, //

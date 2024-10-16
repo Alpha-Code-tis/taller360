@@ -20,11 +20,11 @@ import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
-import PlanillasSemanales from './Planillas/GenerarPlanilla';
+// import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
-import Seguimiento from './Representante_legal/Seguimiento';
-import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
-import GenerarPlanilla from './Administrador/GenerarPlanilla';
+// import Seguimiento from './Representante_legal/Seguimiento';
+// import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
+// import GenerarPlanilla from './Administrador/GenerarPlanilla';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -85,6 +85,7 @@ function App() {
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
+                <Route path="/Estudiantes" element={<Estudiantes />} />
               </>
             )}
             {role === 'docente' && (
@@ -102,6 +103,9 @@ function App() {
           </Routes>
         )}
       </div>
+      {/* Solo mostrar Footer si está autenticado */}
+      {isAuthenticated && <Footer />}
+    </div>
   );
 }
 

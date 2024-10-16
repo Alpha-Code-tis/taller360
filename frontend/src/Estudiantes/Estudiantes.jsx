@@ -39,7 +39,7 @@ const Estudiantes = () => {
       toast.error('Error al cargar los estudiantes.');
     }
   };
-  
+
 
   useEffect(() => {
     fetchEstudiantes();
@@ -49,7 +49,7 @@ const Estudiantes = () => {
   useEffect(() => {
     const filtered = estudiantes.filter((estudiante) => {
       const fullName = `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`.toLowerCase();
-      const codigoSis = estudiante.codigo_sis.toString();
+      const codigoSis = estudiante.codigo_sis;
       const searchValue = searchTerm.toLowerCase();
       return fullName.includes(searchValue) || codigoSis.includes(searchValue);
     });
@@ -178,7 +178,7 @@ const Estudiantes = () => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     console.log("Archivo arrastrado:", file);
-  };   
+  };
 
   const handleFileUpload = async (event) => {
 

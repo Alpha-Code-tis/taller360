@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
             'ap_pat' => 'Pérez',
             'ap_mat' => 'García',
             'correo' => 'juan@example.com',
-            'contrasenia' => Hash::make('password123'),
+            'contrasenia' => Hash::make('docentepassword'),
         ]);
 
         // Crear un administrador
