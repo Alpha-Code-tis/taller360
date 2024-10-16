@@ -1,0 +1,61 @@
+.autoevaluacion-container .title {
+  font-size: 2.5rem;
+  text-align: left;
+  margin-left: 0;
+}
+
+.title {
+  font-size: 2.5rem; /* Aumenta el tamaño del título */
+  margin-bottom: 20px;
+  text-align: left; /* Alinea el texto del título a la izquierda */
+  margin-left: 0; /* Mueve el título más a la izquierda */
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.task-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evaluation-options {
+  display: flex;
+  flex-direction: row; /* Cambia la dirección a horizontal */
+  gap: 20px; /* Espacio entre cada opción */
+  margin-top: 10px;
+  margin: auto;
+}
+
+.evaluation-item {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px; /* Espacio entre el círculo y la etiqueta */
+}
+
+.evaluation-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Hace los botones perfectamente circulares */
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  color: white;
+  transition: background-color 0.3s;
+}
+
+.evaluation-label {
+  font-size: .75rem;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}

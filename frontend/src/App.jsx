@@ -14,6 +14,8 @@ import Planificacion from './Representante_legal/Planificacion';
 import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
+import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
+import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import './App.css';
 
 
@@ -27,6 +29,9 @@ function App() {
        <Route path="/Docentes" element={<Docentes />} /> 
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
+        <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
+        <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
+
       </Routes>
       <Footer />
     </div>

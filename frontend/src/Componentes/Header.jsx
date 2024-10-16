@@ -235,6 +235,26 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          {/* Autoevaluacion */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Autoevaluacion"
+              onClick={() => handleButtonClick('autoevaluacion')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
 
         </List>
         <Divider />
