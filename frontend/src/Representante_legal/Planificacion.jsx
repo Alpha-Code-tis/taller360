@@ -55,28 +55,44 @@ const Planificacion = () => {
 
   const [formValues, setFormValues] = useState({
     tarea: '',
-    estimacion: '',
+    nSprint: '',
+    requerimiento: '',
+    color: '',
+    fechaInicio: '',
+    fechaFinal: '',
   });
 
   const [showModal, setShowModal] = useState(false);
   const handleSave = async () => {
+    // Llamar a validateForm antes de proceder
+    if (!validateForm()) {
+      toast.error('Por favor, corrige los errores en el formulario.');
+      return;
+    }
+
     const loadingToastId = toast.loading('Cargando datos...');
     try {
+      // Agregar un console.log para depuración
+      console.log('Enviando formValues:', formValues);
+      console.log('Enviando tareas:', hu);
+
       const response = await axios.post('http://localhost:8000/api/planificacion', {
         nro_sprint: formValues.nSprint,
         color: formValues.color,
         fecha_inicio: formValues.fechaInicio,
         fecha_fin: formValues.fechaFinal,
         requerimiento: formValues.requerimiento,
-        estimacion: formValues.estimacion,
-        tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
+        tareas: hu.map(tarea => ({
+          nombre: tarea.tarea,
+          estimacion: tarea.estimacion
+        })),
       });
       toast.dismiss(loadingToastId);
       toast.success('Datos guardados exitosamente:');
     } catch (error) {
-    // Cerrar el toast de carga antes de mostrar el error
-    toast.dismiss(loadingToastId); // Cerrar el toast de carga
-    // Verificar si hay una respuesta del servidor y mostrar los errores
+      // Cerrar el toast de carga antes de mostrar el error
+      toast.dismiss(loadingToastId); // Cerrar el toast de carga
+      // Verificar si hay una respuesta del servidor y mostrar los errores
       // Verificar si hay una respuesta del servidor y mostrar los errores
       let errorMessage = 'Ocurrió un error.';
 
@@ -108,7 +124,6 @@ const Planificacion = () => {
       color: '',
       fechaInicio: '',
       fechaFinal: '',
-      estimacion: '',
     });
     setShowModal(true);
   };
@@ -164,27 +179,21 @@ const Planificacion = () => {
     if (formValues.fechaInicio && formValues.fechaFinal) {
       const startDate = dayjs(formValues.fechaInicio).startOf('day');
       const endDate = dayjs(formValues.fechaFinal).startOf('day');
-      if (startDate.isSameOrAfter(endDate)) {
-        errors.fechaFinal = 'La fecha de fin debe ser posterior a la fecha de inicio.';
-      }
+
     }
 
     if (/\d/.test(formValues.requerimiento)) {
       errors.requerimiento = 'El requerimiento no debe contener números.';
     }
     if (!/^\d+$/.test(formValues.nSprint)) {
-      errors.nSprint = 'El grupo debe contener solo números.';
+      errors.nSprint = 'El número de sprint debe contener solo números.';
     }
     if (/\d/.test(formValues.tarea)) {
       errors.tarea = 'La tarea no debe contener números.';
-
-      setFormErrors(errors);
-      return Object.keys(errors).length === 0;
     }
-    if (!/^\d+$/.test(formValues.estimacion)) {
-      errors.estimacion = 'La estimacion debe contener solo números.';
-    }
-  }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleAddTarea = () => {
     console.log(formValues);
@@ -202,7 +211,11 @@ const Planificacion = () => {
         estimacion: Number(estimacionValue.trim()),
       };
       setHu((prevHu) => [...prevHu, newTarea]); // Agrega la nueva tarea
-      setFormValues({ tarea: '' , estimacion:''}); // Limpia el campo de entrada
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        tarea: '',
+        estimacion: '',
+      })); // Limpia solo los campos de tarea y estimacion
 
       const newHuLength = hu.length + 1;
       // Cambiar a la última página si hay más elementos que la página actual
@@ -210,14 +223,14 @@ const Planificacion = () => {
         setCurrentPage(Math.ceil(newHuLength / itemsPerPage));
       }
 
-    }else {
+    } else {
       // Opcional: Agregar retroalimentación para el usuario si la entrada es inválida
       console.error("Entrada inválida: ", {
         tarea: isTareaValid,
         estimacion: isEstimacionValid
       });
     }
-  
+
   };
 
 
@@ -251,47 +264,71 @@ const Planificacion = () => {
   };
 
   const totalPages = Math.ceil(hu.length / itemsPerPage);
-  
-  //Funcion para alteraar el menú desplegable
-    const toggleDropdown = () => {
-        setIsOpen(!isOpen);
-    };
 
-    // Función para manejar el cambio de opción seleccionada
-    const handleOptionChange = async (event) => {
-      const selectedId = event.target.value;
-      setSelectedSprint(selectedId);
+  // Función para alternar el menú desplegable
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Función para manejar el cambio de opción seleccionada
+  const handleOptionChange = async (event) => {
+    const selectedId = event.target.value;
+    setSelectedSprint(selectedId);
 
 
-  // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
-  try {
-    const response = await axios.get(`http://localhost:8000/api/planificacion?sprint_id=${selectedId}`);
-    const sprintData = response.data.sprints.find((sprint) => sprint.id_sprint === parseInt(selectedId));
+    // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
+    try {
+      const response = await axios.get(`http://localhost:8000/api/planificacion`);
+      const sprints = response.data.sprints;
 
-    if (sprintData) {
-      // Actualiza las fechas de inicio y fin
-      const inicio = dayjs(sprintData.fecha_inicio);
-      const fin = dayjs(sprintData.fecha_fin);
-      const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
+      if (selectedId === "Todos") {
+        // Si se selecciona "todos", pintar todos los sprints
+        const eventos = sprints.map((sprint) => {
+          const inicio = dayjs(sprint.fecha_inicio);
+          const fin = dayjs(sprint.fecha_fin);
+          const color = sprint.color || '#ff0000'; // Valor por defecto si no hay color
 
-      setFechaInicio(inicio);
-      setFechaFin(fin);
+          // Filtrar los días hábiles entre la fecha de inicio y fin para cada sprint
+          const diasHabiles = filtrarDiasHabiles(inicio, fin);
 
-      // Filtrar los días hábiles entre la fecha de inicio y fin
-      const diasHabiles = filtrarDiasHabiles(inicio, fin);
-      setEventos(
-        diasHabiles.map((fecha) => ({
-          title: "Sprint seleccionado",
-          start: fecha,
-          end: fecha, // Evento de un solo día
-          style: { backgroundColor: color }, // Color del evento
-        }))
-      );
+          return diasHabiles.map((fecha) => ({
+            title: `Sprint ${sprint.nro_sprint}`,
+            start: fecha,
+            end: fecha, // Evento de un solo día
+            style: { backgroundColor: color }, // Color del evento
+          }));
+        });
+
+        // Aplanar el array de eventos anidados
+        setEventos(eventos.flat());
+      } else {
+        // Si se selecciona un sprint específico
+        const sprintData = sprints.find((sprint) => sprint.nro_sprint === parseInt(selectedId));
+
+        if (sprintData) {
+          const inicio = dayjs(sprintData.fecha_inicio);
+          const fin = dayjs(sprintData.fecha_fin);
+          const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
+          setFechaInicio(inicio);
+          setFechaFinal(fin);
+
+          // Filtrar los días hábiles entre la fecha de inicio y fin
+          const diasHabiles = filtrarDiasHabiles(inicio, fin);
+          setEventos(
+            diasHabiles.map((fecha) => ({
+              title: `Sprint ${sprintData.nro_sprint}`,
+              start: fecha,
+              end: fecha, // Evento de un solo día
+              style: { backgroundColor: color }, // Color del evento
+            }))
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error al obtener los detalles del sprint:", error);
     }
-  } catch (error) {
-    console.error("Error al obtener los detalles del sprint:", error);
-  }
-};
+  };
+
 
 
   // Función para obtener los sprints de la API
@@ -310,9 +347,10 @@ const Planificacion = () => {
   }, []);
 
 
-  
+
   return (
     <div className="container custom-container pt-3">
+      <Toaster /> {/* Asegúrate de incluir el componente Toaster para mostrar los toasts */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex align-items-center">
           <div className="sprint-dropdown me-5"> {/* Añadido 'me-2' para margen a la derecha */}
@@ -322,14 +360,14 @@ const Planificacion = () => {
             {isOpen && (
               <div className="dropdown-menu show">
                 {sprints.map((sprint) => (
-                  <label className="dropdown-item" key={sprint.id_sprint}>
+                  <label className="dropdown-item" key={sprint}>
                     <input
                       type="radio"
-                      value={sprint.id_sprint}
-                      checked={selectedSprint === sprint.id_sprint}
+                      value={sprint}
+                      checked={selectedSprint === sprint}
                       onChange={handleOptionChange}
                     />
-                    Sprint{sprint.nro_sprint}
+                    Sprint {sprint}
                   </label>
                 ))}
                 <label className="dropdown-item">
@@ -355,15 +393,15 @@ const Planificacion = () => {
           events={eventos}
           startAccessor="start"
           endAccessor="end"
-          style={{margin: "50px" }}
+          style={{ margin: "50px" }}
           eventPropGetter={(event) => ({
-          style: {
-            backgroundColor: event.style.backgroundColor, // Aplicar el color del evento
-            color: 'white', // Color del texto
-            borderRadius: '5px',
-            border: 'none',
-          },
-        })}
+            style: {
+              backgroundColor: event.style.backgroundColor, // Aplicar el color del evento
+              color: 'white', // Color del texto
+              borderRadius: '5px',
+              border: 'none',
+            },
+          })}
         />
       </div>
 
@@ -380,6 +418,10 @@ const Planificacion = () => {
                       value={fechaInicio}
                       onChange={(newValue) => {
                         setFechaInicio(dayjs(newValue)); // Actualiza el estado de la fecha
+                        setFormValues((prevValues) => ({
+                          ...prevValues,
+                          fechaInicio: dayjs(newValue).format('DD/MM/YYYY'), // Actualiza formValues también
+                        }));
                       }}
                       slotProps={{ textField: { variant: 'outlined', fullWidth: true } }}
                       sx={{
@@ -480,7 +522,7 @@ const Planificacion = () => {
                   />
                   {formErrors.tarea && <div className="text-danger">{formErrors.tarea}</div>}
                 </Form.Group>
-              </Col>                          
+              </Col>
               <Col md={3}>
                 <Form.Group controlId="formEstimacion">
                   <Form.Label>Estimación</Form.Label>
@@ -551,9 +593,9 @@ const Planificacion = () => {
               Anterior
             </Button>
             <span className="pagination-info">{`Página ${currentPage} de ${totalPages}`}</span>
-            <Button 
+            <Button
               className="pagination-button"
-              disabled={currentPage === totalPages ||hu.length <= itemsPerPage}
+              disabled={currentPage === totalPages || hu.length <= itemsPerPage}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
               Siguiente
