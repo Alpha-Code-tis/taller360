@@ -61,6 +61,24 @@ class PlanificacionController extends Controller
         return response()->json($data, Response::HTTP_OK);
     }
 
+    public function showSprintUser($n_sprint)
+    {
+        $user = auth()->guard('sanctum')->user();
+        $id_empresa = $user->id_empresa;
+        $planificacion = Planificacion::with(['sprints.alcances.tareas']) // Cargar relaciones anidadas
+            ->where('id_empresa', $id_empresa) // Filtrar por id_empresa
+            ->first();
+        dd($planificacion);
+        $data = Planificacion::with(['sprints' => function ($query) use ($n_sprint) {
+            $query->where('nro_sprint', $n_sprint)
+                ->with('alcances.tareas');
+        }])
+            ->where('id_planificacion', $planificacion->id_planificacion)
+            ->get();
+
+        return response()->json($data, Response::HTTP_OK);
+    }
+
     public function show($id)
     {
         $data = Planificacion::find($id);
