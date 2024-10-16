@@ -52,8 +52,8 @@ class GenerarPlanillaPDFController extends Controller
         }
 
         // Definir el rango de fechas para el PDF (últimos 7 días)
-        $fechaInicio = Carbon::now()->subDays(6)->startOfDay(); // 6 días atrás desde hoy
-        $fechaFin = Carbon::now()->endOfDay(); // Hasta hoy
+        $fechaInicio = Carbon::now()->subDays(6)->startOfDay(); 
+        $fechaFin = Carbon::now()->endOfDay(); 
 
         // Generar el PDF para cada empresa
         foreach ($empresas as $empresa) {
