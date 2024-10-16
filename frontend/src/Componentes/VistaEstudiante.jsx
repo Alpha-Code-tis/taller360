@@ -22,6 +22,8 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
+import { Menu, MenuItem } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
 
@@ -86,11 +88,9 @@ export default function PersistentDrawerLeft() {
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
   const [nombre, setNombre] = useState(''); // Estado para el nombre
+  const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
+  const navigate = useNavigate(); // Para redireccionar
 
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
@@ -101,10 +101,31 @@ export default function PersistentDrawerLeft() {
     }
   }, []); // Se ejecuta solo una vez al montar el componente
 
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null); // Cierra el menú
+  };
+
+
+const handleLogout = () => {
+  // Eliminar datos del localStorage (token, rol, etc.)
+  localStorage.removeItem('role');
+  localStorage.removeItem('nombre');
+  // Redireccionar al login
+  navigate('/Login');
+};
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
   const handleDrawerClose = () => {
     setOpen(false);
   };
-
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -136,7 +157,18 @@ export default function PersistentDrawerLeft() {
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
             <span className="m-0">{nombre}</span>
-            <ExpandMoreIcon />
+            <IconButton onClick={handleMenuOpen}>
+              <ExpandMoreIcon />
+            </IconButton>
+            {/* Menú desplegable */}
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              keepMounted
+            >
+              <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+            </Menu>
           </div>
         </Toolbar>
       </AppBar>

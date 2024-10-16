@@ -63,6 +63,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/planificacion', [PlanificacionController::class, 'index']);
     Route::get('/planificacion/{id}', [PlanificacionController::class, 'show']);
     Route::get('/planificacion/{id}/sprint={n_sprint}', [PlanificacionController::class, 'showSprint']);
+    Route::get('/planificacion/sprint={n_sprint}', [PlanificacionController::class, 'showSprintUser']);
     Route::get('/estudiantes', [EstudianteController::class, 'index']);
     Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
     Route::post('/estudiantes', [EstudianteController::class, 'store']);
