@@ -9,6 +9,7 @@ namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 /**
  * Class Sprint
@@ -25,34 +26,21 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
+
 class Sprint extends Model
 {
-	protected $table = 'sprint';
-	protected $primaryKey = 'id_sprint';
-	public $timestamps = false;
+    use HasFactory;
 
-	protected $casts = [
-		'id_planificacion' => 'int',
-		'fecha_inicio' => 'datetime',
-		'fecha_fin' => 'datetime',
-		'nro_sprint' => 'int'
-	];
+    protected $table = 'sprint';
+    protected $primaryKey = 'id_sprint';
 
-	protected $fillable = [
-		'id_planificacion',
-		'fecha_inicio',
-		'fecha_fin',
-		'color',
-		'nro_sprint'
-	];
+    public function alcances()
+    {
+        return $this->hasMany(Alcance::class, 'id_sprint');
+    }
 
-	public function planificacion()
-	{
-		return $this->belongsTo(Planificacion::class, 'id_planificacion');
-	}
-
-	public function alcances()
-	{
-		return $this->hasMany(Alcance::class, 'id_sprint');
-	}
+    public function planificacion()
+    {
+        return $this->belongsTo(Planificacion::class, 'id_planificacion');
+    }
 }

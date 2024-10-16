@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useState } from 'react'
+// src/App.jsx
+import React from 'react';
+import { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import VistaDocentes from './Componentes/VistaDocente';
 import VistaEstudiantes from './Componentes/VistaEstudiante';
@@ -16,7 +20,11 @@ import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
+import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
+import Seguimiento from './Representante_legal/Seguimiento';
+import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
+import GenerarPlanilla from './Administrador/GenerarPlanilla';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,7 +60,8 @@ function App() {
 
   return (
     <div>
-      <Toaster />
+
+      <Toaster position="bottom-center" />
       {/* Solo mostrar Header y Footer si está autenticado */}
       {isAuthenticated && <Header />}
 
@@ -85,14 +94,14 @@ function App() {
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
               </>
             )}
+            {/* <Route path="/Seguimiento" element={<Seguimiento />} />
+            <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+            <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
+            <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} /> */}
             <Route path="*" element={<Login onLogin={handleLogin} />} />
           </Routes>
         )}
       </div>
-
-      {/* Solo mostrar Footer si está autenticado */}
-      {isAuthenticated && <Footer />}
-    </div>
   );
 }
 
