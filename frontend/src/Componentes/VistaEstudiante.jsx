@@ -23,9 +23,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Menu, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
-
+import Footer from './Footer';
 
 const drawerWidth = 240;
 
@@ -83,25 +81,16 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const VistaAdministrador=()=>{
-  const navigate = useNavigate(); // Hook para navegación
-}
-
-const handleButtonClick = (button) => {
-  // Maneja la lógica adicional que necesites al hacer clic
-  console.log(`Button clicked: ${button}`);
-};
-
-const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
-
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
-  const [nombre, setNombre] = useState(''); // Estado para el rol
-  const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
-  const navigate = useNavigate(); // Para redireccionar
+  const [nombre, setNombre] = useState(''); // Estado para el nombre
 
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
@@ -112,30 +101,8 @@ export default function PersistentDrawerLeft() {
     }
   }, []); // Se ejecuta solo una vez al montar el componente
 
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
   const handleDrawerClose = () => {
     setOpen(false);
-  };
-
-  const handleMenuOpen = (event) => {
-    setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
-  };
-
-  const handleMenuClose = () => {
-    setAnchorEl(null); // Cierra el menú
-  };
-
-  const handleLogout = () => {
-    // Eliminar datos del localStorage (token, rol, etc.)
-    localStorage.removeItem('role');
-    localStorage.removeItem('token');
-    localStorage.removeItem('nombre');
-    // Redireccionar al login
-    navigate('/login');
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
@@ -169,18 +136,7 @@ export default function PersistentDrawerLeft() {
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
             <span className="m-0">{nombre}</span>
-            <IconButton onClick={handleMenuOpen}>
-              <ExpandMoreIcon />
-            </IconButton>
-            {/* Menú desplegable */}
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              keepMounted
-            >
-              <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
-            </Menu>
+            <ExpandMoreIcon />
           </div>
         </Toolbar>
       </AppBar>
@@ -213,8 +169,6 @@ export default function PersistentDrawerLeft() {
 
         <List sx={{ mt: 3 }}>
           {/* Planificación */}
-          {role === 'estudiante' &&(
-            <>
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -235,6 +189,7 @@ export default function PersistentDrawerLeft() {
             </ListItemButton>
           </ListItem>
 
+          {/* Equipos */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -254,6 +209,7 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
           {/* Autoevaluacion */}
           <ListItem disablePadding>
             <ListItemButton
@@ -274,36 +230,11 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          </>
-          )}
-
-          {/* Docentes */}
-          {role === 'administrador'&&(
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => {
-                handleButtonClick('docentes');
-                navigate('/Docentes');
-              }}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          )}
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
+      <Footer />
     </Box>
   );
 }

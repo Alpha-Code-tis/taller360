@@ -6,7 +6,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-import PersonIcon from '@mui/icons-material/Person';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -16,15 +15,15 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import { FaUserCircle } from 'react-icons/fa';
 import logo from '../img/logo.jpeg';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import Footer from './Footer'; // Asegúrate de que la ruta sea correcta
+import Docentes from '../Administrador/Docentes';
 
 
 const drawerWidth = 240;
@@ -83,22 +82,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const VistaAdministrador=()=>{
-  const navigate = useNavigate(); // Hook para navegación
-}
-
-const handleButtonClick = (button) => {
-  // Maneja la lógica adicional que necesites al hacer clic
-  console.log(`Button clicked: ${button}`);
-};
-
-const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
-
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
-  const [nombre, setNombre] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el nombre
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
 
@@ -111,7 +99,6 @@ export default function PersistentDrawerLeft() {
       setNombre(storedNombre);
     }
   }, []); // Se ejecuta solo una vez al montar el componente
-
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -132,8 +119,6 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
-    localStorage.removeItem('token');
-    localStorage.removeItem('nombre');
     // Redireccionar al login
     navigate('/login');
   };
@@ -212,79 +197,12 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List sx={{ mt: 3 }}>
-          {/* Planificación */}
-          {role === 'estudiante' &&(
-            <>
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Planificacion"
-              onClick={() => handleButtonClick('planificacion')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Planificación" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Equipos"
-              onClick={() => handleButtonClick('equipos')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
-              </ListItemIcon>
-              <ListItemText primary="Equipos" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          {/* Autoevaluacion */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Autoevaluacion"
-              onClick={() => handleButtonClick('autoevaluacion')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          </>
-          )}
-
           {/* Docentes */}
-          {role === 'administrador'&&(
           <ListItem disablePadding>
             <ListItemButton
-              onClick={() => {
-                handleButtonClick('docentes');
-                navigate('/Docentes');
-              }}
+              component={Link}
+              to="/Docentes"
+              onClick={() => handleButtonClick('docentes')}
               sx={{
                 borderRadius: '8px',
                 backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
@@ -299,11 +217,12 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Docentes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          )}
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
+      <Footer/>
     </Box>
   );
 }
+

@@ -44,7 +44,7 @@ const Planificacion = () => {
         color: formValues.color,
         fecha_inicio: formValues.fechaInicio,
         fecha_fin: formValues.fechaFinal,
-        alcance: formValues.alcance,
+        requerimiento: formValues.requerimiento,
         tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
       });
       toast.dismiss(loadingToastId);
@@ -80,7 +80,7 @@ const Planificacion = () => {
     setFormValues({
       tarea: '',
       nSprint: '',
-      alcance: '',
+      requerimiento: '',
       color: '',
       fechaInicio: '',
       fechaFinal: '',
@@ -144,14 +144,14 @@ const Planificacion = () => {
       }
     }
 
-    if (/\d/.test(formValues.alcance)) {
-      errors.alcance = 'El alcance no debe contener números.';
+    if (/\d/.test(formValues.requerimiento)) {
+      errors.requerimiento = 'El requerimiento no debe contener números.';
     }
     if (!/^\d+$/.test(formValues.nSprint)) {
       errors.nSprint = 'El grupo debe contener solo números.';
     }
     if (/\d/.test(formValues.tarea)) {
-      errors.tarea = 'El alcance no debe contener números.';
+      errors.tarea = 'La tarea no debe contener números.';
 
       setFormErrors(errors);
       return Object.keys(errors).length === 0;
@@ -314,16 +314,16 @@ const Planificacion = () => {
             <Row className="mb-3">
               <Col md={4}>
                 <Form.Group controlId="formAlcance">
-                  <Form.Label>Alcance</Form.Label>
+                  <Form.Label>Requerimiento</Form.Label>
                   <Form.Control
                     type="text"
-                    name="alcance"
-                    value={formValues.alcance}
+                    name="requerimiento"
+                    value={formValues.requerimiento}
                     onChange={handleInputChange}
-                    placeholder="Alcance"
-                    isInvalid={!!formErrors.alcance}
+                    placeholder="Requerimiento"
+                    isInvalid={!!formErrors.requerimiento}
                   />
-                  {formErrors.alcance && <div className="text-danger">{formErrors.alcance}</div>}
+                  {formErrors.requerimiento && <div className="text-danger">{formErrors.requerimiento}</div>}
                 </Form.Group>
               </Col>
 
@@ -340,7 +340,8 @@ const Planificacion = () => {
                   />
                   {formErrors.tarea && <div className="text-danger">{formErrors.tarea}</div>}
                 </Form.Group>
-              </Col>
+              </Col>                          
+
 
               <Col md={3} style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '31px' }}>
                 <Form.Group>

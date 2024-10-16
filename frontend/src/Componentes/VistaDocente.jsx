@@ -22,9 +22,10 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import Footer from './Footer'; // Asegúrate de que la ruta sea correcta
 
 
 const drawerWidth = 240;
@@ -83,22 +84,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const VistaAdministrador=()=>{
-  const navigate = useNavigate(); // Hook para navegación
-}
-
-const handleButtonClick = (button) => {
-  // Maneja la lógica adicional que necesites al hacer clic
-  console.log(`Button clicked: ${button}`);
-};
-
-const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
-
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
-  const [nombre, setNombre] = useState(''); // Estado para el rol
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
 
@@ -112,15 +101,6 @@ export default function PersistentDrawerLeft() {
     }
   }, []); // Se ejecuta solo una vez al montar el componente
 
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
   };
@@ -132,10 +112,16 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
-    localStorage.removeItem('token');
-    localStorage.removeItem('nombre');
     // Redireccionar al login
     navigate('/login');
+  };
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
@@ -212,98 +198,31 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List sx={{ mt: 3 }}>
-          {/* Planificación */}
-          {role === 'estudiante' &&(
-            <>
+          {/* Estudiantes */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/Planificacion"
-              onClick={() => handleButtonClick('planificacion')}
+              to="/Estudiantes"
+              onClick={() => handleButtonClick('estudiantes')}
               sx={{
                 borderRadius: '8px',
-                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
+                backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
                 '&:hover': {
                   backgroundColor: '#1A3254',
                 },
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
+                <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
               </ListItemIcon>
-              <ListItemText primary="Planificación" sx={{ color: 'white' }} />
+              <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Equipos"
-              onClick={() => handleButtonClick('equipos')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
-              </ListItemIcon>
-              <ListItemText primary="Equipos" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          {/* Autoevaluacion */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Autoevaluacion"
-              onClick={() => handleButtonClick('autoevaluacion')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          </>
-          )}
-
-          {/* Docentes */}
-          {role === 'administrador'&&(
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => {
-                handleButtonClick('docentes');
-                navigate('/Docentes');
-              }}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          )}
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
+      <Footer/>
     </Box>
   );
 }

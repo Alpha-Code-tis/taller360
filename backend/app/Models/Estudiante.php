@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Estudiante
@@ -25,11 +28,12 @@ use Illuminate\Database\Eloquent\Model;
  *
  * @package App\Models
  */
-class Estudiante extends Model
+class Estudiante extends Authenticatable
 {
     protected $table = 'estudiante';
     protected $primaryKey = 'id_estudiante';
     public $timestamps = false;
+    use HasApiTokens, Notifiable;
 
     protected $casts = [
         'id_grupo' => 'int',
@@ -68,5 +72,13 @@ class Estudiante extends Model
     public function empresa() // Nueva relación
     {
         return $this->belongsTo(Empresa::class, 'id_empresa');
+    }
+    protected $hidden = [
+        'contrasenia',
+    ];
+
+    public function getAuthPassword()
+    {
+        return $this->contrasenia;
     }
 }
