@@ -5,7 +5,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import VistaDocentes from './Componentes/VistaDocente';
 import VistaEstudiantes from './Componentes/VistaEstudiante';
 import VistaAdministrador from './Componentes/VistaAdministrador';
-import PlanificacionEquipos from './Equipos/PlanificacionEquipos';
+import PlanificacionEquipos from './Estudiantes/PlanificacionEquipos';
 import Login from './Componentes/Login';
 import { Toaster } from 'react-hot-toast';
 import Planificacion from './Representante_legal/Planificacion';
@@ -62,7 +62,6 @@ function App() {
             {role === 'administrador' && (
               <>
                 <Route path="/Docentes" element={<Docentes />} />
-                <Route path="/PlanificacionEquipos" element={<PlanificacionEquipos />} />
                 <Route path="/VistaAdministrador" element={<VistaAdministrador />} />
               </>
             )}
@@ -79,6 +78,7 @@ function App() {
             {role === 'docente' && (
               <>
                 <Route path="/VistaDocente" element={<VistaDocentes />} />
+                <Route path="/PlanificacionEquipos" element={<PlanificacionEquipos />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
                 <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
               </>

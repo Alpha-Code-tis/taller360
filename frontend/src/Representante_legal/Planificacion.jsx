@@ -15,7 +15,6 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment'
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import { formGroupClasses } from '@mui/material';
 
 const localizer = momentLocalizer(moment); // or globalizeLocalizer
 
@@ -463,7 +462,7 @@ const Planificacion = () => {
       </Modal.Footer>
       </Modal>
       )}
-      </div>
+     </div>
 
       {/* Modal */}
       <Modal show={showModal} onHide={handleCloseModal} centered size='lg'>
