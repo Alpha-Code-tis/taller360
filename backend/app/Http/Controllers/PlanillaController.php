@@ -14,7 +14,7 @@ class PlanillaController extends Controller
     public function mostrarSprints()
     {
         // Obtener el representante legal autenticado
-        $representante = Auth::user();
+        $representante = auth()->guard('sanctum')->user();
 
         // Obtener los sprints asociados a la empresa del representante
         $sprints = Sprint::whereHas('planificacion.empresa', function ($query) use ($representante) {
@@ -28,17 +28,15 @@ class PlanillaController extends Controller
     public function mostrarTareas($sprintId)
     {
         // Verificar si el sprint pertenece a la empresa del representante legal autenticado
-        $representante = Auth::user();
+        $representante = auth()->guard('sanctum')->user();
         $sprint = Sprint::where('id_sprint', $sprintId)
                         ->whereHas('planificacion.empresa', function ($query) use ($representante) {
                             $query->where('id_empresa', $representante->id_empresa);
                         })->firstOrFail();
-
         // Obtener las tareas del sprint con los responsables (estudiantes)
         $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
                        ->with('estudiantes') 
                        ->get();
-
         return response()->json($tareas);
     }
 
@@ -46,7 +44,7 @@ class PlanillaController extends Controller
     public function asignarEstudiantes(Request $request, $tareaId)
     {
         // Obtener el representante legal autenticado
-        $representante = Auth::user();
+        $representante = auth()->guard('sanctum')->user();
 
         // Obtener la tarea y verificar si pertenece a la empresa del representante legal
         $tarea = Tarea::where('id_tarea', $tareaId)
@@ -59,10 +57,10 @@ class PlanillaController extends Controller
         $sprint = $tarea->alcance->sprint;
 
         // Verificar si la fecha actual está dentro del rango del sprint
-        $fechaActual = Carbon::now();
-        if ($fechaActual->lt($sprint->fecha_inicio) || $fechaActual->gt($sprint->fecha_fin)) {
-            return response()->json(['error' => 'No se puede asignar estudiantes fuera del rango de fechas del sprint'], 403);
-        }
+        //$fechaActual = Carbon::now();
+        //if ($fechaActual->lt($sprint->fecha_inicio) || $fechaActual->gt($sprint->fecha_fin)) {
+        //    return response()->json(['error' => 'No se puede asignar estudiantes fuera del rango de fechas del sprint'], 403);
+        //}
 
         // Obtener los IDs de los estudiantes a asignar
         $estudiantesIds = $request->input('estudiantes_ids');
@@ -80,7 +78,7 @@ class PlanillaController extends Controller
     public function eliminarEstudianteDeTarea($tareaId, $estudianteId)
     {
         // Obtener el representante legal autenticado
-        $representante = Auth::user();
+        $representante = auth()->guard('sanctum')->user();
 
         // Obtener la tarea y verificar si pertenece a la empresa del representante legal
         $tarea = Tarea::where('id_tarea', $tareaId)

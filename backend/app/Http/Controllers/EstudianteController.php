@@ -25,6 +25,27 @@ class EstudianteController extends Controller
         }
     }
 
+    public function listaEstudiantes()
+    {
+        try {
+            // Obtener el estudiante autenticado
+            $estudiante = auth()->guard('sanctum')->user();
+
+            // Verificar si el estudiante tiene asignada una empresa
+            if (!$estudiante || !$estudiante->id_empresa) {
+                return response()->json(['error' => 'No se encontró empresa para este estudiante'], 404);
+            }
+
+            // Listar los estudiantes que pertenecen a la misma empresa
+            $estudiantes = Estudiante::where('id_empresa', $estudiante->id_empresa)->get();
+
+            return response()->json($estudiantes, 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener los estudiantes'], 500);
+        }
+    }
+
+
     // Mostrar un estudiante específico
     public function show($id)
     {

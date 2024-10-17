@@ -13,7 +13,7 @@ class TareaController extends Controller
     public function mostrarTareas($sprintId)
     {
         // Get the authenticated student
-        $estudiante = Auth::user();
+        $estudiante = auth()->guard('sanctum')->user();
 
         if (!$estudiante) {
             return response()->json(['error' => 'No autenticado'], 401);
@@ -21,15 +21,16 @@ class TareaController extends Controller
 
         // Verify that the sprint belongs to the student's company
         $sprint = Sprint::where('id_sprint', $sprintId)
-            ->whereHas('planificacion.empresa.estudiantes', function($query) use ($estudiante) {
+            ->whereHas('planificacion.empresa.estudiantes', function ($query) use ($estudiante) {
                 $query->where('id_estudiante', $estudiante->id_estudiante);
             })->firstOrFail();
-
         // Get tasks of the sprint assigned to the student
         $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-            ->whereHas('estudiantes', function($query) use ($estudiante) {
-                $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
-            })->get();
+            ->whereHas('estudiantes', function ($query) use ($estudiante) {
+                $query->where('estudiante.id_estudiante', $estudiante->id_estudiante);
+            })
+            ->with('estudiantes') // Carga los estudiantes relacionados
+            ->get();
 
         return response()->json($tareas);
     }
@@ -37,7 +38,7 @@ class TareaController extends Controller
     public function subirAvance(Request $request, $tareaId)
     {
         // Get the authenticated student
-        $estudiante = Auth::user();
+        $estudiante = auth()->guard('sanctum')->user();
 
         if (!$estudiante) {
             return response()->json(['error' => 'No autenticado'], 401);
@@ -70,7 +71,7 @@ class TareaController extends Controller
     public function verAvances($tareaId)
     {
         // Get the authenticated student
-        $estudiante = Auth::user();
+        $estudiante = auth()->guard('sanctum')->user();
 
         if (!$estudiante) {
             return response()->json(['error' => 'No autenticado'], 401);
@@ -92,7 +93,7 @@ class TareaController extends Controller
     public function eliminarAvance($tareaId, $avanceIndex)
     {
         // Get the authenticated student
-        $estudiante = Auth::user();
+        $estudiante = auth()->guard('sanctum')->user();
 
         if (!$estudiante) {
             return response()->json(['error' => 'No autenticado'], 401);

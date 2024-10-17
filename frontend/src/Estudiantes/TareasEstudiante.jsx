@@ -1,112 +1,113 @@
-// src/components/TareasEstudiante.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './lightbox.css';
 import './TareasEstudiante.css';
-import { useParams } from 'react-router-dom';
 
 const TareasEstudiante = () => {
-  const { sprintId } = useParams(); // Obtén el ID del sprint de los parámetros de la URL
-  const [tareas, setTareas] = useState([]);
+  const [tareas, setTareas] = useState([]); // Estado para almacenar tareas
   const [lightboxVisible, setLightboxVisible] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [currentTareaId, setCurrentTareaId] = useState(null);
+  const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints
+  const [selectedSprint, setSelectedSprint] = useState(1); // Sprint seleccionado
 
+  // Obtener los sprints al montar el componente
   useEffect(() => {
-    // Cargar las tareas del estudiante
-    const cargarTareas = async () => {
+    const fetchSprints = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/tareas/${sprintId}`);
-        if (response.data && Array.isArray(response.data)) {
-          const tareasConImagenes = response.data.map((tarea) => ({
-            ...tarea,
-            imagenes: tarea.avances ? tarea.avances.split(',') : [],
-          }));
-          setTareas(tareasConImagenes);
-        } else {
-          console.error('Formato de respuesta inesperado:', response.data);
-        }
+        const response = await axios.get('http://localhost:8000/api/sprints');
+        setSprints(response.data);
       } catch (error) {
-        console.error('Error al cargar tareas:', error);
+        console.error('Error al obtener los sprints:', error);
       }
     };
-    cargarTareas();
-  }, [sprintId]);
 
-  const handleFileUpload = async (event, id) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    fetchSprints();
+  }, []);
 
-    const formData = new FormData();
-    formData.append('archivo', file);
+  // Obtener las tareas cuando cambia el sprint seleccionado
+  useEffect(() => {
+    const fetchTareas = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8000/api/sprints/${selectedSprint}/tareas`);
+        setTareas(response.data); // Guardar las tareas obtenidas de la API
+      } catch (error) {
+        console.error('Error al obtener las tareas:', error);
+      }
+    };
 
-    try {
-      const response = await axios.post(`http://localhost:8000/api/tareas/${id}/subir-avance`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+    fetchTareas();
+  }, [selectedSprint]); // Ejecuta cuando cambia el sprint seleccionado
 
-      // Actualizar la lista de tareas con el nuevo avance
-      setTareas((prevTareas) =>
-        prevTareas.map((tarea) =>
-          tarea.id_tarea === id
-            ? { ...tarea, imagenes: [...tarea.imagenes, response.data.path] }
-            : tarea
-        )
-      );
-    } catch (error) {
-      console.error('Error al subir el archivo:', error);
+  // Manejar la subida de archivos
+  const handleFileUpload = (event, id) => {
+    const files = Array.from(event.target.files);
+    setTareas((prevTareas) =>
+      prevTareas.map((tarea) =>
+        tarea.id_tarea === id
+          ? { ...tarea, imagenes: [...(tarea.imagenes || []), ...files] }
+          : tarea
+      )
+    );
+  };
+
+  // Manejar la vista de imágenes
+  const handleViewImages = (imagenes, id) => {
+    if (imagenes.length > 0) {
+      setSelectedImages(imagenes);
+      setCurrentTareaId(id);
+      setLightboxVisible(true);
+    } else {
+      alert('No hay imágenes subidas para esta tarea.');
     }
   };
 
-  const handleViewImages = async (id) => {
-    try {
-      const response = await axios.get(`http://localhost:8000/api/tareas/${id}/avances`);
-      if (response.data.length > 0) {
-        setSelectedImages(response.data);
-        setCurrentTareaId(id);
-        setLightboxVisible(true);
-      } else {
-        alert('No hay imágenes subidas para esta tarea.');
-      }
-    } catch (error) {
-      console.error('Error al obtener los avances:', error);
+  // Manejar la eliminación de imágenes
+  const handleDeleteImage = (index) => {
+    const updatedImages = selectedImages.filter((_, i) => i !== index);
+
+    setTareas((prevTareas) =>
+      prevTareas.map((tarea) =>
+        tarea.id_tarea === currentTareaId
+          ? { ...tarea, imagenes: updatedImages }
+          : tarea
+      )
+    );
+
+    setSelectedImages(updatedImages);
+
+    if (updatedImages.length === 0) {
+      setLightboxVisible(false);
     }
   };
 
-  const handleDeleteImage = async (avanceIndex) => {
-    try {
-      await axios.delete(`http://localhost:8000/api/tareas/${currentTareaId}/avances/${avanceIndex}`);
-
-      const updatedImages = selectedImages.filter((_, index) => index !== avanceIndex);
-      setSelectedImages(updatedImages);
-
-      setTareas((prevTareas) =>
-        prevTareas.map((tarea) =>
-          tarea.id_tarea === currentTareaId
-            ? { ...tarea, imagenes: updatedImages }
-            : tarea
-        )
-      );
-
-      if (updatedImages.length === 0) {
-        setLightboxVisible(false);
-      }
-    } catch (error) {
-      console.error('Error al eliminar el avance:', error);
-    }
+  // Manejar el cambio de sprint seleccionado
+  const handleSprintChange = (event) => {
+    setSelectedSprint(parseInt(event.target.value, 10));
   };
 
   return (
     <div style={{ padding: '20px' }}>
       <h2>Tareas</h2>
+      <div className="sprint-select-container">
+        <label htmlFor="sprint-select">Sprint</label>
+        <select
+          id="sprint-select"
+          value={selectedSprint}
+          onChange={handleSprintChange}
+        >
+          {sprints.map((sprint) => (
+            <option key={sprint.id_sprint} value={sprint.id_sprint}>
+              {sprint.nro_sprint}
+            </option>
+          ))}
+        </select>
+      </div>
       <table>
         <thead>
           <tr>
             <th>Tarea</th>
-            <th>Progreso</th>
+            <th>Estimación</th>
             <th>Subir Avances</th>
             <th>Vista</th>
           </tr>
@@ -115,19 +116,24 @@ const TareasEstudiante = () => {
           {tareas.map((tarea) => (
             <tr key={tarea.id_tarea}>
               <td>{tarea.nombre_tarea}</td>
-              <td>{tarea.progreso}%</td>
+              <td>{tarea.estimacion}</td>
               <td>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={(e) => handleFileUpload(e, tarea.id_tarea)}
+                  multiple
                 />
+                <ul>
+                  {(tarea.imagenes || []).map((imagen, index) => (
+                    <li key={index}>{imagen.name}</li>
+                  ))}
+                </ul>
               </td>
               <td>
                 <span
                   className="icono-ojo"
-                  onClick={() => handleViewImages(tarea.id_tarea)}
-                  style={{ cursor: 'pointer' }}
+                  onClick={() => handleViewImages(tarea.imagenes || [], tarea.id_tarea)}
                 >
                   👁️
                 </span>
@@ -147,7 +153,7 @@ const TareasEstudiante = () => {
               selectedImages.map((imagen, index) => (
                 <div key={index} className="lightbox-image-container">
                   <img
-                    src={`http://localhost:8000/storage/${imagen}`}
+                    src={URL.createObjectURL(imagen)}
                     alt={`Imagen ${index + 1}`}
                     className="lightbox-image"
                   />

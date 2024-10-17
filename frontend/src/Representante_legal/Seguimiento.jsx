@@ -1,36 +1,102 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
+import axios from 'axios';
 import './Seguimiento.css';
 
 const Seguimiento = () => {
-  const [tasks, setTasks] = useState([
-    { tarea: 'Registrar docente', responsables: [], estado: 'En progreso', progreso: '40%' },
-    { tarea: 'Visualizar planilla', responsables: [], estado: 'En progreso', progreso: '20%' },
-    { tarea: 'Registrar equipo', responsables: [], estado: 'Pendiente', progreso: '0%' },
-    { tarea: 'Autentificar usuarios', responsables: [], estado: 'Terminado', progreso: '100%' },
-    { tarea: 'Registrar estudiantes', responsables: [], estado: 'Pendiente', progreso: '80%' },
-  ]);
+  const [tasks, setTasks] = useState([]);
+  const [students, setStudents] = useState([]);
+  const [sprints, setSprints] = useState([]);
+  const [selectedSprint, setSelectedSprint] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  const options = [
-    { value: 'Juan Carlos Ortiz Ugarte', label: 'Juan Carlos Ortiz Ugarte' },
-    { value: 'Felipe Garcia Molina', label: 'Felipe Garcia Molina' },
-    { value: 'Enrique Gomez Perez', label: 'Enrique Gomez Perez' },
-    { value: 'Andrea Escalera Claros', label: 'Andrea Escalera Claros' },
-    { value: 'Federico Valverde Torres', label: 'Federico Valverde Torres' }
-  ];
+  // Obtener la lista de estudiantes desde la API
+  useEffect(() => {
+    const fetchStudents = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:8000/api/listaEstudiantes');
+        const studentOptions = response.data.map(student => ({
+          value: student.id_estudiante,
+          label: `${student.nombre_estudiante} ${student.ap_pat} ${student.ap_mat} (${student.codigo_sis})`
+        }));
+        setStudents(studentOptions);
+      } catch (error) {
+        console.error('Error al obtener la lista de estudiantes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
+  // Obtener la lista de sprints desde la API
+  useEffect(() => {
+    const fetchSprints = async () => {
+      setLoading(true);
+      try {
+        const response = await axios.get('http://localhost:8000/api/sprints');
+        setSprints(response.data);
+        setSelectedSprint(response.data[0]?.id_sprint || null);
+      } catch (error) {
+        console.error('Error al obtener los sprints:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSprints();
+  }, []);
+
+  // Obtener las tareas según el sprint seleccionado
+  useEffect(() => {
+    if (selectedSprint) {
+      const fetchTasks = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get(`http://localhost:8000/api/sprints/${selectedSprint}/tareas`);
+          const tasksWithResponsables = response.data.map(task => ({
+            ...task,
+            responsables: task.estudiantes.map(est => ({
+              value: est.id_estudiante,
+              label: `${est.nombre_estudiante} ${est.ap_pat} ${est.ap_mat} (${est.codigo_sis})`
+            }))
+          }));
+          setTasks(tasksWithResponsables);
+        } catch (error) {
+          console.error('Error al obtener las tareas:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchTasks();
+    }
+  }, [selectedSprint]);
 
   // Manejar la selección de responsables
-  const handleResponsableChange = (selectedOptions, taskIndex) => {
+  const handleResponsableChange = async (selectedOptions, taskIndex) => {
     const newTasks = [...tasks];
     newTasks[taskIndex].responsables = selectedOptions || [];
     setTasks(newTasks);
+
+    const estudiantesIds = (selectedOptions || []).map(student => student.value);
+
+    try {
+      await axios.post(`http://localhost:8000/api/tareas/${newTasks[taskIndex].id_tarea}/asignar-estudiantes`, {
+        estudiantes_ids: estudiantesIds
+      });
+      console.log('Estudiantes actualizados correctamente');
+    } catch (error) {
+      console.error('Error al actualizar los estudiantes:', error);
+    }
   };
 
-  // Manejar la eliminación de un responsable
-  const handleRemoveResponsable = (taskIndex, responsableToRemove) => {
-    const newTasks = [...tasks];
-    newTasks[taskIndex].responsables = newTasks[taskIndex].responsables.filter(responsable => responsable.value !== responsableToRemove.value);
-    setTasks(newTasks);
+  // Manejar el cambio de sprint seleccionado
+  const handleSprintChange = (event) => {
+    setSelectedSprint(parseInt(event.target.value, 10));
   };
 
   return (
@@ -41,29 +107,43 @@ const Seguimiento = () => {
 
       <div className="sprint-selector">
         <label>Sprint</label>
-        <select>
-          <option value="1">1</option>
-          <option value="2">2</option>
+        <select value={selectedSprint} onChange={handleSprintChange}>
+          {sprints.map(sprint => (
+            <option key={sprint.id_sprint} value={sprint.id_sprint}>
+              {sprint.nro_sprint}
+            </option>
+          ))}
         </select>
       </div>
+
+      {loading && <div className="loading">Cargando...</div>}
+      {message && <div className="message">{message}</div>}
 
       <table className="tasks-table">
         <thead>
           <tr>
             <th>Tarea</th>
-            <th>Responsable</th>
+            <th>Responsables</th>
             <th>Estado</th>
             <th>Progreso</th>
+            <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
           {tasks.map((task, index) => (
-            <tr key={index}>
-              <td>{task.tarea}</td>
+            <tr key={task.id_tarea}>
+              <td>{task.nombre_tarea}</td>
               <td>
+                {task.responsables.length > 0 ? (
+                  task.responsables.map(responsable => (
+                    <div key={responsable.value}>{responsable.label}</div>
+                  ))
+                ) : (
+                  <div>No hay responsables asignados</div>
+                )}
                 <Select
                   isMulti
-                  options={options}
+                  options={students}
                   value={task.responsables}
                   onChange={(selectedOptions) => handleResponsableChange(selectedOptions, index)}
                   className="responsable-select"
@@ -72,6 +152,13 @@ const Seguimiento = () => {
               </td>
               <td>{task.estado}</td>
               <td>{task.progreso}</td>
+              <td>
+                <button
+                  onClick={() => handleAssignStudents(task.id_tarea, task.responsables)}
+                >
+                  Asignar estudiantes
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>

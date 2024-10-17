@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
-import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import VistaDocentes from './Componentes/VistaDocente';
 import VistaEstudiantes from './Componentes/VistaEstudiante';
@@ -14,11 +12,15 @@ import Planificacion from './Representante_legal/Planificacion';
 import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
+import Footer from './Componentes/Footer';
+import Header from './Componentes/Header';
 import './App.css';
-import axios from 'axios';import Seguimiento from './Representante_legal/Seguimiento';
+import axios from 'axios';
+import PlanillasSemanales from './Planillas/GenerarPlanilla';
+import './App.css';
+import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
-
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -69,12 +71,16 @@ function App() {
                 <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
+                <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+                <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
+                <Route path="/Seguimiento" element={<Seguimiento />} />
               </>
             )}
             {role === 'docente' && (
               <>
                 <Route path="/VistaDocente" element={<VistaDocentes />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
+                <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
               </>
             )}
             <Route path="*" element={<Login onLogin={handleLogin} />} />
@@ -84,20 +90,6 @@ function App() {
 
       {/* Solo mostrar Footer si está autenticado */}
       {isAuthenticated && <Footer />}
-      <Header />
-      <Toaster position="bottom-center" />
-      <Routes>
-        <Route path="/Planificacion" element={<Planificacion />} />
-        <Route path="/Docentes" element={<Docentes />} />
-        <Route path="/Estudiantes" element={<Estudiantes />} />
-        <Route path="/Equipos" element={<Equipos />} />
-        <Route path="/Seguimiento" element={<Seguimiento />} />
-        <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
-        <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
-        <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
-      </Routes>
-
-      <Footer />
     </div>
   );
 }

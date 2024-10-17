@@ -68,13 +68,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/estudiantes', [EstudianteController::class, 'index']);
     Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
     Route::post('/estudiantes', [EstudianteController::class, 'store']);
+    Route::get('/listaEstudiantes', [EstudianteController::class, 'listaEstudiantes']);
     Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
     Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
     Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
     Route::get('/listarSprints', [PlanificacionController::class, 'listaSprintsUnicos']);
     Route::get('/listarSprintsEmpresa/{id_empresa}', [PlanificacionController::class, 'listarSprints']);
-    Route::get('/planificacion/{id_empresa}/{gestion}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
-});
+    Route::get('/planificacion/{id_empresa}/{gestion}/{sprint}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 
@@ -122,3 +122,4 @@ Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
 Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
 Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
 Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
+});
