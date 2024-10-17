@@ -1,0 +1,83 @@
+.responsable-select {
+    width: 100%;
+}
+
+.responsable-list {
+    margin-top: 5px;
+}
+
+.responsable-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.remove-button {
+    background-color: transparent;
+    border: none;
+    color: red; 
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.planilla-seguimiento {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+}
+
+header h1 {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.sprint-selector {
+    margin-bottom: 20px;
+}
+
+.sprint-selector label {
+    margin-right: 10px;
+}
+
+.sprint-selector select {
+    padding: 5px;
+    font-size: 16px;
+    background-color: #dfdfdf; /* Fondo más claro */
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    color: #000; /* Color de texto negro */
+}
+
+.tasks-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tasks-table th {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center; /* Centrar texto en las cabeceras */
+    color: white; /* Cambiar color de texto a blanco */
+    background-color: #1A3254; /* Color de fondo para encabezados */
+}
+
+.tasks-table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left; /* Alinear texto a la izquierda en las celdas */
+    color: black; /* Color de texto negro en las celdas */
+}
+
+.tasks-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+.tasks-table tr:hover {
+    background-color: #e0e0e0;
+}
+
+.tasks-table td:last-child {
+    text-align: center;
+}

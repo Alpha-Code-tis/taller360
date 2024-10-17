@@ -4,8 +4,10 @@
  * Created by Reliese Model.
  */
 
+
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -21,22 +23,20 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Tarea extends Model
 {
-	protected $table = 'tarea';
-	protected $primaryKey = 'id_tarea';
-	public $timestamps = false;
+    use HasFactory;
 
-	protected $casts = [
-		'id_alcance' => 'int'
-	];
+    protected $table = 'tarea';
+    protected $primaryKey = 'id_tarea';
+    protected $fillable = ['nombre_tarea',
+		'estimacion', 'estado', 'progreso', 'avances'];
 
-	protected $fillable = [
-		'id_alcance',
-		'nombre_tarea',
-		'estimacion'
-	];
+    public function estudiantes()
+    {
+        return $this->belongsToMany(Estudiante::class, 'estudiante_tarea', 'id_tarea', 'id_estudiante');
+    }
 
-	public function alcance()
-	{
-		return $this->belongsTo(Alcance::class, 'id_alcance');
-	}
+    public function alcance()
+    {
+        return $this->belongsTo(Alcance::class, 'id_alcance');
+    }
 }

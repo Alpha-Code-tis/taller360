@@ -9,6 +9,10 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
+use App\Http\Controllers\PlanillaDocenteController;
+use App\Http\Controllers\PlanillaController;
+use App\Http\Controllers\TareaController;
+
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -99,3 +103,22 @@ Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getE
 Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
 Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
 
+//Planilla-Docente
+Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
+Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']); 
+Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']); 
+Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']); 
+Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']); 
+
+//Planilla-Representante
+Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']); 
+Route::get('/sprints/{sprintId}/tareas', [PlanillaController::class, 'mostrarTareas']); 
+Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class, 'asignarEstudiantes']); 
+Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']); 
+
+//Tarea
+ 
+Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
+Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
+Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
+Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
