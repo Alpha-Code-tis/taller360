@@ -52,6 +52,7 @@ const Planificacion = () => {
   const [fechaFinal, setFechaFinal] = useState(null); // Fecha fin seleccionada
   const [requerimiento,setRequerimiento] = useState('');
   const [tareas, setTareas]=useState([]);
+  const [alcances, setAlcances] = useState([]);
 
   const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
   const [showModalEvent, setShowModalEvent] = useState();
@@ -285,7 +286,6 @@ const Planificacion = () => {
     const selectedId = event.target.value;
     setSelectedSprint(selectedId);
 
-
     // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
     try {
       const response = await axios.get(`http://localhost:8000/api/planificacion`);
@@ -322,12 +322,17 @@ const Planificacion = () => {
           const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
           setFechaInicio(inicio);
           setFechaFinal(fin);
-          // Verifica si hay alcances y tareas
-          const alcance = sprintData.alcances?.[0]; // Asignar el primer alcance
-          setRequerimiento(alcance?.descripcion || 'No hay requerimiento disponible');
 
-          const tareas = alcance?.tareas || [];
-          setTareas(tareas);
+          // Mantener los alcances como un array para poder mostrar cada uno con sus tareas
+          const alcances = sprintData.alcances || [];
+
+          // Asignar alcances con sus respectivas tareas y mantener esa estructura
+          const alcancesConTareas = alcances.map(alcance => ({
+            descripcion: alcance.descripcion,
+            tareas: alcance.tareas || []  // Si no hay tareas, se asigna un array vacío
+          }));
+
+          setAlcances(alcancesConTareas); // Guardar la estructura completa de alcances con tareas
 
           // Filtrar los días hábiles entre la fecha de inicio y fin
           const diasHabiles = filtrarDiasHabiles(inicio, fin);
@@ -344,7 +349,8 @@ const Planificacion = () => {
     } catch (error) {
       console.error("Error al obtener los detalles del sprint:", error);
     }
-  };
+};
+
 
   // Función para obtener los sprints de la API
   const fetchSprints = async () => {
@@ -427,19 +433,27 @@ const Planificacion = () => {
       <Modal.Body>
         <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
         <p><strong>Fecha de fin:</strong> {fechaFinal ? fechaFinal.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
-        <p><strong>Requerimiento:</strong> {requerimiento}</p>
 
-        <h5>Tareas</h5>
-        {tareas.length > 0 ? (
-          <ul>
-            {tareas.map((tarea, index) => (
-              <li key={index}>
-                <strong>{tarea.nombre_tarea}:</strong> {tarea.estimacion} horas
-              </li>
-            ))}
-          </ul>
+        <h5>Requerimientos</h5>
+        {alcances.length > 0 ? (
+          alcances.map((alcance, index) => (
+            <div key={index}>
+              <p><strong>{index + 1}:</strong> {alcance.descripcion || 'No hay descripción disponible'}</p>
+              {alcance.tareas.length > 0 ? (
+                <ul>
+                  {alcance.tareas.map((tarea, tareaIndex) => (
+                    <li key={tareaIndex}>
+                      <strong>{tarea.nombre_tarea}:</strong> {tarea.estimacion} horas
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No hay tareas disponibles para este alcance.</p>
+              )}
+            </div>
+          ))
         ) : (
-          <p>No hay tareas disponibles para este sprint.</p>
+          <p>No hay alcances disponibles para este sprint.</p>
         )}
       </Modal.Body>
       <Modal.Footer>

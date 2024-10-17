@@ -21,8 +21,13 @@ class PlanificacionController extends Controller
         $id_empresa = $user->id_empresa;
         $planificacion = Planificacion::with(['sprints.alcances.tareas']) // Cargar relaciones anidadas
             ->where('id_empresa', $id_empresa) // Filtrar por id_empresa
-            ->first(); // Obtener una sola planificación
-
+            ->first();
+        if ($planificacion && $planificacion->sprints) {
+            foreach ($planificacion->sprints as $sprint) {
+                $sprint->fecha_inicio = \Carbon\Carbon::parse($sprint->fecha_inicio)->setTime(8, 0);
+                $sprint->fecha_fin = \Carbon\Carbon::parse($sprint->fecha_fin)->endOfDay();
+            }
+        }
         return response()->json($planificacion, Response::HTTP_OK);
     }
 
