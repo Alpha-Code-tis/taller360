@@ -1,31 +1,38 @@
+// src/components/TareasEstudiante.js
+
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './lightbox.css';
 import './TareasEstudiante.css';
+import { useParams } from 'react-router-dom';
 
 const TareasEstudiante = () => {
+  const { sprintId } = useParams(); // Obtén el ID del sprint de los parámetros de la URL
   const [tareas, setTareas] = useState([]);
   const [lightboxVisible, setLightboxVisible] = useState(false);
   const [selectedImages, setSelectedImages] = useState([]);
   const [currentTareaId, setCurrentTareaId] = useState(null);
 
-  // Obtener los sprints y tareas cuando el componente se monta
   useEffect(() => {
-    const fetchSprints = async () => {
+    // Cargar las tareas del estudiante
+    const cargarTareas = async () => {
       try {
-        const sprintsResponse = await axios.get('/tareas/sprints');
-        if (sprintsResponse.data.length > 0) {
-          const sprintId = sprintsResponse.data[0].id_sprint; // Usar el primer sprint como ejemplo
-          const tareasResponse = await axios.get(`/tareas/${sprintId}`);
-          setTareas(tareasResponse.data);
+        const response = await axios.get(`http://localhost:8000/api/tareas/${sprintId}`);
+        if (response.data && Array.isArray(response.data)) {
+          const tareasConImagenes = response.data.map((tarea) => ({
+            ...tarea,
+            imagenes: tarea.avances ? tarea.avances.split(',') : [],
+          }));
+          setTareas(tareasConImagenes);
+        } else {
+          console.error('Formato de respuesta inesperado:', response.data);
         }
       } catch (error) {
-        console.error('Error al obtener sprints o tareas:', error);
+        console.error('Error al cargar tareas:', error);
       }
     };
-
-    fetchSprints();
-  }, []);
+    cargarTareas();
+  }, [sprintId]);
 
   const handleFileUpload = async (event, id) => {
     const file = event.target.files[0];
@@ -35,25 +42,28 @@ const TareasEstudiante = () => {
     formData.append('archivo', file);
 
     try {
-      const response = await axios.post(`/tareas/${id}/subir-avance`, formData, {
+      const response = await axios.post(`http://localhost:8000/api/tareas/${id}/subir-avance`, formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       });
-      // Actualizar la tarea con la nueva imagen
+
+      // Actualizar la lista de tareas con el nuevo avance
       setTareas((prevTareas) =>
         prevTareas.map((tarea) =>
-          tarea.id === id ? { ...tarea, imagenes: [...tarea.imagenes, response.data.path] } : tarea
+          tarea.id_tarea === id
+            ? { ...tarea, imagenes: [...tarea.imagenes, response.data.path] }
+            : tarea
         )
       );
     } catch (error) {
-      console.error('Error al subir el avance:', error);
+      console.error('Error al subir el archivo:', error);
     }
   };
 
   const handleViewImages = async (id) => {
     try {
-      const response = await axios.get(`/tareas/${id}/avances`);
+      const response = await axios.get(`http://localhost:8000/api/tareas/${id}/avances`);
       if (response.data.length > 0) {
         setSelectedImages(response.data);
         setCurrentTareaId(id);
@@ -66,20 +76,20 @@ const TareasEstudiante = () => {
     }
   };
 
-  const handleDeleteImage = async (index) => {
+  const handleDeleteImage = async (avanceIndex) => {
     try {
-      await axios.delete(`/tareas/${currentTareaId}/avances/${index}`);
-      const updatedImages = selectedImages.filter((_, i) => i !== index);
+      await axios.delete(`http://localhost:8000/api/tareas/${currentTareaId}/avances/${avanceIndex}`);
+
+      const updatedImages = selectedImages.filter((_, index) => index !== avanceIndex);
+      setSelectedImages(updatedImages);
 
       setTareas((prevTareas) =>
         prevTareas.map((tarea) =>
-          tarea.id === currentTareaId
+          tarea.id_tarea === currentTareaId
             ? { ...tarea, imagenes: updatedImages }
             : tarea
         )
       );
-
-      setSelectedImages(updatedImages);
 
       if (updatedImages.length === 0) {
         setLightboxVisible(false);
@@ -98,33 +108,29 @@ const TareasEstudiante = () => {
             <th>Tarea</th>
             <th>Progreso</th>
             <th>Subir Avances</th>
-            <th>Vista</th> {/* Nueva columna de "Vista" */}
+            <th>Vista</th>
           </tr>
         </thead>
         <tbody>
           {tareas.map((tarea) => (
-            <tr key={tarea.id}>
-              <td>{tarea.nombre}</td>
-              <td>{tarea.progreso}</td>
+            <tr key={tarea.id_tarea}>
+              <td>{tarea.nombre_tarea}</td>
+              <td>{tarea.progreso}%</td>
               <td>
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={(e) => handleFileUpload(e, tarea.id)}
+                  onChange={(e) => handleFileUpload(e, tarea.id_tarea)}
                 />
-                <ul>
-                  {tarea.imagenes.map((imagen, index) => (
-                    <li key={index}>{imagen}</li>
-                  ))}
-                </ul>
               </td>
               <td>
                 <span
                   className="icono-ojo"
-                  onClick={() => handleViewImages(tarea.id)}
+                  onClick={() => handleViewImages(tarea.id_tarea)}
+                  style={{ cursor: 'pointer' }}
                 >
                   👁️
-                </span> {/* Uso del icono de ojo */}
+                </span>
               </td>
             </tr>
           ))}
@@ -141,7 +147,7 @@ const TareasEstudiante = () => {
               selectedImages.map((imagen, index) => (
                 <div key={index} className="lightbox-image-container">
                   <img
-                    src={`${process.env.REACT_APP_BACKEND_URL}/${imagen}`}
+                    src={`http://localhost:8000/storage/${imagen}`}
                     alt={`Imagen ${index + 1}`}
                     className="lightbox-image"
                   />

@@ -1,71 +1,67 @@
 <?php
 
-// app/Http/Controllers/TareaController.php
 namespace App\Http\Controllers;
 
 use App\Models\Sprint;
 use App\Models\Tarea;
-use App\Models\Estudiante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class TareaController extends Controller
 {
-    public function mostrarSprints()
-    {
-        // Obtener el estudiante autenticado
-        $estudiante = Auth::user();
-
-        // Obtener todos los sprints de la empresa a la que pertenece el estudiante
-        $sprints = Sprint::whereHas('planificacion.empresa.estudiantes', function($query) use ($estudiante) {
-            $query->where('id_estudiante', $estudiante->id_estudiante);
-        })->get();
-
-        return response()->json($sprints);
-    }
-
     public function mostrarTareas($sprintId)
     {
-        // Obtener el estudiante autenticado
+        // Get the authenticated student
         $estudiante = Auth::user();
 
-        // Verificar que el sprint pertenece a la empresa del estudiante
-        $sprint = Sprint::where('id_sprint', $sprintId)
-                        ->whereHas('planificacion.empresa.estudiantes', function($query) use ($estudiante) {
-                            $query->where('id_estudiante', $estudiante->id_estudiante);
-                        })->firstOrFail();
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
 
-        // Obtener tareas del sprint que tienen asignado al estudiante
+        // Verify that the sprint belongs to the student's company
+        $sprint = Sprint::where('id_sprint', $sprintId)
+            ->whereHas('planificacion.empresa.estudiantes', function($query) use ($estudiante) {
+                $query->where('id_estudiante', $estudiante->id_estudiante);
+            })->firstOrFail();
+
+        // Get tasks of the sprint assigned to the student
         $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-                       ->whereHas('estudiantes', function($query) use ($estudiante) {
-                           $query->where('id_estudiante', $estudiante->id_estudiante);
-                       })->get();
+            ->whereHas('estudiantes', function($query) use ($estudiante) {
+                $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
+            })->get();
 
         return response()->json($tareas);
     }
 
     public function subirAvance(Request $request, $tareaId)
     {
-        // Obtener el estudiante autenticado
+        // Get the authenticated student
         $estudiante = Auth::user();
 
-        // Validar que el archivo es requerido y es una imagen
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
+
+        // Validate the file
         $request->validate([
             'archivo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
-        // Verificar que la tarea pertenece al estudiante
+        // Verify that the task belongs to the student
         $tarea = Tarea::where('id_tarea', $tareaId)
-                      ->whereHas('estudiantes', function($query) use ($estudiante) {
-                          $query->where('id_estudiante', $estudiante->id_estudiante);
-                      })->firstOrFail();
+            ->whereHas('estudiantes', function ($query) use ($estudiante) {
+                $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
+            })
+            ->firstOrFail();
 
-        // Subir el archivo al almacenamiento
-        $path = $request->file('archivo')->store('avances');
+        // Upload the file
+        $path = $request->file('archivo')->store('public/avances');
 
-        // Guardar la referencia del avance en la tarea
-        $tarea->avances = $tarea->avances ? $tarea->avances . "," . $path : $path;
+        // Update the 'avances' attribute of the task
+        $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
+        $avances[] = $path;
+        $tarea->avances = implode(",", $avances);
         $tarea->save();
 
         return response()->json(['message' => 'Avance subido correctamente', 'path' => $path]);
@@ -73,40 +69,54 @@ class TareaController extends Controller
 
     public function verAvances($tareaId)
     {
-        // Obtener el estudiante autenticado
+        // Get the authenticated student
         $estudiante = Auth::user();
 
-        // Verificar que la tarea pertenece al estudiante
-        $tarea = Tarea::where('id_tarea', $tareaId)
-                      ->whereHas('estudiantes', function($query) use ($estudiante) {
-                          $query->where('id_estudiante', $estudiante->id_estudiante);
-                      })->firstOrFail();
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
 
-        // Obtener la lista de avances
+        // Verify that the task belongs to the student
+        $tarea = Tarea::where('id_tarea', $tareaId)
+            ->whereHas('estudiantes', function ($query) use ($estudiante) {
+                $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
+            })
+            ->firstOrFail();
+
+        // Get the list of avances
         $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
 
         return response()->json($avances);
     }
 
-    public function eliminarAvance($tareaId, $avanceId)
+    public function eliminarAvance($tareaId, $avanceIndex)
     {
-        // Obtener el estudiante autenticado
+        // Get the authenticated student
         $estudiante = Auth::user();
 
-        // Verificar que la tarea pertenece al estudiante
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
+
+        // Verify that the task belongs to the student
         $tarea = Tarea::where('id_tarea', $tareaId)
-                      ->whereHas('estudiantes', function($query) use ($estudiante) {
-                          $query->where('id_estudiante', $estudiante->id_estudiante);
-                      })->firstOrFail();
+            ->whereHas('estudiantes', function ($query) use ($estudiante) {
+                $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
+            })
+            ->firstOrFail();
 
-        // Obtener la lista de avances y eliminar el específico
+        // Get the list of avances
         $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
-        if (isset($avances[$avanceId])) {
-            // Eliminar el archivo del almacenamiento
-            Storage::delete($avances[$avanceId]);
-            unset($avances[$avanceId]);
 
-            // Actualizar los avances de la tarea
+        if (isset($avances[$avanceIndex])) {
+            // Delete the file from storage
+            Storage::delete($avances[$avanceIndex]);
+
+            // Remove the avance from the array
+            unset($avances[$avanceIndex]);
+
+            // Reindex the array and update the database
+            $avances = array_values($avances);
             $tarea->avances = implode(",", $avances);
             $tarea->save();
 
