@@ -26,7 +26,7 @@ class EmpresaController extends Controller
             if ($estudiantes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron estudiantes sin empresa'], 404);
             }
-
+            $estudiantesSinEmpresa = Estudiante::whereNull('id_empresa')->get();
             return response()->json($estudiantes);
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al consultar los estudiantes: ' . $e->getMessage()], 500);
@@ -39,8 +39,9 @@ class EmpresaController extends Controller
     {
         try {
             // Obtener estudiantes que pertenecen a la empresa especificada
-            $estudiantes = Estudiante::where('id_empresa', $id_empresa)->get();
+            $empresa = Empresa::findOrFail($id_empresa);
 
+            $estudiantes = $empresa->estudiantes()->with('tareas')->get();                 
             if ($estudiantes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron estudiantes para esta empresa'], 404);
             }

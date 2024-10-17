@@ -67,6 +67,5 @@ class Estudiante extends Model
     }
     public function empresa() // Nueva relación
     {
-        return $this->belongsTo(Empresa::class, 'id_empresa');
-    }
+        return $this->belongsTo(Empresa::class, 'id_empresa', 'id_empresa');    }
 }

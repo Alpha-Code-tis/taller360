@@ -1,8 +1,8 @@
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 import { useState } from 'react'
 // src/App.jsx
 import React from 'react';
-import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './Componentes/Header';
 import Footer from './Componentes/Footer';
@@ -13,6 +13,7 @@ import Docentes from './Administrador/Docentes';
 import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
 import './App.css';
+import Cruzada from './Evaluaciones/Cruzada';
 
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
        <Route path="/Docentes" element={<Docentes />} /> */}
         <Route path="/Estudiantes" element={<Estudiantes />} />
         <Route path="/Equipos" element={<Equipos />} />
+        <Route path="/Cruzada" element={<Cruzada />} />
       </Routes>
       <Footer />
     </div>

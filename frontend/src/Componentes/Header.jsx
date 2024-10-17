@@ -6,7 +6,6 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
-import PersonIcon from '@mui/icons-material/Person';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -14,20 +13,22 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { FaUserCircle } from 'react-icons/fa';
-import logo from '../img/logo.jpeg';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import PersonIcon from '@mui/icons-material/Person';
+import GroupsIcon from '@mui/icons-material/Groups';
+import Collapse from '@mui/material/Collapse';
 import { useState } from 'react';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import logo from '../img/logo.jpeg';
+import { FaUserCircle } from 'react-icons/fa';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
+  ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -35,41 +36,31 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-          marginLeft: 0,
-        },
-      },
-    ],
-  }),
+    ...(open && {
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+      marginLeft: 0,
+    }),
+  })
 );
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme }) => ({
+})(({ theme, open }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      },
-    },
-  ],
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
 }));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -83,6 +74,10 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
+  const [selectedButton, setSelectedButton] = useState(null);
+
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -92,12 +87,13 @@ export default function PersistentDrawerLeft() {
     setOpen(false);
   };
 
-  const [selectedButton, setSelectedButton] = useState(null);
+  const handleEvaluacionesClick = () => {
+    setEvaluacionesOpen(!evaluacionesOpen);
+  };
+
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
   };
-
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -111,19 +107,16 @@ export default function PersistentDrawerLeft() {
         >
           <IconButton
             color="inherit"
-            aria-label="toggle drawer"
-            onClick={() => setOpen(!open)}
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
             edge="start"
-            sx={{
-              mr: 2,
-            }}
+            sx={{ mr: 2, ...(open && { display: 'none' }) }}
           >
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
             <span className="m-0">Nombre de Usuario</span>
-            <ExpandMoreIcon />
           </div>
         </Toolbar>
       </AppBar>
@@ -153,52 +146,8 @@ export default function PersistentDrawerLeft() {
           />
         </div>
         <Divider />
-
         <List sx={{ mt: 3 }}>
-  {/*      
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Planificacion"
-              onClick={() => handleButtonClick('planificacion')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Planificación" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-
-          
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Docentes"
-              onClick={() => handleButtonClick('docentes')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          */}
-        
+          {/* Botón Estudiantes */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -213,13 +162,13 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <PersonIcon /> 
+                <PersonIcon />
               </ListItemIcon>
               <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
-       
+          {/* Botón Equipos */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -234,16 +183,74 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon /> 
+                <GroupsIcon />
               </ListItemIcon>
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
+          {/* Botón Evaluaciones con submenú */}
+          <ListItem disablePadding>
+            <ListItemButton onClick={handleEvaluacionesClick} sx={{ borderRadius: '8px' }}>
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+              {evaluacionesOpen ? <ExpandLess /> : <ExpandMore />}
+            </ListItemButton>
+          </ListItem>
+          <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/Cruzada"
+                sx={{
+                  pl: 4,
+                  backgroundColor: selectedButton === 'cruzada' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+                onClick={() => handleButtonClick('cruzada')}
+              >
+                <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+              </ListItemButton>
+
+              <ListItemButton
+                component={Link}
+                to="/AutoEvaluacion"
+                sx={{
+                  pl: 4,
+                  backgroundColor: selectedButton === 'autoEvaluacion' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+                onClick={() => handleButtonClick('autoEvaluacion')}
+              >
+                <ListItemText primary="Auto Evaluación" sx={{ color: 'white' }} />
+              </ListItemButton>
+
+              <ListItemButton
+                component={Link}
+                to="/Pares"
+                sx={{
+                  pl: 4,
+                  backgroundColor: selectedButton === 'pares' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+                onClick={() => handleButtonClick('pares')}
+              >
+                <ListItemText primary="Pares" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </List>
+          </Collapse>
         </List>
         <Divider />
       </Drawer>
-      <Main open={open}></Main>
+      <Main open={open} />
     </Box>
   );
 }

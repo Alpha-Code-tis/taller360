@@ -71,9 +71,9 @@ class Evaluacion extends Model
 	}
 
 	public function empresa()
-	{
-		return $this->belongsTo(Empresa::class, 'id_empresa');
-	}
+{
+    return $this->belongsTo(Empresa::class, 'id_empresa', 'id_empresa');
+}
 
 	public function autoevaluacions()
 	{
@@ -89,4 +89,9 @@ class Evaluacion extends Model
 	{
 		return $this->hasMany(Pare::class, 'id_evaluacion');
 	}
+	public function estudiante()
+{
+    return $this->belongsTo(Estudiante::class, 'id_estudiante', 'id_estudiante');
+}
+
 }

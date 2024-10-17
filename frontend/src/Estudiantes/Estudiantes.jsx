@@ -21,27 +21,19 @@ const Estudiantes = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
-  const [file, setFile] = useState(null);
 
   // Fetching estudiantes from the backend
-  const fetchEstudiantes = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/estudiantes');
-      setEstudiantes(response.data);
-      setFilteredEstudiantes(response.data);
-
-      // Si no hay estudiantes, mostrar mensaje de error
-      if (response.data.length === 0) {
-        toast.error('No hay estudiantes registrados.');
-      }
-    } catch (err) {
-      // Muestra el error si hay un problema en la petición
-      toast.error('Error al cargar los estudiantes.');
-    }
-  };
-  
-
   useEffect(() => {
+    const fetchEstudiantes = async () => {
+      try {
+        const response = await axios.get('http://localhost:8000/api/estudiantes');
+        setEstudiantes(response.data);
+        setFilteredEstudiantes(response.data);
+      } catch (err) {
+        toast.error('Error al cargar los estudiantes');
+      }
+    };
+
     fetchEstudiantes();
   }, []);
 
@@ -66,9 +58,11 @@ const Estudiantes = () => {
             onClick={async () => {
               try {
                 await axios.delete(`http://localhost:8000/api/estudiantes/${id}`);
+                const updatedEstudiantes = estudiantes.filter((estudiante) => estudiante.id_estudiante !== id);
+                setEstudiantes(updatedEstudiantes);
+                setFilteredEstudiantes(updatedEstudiantes);
                 toast.dismiss(t.id);
                 toast.success('Estudiante eliminado exitosamente');
-                fetchEstudiantes(); // Recargar después de eliminar
               } catch (err) {
                 toast.error('Error al eliminar el estudiante');
               }
@@ -137,6 +131,7 @@ const Estudiantes = () => {
   // Handle Save (Create or Update Estudiante)
   const handleSave = async () => {
     if (!validateForm()) {
+      toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
 
@@ -151,12 +146,20 @@ const Estudiantes = () => {
     try {
       if (currentEstudiante) {
         await axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData);
+        const updatedEstudiantes = estudiantes.map((estudiante) =>
+          estudiante.id_estudiante === currentEstudiante.id_estudiante
+            ? { ...estudiante, ...estudianteData }
+            : estudiante
+        );
+        setEstudiantes(updatedEstudiantes);
+        setFilteredEstudiantes(updatedEstudiantes);
         toast.success('Estudiante editado exitosamente');
       } else {
-        await axios.post('http://localhost:8000/api/estudiantes', estudianteData);
+        const response = await axios.post('http://localhost:8000/api/estudiantes', estudianteData);
+        setEstudiantes([...estudiantes, response.data]);
+        setFilteredEstudiantes([...filteredEstudiantes, response.data]);
         toast.success('Estudiante agregado exitosamente');
       }
-      fetchEstudiantes(); // Recargar después de guardar o editar
       handleCloseModal();
     } catch (err) {
       toast.error('Error al guardar el estudiante');
@@ -178,9 +181,10 @@ const Estudiantes = () => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     console.log("Archivo arrastrado:", file);
-  };   
+  };
 
   const handleFileUpload = async (event) => {
+    const file = event.target.files[0];
 
     if (!file) {
       setError('Por favor, selecciona un archivo.');
@@ -198,8 +202,11 @@ const Estudiantes = () => {
       });
 
       if (Array.isArray(response.data)) {
+        setEstudiantes((prev) => [...prev, ...response.data]);
+        setFilteredEstudiantes((prev) => [...prev, ...response.data]);
         toast.success('Estudiantes importados exitosamente.');
-        fetchEstudiantes(); // Recargar después de importar
+      } else {
+        throw new Error('La respuesta no es un array.');
       }
 
       handleCloseImportModal();
@@ -350,7 +357,7 @@ const Estudiantes = () => {
           <Form>
             <Form.Group controlId="formFile" className="mb-3">
               <Form.Label>Selecciona un archivo para importar</Form.Label>
-              <Form.Control type="file" accept=".csv" onChange={(e) => setFile(e.target.files[0])} />
+              <Form.Control type="file" accept=".csv" onChange={handleFileUpload} />
             </Form.Group>
           </Form>
           {error && <p className="text-danger">{error}</p>}

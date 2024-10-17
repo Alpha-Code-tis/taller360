@@ -77,9 +77,9 @@ class Empresa extends Model
 	}
 
 	public function evaluacions()
-	{
-		return $this->hasMany(Evaluacion::class, 'id_empresa');
-	}
+{
+    return $this->hasMany(Evaluacion::class, 'id_empresa', 'id_empresa');
+}
 
 	public function planificacions()
 	{
@@ -90,7 +90,8 @@ class Empresa extends Model
 	{
 		return $this->hasMany(RepresentateLegal::class, 'id_empresa');
 	}
-	public function estudiantes() // Nueva relación en Empresa
+	public function estudiante()
 	{
-		return $this->hasMany(Estudiante::class, 'id_empresa', 'id_empresa');	}
+		return $this->belongsTo(Estudiante::class, 'id_estudiante', 'id_estudiante');
+	}
 }
