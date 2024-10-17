@@ -39,6 +39,7 @@ const MyCalendar = () => {
     const [selectedEmpresa, setSelectedEmpresa] = useState("");
     const [selectedSprint, setSelectedSprint] = useState(""); // Estado para el sprint seleccionado
     const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints obtenidos de la API
+    const [sprints2, setSprints2] = useState([]); // Estado para almacenar los sprints obtenidos de la API
     const [gestiones, setGestiones] = useState([]);
     const [empresas, setEmpresas] = useState([]);
     const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
@@ -73,7 +74,6 @@ const MyCalendar = () => {
       // Llamada a la API para obtener las empresas filtradas por la gestión seleccionada
       try {
         const response = await axios.get(`http://localhost:8000/api/listarEmpresas/${selectedG}`);
-        console.log(response.data);
         setEmpresas(response.data); // Almacena las empresas obtenidas
       } catch (error) {
           console.error("Error al obtener las empresas:", error);
@@ -84,12 +84,10 @@ const MyCalendar = () => {
     const handleOptionE = async (event) => {
       const selectedEmpresa = event.target.value;
       setSelectedEmpresa(selectedEmpresa);
-      console.log("Empresa seleccionada:", selectedEmpresa);
   
       try {
           // Llama a la API usando el valor de la empresa seleccionada
           const response = await axios.get(`http://localhost:8000/api/listarSprintsEmpresa/${selectedEmpresa}`);
-          console.log("Sprints obtenidos:", response.data);
           setSprints(response.data); // Almacena los sprints obtenidos
       } catch (error) {
           console.error("Error al obtener los sprints:", error);
@@ -103,16 +101,18 @@ const MyCalendar = () => {
   const handleOptionChange = async (event) => {
     const selectedId = event.target.value;
     setSelectedSprint(selectedId);
-
+    console.log("Sprint seleccionado:", selectedId); // Asegúrate de que esto se imprima
     // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
     try {
-      const response = await axios.get(`http://localhost:8000/api/planificacion/${selectedEmpresa}/${selectedGestion}/${selectedSprint}`);
-      console.log(response.data); // Verificar qué datos devuelve la API
-      const sprints2 = response.data.sprints;
+      const response = await axios.get(`http://localhost:8000/api/planificacion/${selectedEmpresa}/${selectedGestion}/${selectedId}`);
+      const sprints2 = response.data[0][0].sprints;
+      if (selectedId === 'Todos') {
+        console.log(response.data);
+        const sprintsArray = response.data[0].sprints;
 
-      if (selectedId === "Todos") {
         // Si se selecciona "todos", pintar todos los sprints
-        const eventos = sprints2.map((sprint) => {
+        const eventos = sprintsArray.map((sprint) => {
+          console.log(sprint);
           const inicio = dayjs(sprint.fecha_inicio);
           const fin = dayjs(sprint.fecha_fin);
           const color = sprint.color || '#ff0000'; // Valor por defecto si no hay color
@@ -121,20 +121,18 @@ const MyCalendar = () => {
           const diasHabiles = filtrarDiasHabiles(inicio, fin);
 
           return diasHabiles.map((fecha) => ({
-            title: `Sprint ${sprint.nro_sprint}`,
-            start: fecha,
-            end: fecha, // Evento de un solo día
-            style: { backgroundColor: color }, // Color del evento
+              title: `Sprint ${sprint.nro_sprint}`,
+              start: fecha,
+              end: fecha, // Evento de un solo día
+              style: { backgroundColor: color }, // Color del evento
           }));
-        });
+      });
 
         // Aplanar el array de eventos anidados
         setEventos(eventos.flat());
       } else {
         // Si se selecciona un sprint específico
-        console.log(sprints2);
-        const sprintData = sprints2.find((sprint) => sprint.nro_sprint == parseInt(selectedSprint));
-        console.log(sprintData);
+        const sprintData = sprints2.find((sprint) => sprint.nro_sprint == parseInt(selectedId));
         if (sprintData) {
           const inicio = dayjs(sprintData.fecha_inicio);
           const fin = dayjs(sprintData.fecha_fin);
@@ -175,7 +173,6 @@ const MyCalendar = () => {
   const fetchGestiones = async () => {
     try {
       const response = await axios.get("http://localhost:8000/api/gestiones");
-      console.log(response.data);
       
       // Si la respuesta es un solo objeto y no una lista
       const gestion = response.data; // Accede al valor directamente
@@ -270,15 +267,6 @@ const MyCalendar = () => {
                                 Sprint {sprint}
                             </label>
                         ))}
-                        <label className="dropdown-item">
-                            <input
-                                type="radio"
-                                value="Todos"
-                                checked={selectedSprint === 'Todos'}
-                                onChange={handleOptionChange}
-                            />
-                            Todos
-                        </label>
                     </div>
                 )}
             </div>
