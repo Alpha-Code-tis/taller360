@@ -69,7 +69,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
     Route::get('/listarSprints', [PlanificacionController::class, 'listaSprintsUnicos']);
     Route::get('/listarSprintsEmpresa/{id_empresa}', [PlanificacionController::class, 'listarSprints']);
-    Route::get('/planificacion/{id_empresa}/{gestion}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
+    Route::get('/planificacion/{id_empresa}/{gestion}/{sprint}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
 });
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);

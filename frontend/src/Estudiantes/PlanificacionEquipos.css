@@ -9,8 +9,8 @@
   .sprint-dropdown {
     position: relative;
     display: inline-block;
-    margin-right: 5rem; /* Ajusta el valor según sea necesario */
-    margin-left: -160px; /* Ajusta este valor para mover más a la izquierda */
+    margin-right: 8rem; /* Ajusta el valor según sea necesario */
+    margin-left: -5px; /* Ajusta este valor para mover más a la izquierda */
   }
   
   .dropdown-item:hover {
@@ -29,13 +29,13 @@
   .gestion-dropdown{
     position: relative;
     display: inline-block;
-    margin-right: 5rem; /* Ajusta el valor según sea necesario */
+    margin-right: 2rem; /* Ajusta el valor según sea necesario */
   }
 
   .empresa-dropdown{
     position: relative;
     display: inline-block;
-    margin-right: 5rem; /* Ajusta el valor según sea necesario */
+    margin-right: 2rem; 
   }
 
 /* Agrega otros menús si es necesario */

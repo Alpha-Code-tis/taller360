@@ -21,7 +21,7 @@ class EmpresaController extends Controller
 
     public function gestiones()
     {
-        $gestiones = Empresa::select('gestion')->distinct()->get();
+        $gestiones = Empresa::select('gestion')->distinct()->pluck('gestion');
         return response()->json($gestiones, Response::HTTP_OK);
     }
 

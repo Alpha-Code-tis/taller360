@@ -122,16 +122,21 @@ class PlanificacionController extends Controller
         return response()->json($nroSprints);
     }
 
-    public function obtenerIdPlanificacion($id_empresa, $gestion)
+    public function obtenerIdPlanificacion($id_empresa, $gestion, $sprint)
     {
         $empresa = Empresa::where('id_empresa', $id_empresa)
             ->where('gestion', $gestion)
             ->first();
         if ($empresa) {
             $planificacion = Planificacion::where('id_empresa', $empresa->id_empresa)->first();
-
+            $sprint = Planificacion::with(['sprints' => function ($query) use ($sprint) {
+                $query->where('nro_sprint', $sprint)
+                    ->with('alcances.tareas');
+            }])
+                ->where('id_planificacion', $planificacion->id_planificacion)
+                ->get();
             if ($planificacion) {
-                return response()->json(['id_planificacion' => $planificacion->id_planificacion]);
+                return response()->json([$sprint]);
             } else {
                 return response()->json(['message' => 'No se encontró la planificación para la empresa especificada.'], 404);
             }
