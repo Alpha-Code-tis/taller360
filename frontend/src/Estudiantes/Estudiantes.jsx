@@ -47,6 +47,7 @@ const Estudiantes = () => {
 
   // Update filteredEstudiantes based on searchTerm
   useEffect(() => {
+    console.log(estudiantes);
     const filtered = estudiantes.filter((estudiante) => {
       const fullName = `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`.toLowerCase();
       const codigoSis = estudiante.codigo_sis.toString();
