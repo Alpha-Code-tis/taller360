@@ -92,6 +92,7 @@ const Autoevaluacion = () => {
     try {
       const response = await axios.get('http://localhost:8000/api/tareas/sprints');
       setSprints(response.data);
+      console.log(response.data);
     } catch (error) {
       toast.error('Error al cargar los sprints.');
     }

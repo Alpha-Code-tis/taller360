@@ -10,7 +10,6 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
-<<<<<<<<< Temporary merge branch 1
 use App\Http\Controllers\PlanillaDocenteController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
@@ -123,7 +122,7 @@ Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class,
 Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']);
 
 //Tarea
-
+Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
 Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
 Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
 Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
