@@ -67,9 +67,8 @@ class EstudianteController extends Controller
                 'correo' => $correo,
                 'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
             ]);
-            $url = 'http://localhost:3000/Equipos';
             Notification::route('mail', $correo)
-                ->notify(new EstudianteRegistered($request->nombre_estudiante, $correo, $contrasenia, $url));
+                ->notify(new EstudianteRegistered($request->nombre_estudiante, $correo, $contrasenia));
         } else {
             // Crear el estudiante, asignando el ID del representante si existe
             $estudiante = Estudiante::create([
@@ -117,10 +116,8 @@ class EstudianteController extends Controller
                 'id_representante' => $isRepresentante ? 1 : null, // Asignar 1 o null según es_representante
             ]);
             if ($isRepresentante) {
-                $token = $estudiante->createToken('API Token')->plainTextToken;
-                $url = 'http://localhost:3000/login-with-token?token=' . $token;
                 Notification::route('mail', $estudiante->correo)
-                    ->notify(new EstudianteRegistered($estudiante->nombre_estudiante, $estudiante->correo, $contrasenia, $url));
+                    ->notify(new EstudianteRegistered($estudiante->nombre_estudiante, $estudiante->correo, $contrasenia));
             }
 
             return response()->json($estudiante, 200);

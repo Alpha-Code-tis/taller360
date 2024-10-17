@@ -23,6 +23,8 @@ return new class extends Migration
             $table->string('direccion', 250)->nullable();
             $table->string('telefono', 12)->nullable();
             $table->string('correo_empresa', 50)->nullable();
+            $table->string('logo', 250)->nullable();
+            $table->string('gestion', 250)->nullable();
 
             $table->unique(['id_empresa'], 'empresa_pk');
         });

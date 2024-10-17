@@ -18,6 +18,13 @@ class EmpresaController extends Controller
     {
         return Empresa::with(['cantidad', 'representate_legal', 'planificacion'])->get();
     }
+
+    public function gestiones()
+    {
+        $gestiones = Empresa::select('gestion')->distinct()->get();
+        return response()->json($gestiones, Response::HTTP_OK);
+    }
+
     public function getEstudiantesSinEmpresa()
     {
         try {
@@ -38,6 +45,12 @@ class EmpresaController extends Controller
     public function getEstudiantesPorEmpresa($id_empresa)
     {
         try {
+            // Verificar si la empresa existe
+            $empresa = Empresa::find($id_empresa);
+            if (!$empresa) {
+                return response()->json(['message' => 'Empresa no encontrada'], 404);
+            }
+    
             // Obtener estudiantes que pertenecen a la empresa especificada
             $empresa = Empresa::findOrFail($id_empresa);
 
@@ -45,12 +58,14 @@ class EmpresaController extends Controller
             if ($estudiantes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron estudiantes para esta empresa'], 404);
             }
-
-            return response()->json($estudiantes);
+    
+            return response()->json($estudiantes, 200);
         } catch (\Exception $e) {
+            // Manejar errores generales
             return response()->json(['error' => 'Error al consultar los estudiantes: ' . $e->getMessage()], 500);
         }
     }
+    
 
     public function show($id_empresa)
     {

@@ -6,6 +6,7 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
+import PersonIcon from '@mui/icons-material/Person';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -13,30 +14,23 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
-import { Link } from 'react-router-dom';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import PersonIcon from '@mui/icons-material/Person';
-import GroupsIcon from '@mui/icons-material/Groups';
-import Collapse from '@mui/material/Collapse';
-import { useState } from 'react';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import logo from '../img/logo.jpeg';
 import { FaUserCircle } from 'react-icons/fa';
+import logo from '../img/logo.jpeg';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
+import { useState, useEffect } from 'react';
+import Footer from './Footer';
 
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
+  ({ theme }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -44,31 +38,41 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-    }),
-  })
+    variants: [
+      {
+        props: ({ open }) => open,
+        style: {
+          transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+          marginLeft: 0,
+        },
+      },
+    ],
+  }),
 );
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})(({ theme }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
+  variants: [
+    {
+      props: ({ open }) => open,
+      style: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+        transition: theme.transitions.create(['margin', 'width'], {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      },
+    },
+  ],
 }));
 
 const DrawerHeader = styled('div')(({ theme }) => ({
@@ -79,22 +83,11 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const VistaAdministrador=()=>{
-  const navigate = useNavigate(); // Hook para navegación
-}
-
-const handleButtonClick = (button) => {
-  // Maneja la lógica adicional que necesites al hacer clic
-  console.log(`Button clicked: ${button}`);
-};
-
-const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
-
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
-  const [nombre, setNombre] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el nombre
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
 
@@ -109,14 +102,6 @@ export default function PersistentDrawerLeft() {
   }, []); // Se ejecuta solo una vez al montar el componente
 
 
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
   };
@@ -125,19 +110,28 @@ export default function PersistentDrawerLeft() {
     setAnchorEl(null); // Cierra el menú
   };
 
-  const handleLogout = () => {
-    // Eliminar datos del localStorage (token, rol, etc.)
-    localStorage.removeItem('role');
-    localStorage.removeItem('token');
-    localStorage.removeItem('nombre');
-    // Redireccionar al login
-    navigate('/login');
+
+const handleLogout = () => {
+  // Eliminar datos del localStorage (token, rol, etc.)
+  localStorage.removeItem('role');
+  localStorage.removeItem('nombre');
+  // Redireccionar al login
+  navigate('/Login');
+};
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
   };
 
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
   };
+
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -151,10 +145,12 @@ export default function PersistentDrawerLeft() {
         >
           <IconButton
             color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            aria-label="toggle drawer"
+            onClick={() => setOpen(!open)}
             edge="start"
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+            sx={{
+              mr: 2,
+            }}
           >
             <MenuIcon />
           </IconButton>
@@ -202,10 +198,9 @@ export default function PersistentDrawerLeft() {
           />
         </div>
         <Divider />
+
         <List sx={{ mt: 3 }}>
           {/* Planificación */}
-          {role === 'estudiante' &&(
-            <>
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -226,6 +221,7 @@ export default function PersistentDrawerLeft() {
             </ListItemButton>
           </ListItem>
 
+          {/* Equipos */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -245,36 +241,11 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          </>
-          )}
-
-          {/* Docentes */}
-          {role === 'administrador'&&(
-          <ListItem disablePadding>
-            <ListItemButton
-              onClick={() => {
-                handleButtonClick('docentes');
-                navigate('/Docentes');
-              }}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
-              </ListItemIcon>
-              <ListItemText primary="Docentes" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          )}
         </List>
         <Divider />
       </Drawer>
-      <Main open={open} />
+      <Main open={open}></Main>
+      <Footer /> 
     </Box>
   );
 }

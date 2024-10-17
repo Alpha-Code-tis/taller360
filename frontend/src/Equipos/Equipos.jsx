@@ -19,6 +19,7 @@ const Equipos = () => {
 
   const [formValues, setFormValues] = useState({
     nombre_empresa: '',
+    gestion: '',
     nombre_corto: '',
     correo_empresa: '',
     telefono: '',
@@ -44,22 +45,10 @@ const Equipos = () => {
       const response = await axios.get('http://localhost:8000/api/sin-empresa');
       const estudiantesData = response.data;
   
-      // Verificar si estudiantes y equipos contienen los datos esperados antes de filtrar
-      if (!Array.isArray(estudiantesData) || !Array.isArray(equipos)) {
-        console.error('Datos inválidos recibidos para estudiantes o equipos.');
-        return;
-      }
-  
       // Filtrar los estudiantes que ya están asignados a algún equipo
       const estudiantesAsignados = equipos.flatMap(equipo => equipo.estudiantesSeleccionados || []);
   
       const estudiantesDisponibles = estudiantesData.filter(estudiante => {
-        if (!estudiante || !estudiante.id_estudiante) {
-          console.error('Estudiante inválido detectado:', estudiante);
-          return false;
-        }
-  
-        // Asegurarse de que `asignado` y `estudiante` no sean undefined
         return !estudiantesAsignados.some(asignado => asignado && asignado.value === estudiante.id_estudiante);
       });
   
@@ -77,21 +66,29 @@ const Equipos = () => {
   useEffect(() => {
     fetchEquipos();
     fetchEstudiantes();
-  }, []); // Se ejecuta una sola vez cuando se monta el componente
+  }, []); 
 
   // Manejar la búsqueda de equipos
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  
     if (e.target.value === '') {
-      setFilteredEquipos(equipos);
+      setFilteredEquipos(equipos); // Si el campo de búsqueda está vacío, mostrar todos los equipos
     } else {
-      const filtered = equipos.filter((equipo) =>
-        equipo.nombre_empresa.toLowerCase().includes(e.target.value.toLowerCase()) ||
-        equipo.correo_empresa.toLowerCase().includes(e.target.value.toLowerCase())
-      );
+      const searchValue = e.target.value.toLowerCase();
+  
+      const filtered = equipos.filter((equipo) => {
+        const nombreEmpresa = equipo.nombre_empresa ? equipo.nombre_empresa.toLowerCase() : ''; // Verificar si existe
+        const correoEmpresa = equipo.correo_empresa ? equipo.correo_empresa.toLowerCase() : '';  // Verificar si existe
+  
+        // Filtrar equipos basados en nombre o correo de la empresa
+        return nombreEmpresa.includes(searchValue) || correoEmpresa.includes(searchValue);
+      });
+  
       setFilteredEquipos(filtered);
     }
   };
+  
 
   // Manejar la eliminación de equipos
   const handleDelete = async (id) => {
@@ -134,6 +131,7 @@ const Equipos = () => {
       setFormValues({
         nombre_empresa: equipo.nombre_empresa || '',
         nombre_corto: equipo.nombre_corto || '',
+        gestion: equipo.gestion || '',
         correo_empresa: equipo.correo_empresa || '',
         telefono: equipo.telefono || '',
         direccion: equipo.direccion || '',
@@ -145,6 +143,7 @@ const Equipos = () => {
       setFormValues({
         nombre_empresa: '',
         nombre_corto: '',
+        gestion: '',
         correo_empresa: '',
         telefono: '',
         direccion: '',
@@ -157,9 +156,22 @@ const Equipos = () => {
   };
 
   // Mostrar el modal de vista de equipo
-  const handleShowViewModal = (equipo) => {
-    setCurrentEquipo(equipo);
-    setShowViewModal(true);
+  const handleShowViewModal = async (equipo) => {
+    // Llamar a un endpoint que devuelva los estudiantes del equipo
+    try {
+      const response = await axios.get(`http://localhost:8000/api/empresa/${equipo.id_empresa}/estudiantes`);
+      const estudiantesDelEquipo = response.data;
+
+      // Actualizar el equipo actual con los estudiantes cargados
+      setCurrentEquipo({
+        ...equipo,
+        estudiantesSeleccionados: estudiantesDelEquipo
+      });
+
+      setShowViewModal(true);
+    } catch (error) {
+      toast.error('Error al cargar los estudiantes del equipo.');
+    }
   };
 
   const handleCloseModal = () => {
@@ -205,7 +217,7 @@ const Equipos = () => {
       errors.telefono = 'El teléfono es requerido';
       isValid = false;
     } else if (!/^\d{8}$/.test(formValues.telefono)) {
-      errors.telefono = 'El teléfono debe tener 10 dígitos';
+      errors.telefono = 'El teléfono debe tener 8 dígitos';
       isValid = false;
     }
 
@@ -228,6 +240,7 @@ const Equipos = () => {
     const Equipodata = {
       nombre_empresa: formValues.nombre_empresa,
       nombre_corto: formValues.nombre_corto,
+      gestion: formValues.gestion,
       correo_empresa: formValues.correo_empresa,
       telefono: formValues.telefono,
       direccion: formValues.direccion,
@@ -309,7 +322,7 @@ const Equipos = () => {
               <tr key={equipo.id_empresa}>
                 <td>{equipo.nombre_empresa}</td>
                 <td>{equipo.correo_empresa}</td>
-                <td>{equipo.telefono}</td>
+                <td>{equipo.gestion}</td>
                 <td>
                   <button className="icon-button" title="Ver" onClick={() => handleShowViewModal(equipo)}>
                     <FaEye />
@@ -335,7 +348,7 @@ const Equipos = () => {
         <Modal.Body>
           <Form>
             <Row>
-              <Col md={12}>
+            <Col md={6}>
                 <Form.Group controlId="formNombreEmpresa" className="mb-3">
                   <Form.Label>Nombre del Equipo</Form.Label>
                   <Form.Control
@@ -344,6 +357,18 @@ const Equipos = () => {
                     value={formValues.nombre_empresa}
                     onChange={handleInputChange}
                     placeholder="Nombre del Equipo"
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formNombreEmpresa" className="mb-3">
+                  <Form.Label>Gestion</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="gestion"
+                    value={formValues.gestion}
+                    onChange={handleInputChange}
+                    placeholder="#-#####"
                   />
                 </Form.Group>
               </Col>
@@ -454,28 +479,33 @@ const Equipos = () => {
           <Modal.Title>Detalles del Equipo</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {currentEquipo && (
-            <div>
-                  {console.log('Estudiantes del equipo:', currentEquipo.estudiantesSeleccionados)} {/* Ver en consola */}
-              <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
-              <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
-              <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
-              <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
-              <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
-              <p><strong>Estudiantes:</strong></p>
-              <ul>
-          {currentEquipo.estudiantesSeleccionados && currentEquipo.estudiantesSeleccionados.length > 0 ? (
-            currentEquipo.estudiantesSeleccionados.map(est => (
-              <li key={est.id_estudiante}>
-                {est.nombre_estudiante} {/* Mostrar nombre completo */}
-              </li>
-            ))
-          ) : (
-            <p>No hay estudiantes asignados a este equipo.</p>
-          )}
-        </ul>
+        {currentEquipo && (
+          <div>
+          <div>
+            <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
+            <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
+            <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
+            <p><strong>Teléfono:</strong> {currentEquipo.telefono}</p>
+            <p><strong>Dirección:</strong> {currentEquipo.direccion}</p>
+            <p><strong>Gestión:</strong> {currentEquipo.gestion}</p>
+            <p><strong>Estudiantes Añadidos:</strong></p>
+            <ul>
+              {currentEquipo.estudiantesSeleccionados && currentEquipo.estudiantesSeleccionados.length > 0 ? (
+                currentEquipo.estudiantesSeleccionados.map((est) => (
+                  <li key={est.id_estudiante}>
+                    {`${est.ap_pat} ${est.ap_mat} ${est.nombre_estudiante}`}
+                  </li>
+                ))
+              ) : (
+                <p>No hay estudiantes asignados a este equipo.</p>
+              )}
+            </ul>
+          </div>
+          <div className="logo-container">
+        <img src='../assets/logoALPHA.png' alt="Logo de la Empresa" className="company-logo" />
       </div>
-    )}
+          </div>
+        )}
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseViewModal}>

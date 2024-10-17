@@ -54,6 +54,7 @@ class Empresa extends Model
 		'telefono',
 		'correo_empresa',
 		'logo',
+		'gestion',
 	];
 
 	public function representate_legal()

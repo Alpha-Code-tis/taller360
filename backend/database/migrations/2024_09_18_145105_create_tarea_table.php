@@ -17,7 +17,7 @@ return new class extends Migration
             $table->integer('id_tarea', true);
             $table->integer('id_alcance')->nullable()->index('tiene_varias_fk');
             $table->string('nombre_tarea', 35)->nullable();
-
+            $table->integer('estimacion')->nullable();
             $table->unique(['id_tarea'], 'tarea_pk');
         });
     }

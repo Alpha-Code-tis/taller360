@@ -40,7 +40,8 @@ class EstudiantesImport implements ToModel, WithHeadingRow
             // Si no hay contraseña, puedes generar una por defecto
             $data['contrasenia'] = bcrypt('defaultPassword'); // Cambia esto según tu lógica
         }
-
+        Notification::route('mail', $data['correo'])
+                    ->notify(new EstudianteRegistered($data['nombre_estudiante'], $data['correo'], $row['contrasenia']));
         // Crear el estudiante
         $estudiante = new Estudiante($data);
         $estudiante->save();
