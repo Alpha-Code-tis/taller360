@@ -27,6 +27,13 @@ class Tarea extends Model
 
     protected $table = 'tarea';
     protected $primaryKey = 'id_tarea';
+    protected $fillable = ['nombre_tarea',
+		'estimacion', 'estado', 'progreso', 'avances'];
+
+    public function estudiantes()
+    {
+        return $this->belongsToMany(Estudiante::class, 'estudiante_tarea', 'id_tarea', 'id_estudiante');
+    }
     public $timestamps = false;
 
 	protected $fillable = [

@@ -21,6 +21,9 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { Link } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -241,6 +244,68 @@ const handleLogout = () => {
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
+          {/* Otras opciones compartidas */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales"
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <CalendarMonthIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Seguimiento"
+              onClick={() => handleButtonClick('seguimiento')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <TimelineIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/TareasEstudiante"
+              onClick={() => handleButtonClick('tareasEstudiante')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
 
           {/* Autoevaluacion */}
           <ListItem disablePadding>

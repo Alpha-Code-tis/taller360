@@ -20,6 +20,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
@@ -200,6 +201,26 @@ export default function PersistentDrawerLeft() {
         <Divider />
 
         <List sx={{ mt: 3 }}>
+          {/* vista docente */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanificacionEquipos"
+              onClick={() => handleButtonClick('planificacionEquipos')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planificacion de Equipos" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
           {/* Estudiantes */}
           <ListItem disablePadding>
             <ListItemButton
@@ -238,6 +259,26 @@ export default function PersistentDrawerLeft() {
                 <SchoolIcon />
               </ListItemIcon>
               <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/GenerarPlanilla"
+              onClick={() => handleButtonClick('generarPlanilla')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <PictureAsPdfIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>

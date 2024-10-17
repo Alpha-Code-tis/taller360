@@ -1,5 +1,3 @@
-// Header.jsx
-
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -22,16 +20,19 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups';
+import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
-
 const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })( // Sin cambios
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -55,7 +56,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })( /
   }),
 );
 
-const AppBar = styled(MuiAppBar, { // Sin cambios
+const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
@@ -77,7 +78,7 @@ const AppBar = styled(MuiAppBar, { // Sin cambios
   ],
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({ // Sin cambios
+const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
@@ -146,7 +147,6 @@ export default function PersistentDrawerLeft() {
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -174,7 +174,6 @@ export default function PersistentDrawerLeft() {
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            {/* Menú desplegable */}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -212,10 +211,10 @@ export default function PersistentDrawerLeft() {
           />
         </div>
         <Divider />
-
+  
         <List sx={{ mt: 3 }}>
-          {/* Planificación */}
-          {role === 'estudiante' &&(
+          {/* Estudiante */}
+          {role === 'estudiante' && (
             <>
             <ListItem disablePadding>
               <ListItemButton
@@ -362,7 +361,7 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
+                <CalendarMonthIcon/>
               </ListItemIcon>
               <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -371,7 +370,7 @@ export default function PersistentDrawerLeft() {
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/Seguimiento" // Ruta a la Planilla de seguimiento
+              to="/Seguimiento"
               onClick={() => handleButtonClick('seguimiento')}
               sx={{
                 borderRadius: '8px',
@@ -382,7 +381,7 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
+                <TimelineIcon/>
               </ListItemIcon>
               <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -391,7 +390,7 @@ export default function PersistentDrawerLeft() {
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/TareasEstudiante" // Agrega la ruta
+              to="/TareasEstudiante"
               onClick={() => handleButtonClick('tareasEstudiante')}
               sx={{
                 borderRadius: '8px',
@@ -402,17 +401,89 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon /> {/* Puedes cambiar el icono si lo deseas */}
+                <AssignmentTurnedInIcon/>
               </ListItemIcon>
               <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+            </>
+          )}
+  
+          {/* Administrador */}
+          {role === 'administrador' && (
+            <>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Docentes"
+                  onClick={() => handleButtonClick('docentes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <SchoolIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Docentes" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+            </>
+          
+          )}
+
+          {/* docente */}
+          {role === 'docente' &&(
+            <>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanificacionEquipos"
+              onClick={() => handleButtonClick('planificacionEquipos')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planificacionEquipos' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planificacion de equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/GenerarPlanilla" // Ruta al generador de planillas
-              onClick={() => handleButtonClick('generarPlanilla')} // Cambia el estado del botón seleccionado
+              to="/Estudiantes"
+              onClick={() => handleButtonClick('estudiantes')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/GenerarPlanilla"
+              onClick={() => handleButtonClick('generarPlanilla')}
               sx={{
                 borderRadius: '8px',
                 backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
@@ -422,12 +493,11 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
+                <PictureAsPdfIcon/>
               </ListItemIcon>
               <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-
           </>
           )}
         </List>
@@ -436,4 +506,4 @@ export default function PersistentDrawerLeft() {
       <Main open={open}></Main>
     </Box>
   );
-}
+}  

@@ -10,11 +10,13 @@ use App\Http\Controllers\EstudianteController;
 use App\Http\Controllers\GrupoController;
 use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
-use App\Models\Planificacion;
-use Illuminate\Support\Facades\Auth;
+<<<<<<<<< Temporary merge branch 1
 use App\Http\Controllers\PlanillaDocenteController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
+
+use App\Models\Planificacion;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Storage;
 /*
@@ -69,16 +71,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/estudiantes', [EstudianteController::class, 'index']);
     Route::get('/estudiantes/{id}', [EstudianteController::class, 'show']);
     Route::post('/estudiantes', [EstudianteController::class, 'store']);
+    Route::get('/listaEstudiantes', [EstudianteController::class, 'listaEstudiantes']);
     Route::put('/estudiantes/{id}', [EstudianteController::class, 'update']);
     Route::delete('/estudiantes/{id}', [EstudianteController::class, 'destroy']);
     Route::post('/estudiantes/import', [EstudianteController::class, 'import']);
     Route::get('/listarSprints', [PlanificacionController::class, 'listaSprintsUnicos']);
     Route::get('/listarSprintsEmpresa/{id_empresa}', [PlanificacionController::class, 'listarSprints']);
-    Route::get('/planificacion/{id_empresa}/{gestion}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
+    Route::get('/planificacion/{id_empresa}/{gestion}/{sprint}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
     //Autoevaluación estudiante_tarea
     Route::get('/autoevaluacion/estudiantes-tareas', [AutoevaluacionController::class, 'mostrarEstudiantesTareas']);
     Route::patch('/autoevaluacion/{id_tarea}', [AutoevaluacionController::class, 'update']);
-});
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 
@@ -107,7 +109,6 @@ Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getE
 Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
 Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
 
-
 //Planilla-Docente
 Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
 Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']);
@@ -122,10 +123,9 @@ Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class,
 Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']);
 
 //Tarea
-Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
+
 Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
 Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
 Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
-Route::delete('/tareas/{tareaId}/avances/{avanceId}', [TareaController::class, 'eliminarAvance']);
-
-
+Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
+});

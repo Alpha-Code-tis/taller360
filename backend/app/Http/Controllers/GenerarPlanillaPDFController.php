@@ -11,7 +11,6 @@ use Illuminate\Support\Facades\Cache;
 use Carbon\Carbon;
 use Barryvdh\DomPDF\Facade\Pdf;
 
-
 class GenerarPlanillaPDFController extends Controller
 {
     public function generarPDFPlanilla()
@@ -52,11 +51,15 @@ class GenerarPlanillaPDFController extends Controller
         }
 
         // Definir el rango de fechas para el PDF (últimos 7 días)
-        $fechaInicio = Carbon::now()->subDays(6)->startOfDay(); // 6 días atrás desde hoy
-        $fechaFin = Carbon::now()->endOfDay(); // Hasta hoy
+        $fechaInicio = Carbon::now()->subDays(6)->startOfDay(); 
+        $fechaFin = Carbon::now()->endOfDay(); 
 
         // Generar el PDF para cada empresa
         foreach ($empresas as $empresa) {
+            if (!$empresa->planificacion) {
+                continue; // Saltar si la empresa no tiene planificacion asociada
+            }
+
             // Obtener los sprints de la empresa
             $sprints = Sprint::where('id_planificacion', $empresa->planificacion->id_planificacion)->get();
 
@@ -84,5 +87,14 @@ class GenerarPlanillaPDFController extends Controller
         Cache::put('ultima_generacion_pdf_' . $docente->id_docente, Carbon::now(), Carbon::now()->addDays(7));
 
         return response()->json(['message' => 'Planillas generadas correctamente']);
+    }
+
+    public function descargarPDF($fileName)
+    {
+        if (!Storage::exists('planillas/' . $fileName)) {
+            return response()->json(['error' => 'Archivo no encontrado.'], 404);
+        }
+
+        return response()->download(storage_path('app/planillas/' . $fileName));
     }
 }

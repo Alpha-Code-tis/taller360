@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Empresa;
+use App\Models\Empresa;
 use App\Models\Planificacion;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -21,8 +22,13 @@ class PlanificacionController extends Controller
         $id_empresa = $user->id_empresa;
         $planificacion = Planificacion::with(['sprints.alcances.tareas']) // Cargar relaciones anidadas
             ->where('id_empresa', $id_empresa) // Filtrar por id_empresa
-            ->first(); // Obtener una sola planificación
-
+            ->first();
+        if ($planificacion && $planificacion->sprints) {
+            foreach ($planificacion->sprints as $sprint) {
+                $sprint->fecha_inicio = \Carbon\Carbon::parse($sprint->fecha_inicio)->setTime(8, 0);
+                $sprint->fecha_fin = \Carbon\Carbon::parse($sprint->fecha_fin)->endOfDay();
+            }
+        }
         return response()->json($planificacion, Response::HTTP_OK);
     }
 
@@ -117,16 +123,21 @@ class PlanificacionController extends Controller
         return response()->json($nroSprints);
     }
 
-    public function obtenerIdPlanificacion($id_empresa, $gestion)
+    public function obtenerIdPlanificacion($id_empresa, $gestion, $sprint)
     {
         $empresa = Empresa::where('id_empresa', $id_empresa)
             ->where('gestion', $gestion)
             ->first();
         if ($empresa) {
             $planificacion = Planificacion::where('id_empresa', $empresa->id_empresa)->first();
-
+            $sprint = Planificacion::with(['sprints' => function ($query) use ($sprint) {
+                $query->where('nro_sprint', $sprint)
+                    ->with('alcances.tareas');
+            }])
+                ->where('id_planificacion', $planificacion->id_planificacion)
+                ->get();
             if ($planificacion) {
-                return response()->json(['id_planificacion' => $planificacion->id_planificacion]);
+                return response()->json([$sprint]);
             } else {
                 return response()->json(['message' => 'No se encontró la planificación para la empresa especificada.'], 404);
             }

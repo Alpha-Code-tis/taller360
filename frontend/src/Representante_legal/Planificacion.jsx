@@ -15,7 +15,6 @@ import { Calendar, momentLocalizer } from 'react-big-calendar';
 import moment from 'moment'
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
-import { formGroupClasses } from '@mui/material';
 
 const localizer = momentLocalizer(moment); // or globalizeLocalizer
 
@@ -50,9 +49,20 @@ const Planificacion = () => {
   const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints obtenidos de la API
   const [fechaInicio, setFechaInicio] = useState(null); // Fecha inicio seleccionada
   const [fechaFinal, setFechaFinal] = useState(null); // Fecha fin seleccionada
+  const [requerimiento,setRequerimiento] = useState('');
+  const [tareas, setTareas]=useState([]);
+  const [alcances, setAlcances] = useState([]);
+
   const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
+  const [showModalEvent, setShowModalEvent] = useState();
+  const [selectedEvent, setSelectedEvent] = useState(null);
 
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);  // Guardar el evento seleccionado
+    setShowModalEvent(true);       // Mostrar el modal
+  }
 
+  const handleCloseModalEvent = () => setShowModalEvent(false);
   const [formValues, setFormValues] = useState({
     tarea: '',
     nSprint: '',
@@ -275,10 +285,10 @@ const Planificacion = () => {
     const selectedId = event.target.value;
     setSelectedSprint(selectedId);
 
-
     // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
     try {
       const response = await axios.get(`http://localhost:8000/api/planificacion`);
+      console.log(response.data); // Verificar qué datos devuelve la API
       const sprints = response.data.sprints;
 
       if (selectedId === "Todos") {
@@ -312,6 +322,17 @@ const Planificacion = () => {
           setFechaInicio(inicio);
           setFechaFinal(fin);
 
+          // Mantener los alcances como un array para poder mostrar cada uno con sus tareas
+          const alcances = sprintData.alcances || [];
+
+          // Asignar alcances con sus respectivas tareas y mantener esa estructura
+          const alcancesConTareas = alcances.map(alcance => ({
+            descripcion: alcance.descripcion,
+            tareas: alcance.tareas || []  // Si no hay tareas, se asigna un array vacío
+          }));
+
+          setAlcances(alcancesConTareas); // Guardar la estructura completa de alcances con tareas
+
           // Filtrar los días hábiles entre la fecha de inicio y fin
           const diasHabiles = filtrarDiasHabiles(inicio, fin);
           setEventos(
@@ -327,8 +348,7 @@ const Planificacion = () => {
     } catch (error) {
       console.error("Error al obtener los detalles del sprint:", error);
     }
-  };
-
+};
 
 
   // Función para obtener los sprints de la API
@@ -364,7 +384,7 @@ const Planificacion = () => {
                     <input
                       type="radio"
                       value={sprint}
-                      checked={selectedSprint === sprint}
+                      checked={selectedSprint == sprint}
                       onChange={handleOptionChange}
                     />
                     Sprint {sprint}
@@ -402,8 +422,47 @@ const Planificacion = () => {
               border: 'none',
             },
           })}
+          onSelectEvent={handleSelectEvent}
         />
-      </div>
+        {selectedEvent && (
+      <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
+        <Modal.Header>
+          <Modal.Title>Detalles del {selectedEvent.title}</Modal.Title>
+        </Modal.Header>
+      <Modal.Body>
+        <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
+        <p><strong>Fecha de fin:</strong> {fechaFinal ? fechaFinal.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
+
+        <h5>Requerimientos</h5>
+        {alcances.length > 0 ? (
+          alcances.map((alcance, index) => (
+            <div key={index}>
+              <p><strong>{index + 1}:</strong> {alcance.descripcion || 'No hay descripción disponible'}</p>
+              {alcance.tareas.length > 0 ? (
+                <ul>
+                  {alcance.tareas.map((tarea, tareaIndex) => (
+                    <li key={tareaIndex}>
+                      <strong>{tarea.nombre_tarea}:</strong> {tarea.estimacion} horas
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No hay tareas disponibles para este alcance.</p>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No hay alcances disponibles para este sprint.</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCloseModalEvent}>
+          Cerrar
+        </Button>
+      </Modal.Footer>
+      </Modal>
+      )}
+     </div>
 
       {/* Modal */}
       <Modal show={showModal} onHide={handleCloseModal} centered size='lg'>

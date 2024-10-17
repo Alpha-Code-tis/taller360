@@ -8,6 +8,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import VistaDocentes from './Componentes/VistaDocente';
 import VistaEstudiantes from './Componentes/VistaEstudiante';
 import VistaAdministrador from './Componentes/VistaAdministrador';
+import PlanificacionEquipos from './Estudiantes/PlanificacionEquipos';
 import Login from './Componentes/Login';
 import { Toaster } from 'react-hot-toast';
 import Planificacion from './Representante_legal/Planificacion';
@@ -18,8 +19,13 @@ import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
-// import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
+import axios from 'axios';
+import PlanillasSemanales from './Planillas/GenerarPlanilla';
+import './App.css';
+import Seguimiento from './Representante_legal/Seguimiento';
+import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
+import GenerarPlanilla from './Administrador/GenerarPlanilla';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -70,6 +76,9 @@ function App() {
                 <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
+                <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+                <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
+                <Route path="/Seguimiento" element={<Seguimiento />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
               </>
@@ -77,7 +86,9 @@ function App() {
             {role === 'docente' && (
               <>
                 <Route path="/VistaDocente" element={<VistaDocentes />} />
+                <Route path="/PlanificacionEquipos" element={<PlanificacionEquipos />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
+                <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
               </>
             )}
