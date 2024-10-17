@@ -21,6 +21,10 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Menu, MenuItem } from '@mui/material';
@@ -250,6 +254,66 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+            {/* Otras opciones compartidas */}
+            <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales"
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <CalendarMonthIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Seguimiento"
+              onClick={() => handleButtonClick('seguimiento')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <TimelineIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/TareasEstudiante"
+              onClick={() => handleButtonClick('tareasEstudiante')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
             </>
           )}
   
@@ -321,67 +385,7 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          </>
-          )}
-  
-          {/* Otras opciones compartidas */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/PlanillasSemanales"
-              onClick={() => handleButtonClick('planillas')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Seguimiento"
-              onClick={() => handleButtonClick('seguimiento')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/TareasEstudiante"
-              onClick={() => handleButtonClick('tareasEstudiante')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -396,11 +400,13 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
+                <PictureAsPdfIcon/>
               </ListItemIcon>
               <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          </>
+          )}
         </List>
         <Divider />
       </Drawer>
