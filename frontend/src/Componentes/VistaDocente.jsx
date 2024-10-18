@@ -20,6 +20,7 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
@@ -238,6 +239,26 @@ export default function PersistentDrawerLeft() {
                 <PersonIcon /> {/* Aquí mantenemos el icono de persona */}
               </ListItemIcon>
               <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/GenerarPlanilla"
+              onClick={() => handleButtonClick('generarPlanilla')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <PictureAsPdfIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>
