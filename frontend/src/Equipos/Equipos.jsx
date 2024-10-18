@@ -18,6 +18,7 @@ const Equipos = () => {
 
   const [formValues, setFormValues] = useState({
     nombre_empresa: '',
+    gestion: '',
     nombre_corto: '',
     correo_empresa: '',
     telefono: '',
@@ -75,6 +76,7 @@ const Equipos = () => {
       setFormValues({
         nombre_empresa: equipo.nombre_empresa || '',
         nombre_corto: equipo.nombre_corto || '',
+        gestion: equipo.gestion || '',
         correo_empresa: equipo.correo_empresa || '',
         telefono: equipo.telefono || '',
         direccion: equipo.direccion || '',
@@ -86,6 +88,7 @@ const Equipos = () => {
       setFormValues({
         nombre_empresa: '',
         nombre_corto: '',
+        gestion: '',
         correo_empresa: '',
         telefono: '',
         direccion: '',
@@ -271,7 +274,7 @@ const Equipos = () => {
               <tr key={equipo.id_empresa}>
                 <td>{equipo.nombre_empresa}</td>
                 <td>{equipo.correo_empresa}</td>
-                <td>{equipo.telefono}</td>
+                <td>{equipo.gestion}</td>
                 <td>
                   <button className="icon-button" title="Ver" onClick={() => handleShowViewModal(equipo)}>
                     <FaEye />
@@ -296,7 +299,7 @@ const Equipos = () => {
         <Modal.Body>
           <Form>
             <Row>
-              <Col md={12}>
+            <Col md={6}>
                 <Form.Group controlId="formNombreEmpresa" className="mb-3">
                   <Form.Label>Nombre del Equipo</Form.Label>
                   <Form.Control
@@ -308,6 +311,18 @@ const Equipos = () => {
                     isInvalid={!!formErrors.nombre_empresa}
                   />
                   <Form.Control.Feedback type="invalid">{formErrors.nombre_empresa}</Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group controlId="formNombreEmpresa" className="mb-3">
+                  <Form.Label>Gestion</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="gestion"
+                    value={formValues.gestion}
+                    onChange={handleInputChange}
+                    placeholder="#-#####"
+                  />
                 </Form.Group>
               </Col>
             </Row>

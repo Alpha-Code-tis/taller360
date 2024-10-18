@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Auth\AuthenticationException;
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -37,5 +38,15 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        // Verifica si la solicitud es para la API
+        if ($request->is('api/*')) {
+            return response()->json(['message' => 'No autenticado'], 401);
+        }
+
+        // Para otras solicitudes, utiliza el comportamiento predeterminado
+        return parent::unauthenticated($request, $exception);
     }
 }

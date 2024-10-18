@@ -12,14 +12,14 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Sprint
- * 
+ *
  * @property int $id_sprint
  * @property int|null $id_planificacion
  * @property Carbon|null $fecha_inicio
  * @property Carbon|null $fecha_fin
  * @property string|null $color
  * @property int|null $nro_sprint
- * 
+ *
  * @property Planificacion|null $planificacion
  * @property Collection|Alcance[] $alcances
  *

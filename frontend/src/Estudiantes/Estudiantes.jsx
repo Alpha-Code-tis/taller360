@@ -47,7 +47,7 @@ const Estudiantes = () => {
   useEffect(() => {
     const filtered = estudiantes.filter((estudiante) => {
       const fullName = `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`.toLowerCase();
-      const codigoSis = estudiante.codigo_sis.toString();
+      const codigoSis = estudiante.codigo_sis;
       const searchValue = searchTerm.toLowerCase();
       return fullName.includes(searchValue) || codigoSis.includes(searchValue);
     });
@@ -168,6 +168,53 @@ const Estudiantes = () => {
       await fetchEstudiantes(); // Refrescamos la lista de estudiantes
       handleCloseModal();
     } catch (err) {
+      toast.error('Error al guardar el estudiante');
+    }
+  };
+
+  // Mostrar Modal de Importar Lista
+  const handleShowImportModal = () => {
+    setShowImportModal(true);
+  };
+
+  // Cerrar Modal de Importar Lista
+  const handleCloseImportModal = () => {
+    setShowImportModal(false);
+  };
+
+  // Manejar la subida de archivo arrastrado
+  const handleFileDrop = (event) => {
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    console.log("Archivo arrastrado:", file);
+  };
+
+  const handleFileUpload = async (event) => {
+
+    if (!file) {
+      setError('Por favor, selecciona un archivo.');
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post('http://localhost:8000/api/estudiantes/import', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+
+      if (Array.isArray(response.data)) {
+        toast.success('Estudiantes importados exitosamente.');
+        fetchEstudiantes(); // Recargar después de importar
+      }
+
+      handleCloseImportModal();
+    } catch (error) {
+      setError('Error al importar estudiantes: ' + error.message);
+      console.error(error);
       // El manejo de errores ya se realiza en toast.promise
     } finally {
       setIsSaving(false); // Rehabilitamos el botón de guardar

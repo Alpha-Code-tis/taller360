@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Docente
- * 
+ *
  * @property int $id_docente
  * @property int|null $id_noti
  * @property int|null $id_admi
@@ -23,7 +25,7 @@ use Illuminate\Support\Facades\Hash;
  * @property string|null $ap_mat
  * @property string|null $contrasenia
  * @property string|null $correo
- * 
+ *
  * @property NotificacionDoc|null $notificacion_doc
  * @property Administrador|null $administrador
  * @property Grupo|null $grupo
@@ -31,12 +33,12 @@ use Illuminate\Support\Facades\Hash;
  *
  * @package App\Models
  */
-class Docente extends Model
+class Docente extends Authenticatable
 {
 	protected $table = 'docente';
 	protected $primaryKey = 'id_docente';
 	public $timestamps = false;
-	use Notifiable;
+	use HasApiTokens, Notifiable;
 
 	protected $casts = [
 		'id_noti' => 'int',
@@ -75,13 +77,21 @@ class Docente extends Model
         $this->attributes['correo'] = strtolower($value);
     }
 
-	public function setContraseniaAttribute($value)
-    {
-        $this->attributes['contrasenia'] = Hash::make($value);
-    }
+	// public function setContraseniaAttribute($value)
+    // {
+    //     $this->attributes['contrasenia'] = Hash::make($value);
+    // }
 
 	public function grupos()
 	{
 		return $this->hasMany(Grupo::class, 'id_docente');
 	}
+	protected $hidden = [
+        'contrasenia',
+    ];
+
+    public function getAuthPassword()
+    {
+        return $this->contrasenia;
+    }
 }
