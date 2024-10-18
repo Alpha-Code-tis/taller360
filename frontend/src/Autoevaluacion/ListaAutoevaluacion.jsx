@@ -1,4 +1,4 @@
-import { API_URL } from '../config';              
+import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -10,7 +10,6 @@ const ListaAutoevaluacion = () => {
   const fetchEstudiantes = async () => {
     try {
       const response = await axios.get(`${API_URL}autoevaluacion/estudiantes-tareas`);
-      console.log('ss', response);
       setEstudiantes(response.data);
 
       // Si no hay estudiantes, mostrar mensaje de error

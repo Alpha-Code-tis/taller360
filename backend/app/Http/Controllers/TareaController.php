@@ -38,10 +38,8 @@ class TareaController extends Controller
                 $query->where('id_estudiante', $estudiante->id_estudiante);
             })->firstOrFail();
         // Get tasks of the sprint assigned to the student
-        $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-            ->whereHas('estudiantes', function ($query) use ($estudiante) {
-                $query->where('estudiante.id_estudiante', $estudiante->id_estudiante);
-            })
+        $tareas = $estudiante->tareas()
+            ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
             ->with('estudiantes') // Carga los estudiantes relacionados
             ->get();
 

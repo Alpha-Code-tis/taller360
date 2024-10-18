@@ -85,6 +85,6 @@ class Estudiante extends Authenticatable
     public function tareas()
     {
         return $this->belongsToMany(Tarea::class, 'estudiante_tarea', 'id_estudiante', 'id_tarea')
-            ->withPivot('resultado_evaluacion', 'descripcion_evaluacion');;
+            ->withPivot('resultado_evaluacion', 'descripcion_evaluacion');
     }
 }

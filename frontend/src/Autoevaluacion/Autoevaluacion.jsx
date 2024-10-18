@@ -1,4 +1,4 @@
-import { API_URL } from '../config';              
+import { API_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import './Autoevaluacion.css';
 import { Modal, Button, Form, Dropdown, Badge } from 'react-bootstrap';
@@ -93,7 +93,6 @@ const Autoevaluacion = () => {
     try {
       const response = await axios.get(`${API_URL}tareas/sprints`);
       setSprints(response.data);
-      console.log(response.data);
     } catch (error) {
       toast.error('Error al cargar los sprints.');
     }
