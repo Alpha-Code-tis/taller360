@@ -16,6 +16,7 @@ use App\Http\Controllers\PlanillaDocenteController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
 
+use Illuminate\Support\Facades\Storage;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -126,3 +127,5 @@ Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
 Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
 Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
 Route::delete('/tareas/{tareaId}/avances/{avanceId}', [TareaController::class, 'eliminarAvance']);
+
+
