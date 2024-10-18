@@ -8,18 +8,17 @@ const ListaAutoevaluacion = () => {
   // Fetching estudiantes from the backend
   const fetchEstudiantes = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/estudiantes');
-      console.log('esd', response.data);
+      const response = await axios.get('http://localhost:8000/api/autoevaluacion/estudiantes-tareas');
+      console.log('ss', response);
       setEstudiantes(response.data);
-      // setFilteredEstudiantes(response.data);
 
       // Si no hay estudiantes, mostrar mensaje de error
       if (response.data.length === 0) {
-        toast.error('No hay estudiantes registrados.');
+        toast.error('No hay estudiantes.');
       }
     } catch (err) {
       // Muestra el error si hay un problema en la petición
-      toast.error('Error al cargar los estudiantes.');
+      toast.error('Error al cargar los estudiantes y sus tareas.');
     }
   };
 
@@ -28,12 +27,6 @@ const ListaAutoevaluacion = () => {
     fetchEstudiantes();
   }, []);
 
-  const tareas = [
-    { name: 'Registrar docentes', date: '10 al 17 de octubre' },
-    { name: 'Registrar estudiante', date: '10 al 17 de octubre' },
-    { name: 'Registrar planificación', date: '10 al 17 de octubre' },
-  ];
-
   return (
     <div className="lista-autoevaluacion-container">
       <h1 className="title">Lista de Autoevaluaciones</h1>
@@ -41,10 +34,9 @@ const ListaAutoevaluacion = () => {
         <thead>
           <tr>
             <th>Nombre del Estudiante</th>
-            {/* <th>Nota de Autoevaluación</th> */}
             <th>Tareas Realizadas</th>
             <th>Estado de las tareas</th>
-            <th>Detalles</th>
+            <th>Detalles de la autoevaluacion</th>
           </tr>
         </thead>
         <tbody>
@@ -53,8 +45,22 @@ const ListaAutoevaluacion = () => {
               <td>{`${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`}</td>
               <td>
                 <ul>
-                  {tareas.map((tarea, idx) => (
-                    <li key={idx}>{tarea.name }</li>
+                  {estudiante.tareas.map((tarea, idx) => (
+                    <li key={idx}>{tarea.nombre_tarea}</li>
+                  ))}
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  {estudiante.tareas.map((tarea, idx) => (
+                    <li key={idx}>{tarea.estado}</li>
+                  ))}
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  {estudiante.tareas.map((tarea, idx) => (
+                    <li key={idx}>{tarea.pivot.resultado_evaluacion} { tarea.pivot.descripcion_evaluacion ? ' - ' + tarea.pivot.descripcion_evaluacion : '' }</li>
                   ))}
                 </ul>
               </td>

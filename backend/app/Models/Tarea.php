@@ -27,6 +27,7 @@ class Tarea extends Model
 
     protected $table = 'tarea';
     protected $primaryKey = 'id_tarea';
+    public $timestamps = false;
 
 	protected $fillable = [
 		'id_alcance',

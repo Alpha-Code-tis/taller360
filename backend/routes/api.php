@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\SprintController;
 use App\Http\Controllers\API\PlanificacionController;
+use App\Http\Controllers\AutoevaluacionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstudianteController;
@@ -73,6 +74,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarSprints', [PlanificacionController::class, 'listaSprintsUnicos']);
     Route::get('/listarSprintsEmpresa/{id_empresa}', [PlanificacionController::class, 'listarSprints']);
     Route::get('/planificacion/{id_empresa}/{gestion}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
+    //Autoevaluación estudiante_tarea
+    Route::get('/autoevaluacion/estudiantes-tareas', [AutoevaluacionController::class, 'mostrarEstudiantesTareas']);
+    Route::patch('/autoevaluacion/{id_tarea}', [AutoevaluacionController::class, 'update']);
 });
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);

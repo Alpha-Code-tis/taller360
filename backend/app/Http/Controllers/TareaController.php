@@ -15,7 +15,7 @@ class TareaController extends Controller
     public function mostrarSprints()
     {
         // Obtener el estudiante autenticado
-        $estudiante = Auth::user();
+        $estudiante = auth()->guard('sanctum')->user();
 
         // Obtener todos los sprints de la empresa a la que pertenece el estudiante
         $sprints = Sprint::whereHas('planificacion.empresa.estudiantes', function($query) use ($estudiante) {
@@ -28,7 +28,7 @@ class TareaController extends Controller
     public function mostrarTareas($sprintId)
     {
         // Obtener el estudiante autenticado
-        $estudiante = Auth::user();
+        $estudiante = auth()->guard('sanctum')->user();
 
         // Verificar que el sprint pertenece a la empresa del estudiante
         $sprint = Sprint::where('id_sprint', $sprintId)
@@ -37,10 +37,9 @@ class TareaController extends Controller
                         })->firstOrFail();
 
         // Obtener tareas del sprint que tienen asignado al estudiante
-        $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-                       ->whereHas('estudiantes', function($query) use ($estudiante) {
-                           $query->where('id_estudiante', $estudiante->id_estudiante);
-                       })->get();
+        $tareas = $estudiante->tareas()
+                       ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
+                       ->get();
 
         return response()->json($tareas);
     }

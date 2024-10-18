@@ -1,14 +1,8 @@
-.autoevaluacion-container .title {
-  font-size: 2.5rem;
+h1.title {
+  font-size: 1.8rem;
   text-align: left;
   margin-left: 0;
-}
-
-.title {
-  font-size: 2.5rem; /* Aumenta el tamaño del título */
-  margin-bottom: 20px;
-  text-align: left; /* Alinea el texto del título a la izquierda */
-  margin-left: 0; /* Mueve el título más a la izquierda */
+  margin-bottom: 0;
 }
 
 .task-list {
@@ -47,7 +41,7 @@
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  color: white;
+  /* color: white; */
   transition: background-color 0.3s;
 }
 
