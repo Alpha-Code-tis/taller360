@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 import axios from 'axios';
@@ -16,7 +17,7 @@ const Seguimiento = () => {
     const fetchStudents = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:8000/api/listaEstudiantes');
+        const response = await axios.get(`${API_URL}listaEstudiantes`);
         const studentOptions = response.data.map(student => ({
           value: student.id_estudiante,
           label: `${student.nombre_estudiante} ${student.ap_pat} ${student.ap_mat} (${student.codigo_sis})`
@@ -37,7 +38,7 @@ const Seguimiento = () => {
     const fetchSprints = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('http://localhost:8000/api/sprints');
+        const response = await axios.get(`${API_URL}sprints`);
         setSprints(response.data);
         setSelectedSprint(response.data[0]?.id_sprint || null);
       } catch (error) {
@@ -56,7 +57,7 @@ const Seguimiento = () => {
       const fetchTasks = async () => {
         setLoading(true);
         try {
-          const response = await axios.get(`http://localhost:8000/api/sprints/${selectedSprint}/tareas`);
+          const response = await axios.get(`${API_URL}sprints/${selectedSprint}/tareas`);
           const tasksWithResponsables = response.data.map(task => ({
             ...task,
             responsables: task.estudiantes.map(est => ({
@@ -85,7 +86,7 @@ const Seguimiento = () => {
     const estudiantesIds = (selectedOptions || []).map(student => student.value);
 
     try {
-      await axios.post(`http://localhost:8000/api/tareas/${newTasks[taskIndex].id_tarea}/asignar-estudiantes`, {
+      await axios.post(`${API_URL}tareas/${newTasks[taskIndex].id_tarea}/asignar-estudiantes`, {
         estudiantes_ids: estudiantesIds
       });
       console.log('Estudiantes actualizados correctamente');

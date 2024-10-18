@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -8,7 +9,7 @@ const ListaAutoevaluacion = () => {
   // Fetching estudiantes from the backend
   const fetchEstudiantes = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/autoevaluacion/estudiantes-tareas');
+      const response = await axios.get(`${API_URL}autoevaluacion/estudiantes-tareas`);
       console.log('ss', response);
       setEstudiantes(response.data);
 

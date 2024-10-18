@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
@@ -27,7 +28,7 @@ const Estudiantes = () => {
   // Fetching estudiantes from the backend
   const fetchEstudiantes = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/estudiantes');
+      const response = await axios.get(`${API_URL}estudiantes`);
       setEstudiantes(response.data);
       setFilteredEstudiantes(response.data);
 
@@ -64,7 +65,7 @@ const Estudiantes = () => {
           <button
             onClick={async () => {
               try {
-                await axios.delete(`http://localhost:8000/api/estudiantes/${id}`);
+                await axios.delete(`${API_URL}estudiantes/${id}`);
                 toast.dismiss(t.id);
                 toast.success('Estudiante eliminado exitosamente');
                 fetchEstudiantes();
@@ -152,8 +153,8 @@ const Estudiantes = () => {
     };
 
     const promise = currentEstudiante
-      ? axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData)
-      : axios.post('http://localhost:8000/api/estudiantes', estudianteData);
+      ? axios.put(`${API_URL}estudiantes/${currentEstudiante.id_estudiante}`, estudianteData)
+      : axios.post(`${API_URL}estudiantes`, estudianteData);
 
     toast.promise(
       promise,
@@ -201,7 +202,7 @@ const Estudiantes = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/estudiantes/import', formData, {
+      const response = await axios.post(`${API_URL}estudiantes/import`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

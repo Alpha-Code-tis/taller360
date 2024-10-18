@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
@@ -86,7 +87,7 @@ const Planificacion = () => {
       console.log('Enviando formValues:', formValues);
       console.log('Enviando tareas:', hu);
 
-      const response = await axios.post('http://localhost:8000/api/planificacion', {
+      const response = await axios.post(`${API_URL}planificacion`, {
         nro_sprint: formValues.nSprint,
         color: formValues.color,
         fecha_inicio: formValues.fechaInicio,
@@ -287,7 +288,7 @@ const Planificacion = () => {
 
     // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
     try {
-      const response = await axios.get(`http://localhost:8000/api/planificacion`);
+      const response = await axios.get(`${API_URL}planificacion`);
       console.log(response.data); // Verificar qué datos devuelve la API
       const sprints = response.data.sprints;
 
@@ -354,7 +355,7 @@ const Planificacion = () => {
   // Función para obtener los sprints de la API
   const fetchSprints = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/listarSprints");
+      const response = await axios.get(`${API_URL}listarSprints`);
       setSprints(response.data); // Almacena los sprints obtenidos
     } catch (error) {
       console.error("Error al obtener los sprints:", error);

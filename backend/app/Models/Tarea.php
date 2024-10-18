@@ -36,17 +36,6 @@ class Tarea extends Model
     }
     public $timestamps = false;
 
-	protected $fillable = [
-		'id_alcance',
-		'nombre_tarea',
-		'estimacion'
-	];
-
-    public function estudiantes()
-    {
-        return $this->belongsToMany(Estudiante::class, 'estudiante_tarea', 'id_tarea', 'id_estudiante');
-    }
-
     public function alcance()
     {
         return $this->belongsTo(Alcance::class, 'id_alcance');

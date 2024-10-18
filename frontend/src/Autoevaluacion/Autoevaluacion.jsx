@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useState, useEffect } from 'react';
 import './Autoevaluacion.css';
 import { Modal, Button, Form, Dropdown, Badge } from 'react-bootstrap';
@@ -53,7 +54,7 @@ const Autoevaluacion = () => {
       descripcion_evaluacion: formValues.descripcion_evaluacion,
     };
     try {
-      await axios.patch(`http://localhost:8000/api/autoevaluacion/${currentTask.id_tarea}`, evaluation);
+      await axios.patch(`${API_URL}autoevaluacion/${currentTask.id_tarea}`, evaluation);
       toast.success('Autoevaluación realizada exitosamente');
       fetchTasks(selectedSprint.id_sprint);
       handleCloseModal();
@@ -90,7 +91,7 @@ const Autoevaluacion = () => {
 
   const fetchSprints = async() => {
     try {
-      const response = await axios.get('http://localhost:8000/api/tareas/sprints');
+      const response = await axios.get(`${API_URL}tareas/sprints`);
       setSprints(response.data);
       console.log(response.data);
     } catch (error) {
@@ -100,7 +101,7 @@ const Autoevaluacion = () => {
 
   const fetchTasks = async(sprintId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/tareas/${sprintId}`);
+      const response = await axios.get(`${API_URL}tareas/${sprintId}`);
       setTasks(response.data);
     } catch (error) {
       toast.error('Error al cargar las tareas.');

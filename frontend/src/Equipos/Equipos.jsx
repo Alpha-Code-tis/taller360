@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaTrash, FaEdit, FaEye } from 'react-icons/fa'; // FaEye para el botón de detalles
@@ -31,7 +32,7 @@ const Equipos = () => {
   // Fetch equipos and estudiantes from backend
   const fetchEquipos = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/equipos');
+      const response = await axios.get(`${API_URL}equipos`);
       setEquipos(response.data);
       setFilteredEquipos(response.data);
     } catch (error) {
@@ -41,7 +42,7 @@ const Equipos = () => {
 
   const fetchEstudiantes = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/sin-empresa');
+      const response = await axios.get(`${API_URL}sin-empresa`);
       const formattedEstudiantes = response.data.map((estudiante) => ({
         value: estudiante.id_estudiante,
         label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
@@ -103,7 +104,7 @@ const Equipos = () => {
   // Mostrar el modal para ver los detalles del equipo
   const handleShowViewModal = async (equipo) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/empresa/${equipo.id_empresa}/estudiantes`);
+      const response = await axios.get(`${API_URL}empresa/${equipo.id_empresa}/estudiantes`);
       const estudiantesDelEquipo = response.data;
 
       setCurrentEquipo({
@@ -125,7 +126,7 @@ const Equipos = () => {
           <button
             onClick={async () => {
               try {
-                await axios.delete(`http://localhost:8000/api/equipos/${id}`);
+                await axios.delete(`${API_URL}equipos/${id}`);
                 toast.dismiss(t.id);
                 toast.success('Equipo eliminado exitosamente');
                 fetchEquipos(); // Refrescar la lista de equipos después de eliminar
@@ -217,10 +218,10 @@ const Equipos = () => {
     });
 
     const promise = currentEquipo
-      ? axios.put(`http://localhost:8000/api/equipos/${currentEquipo.id_empresa}`, Equipodata, {
+      ? axios.put(`${API_URL}equipos/${currentEquipo.id_empresa}`, Equipodata, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      : axios.post('http://localhost:8000/api/equipos', Equipodata, {
+      : axios.post(`${API_URL}equipos`, Equipodata, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

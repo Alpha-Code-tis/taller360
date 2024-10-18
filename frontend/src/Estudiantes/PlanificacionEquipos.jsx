@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useState, useEffect } from 'react';
 
 // Importamos los componentes y estilos necesarios
@@ -73,7 +74,7 @@ const MyCalendar = () => {
 
       // Llamada a la API para obtener las empresas filtradas por la gestión seleccionada
       try {
-        const response = await axios.get(`http://localhost:8000/api/listarEmpresas/${selectedG}`);
+        const response = await axios.get(`${API_URL}listarEmpresas/${selectedG}`);
         setEmpresas(response.data); // Almacena las empresas obtenidas
       } catch (error) {
           console.error("Error al obtener las empresas:", error);
@@ -87,7 +88,7 @@ const MyCalendar = () => {
   
       try {
           // Llama a la API usando el valor de la empresa seleccionada
-          const response = await axios.get(`http://localhost:8000/api/listarSprintsEmpresa/${selectedEmpresa}`);
+          const response = await axios.get(`${API_URL}listarSprintsEmpresa/${selectedEmpresa}`);
           setSprints(response.data); // Almacena los sprints obtenidos
       } catch (error) {
           console.error("Error al obtener los sprints:", error);
@@ -104,7 +105,7 @@ const MyCalendar = () => {
     console.log("Sprint seleccionado:", selectedId); // Asegúrate de que esto se imprima
     // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
     try {
-      const response = await axios.get(`http://localhost:8000/api/planificacion/${selectedEmpresa}/${selectedGestion}/${selectedId}`);
+      const response = await axios.get(`${API_URL}planificacion/${selectedEmpresa}/${selectedGestion}/${selectedId}`);
       const sprints2 = response.data[0][0].sprints;
       if (selectedId === 'Todos') {
         console.log(response.data);
@@ -172,7 +173,7 @@ const MyCalendar = () => {
   // Función para obtener los sprints de la API
   const fetchGestiones = async () => {
     try {
-      const response = await axios.get("http://localhost:8000/api/gestiones");
+      const response = await axios.get("${API_URL}gestiones");
       
       // Si la respuesta es un solo objeto y no una lista
       const gestion = response.data; // Accede al valor directamente
@@ -186,7 +187,7 @@ const MyCalendar = () => {
   useEffect(() => {
     const fetchGestiones = async () => {
       try {
-          const response = await axios.get("http://localhost:8000/api/gestiones");
+          const response = await axios.get("${API_URL}gestiones");
           setGestiones(response.data); // Almacena las gestiones obtenidas
       } catch (error) {
           console.error("Error al obtener las gestiones:", error);
