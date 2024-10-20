@@ -235,7 +235,6 @@ export default function PersistentDrawerLeft() {
                 <ListItemText primary="Planificación" sx={{ color: 'white' }} />
               </ListItemButton>
             </ListItem>
-
             {/* Estudiantes */}
             <ListItem disablePadding>
               <ListItemButton
@@ -298,6 +297,44 @@ export default function PersistentDrawerLeft() {
                 <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
               </ListItemButton>
             </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/TareasEstudiante"
+                onClick={() => handleButtonClick('tareasEstudiante')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <AssignmentTurnedInIcon/>
+                </ListItemIcon>
+                <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
+              <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to="/Seguimiento"
+                    onClick={() => handleButtonClick('seguimiento')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                      <TimelineIcon/>
+                    </ListItemIcon>
+                    <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+                  </ListItemButton>
+                </ListItem>
             </>
           )}
 
