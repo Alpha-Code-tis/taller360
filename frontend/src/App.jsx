@@ -14,6 +14,7 @@ import Equipos from './Equipos/Equipos';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
 import './App.css';
+import Evaluaciones from './Evaluaciones/Cruzada';
 import axios from 'axios';
 
 function App() {

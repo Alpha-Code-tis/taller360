@@ -11,6 +11,7 @@ use App\Http\Controllers\DocenteController;
 use App\Http\Controllers\EmpresaController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\EvaluacionCruzadaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -99,3 +100,8 @@ Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getE
 Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
 Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
 
+Route::get('/cruzadas', [EvaluacionCruzadaController::class, 'index']);
+Route::post('/cruzadas', [EvaluacionCruzadaController::class, 'store']);
+Route::get('/cruzadas/{id}', [EvaluacionCruzadaController::class, 'show']);
+Route::put('/cruzadas/{id}', [EvaluacionCruzadaController::class, 'update']);
+Route::delete('/cruzadas/{id}', [EvaluacionCruzadaController::class, 'destroy']);
