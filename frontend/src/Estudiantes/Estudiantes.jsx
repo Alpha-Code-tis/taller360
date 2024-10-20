@@ -81,6 +81,24 @@ const Estudiantes = () => {
       </div>
     ));
   };
+  const handleShowViewModal = async (equipo) => {
+    try {
+      const response = await axios.get(`http://localhost:8000/api/empresa/${equipo.id_empresa}/estudiantes`);
+      const estudiantesDelEquipo = response.data;
+  
+      // Actualizar el equipo actual con los estudiantes cargados
+      setCurrentEquipo({
+        ...equipo,
+        estudiantesSeleccionados: estudiantesDelEquipo
+      });
+  
+      setShowViewModal(true);
+    } catch (error) {
+      toast.error('Error al cargar los estudiantes del equipo.');
+    }
+  };
+  
+
 
   // Show Modal for adding or editing estudiantes
   const handleShowModal = (estudiante = null) => {

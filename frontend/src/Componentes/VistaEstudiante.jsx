@@ -241,6 +241,50 @@ const handleLogout = () => {
               <ListItemText primary="Equipos" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+         {/* Submenú de Evaluaciones */}
+         <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      sx={{ pl: 4 }}
+                      component={Link}
+                      to="/Cruzada"
+                      onClick={() => handleButtonClick('cruzada')}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      sx={{ pl: 4 }}
+                      component={Link}
+                      to="/Autoevaluacion"
+                      onClick={() => handleButtonClick('autoevaluacion')}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      sx={{ pl: 4 }}
+                      component={Link}
+                      to="/Pares"
+                      onClick={() => handleButtonClick('pares')}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Pares" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                </List>
+              </Collapse>
         </List>
         <Divider />
       </Drawer>

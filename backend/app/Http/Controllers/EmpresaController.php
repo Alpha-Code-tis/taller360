@@ -174,6 +174,26 @@ class EmpresaController extends Controller
         ]);
     }
 
+public function getEquiposConEstudiantesRecientes()
+{
+    try {
+        // Supongo que tienes un campo 'gestion' en tu tabla de empresas o equipos
+        $equipos = Empresa::with(['estudiantes' => function($query) {
+            $query->where('gestion', '2-2024'); // Filtrar por gestión más reciente
+        }])
+        ->where('gestion', '2-2024') // Filtrar los equipos de la gestión más reciente
+        ->get();
+
+        if ($equipos->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron equipos en la gestión más reciente'], 404);
+        }
+
+        return response()->json($equipos, 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al recuperar los equipos: ' . $e->getMessage()], 500);
+    }
+}
+
     public function update(Request $request, $id)
     {
         // Validar los datos del request

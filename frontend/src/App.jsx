@@ -14,6 +14,7 @@ import Equipos from './Equipos/Equipos';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
 import './App.css';
+import Cruzada from './Evaluaciones/Cruzada';
 import Evaluaciones from './Evaluaciones/Cruzada';
 import axios from 'axios';
 
@@ -65,6 +66,9 @@ function App() {
                 <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
+                <Route path="/Evaluaciones" element={<Evaluaciones />} />
+                <Route path="/Cruzada" element={<Cruzada />} />
+                <Route path="/Estudiantes" element={<Estudiantes />} />
               </>
             )}
             {role === 'docente' && (

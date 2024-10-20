@@ -105,3 +105,4 @@ Route::post('/cruzadas', [EvaluacionCruzadaController::class, 'store']);
 Route::get('/cruzadas/{id}', [EvaluacionCruzadaController::class, 'show']);
 Route::put('/cruzadas/{id}', [EvaluacionCruzadaController::class, 'update']);
 Route::delete('/cruzadas/{id}', [EvaluacionCruzadaController::class, 'destroy']);
+Route::get('/equipos/gestion-actual', [EmpresaController::class, 'getEquiposConEstudiantesGestionActual']);

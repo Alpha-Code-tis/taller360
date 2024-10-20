@@ -29,16 +29,17 @@ const Equipos = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // Cargar equipos y estudiantes desde el backend
-  const fetchEquipos = async () => {
-    try {
-      const response = await axios.get('http://localhost:8000/api/equipos');
-      setEquipos(response.data);
-      setFilteredEquipos(response.data);
-    } catch (error) {
-      toast.error('Error al cargar los equipos');
-    }
-  };
+  // Cargar los equipos de la gestión actual junto con los estudiantes asociados
+const fetchEquipos = async () => {
+  try {
+    const response = await axios.get('http://localhost:8000/api/equipos/gestion-actual'); // Nueva ruta para gestión actual
+    setEquipos(response.data);
+    setFilteredEquipos(response.data);
+  } catch (error) {
+    toast.error('Error al cargar los equipos de la gestión actual');
+  }
+};
+
 
   const fetchEstudiantes = async () => {
     try {
@@ -145,7 +146,7 @@ const Equipos = () => {
         nombre_corto: '',
         gestion: '',
         correo_empresa: '',
-        telefono: '',
+        gestion: '',
         direccion: '',
         logo: null,
         estudiantesSeleccionados: [],
@@ -313,7 +314,7 @@ const Equipos = () => {
             <tr>
               <th>Nombre del Equipo</th>
               <th>Correo de la Empresa</th>
-              <th>Teléfono</th>
+              <th>Gestion</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -408,7 +409,7 @@ const Equipos = () => {
                   <Form.Label>Teléfono</Form.Label>
                   <Form.Control
                     type="text"
-                    name="telefono"
+                    name="Gestion"
                     value={formValues.telefono}
                     onChange={handleInputChange}
                     placeholder="Teléfono"
