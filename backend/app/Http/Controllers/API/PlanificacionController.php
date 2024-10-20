@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empresa;
 use App\Models\Planificacion;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
@@ -16,7 +17,24 @@ class PlanificacionController extends Controller
      */
     public function index()
     {
-        return Planificacion::All();
+        $user = auth()->guard('sanctum')->user();
+        $id_empresa = $user->id_empresa;
+        $planificacion = Planificacion::with(['sprints.alcances.tareas']) // Cargar relaciones anidadas
+            ->where('id_empresa', $id_empresa) // Filtrar por id_empresa
+            ->first();
+        if ($planificacion && $planificacion->sprints) {
+            foreach ($planificacion->sprints as $sprint) {
+                $sprint->fecha_inicio = \Carbon\Carbon::parse($sprint->fecha_inicio)->setTime(8, 0);
+                $sprint->fecha_fin = \Carbon\Carbon::parse($sprint->fecha_fin)->endOfDay();
+            }
+        }
+        return response()->json($planificacion, Response::HTTP_OK);
+    }
+
+    public function listaEmpresasGestion($gestion)
+    {
+        $empresas = Empresa::where('gestion', $gestion)->get();
+        return response()->json($empresas, Response::HTTP_OK);
     }
 
     /**
@@ -48,10 +66,83 @@ class PlanificacionController extends Controller
         return response()->json($data, Response::HTTP_OK);
     }
 
+    public function showSprintUser($n_sprint)
+    {
+        $user = auth()->guard('sanctum')->user();
+        $id_empresa = $user->id_empresa;
+        $planificacion = Planificacion::with(['sprints.alcances.tareas']) // Cargar relaciones anidadas
+            ->where('id_empresa', $id_empresa) // Filtrar por id_empresa
+            ->first();
+        dd($planificacion);
+        $data = Planificacion::with(['sprints' => function ($query) use ($n_sprint) {
+            $query->where('nro_sprint', $n_sprint)
+                ->with('alcances.tareas');
+        }])
+            ->where('id_planificacion', $planificacion->id_planificacion)
+            ->get();
+
+        return response()->json($data, Response::HTTP_OK);
+    }
+
     public function show($id)
     {
         $data = Planificacion::find($id);
         return response()->json($data, Response::HTTP_OK);
+    }
+
+    public function listaSprintsUnicos()
+    {
+        $user = auth()->guard('sanctum')->user();
+        $id_empresa = $user->id_empresa;
+        $planificacion = Planificacion::with('sprints')
+            ->where('id_empresa', $id_empresa)
+            ->first();
+
+        if ($planificacion) {
+            $nroSprints = $planificacion->sprints->pluck('nro_sprint')->unique();
+        } else {
+            $nroSprints = [];
+        }
+
+        return response()->json($nroSprints);
+    }
+
+    public function listarSprints($id_empresa)
+    {
+        $planificacion = Planificacion::with('sprints')
+            ->where('id_empresa', $id_empresa)
+            ->first();
+
+        if ($planificacion) {
+            $nroSprints = $planificacion->sprints->pluck('nro_sprint')->unique();
+        } else {
+            $nroSprints = [];
+        }
+
+        return response()->json($nroSprints);
+    }
+
+    public function obtenerIdPlanificacion($id_empresa, $gestion, $sprint)
+    {
+        $empresa = Empresa::where('id_empresa', $id_empresa)
+            ->where('gestion', $gestion)
+            ->first();
+        if ($empresa) {
+            $planificacion = Planificacion::where('id_empresa', $empresa->id_empresa)->first();
+            $sprint = Planificacion::with(['sprints' => function ($query) use ($sprint) {
+                $query->where('nro_sprint', $sprint)
+                    ->with('alcances.tareas');
+            }])
+                ->where('id_planificacion', $planificacion->id_planificacion)
+                ->get();
+            if ($planificacion) {
+                return response()->json([$sprint]);
+            } else {
+                return response()->json(['message' => 'No se encontró la planificación para la empresa especificada.'], 404);
+            }
+        } else {
+            return response()->json(['message' => 'No se encontró la empresa para la gestión especificada.'], 404);
+        }
     }
 
     /**

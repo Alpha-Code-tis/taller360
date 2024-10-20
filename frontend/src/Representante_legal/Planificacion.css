@@ -89,7 +89,7 @@ table-container {
   justify-content: center;
   align-items: center;
   margin-top: 4px;
-  transform: translateX(-60px); 
+  transform: translateX(-30px); 
 }
 
 .pagination-button {
@@ -115,4 +115,39 @@ table-container {
   margin-top: -40px; /* Ajusta este valor según necesites */
 }
 
-  
+/*Boton para filtrar opciones*/
+
+.sprint-dropdown {
+  position: relative;
+  display: inline-block;
+  margin-right: 5rem; /* Ajusta el valor según sea necesario */
+  margin-left: -160px; /* Ajusta este valor para mover más a la izquierda */
+}
+
+.dropdown-item:hover {
+  background-color: #e2e6ea; /* Color al pasar el ratón */
+}
+
+.sprint-dropdown button {
+  width: 100%; /* Asegura que el botón ocupe todo el ancho */
+
+}
+
+.dropdown-menu {
+  width: 30%; /* Asegúrate de que el menú desplegable también sea 100% */
+  left: 10; /* Alinea el menú a la izquierda del botón */
+}
+
+
+
+
+/*Colores de los dias*/
+/* styles.css */
+.custom-day {
+  background-color: lightblue; /* Color de fondo para los días seleccionados */
+}
+
+.weekend {
+  background-color: transparent; /* No colorear los fines de semana */
+}
+

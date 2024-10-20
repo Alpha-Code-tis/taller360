@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('administrador', function (Blueprint $table) {
             $table->integer('id_admi', true);
             $table->string('nombre', 35)->nullable();
+            $table->string('correo', 80)->nullable();
             $table->string('contrasenia', 64)->nullable();
-
             $table->unique(['id_admi'], 'administrador_pk');
         });
     }

@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
@@ -16,13 +17,27 @@ import moment from 'moment'
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 
-// Setup the localizer by providing the moment (or globalize, or Luxon) Object
-// to the correct localizer.
-const localizer = momentLocalizer(moment) // or globalizeLocalizer
+const localizer = momentLocalizer(moment); // or globalizeLocalizer
+
+// Función para filtrar sábados y domingos
+const filtrarDiasHabiles = (fechaInicio, fechaFin) => {
+  const fechas = [];
+  let currentDate = dayjs(fechaInicio);
+
+  while (currentDate.isBefore(fechaFin) || currentDate.isSame(fechaFin, 'day')) {
+    const dayOfWeek = currentDate.day();
+    // Excluir sábado (6) y domingo (0)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      fechas.push(currentDate.toDate()); // Agregar solo días de lunes a viernes
+    }
+    currentDate = currentDate.add(1, "day");
+  }
+
+  return fechas;
+};
 
 const Planificacion = () => {
   const initialTareas = [];
-
   const [error, setError] = useState(null);
   let formatter = useDateFormatter({ dateStyle: "long" });
   const [currentTareas, setCurrentTareas] = useState(null);
@@ -30,25 +45,65 @@ const Planificacion = () => {
   const [value, setValue] = React.useState(dayjs());
   const [myEventsList, setMyEventsList] = useState([]);
   const [hu, setHu] = useState(initialTareas);
-  const [fechaInicio, setFechaInicio] = useState(dayjs());
-  const [fechaFinal, setFechaFinal] = useState(dayjs());
+  const [isOpen, setIsOpen] = useState(false); // Controla si el menú desplegable está abierto
+  const [selectedSprint, setSelectedSprint] = useState(""); // Estado para el sprint seleccionado
+  const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints obtenidos de la API
+  const [fechaInicio, setFechaInicio] = useState(null); // Fecha inicio seleccionada
+  const [fechaFinal, setFechaFinal] = useState(null); // Fecha fin seleccionada
+  const [requerimiento,setRequerimiento] = useState('');
+  const [tareas, setTareas]=useState([]);
+  const [alcances, setAlcances] = useState([]);
+
+  const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
+  const [showModalEvent, setShowModalEvent] = useState();
+  const [selectedEvent, setSelectedEvent] = useState(null);
+
+  const handleSelectEvent = (event) => {
+    setSelectedEvent(event);  // Guardar el evento seleccionado
+    setShowModalEvent(true);       // Mostrar el modal
+  }
+
+  const handleCloseModalEvent = () => setShowModalEvent(false);
   const [formValues, setFormValues] = useState({
     tarea: '',
+    nSprint: '',
+    requerimiento: '',
+    color: '',
+    fechaInicio: '',
+    fechaFinal: '',
   });
 
   const [showModal, setShowModal] = useState(false);
   const handleSave = async () => {
+    // Llamar a validateForm antes de proceder
+    if (!validateForm()) {
+      toast.error('Por favor, corrige los errores en el formulario.');
+      return;
+    }
+
+    const loadingToastId = toast.loading('Cargando datos...');
     try {
-      const response = await axios.post('http://localhost:8000/api/planificacion', {
+      // Agregar un console.log para depuración
+      console.log('Enviando formValues:', formValues);
+      console.log('Enviando tareas:', hu);
+
+      const response = await axios.post(`${API_URL}planificacion`, {
         nro_sprint: formValues.nSprint,
         color: formValues.color,
         fecha_inicio: formValues.fechaInicio,
         fecha_fin: formValues.fechaFinal,
-        alcance: formValues.alcance,
-        tareas: hu.map(tarea => ({ nombre: tarea.tarea })),
+        requerimiento: formValues.requerimiento,
+        tareas: hu.map(tarea => ({
+          nombre: tarea.tarea,
+          estimacion: tarea.estimacion
+        })),
       });
+      toast.dismiss(loadingToastId);
       toast.success('Datos guardados exitosamente:');
     } catch (error) {
+      // Cerrar el toast de carga antes de mostrar el error
+      toast.dismiss(loadingToastId); // Cerrar el toast de carga
+      // Verificar si hay una respuesta del servidor y mostrar los errores
       // Verificar si hay una respuesta del servidor y mostrar los errores
       let errorMessage = 'Ocurrió un error.';
 
@@ -76,7 +131,7 @@ const Planificacion = () => {
     setFormValues({
       tarea: '',
       nSprint: '',
-      alcance: '',
+      requerimiento: '',
       color: '',
       fechaInicio: '',
       fechaFinal: '',
@@ -135,40 +190,58 @@ const Planificacion = () => {
     if (formValues.fechaInicio && formValues.fechaFinal) {
       const startDate = dayjs(formValues.fechaInicio).startOf('day');
       const endDate = dayjs(formValues.fechaFinal).startOf('day');
-      if (startDate.isSameOrAfter(endDate)) {
-        errors.fechaFinal = 'La fecha de fin debe ser posterior a la fecha de inicio.';
-      }
+
     }
 
-    if (/\d/.test(formValues.alcance)) {
-      errors.alcance = 'El alcance no debe contener números.';
+    if (/\d/.test(formValues.requerimiento)) {
+      errors.requerimiento = 'El requerimiento no debe contener números.';
     }
     if (!/^\d+$/.test(formValues.nSprint)) {
-      errors.nSprint = 'El grupo debe contener solo números.';
+      errors.nSprint = 'El número de sprint debe contener solo números.';
     }
     if (/\d/.test(formValues.tarea)) {
-      errors.tarea = 'El alcance no debe contener números.';
-
-      setFormErrors(errors);
-      return Object.keys(errors).length === 0;
+      errors.tarea = 'La tarea no debe contener números.';
     }
-  }
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
 
   const handleAddTarea = () => {
-    if (formValues.tarea.trim() !== '') { // Asegúrate de que el campo no esté vacío
+    console.log(formValues);
+    // Verifica que tarea sea un string no vacío y estimacion sea un número válido
+    const isTareaValid = typeof formValues.tarea === 'string' && formValues.tarea.trim() !== '';
+
+    // Asegúrate de que estimacion sea un string y un número válido
+    const estimacionValue = formValues.estimacion.toString(); // Convierte a string
+    const isEstimacionValid = !isNaN(estimacionValue) && Number(estimacionValue.trim()) > 0;
+
+    if (isTareaValid && isEstimacionValid) { // Asegúrate de que el campo no esté vacío
       const newTarea = {
         id: hu.length + 1, // Genera un ID único (puedes mejorarlo más adelante)
-        tarea: formValues.tarea,
+        tarea: formValues.tarea.trim(),
+        estimacion: Number(estimacionValue.trim()),
       };
       setHu((prevHu) => [...prevHu, newTarea]); // Agrega la nueva tarea
-      setFormValues({ ...formValues, tarea: '' }); // Limpia el campo de entrada
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        tarea: '',
+        estimacion: '',
+      })); // Limpia solo los campos de tarea y estimacion
 
+      const newHuLength = hu.length + 1;
       // Cambiar a la última página si hay más elementos que la página actual
-      if (currentPage < Math.ceil(hu.length / itemsPerPage)) {
-        setCurrentPage(Math.ceil((hu.length + 1) / itemsPerPage));
+      if (currentPage < Math.ceil(newHuLength / itemsPerPage)) {
+        setCurrentPage(Math.ceil(newHuLength / itemsPerPage));
       }
 
+    } else {
+      // Opcional: Agregar retroalimentación para el usuario si la entrada es inválida
+      console.error("Entrada inválida: ", {
+        tarea: isTareaValid,
+        estimacion: isEstimacionValid
+      });
     }
+
   };
 
 
@@ -201,23 +274,196 @@ const Planificacion = () => {
     setShowEditModal(false); // Cerrar el modal después de guardar
   };
 
+  const totalPages = Math.ceil(hu.length / itemsPerPage);
+
+  // Función para alternar el menú desplegable
+  const toggleDropdown = () => {
+    setIsOpen(!isOpen);
+  };
+
+  // Función para manejar el cambio de opción seleccionada
+  const handleOptionChange = async (event) => {
+    const selectedId = event.target.value;
+    setSelectedSprint(selectedId);
+
+    // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
+    try {
+      const response = await axios.get(`${API_URL}planificacion`);
+      console.log(response.data); // Verificar qué datos devuelve la API
+      const sprints = response.data.sprints;
+
+      if (selectedId === "Todos") {
+        // Si se selecciona "todos", pintar todos los sprints
+        const eventos = sprints.map((sprint) => {
+          const inicio = dayjs(sprint.fecha_inicio);
+          const fin = dayjs(sprint.fecha_fin);
+          const color = sprint.color || '#ff0000'; // Valor por defecto si no hay color
+
+          // Filtrar los días hábiles entre la fecha de inicio y fin para cada sprint
+          const diasHabiles = filtrarDiasHabiles(inicio, fin);
+
+          return diasHabiles.map((fecha) => ({
+            title: `Sprint ${sprint.nro_sprint}`,
+            start: fecha,
+            end: fecha, // Evento de un solo día
+            style: { backgroundColor: color }, // Color del evento
+          }));
+        });
+
+        // Aplanar el array de eventos anidados
+        setEventos(eventos.flat());
+      } else {
+        // Si se selecciona un sprint específico
+        const sprintData = sprints.find((sprint) => sprint.nro_sprint === parseInt(selectedId));
+
+        if (sprintData) {
+          const inicio = dayjs(sprintData.fecha_inicio);
+          const fin = dayjs(sprintData.fecha_fin);
+          const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
+          setFechaInicio(inicio);
+          setFechaFinal(fin);
+
+          // Mantener los alcances como un array para poder mostrar cada uno con sus tareas
+          const alcances = sprintData.alcances || [];
+
+          // Asignar alcances con sus respectivas tareas y mantener esa estructura
+          const alcancesConTareas = alcances.map(alcance => ({
+            descripcion: alcance.descripcion,
+            tareas: alcance.tareas || []  // Si no hay tareas, se asigna un array vacío
+          }));
+
+          setAlcances(alcancesConTareas); // Guardar la estructura completa de alcances con tareas
+
+          // Filtrar los días hábiles entre la fecha de inicio y fin
+          const diasHabiles = filtrarDiasHabiles(inicio, fin);
+          setEventos(
+            diasHabiles.map((fecha) => ({
+              title: `Sprint ${sprintData.nro_sprint}`,
+              start: fecha,
+              end: fecha, // Evento de un solo día
+              style: { backgroundColor: color }, // Color del evento
+            }))
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error al obtener los detalles del sprint:", error);
+    }
+};
+
+
+  // Función para obtener los sprints de la API
+  const fetchSprints = async () => {
+    try {
+      const response = await axios.get(`${API_URL}listarSprints`);
+      setSprints(response.data); // Almacena los sprints obtenidos
+    } catch (error) {
+      console.error("Error al obtener los sprints:", error);
+    }
+  };
+
+  // useEffect para cargar los sprints cuando el componente se monta
+  useEffect(() => {
+    fetchSprints();
+  }, []);
+
+
 
   return (
     <div className="container custom-container pt-3">
+      <Toaster /> {/* Asegúrate de incluir el componente Toaster para mostrar los toasts */}
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="m-0">Planificación</h1>
+        <div className="d-flex align-items-center">
+          <div className="sprint-dropdown me-5"> {/* Añadido 'me-2' para margen a la derecha */}
+            <button className="btn btn-primary" onClick={toggleDropdown}>
+              Sprint <span className="arrow">{isOpen ? '▲' : '▼'}</span>
+            </button>
+            {isOpen && (
+              <div className="dropdown-menu show">
+                {sprints.map((sprint) => (
+                  <label className="dropdown-item" key={sprint}>
+                    <input
+                      type="radio"
+                      value={sprint}
+                      checked={selectedSprint == sprint}
+                      onChange={handleOptionChange}
+                    />
+                    Sprint {sprint}
+                  </label>
+                ))}
+                <label className="dropdown-item">
+                  <input
+                    type="radio"
+                    value="Todos"
+                    checked={selectedSprint === 'Todos'}
+                    onChange={handleOptionChange}
+                  />
+                  Todos
+                </label>
+              </div>
+            )}
+          </div>
+          <h1 className="m-0 ms-5">Planificación</h1>
+        </div>
         <button className="btn btn-primary" onClick={() => handleShowModal()}>Registrar</button>
       </div>
       {error && <p className="text-danger">{error}</p>}
       <div style={{ height: '350px' }}>
         <Calendar
           localizer={localizer}
-          events={myEventsList}
+          events={eventos}
           startAccessor="start"
           endAccessor="end"
-          style={{ margin: '5px' }}
+          style={{ margin: "50px" }}
+          eventPropGetter={(event) => ({
+            style: {
+              backgroundColor: event.style.backgroundColor, // Aplicar el color del evento
+              color: 'white', // Color del texto
+              borderRadius: '5px',
+              border: 'none',
+            },
+          })}
+          onSelectEvent={handleSelectEvent}
         />
-      </div>
+        {selectedEvent && (
+      <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
+        <Modal.Header>
+          <Modal.Title>Detalles del {selectedEvent.title}</Modal.Title>
+        </Modal.Header>
+      <Modal.Body>
+        <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
+        <p><strong>Fecha de fin:</strong> {fechaFinal ? fechaFinal.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
+
+        <h5>Requerimientos</h5>
+        {alcances.length > 0 ? (
+          alcances.map((alcance, index) => (
+            <div key={index}>
+              <p><strong>{index + 1}:</strong> {alcance.descripcion || 'No hay descripción disponible'}</p>
+              {alcance.tareas.length > 0 ? (
+                <ul>
+                  {alcance.tareas.map((tarea, tareaIndex) => (
+                    <li key={tareaIndex}>
+                      <strong>{tarea.nombre_tarea}:</strong> {tarea.estimacion} horas
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No hay tareas disponibles para este alcance.</p>
+              )}
+            </div>
+          ))
+        ) : (
+          <p>No hay alcances disponibles para este sprint.</p>
+        )}
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCloseModalEvent}>
+          Cerrar
+        </Button>
+      </Modal.Footer>
+      </Modal>
+      )}
+     </div>
 
       {/* Modal */}
       <Modal show={showModal} onHide={handleCloseModal} centered size='lg'>
@@ -234,7 +480,7 @@ const Planificacion = () => {
                         setFechaInicio(dayjs(newValue)); // Actualiza el estado de la fecha
                         setFormValues((prevValues) => ({
                           ...prevValues,
-                          fechaInicio: dayjs(newValue).format('DD/MM/YYYY'), // Actualiza formValues con el valor de la fecha en formato adecuado
+                          fechaInicio: dayjs(newValue).format('DD/MM/YYYY'), // Actualiza formValues también
                         }));
                       }}
                       slotProps={{ textField: { variant: 'outlined', fullWidth: true } }}
@@ -308,22 +554,22 @@ const Planificacion = () => {
             </Row>
 
             <Row className="mb-3">
-              <Col md={4}>
+              <Col md={3}>
                 <Form.Group controlId="formAlcance">
-                  <Form.Label>Alcance</Form.Label>
+                  <Form.Label>Requerimiento</Form.Label>
                   <Form.Control
                     type="text"
-                    name="alcance"
-                    value={formValues.alcance}
+                    name="requerimiento"
+                    value={formValues.requerimiento}
                     onChange={handleInputChange}
-                    placeholder="Alcance"
-                    isInvalid={!!formErrors.alcance}
+                    placeholder="Requerimiento"
+                    isInvalid={!!formErrors.requerimiento}
                   />
-                  {formErrors.alcance && <div className="text-danger">{formErrors.alcance}</div>}
+                  {formErrors.requerimiento && <div className="text-danger">{formErrors.requerimiento}</div>}
                 </Form.Group>
               </Col>
 
-              <Col md={5}>
+              <Col md={3}>
                 <Form.Group controlId="formHU">
                   <Form.Label>HU-Tarea</Form.Label>
                   <Form.Control
@@ -335,6 +581,20 @@ const Planificacion = () => {
                     isInvalid={!!formErrors.tarea}
                   />
                   {formErrors.tarea && <div className="text-danger">{formErrors.tarea}</div>}
+                </Form.Group>
+              </Col>
+              <Col md={3}>
+                <Form.Group controlId="formEstimacion">
+                  <Form.Label>Estimación</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="estimacion"
+                    value={formValues.estimacion}
+                    onChange={handleInputChange}
+                    placeholder="Estimacion"
+                    isInvalid={!!formErrors.estimacion}
+                  />
+                  {formErrors.estimacion && <div className="text-danger">{formErrors.estimacion}</div>}
                 </Form.Group>
               </Col>
 
@@ -352,6 +612,7 @@ const Planificacion = () => {
                     <thead className="table-light">
                       <tr>
                         <th>HU-Tareas</th>
+                        <th>Estimacion</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
@@ -361,6 +622,7 @@ const Planificacion = () => {
                         currentItems.map((tarea) => (
                           <tr key={tarea.id}>
                             <td>{tarea.tarea}</td>
+                            <td>{tarea.estimacion}</td>
                             <td>
                               <button className="icon-button" title="Eliminar" onClick={() => handleDelete(tarea.id)}>
                                 <FaTrash />
@@ -390,10 +652,10 @@ const Planificacion = () => {
             >
               Anterior
             </Button>
-            <span className="pagination-info">{`Página ${currentPage} de ${Math.ceil(hu.length / itemsPerPage)}`}</span>
+            <span className="pagination-info">{`Página ${currentPage} de ${totalPages}`}</span>
             <Button
               className="pagination-button"
-              disabled={currentPage === Math.ceil(hu.length / itemsPerPage)}
+              disabled={currentPage === totalPages || hu.length <= itemsPerPage}
               onClick={() => setCurrentPage(currentPage + 1)}
             >
               Siguiente
@@ -405,7 +667,6 @@ const Planificacion = () => {
           <Button type="button" className="btn btn-primary" onClick={handleSave} >Guardar</Button>
         </Modal.Footer>
       </Modal>
-
     </div>
   );
 };

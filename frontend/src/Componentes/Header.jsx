@@ -1,5 +1,3 @@
-// Header.jsx
-
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -22,13 +20,19 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups';
+import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { Menu, MenuItem } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const drawerWidth = 240;
 
-const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })( // Sin cambios
+const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
   ({ theme }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
@@ -52,7 +56,7 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })( /
   }),
 );
 
-const AppBar = styled(MuiAppBar, { // Sin cambios
+const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
 })(({ theme }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
@@ -74,7 +78,7 @@ const AppBar = styled(MuiAppBar, { // Sin cambios
   ],
 }));
 
-const DrawerHeader = styled('div')(({ theme }) => ({ // Sin cambios
+const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
   padding: theme.spacing(0, 1),
@@ -82,11 +86,60 @@ const DrawerHeader = styled('div')(({ theme }) => ({ // Sin cambios
   justifyContent: 'flex-end',
 }));
 
-export default function PersistentDrawerLeft() { // Sin cambios
+const VistaAdministrador=()=>{
+  const navigate = useNavigate(); // Hook para navegación
+}
+
+const handleButtonClick = (button) => {
+  // Maneja la lógica adicional que necesites al hacer clic
+  console.log(`Button clicked: ${button}`);
+};
+
+const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
+
+export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
-  const handleDrawerOpen = () => { setOpen(true); };
-  const handleDrawerClose = () => { setOpen(false); };
+  const [role, setRole] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el rol
+  const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
+  const navigate = useNavigate(); // Para redireccionar
+
+  useEffect(() => {
+    // Obtener el role del localStorage al montar el componente
+    const storedRole = localStorage.getItem('role');
+    const storedNombre = localStorage.getItem('nombre');
+    if (storedRole) {
+      setRole(storedRole);
+      setNombre(storedNombre);
+    }
+  }, []); // Se ejecuta solo una vez al montar el componente
+
+
+  const handleDrawerOpen = () => {
+    setOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setOpen(false);
+  };
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null); // Cierra el menú
+  };
+
+  const handleLogout = () => {
+    // Eliminar datos del localStorage (token, rol, etc.)
+    localStorage.removeItem('role');
+    localStorage.removeItem('token');
+    localStorage.removeItem('nombre');
+    // Redireccionar al login
+    navigate('/login');
+  };
 
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
@@ -94,7 +147,6 @@ export default function PersistentDrawerLeft() { // Sin cambios
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -118,8 +170,18 @@ export default function PersistentDrawerLeft() { // Sin cambios
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
             <FaUserCircle size={30} className="me-2" />
-            <span className="m-0">Nombre de Usuario</span>
-            <ExpandMoreIcon />
+            <span className="m-0">{nombre}</span>
+            <IconButton onClick={handleMenuOpen}>
+              <ExpandMoreIcon />
+            </IconButton>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              keepMounted
+            >
+              <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
+            </Menu>
           </div>
         </Toolbar>
       </AppBar>
@@ -149,32 +211,127 @@ export default function PersistentDrawerLeft() { // Sin cambios
           />
         </div>
         <Divider />
-
+  
         <List sx={{ mt: 3 }}>
+          {/* Estudiante */}
+          {role === 'estudiante' && (
+            <>
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/Planificacion"
+                onClick={() => handleButtonClick('planificacion')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <NoteAltIcon />
+                </ListItemIcon>
+                <ListItemText primary="Planificación" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Estudiantes */}
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/Estudiantes"
+                onClick={() => handleButtonClick('estudiantes')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Equipos */}
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/Equipos"
+                onClick={() => handleButtonClick('equipos')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+                </ListItemIcon>
+                <ListItemText primary="Equipos" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
+
+            {/* Autoevaluacion */}
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/Autoevaluacion"
+                onClick={() => handleButtonClick('autoevaluacion')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <SchoolIcon />
+                </ListItemIcon>
+                <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
+            </>
+          )}
+
+          {role === 'docente' && (
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/ListaAutoevaluacion"
+                onClick={() => handleButtonClick('listaAutoevaluacion')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <SchoolIcon />
+                </ListItemIcon>
+                <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
+          )}
+
+          {/* Docentes */}
+          {role === 'administrador' &&(
+          <>
           <ListItem disablePadding>
             <ListItemButton
-              component={Link}
-              to="/Planificacion"
-              onClick={() => handleButtonClick('planificacion')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
+              onClick={() => {
+                handleButtonClick('docentes');
+                navigate('/Docentes');
               }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Planificación" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Docentes"
-              onClick={() => handleButtonClick('docentes')}
               sx={{
                 borderRadius: '8px',
                 backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
@@ -184,13 +341,124 @@ export default function PersistentDrawerLeft() { // Sin cambios
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <SchoolIcon />
+              <SchoolIcon />
               </ListItemIcon>
               <ListItemText primary="Docentes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
-          {/* Estudiantes */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales" // Agregamos la ruta de las planillas
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <CalendarMonthIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Seguimiento"
+              onClick={() => handleButtonClick('seguimiento')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <TimelineIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/TareasEstudiante"
+              onClick={() => handleButtonClick('tareasEstudiante')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon/>
+              </ListItemIcon>
+              <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+            </>
+          )}
+  
+          {/* Administrador */}
+          {role === 'administrador' && (
+            <>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Docentes"
+                  onClick={() => handleButtonClick('docentes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'docentes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <SchoolIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Docentes" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+            </>
+          
+          )}
+
+          {/* docente */}
+          {role === 'docente' &&(
+            <>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanificacionEquipos"
+              onClick={() => handleButtonClick('planificacionEquipos')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planificacionEquipos' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <NoteAltIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planificacion de equipos" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -211,92 +479,11 @@ export default function PersistentDrawerLeft() { // Sin cambios
             </ListItemButton>
           </ListItem>
 
-          {/* Equipos */}
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/Equipos"
-              onClick={() => handleButtonClick('equipos')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <GroupsIcon />
-              </ListItemIcon>
-              <ListItemText primary="Equipos" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/PlanillasSemanales" // Agregamos la ruta de las planillas
-              onClick={() => handleButtonClick('planillas')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/Seguimiento" // Ruta a la Planilla de seguimiento
-              onClick={() => handleButtonClick('seguimiento')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon />
-              </ListItemIcon>
-              <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/TareasEstudiante" // Agrega la ruta
-              onClick={() => handleButtonClick('tareasEstudiante')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon /> {/* Puedes cambiar el icono si lo deseas */}
-              </ListItemIcon>
-              <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-          
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/GenerarPlanilla" // Ruta al generador de planillas
-              onClick={() => handleButtonClick('generarPlanilla')} // Cambia el estado del botón seleccionado
+              to="/GenerarPlanilla"
+              onClick={() => handleButtonClick('generarPlanilla')}
               sx={{
                 borderRadius: '8px',
                 backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
@@ -306,17 +493,17 @@ export default function PersistentDrawerLeft() { // Sin cambios
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <NoteAltIcon /> 
+                <PictureAsPdfIcon/>
               </ListItemIcon>
-              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} /> 
+              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-
-
+          </>
+          )}
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
     </Box>
   );
-}
+}  

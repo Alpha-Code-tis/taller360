@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
@@ -21,27 +22,34 @@ const Estudiantes = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [file, setFile] = useState(null);
+  const [isSaving, setIsSaving] = useState(false); // Estado para indicar si se está guardando
 
   // Fetching estudiantes from the backend
-  useEffect(() => {
-    const fetchEstudiantes = async () => {
-      try {
-        const response = await axios.get('http://localhost:8000/api/estudiantes');
-        setEstudiantes(response.data);
-        setFilteredEstudiantes(response.data);
-      } catch (err) {
-        toast.error('Error al cargar los estudiantes');
-      }
-    };
+  const fetchEstudiantes = async () => {
+    try {
+      const response = await axios.get(`${API_URL}estudiantes`);
+      setEstudiantes(response.data);
+      setFilteredEstudiantes(response.data);
 
+      if (response.data.length === 0) {
+        toast.error('No hay estudiantes registrados.');
+      }
+    } catch (err) {
+      toast.error('Error al cargar los estudiantes.');
+    }
+  };
+
+  useEffect(() => {
     fetchEstudiantes();
   }, []);
 
   // Update filteredEstudiantes based on searchTerm
   useEffect(() => {
+    console.log(estudiantes);
     const filtered = estudiantes.filter((estudiante) => {
       const fullName = `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`.toLowerCase();
-      const codigoSis = estudiante.codigo_sis.toString();
+      const codigoSis = estudiante.codigo_sis;
       const searchValue = searchTerm.toLowerCase();
       return fullName.includes(searchValue) || codigoSis.includes(searchValue);
     });
@@ -57,12 +65,10 @@ const Estudiantes = () => {
           <button
             onClick={async () => {
               try {
-                await axios.delete(`http://localhost:8000/api/estudiantes/${id}`);
-                const updatedEstudiantes = estudiantes.filter((estudiante) => estudiante.id_estudiante !== id);
-                setEstudiantes(updatedEstudiantes);
-                setFilteredEstudiantes(updatedEstudiantes);
+                await axios.delete(`${API_URL}estudiantes/${id}`);
                 toast.dismiss(t.id);
                 toast.success('Estudiante eliminado exitosamente');
+                fetchEstudiantes();
               } catch (err) {
                 toast.error('Error al eliminar el estudiante');
               }
@@ -109,6 +115,7 @@ const Estudiantes = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setFormErrors({});
+    setIsSaving(false); // Reiniciamos el estado de guardado
   };
 
   const handleInputChange = (e) => {
@@ -135,6 +142,8 @@ const Estudiantes = () => {
       return;
     }
 
+    setIsSaving(true); // Deshabilitamos el botón de guardar
+
     const estudianteData = {
       nombre_estudiante: formValues.nombre,
       ap_pat: formValues.apellidoPaterno,
@@ -143,23 +152,22 @@ const Estudiantes = () => {
       es_representante: formValues.esRepresentante,
     };
 
-    try {
-      if (currentEstudiante) {
-        await axios.put(`http://localhost:8000/api/estudiantes/${currentEstudiante.id_estudiante}`, estudianteData);
-        const updatedEstudiantes = estudiantes.map((estudiante) =>
-          estudiante.id_estudiante === currentEstudiante.id_estudiante
-            ? { ...estudiante, ...estudianteData }
-            : estudiante
-        );
-        setEstudiantes(updatedEstudiantes);
-        setFilteredEstudiantes(updatedEstudiantes);
-        toast.success('Estudiante editado exitosamente');
-      } else {
-        const response = await axios.post('http://localhost:8000/api/estudiantes', estudianteData);
-        setEstudiantes([...estudiantes, response.data]);
-        setFilteredEstudiantes([...filteredEstudiantes, response.data]);
-        toast.success('Estudiante agregado exitosamente');
+    const promise = currentEstudiante
+      ? axios.put(`${API_URL}estudiantes/${currentEstudiante.id_estudiante}`, estudianteData)
+      : axios.post(`${API_URL}estudiantes`, estudianteData);
+
+    toast.promise(
+      promise,
+      {
+        loading: 'Guardando...',
+        success: <b>{currentEstudiante ? 'Estudiante editado exitosamente' : 'Estudiante agregado exitosamente'}</b>,
+        error: <b>Error al guardar el estudiante</b>,
       }
+    );
+
+    try {
+      await promise;
+      await fetchEstudiantes(); // Refrescamos la lista de estudiantes
       handleCloseModal();
     } catch (err) {
       toast.error('Error al guardar el estudiante');
@@ -184,7 +192,6 @@ const Estudiantes = () => {
   };
 
   const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
 
     if (!file) {
       setError('Por favor, selecciona un archivo.');
@@ -195,24 +202,24 @@ const Estudiantes = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:8000/api/estudiantes/import', formData, {
+      const response = await axios.post(`${API_URL}estudiantes/import`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
       if (Array.isArray(response.data)) {
-        setEstudiantes((prev) => [...prev, ...response.data]);
-        setFilteredEstudiantes((prev) => [...prev, ...response.data]);
         toast.success('Estudiantes importados exitosamente.');
-      } else {
-        throw new Error('La respuesta no es un array.');
+        fetchEstudiantes(); // Recargar después de importar
       }
 
       handleCloseImportModal();
     } catch (error) {
       setError('Error al importar estudiantes: ' + error.message);
       console.error(error);
+      // El manejo de errores ya se realiza en toast.promise
+    } finally {
+      setIsSaving(false); // Rehabilitamos el botón de guardar
     }
   };
 
@@ -222,7 +229,6 @@ const Estudiantes = () => {
         <h1 className="m-0">Estudiantes</h1>
         <div>
           <button className="btn btn-primary me-2" onClick={() => handleShowModal()}>+ Nuevo Estudiante</button>
-          <button className="btn btn-secondary" onClick={handleShowImportModal}>+ Importar Lista</button>
         </div>
       </div>
 
@@ -339,35 +345,11 @@ const Estudiantes = () => {
           </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+          <Button variant="secondary" onClick={handleCloseModal} disabled={isSaving}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSave}>
-            Guardar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Modal para importar lista */}
-      <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>Importar Lista de Estudiantes</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form>
-            <Form.Group controlId="formFile" className="mb-3">
-              <Form.Label>Selecciona un archivo para importar</Form.Label>
-              <Form.Control type="file" accept=".csv" onChange={handleFileUpload} />
-            </Form.Group>
-          </Form>
-          {error && <p className="text-danger">{error}</p>}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseImportModal}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={handleFileUpload}>
-            Subir
+          <Button variant="primary" onClick={handleSave} disabled={isSaving}>
+            {isSaving ? 'Guardando...' : currentEstudiante ? 'Guardar Cambios' : 'Registrar'}
           </Button>
         </Modal.Footer>
       </Modal>
