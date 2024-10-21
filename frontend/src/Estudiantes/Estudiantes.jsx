@@ -208,7 +208,7 @@ const Estudiantes = () => {
       setError('Por favor, selecciona un archivo.');
       return;
     }
-
+    
     const formData = new FormData();
     formData.append('file', file);
 
