@@ -114,9 +114,11 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
+    localStorage.removeItem('token');
     localStorage.removeItem('nombre');
     // Redireccionar al login
-    window.location.href = '/Login';
+    navigate('/login');
+    window.location.reload();
   };
 
   const handleDrawerOpen = () => {
