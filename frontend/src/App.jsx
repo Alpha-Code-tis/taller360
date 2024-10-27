@@ -26,6 +26,7 @@ import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
+import EvaluationForm from './EvaluationForm/EvaluationForm';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -90,6 +91,7 @@ function App() {
                 <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
+                <Route path="/EvaluationForm" element={<EvaluationForm />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />
@@ -105,5 +107,4 @@ function App() {
     </div>
   );
 }
-
 export default App;
