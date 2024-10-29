@@ -114,13 +114,15 @@ export default function PersistentDrawerLeft() {
   };
 
 
-const handleLogout = () => {
-  // Eliminar datos del localStorage (token, rol, etc.)
-  localStorage.removeItem('role');
-  localStorage.removeItem('nombre');
-  // Redireccionar al login
-  navigate('/Login');
-};
+  const handleLogout = () => {
+    // Eliminar datos del localStorage (token, rol, etc.)
+    localStorage.removeItem('role');
+    localStorage.removeItem('token');
+    localStorage.removeItem('nombre');
+    // Redireccionar al login
+    navigate('/login');
+    window.location.reload();
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -280,7 +282,7 @@ const handleLogout = () => {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <TimelineIcon/>
+                <TimelineIcon />
               </ListItemIcon>
               <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -300,17 +302,38 @@ const handleLogout = () => {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <AssignmentTurnedInIcon/>
+                <AssignmentTurnedInIcon />
               </ListItemIcon>
               <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
 
+
+          {/* Autoevaluacion */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Autoevaluacion"
+              onClick={() => handleButtonClick('autoevaluacion')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
-      <Footer /> 
+      <Footer />
     </Box>
   );
 }

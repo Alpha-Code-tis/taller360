@@ -122,3 +122,27 @@ input[type="file"] {
     background: #c9302c;
 }
 
+/* TareasEstudiante.css */
+
+.sprint-select-container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  
+  .sprint-select-container label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #000; /* Color negro para la etiqueta */
+  }
+  
+  #sprint-select {
+    padding: 5px;
+    font-size: 16px;
+    background-color: #f0f0f0; /* Fondo claro */
+    color: #000; /* Letra negra */
+    border: 1px solid #ccc; /* Borde para mayor visibilidad */
+    border-radius: 4px; /* Bordes redondeados */
+    outline: none; /* Quitar el contorno por defecto */
+  }
+  

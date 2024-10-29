@@ -4,6 +4,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\SprintController;
 use App\Http\Controllers\API\PlanificacionController;
 use App\Http\Controllers\CriterioController;
+use App\Http\Controllers\AutoevaluacionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstudianteController;
@@ -17,6 +18,7 @@ use App\Http\Controllers\TareaController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
+use Illuminate\Support\Facades\Storage;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -76,6 +78,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/listarSprints', [PlanificacionController::class, 'listaSprintsUnicos']);
     Route::get('/listarSprintsEmpresa/{id_empresa}', [PlanificacionController::class, 'listarSprints']);
     Route::get('/planificacion/{id_empresa}/{gestion}/{sprint}', [PlanificacionController::class, 'obtenerIdPlanificacion']);
+    //Autoevaluación estudiante_tarea
+    Route::get('/autoevaluacion/estudiantes-tareas', [AutoevaluacionController::class, 'mostrarEstudiantesTareas']);
+    Route::patch('/autoevaluacion/{id_tarea}', [AutoevaluacionController::class, 'update']);
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 
@@ -106,19 +111,19 @@ Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaE
 
 //Planilla-Docente
 Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
-Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']); 
-Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']); 
-Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']); 
-Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']); 
+Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']);
+Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']);
+Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']);
+Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']);
 
 //Planilla-Representante
-Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']); 
-Route::get('/sprints/{sprintId}/tareas', [PlanillaController::class, 'mostrarTareas']); 
-Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class, 'asignarEstudiantes']); 
-Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']); 
+Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']);
+Route::get('/sprints/{sprintId}/tareas', [PlanillaController::class, 'mostrarTareas']);
+Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class, 'asignarEstudiantes']);
+Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']);
 
 //Tarea
- 
+Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
 Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
 Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
 Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);

@@ -15,7 +15,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 /**
  * Class Docente
- * 
+ *
  * @property int $id_docente
  * @property int|null $id_noti
  * @property int|null $id_admi
@@ -25,7 +25,7 @@ use Laravel\Sanctum\HasApiTokens;
  * @property string|null $ap_mat
  * @property string|null $contrasenia
  * @property string|null $correo
- * 
+ *
  * @property NotificacionDoc|null $notificacion_doc
  * @property Administrador|null $administrador
  * @property Grupo|null $grupo
@@ -77,10 +77,10 @@ class Docente extends Authenticatable
         $this->attributes['correo'] = strtolower($value);
     }
 
-	public function setContraseniaAttribute($value)
-    {
-        $this->attributes['contrasenia'] = Hash::make($value);
-    }
+	// public function setContraseniaAttribute($value)
+    // {
+    //     $this->attributes['contrasenia'] = Hash::make($value);
+    // }
 
 	public function grupos()
 	{

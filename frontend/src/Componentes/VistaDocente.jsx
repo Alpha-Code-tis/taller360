@@ -14,6 +14,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 import { FaUserCircle } from 'react-icons/fa';
 import logo from '../img/logo.jpeg';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
@@ -114,9 +115,11 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
+    localStorage.removeItem('token');
     localStorage.removeItem('nombre');
     // Redireccionar al login
-    window.location.href = '/Login';
+    navigate('/login');
+    window.location.reload();
   };
 
   const handleDrawerOpen = () => {
@@ -241,6 +244,26 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          {/* ListaAutoevaluacion */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/ListaAutoevaluacion"
+              onClick={() => handleButtonClick('listaAutoevaluacion')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
 
           <ListItem disablePadding>
             <ListItemButton
@@ -259,6 +282,26 @@ export default function PersistentDrawerLeft() {
                 <PictureAsPdfIcon/>
               </ListItemIcon>
               <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/CriterioEvaluacion"
+              onClick={() => handleButtonClick('criterioEvaluacion')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+              <ChecklistIcon />
+              </ListItemIcon>
+              <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>

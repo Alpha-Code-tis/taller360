@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Class Tarea
- * 
+ *
  * @property int $id_tarea
  * @property int|null $id_alcance
  * @property string|null $nombre_tarea
- * 
+ *
  * @property Alcance|null $alcance
  *
  * @package App\Models
@@ -34,6 +34,7 @@ class Tarea extends Model
     {
         return $this->belongsToMany(Estudiante::class, 'estudiante_tarea', 'id_tarea', 'id_estudiante');
     }
+    public $timestamps = false;
 
     public function alcance()
     {

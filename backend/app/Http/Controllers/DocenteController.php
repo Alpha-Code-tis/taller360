@@ -55,7 +55,8 @@ class DocenteController extends Controller
         $docente = Docente::create(array_merge($validatedData, [
             'contrasenia' => bcrypt($contrasenia),
         ]));
-        //Notification::route('mail', $docente->correo)->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia));
+        Notification::route('mail', $docente->correo)
+            ->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia));
         return response()->json([
             'message' => 'Docente agregado correctamente',
             'docente' => $docente

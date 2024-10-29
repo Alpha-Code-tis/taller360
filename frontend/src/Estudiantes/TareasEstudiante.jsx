@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './lightbox.css';
@@ -15,7 +16,7 @@ const TareasEstudiante = () => {
   useEffect(() => {
     const fetchSprints = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/sprints');
+        const response = await axios.get(`${API_URL}sprints`);
         setSprints(response.data);
       } catch (error) {
         console.error('Error al obtener los sprints:', error);
@@ -29,7 +30,7 @@ const TareasEstudiante = () => {
   useEffect(() => {
     const fetchTareas = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/api/sprints/${selectedSprint}/tareas`);
+        const response = await axios.get(`${API_URL}sprints/${selectedSprint}/tareas`);
         setTareas(response.data); // Guardar las tareas obtenidas de la API
       } catch (error) {
         console.error('Error al obtener las tareas:', error);
@@ -96,6 +97,7 @@ const TareasEstudiante = () => {
           value={selectedSprint}
           onChange={handleSprintChange}
         >
+
           {sprints.map((sprint) => (
             <option key={sprint.id_sprint} value={sprint.id_sprint}>
               {sprint.nro_sprint}

@@ -1,0 +1,55 @@
+h1.title {
+  font-size: 1.8rem;
+  text-align: left;
+  margin-left: 0;
+  margin-bottom: 0;
+}
+
+.task-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.task-item {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.evaluation-options {
+  display: flex;
+  flex-direction: row; /* Cambia la dirección a horizontal */
+  gap: 20px; /* Espacio entre cada opción */
+  margin-top: 10px;
+  margin: auto;
+}
+
+.evaluation-item {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 10px; /* Espacio entre el círculo y la etiqueta */
+}
+
+.evaluation-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%; /* Hace los botones perfectamente circulares */
+  border: 1px solid #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  /* color: white; */
+  transition: background-color 0.3s;
+}
+
+.evaluation-label {
+  font-size: .75rem;
+}
+
+.vertical-center {
+  display: flex;
+  align-items: center;
+}

@@ -18,6 +18,15 @@ class UserSeeder extends Seeder
      */
     public function run()
     {
+        // Crear un docente
+        $docente = Docente::create([
+            'nombre_docente' => 'Juan',
+            'ap_pat' => 'Pérez',
+            'ap_mat' => 'García',
+            'correo' => 'juan@example.com',
+            'contrasenia' => Hash::make('password123'),
+        ]);
+
         // Crear un administrador
         $admin = Administrador::create([
             "nombre" => "Admin",

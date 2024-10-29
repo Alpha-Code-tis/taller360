@@ -1,4 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; 
+import { API_URL } from '../config';              
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
@@ -41,7 +42,7 @@ export default function Login({ onLogin }) {
       email: email,
       password: password,
     };
-    axios.post('http://localhost:8000/api/login',postData)
+    axios.post(`${API_URL}login`,postData)
     .then(response => {
       console.log(response.success);
 

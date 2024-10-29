@@ -1,3 +1,4 @@
+import { API_URL } from '../config';              
 import React, { useEffect, useState } from 'react';
 import { FaTrash, FaEdit } from 'react-icons/fa';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
@@ -29,7 +30,7 @@ const Docentes = () => {
   const fetchDocentes = async () => {
     setIsLoadingDocentes(true);
     try {
-      const response = await axios.get('http://localhost:8000/api/docentes');
+      const response = await axios.get(`${API_URL}docentes`);
       setDocentes(response.data);
     } catch (err) {
       setError('Error al cargar los docentes');
@@ -41,7 +42,7 @@ const Docentes = () => {
 
   const fetchGrupos = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/grupos');
+      const response = await axios.get(`${API_URL}grupos`);
       setGrupos(response.data);
     } catch (err) {
       toast.error('Error al cargar los grupos');
@@ -62,7 +63,7 @@ const Docentes = () => {
           <button
             onClick={async () => {
               try {
-                await axios.delete(`http://localhost:8000/api/docentes/${id}`);
+                await axios.delete(`${API_URL}docentes/${id}`);
                 await fetchDocentes(); // Refrescamos la lista después de eliminar
                 toast.dismiss(t.id);
                 toast.success('Docente eliminado exitosamente');
@@ -157,8 +158,8 @@ const Docentes = () => {
     };
 
     const promise = currentDocente
-      ? axios.put(`http://localhost:8000/api/docentes/${currentDocente.id_docente}`, docenteData)
-      : axios.post('http://localhost:8000/api/docentes', docenteData);
+      ? axios.put(`${API_URL}docentes/${currentDocente.id_docente}`, docenteData)
+      : axios.post(`${API_URL}docentes`, docenteData);
 
     toast.promise(
       promise,
@@ -187,7 +188,7 @@ const Docentes = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:8000/api/grupos', { nro_grupo: newGroupName });
+      const response = await axios.post(`${API_URL}grupos`, { nro_grupo: newGroupName });
       setGrupos([...grupos, response.data]);
       setNewGroupName('');
       setShowNewGroupModal(false);
