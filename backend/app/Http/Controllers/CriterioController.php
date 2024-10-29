@@ -22,7 +22,7 @@ class CriterioController extends Controller
             'id_criterio' => 'required|string|max:255|unique:criterios,id_criterio', // Validar id_criterio
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'ponderacion' => 'required|integer|min:0|max:100',
+            'porcentaje' => 'required|integer|min:0|max:100',
         ]);
 
         $criterio = Criterio::create($request->all());
