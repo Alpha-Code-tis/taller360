@@ -173,7 +173,7 @@ const MyCalendar = () => {
   // Función para obtener los sprints de la API
   const fetchGestiones = async () => {
     try {
-      const response = await axios.get("${API_URL}gestiones");
+      const response = await axios.get(`${API_URL}gestiones`);
       
       // Si la respuesta es un solo objeto y no una lista
       const gestion = response.data; // Accede al valor directamente
@@ -187,7 +187,8 @@ const MyCalendar = () => {
   useEffect(() => {
     const fetchGestiones = async () => {
       try {
-          const response = await axios.get("${API_URL}gestiones");
+          const response = await axios.get(`${API_URL}gestiones`);
+          console.log(response.data);
           setGestiones(response.data); // Almacena las gestiones obtenidas
       } catch (error) {
           console.error("Error al obtener las gestiones:", error);

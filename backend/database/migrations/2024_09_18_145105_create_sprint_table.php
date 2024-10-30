@@ -20,7 +20,7 @@ return new class extends Migration
             $table->date('fecha_fin')->nullable();
             $table->string('color', 7)->nullable();
             $table->integer('nro_sprint')->nullable();
-
+            $table->integer('porcentaje')->nullable();
             $table->unique(['id_sprint'], 'sprint_pk');
         });
     }

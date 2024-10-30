@@ -11,17 +11,16 @@ class AddLogoToEmpresaTable extends Migration
      *
      * @return void
      */
-    // public function up()
-    // {
-    //     Schema::table('empresa', function (Blueprint $table) {
-    //         $table->string('logo')->nullable(); // Columna para la ruta del logo
-    //     });
-    // }
-
-    // public function down()
-    // {
-    //     Schema::table('empresa', function (Blueprint $table) {
-    //         $table->dropColumn('logo');
-    //     });
-    // }
+    public function up()
+    {
+        Schema::table('empresa', function (Blueprint $table) {
+            $table->string('logo')->nullable(); // Columna para la ruta del logo
+        });
+    }
+    public function down()
+    {
+        Schema::table('empresa', function (Blueprint $table) {
+            $table->dropColumn('logo');
+        });
+    }
 }

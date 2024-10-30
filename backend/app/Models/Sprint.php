@@ -43,7 +43,8 @@ class Sprint extends Model
 		'fecha_inicio',
 		'fecha_fin',
 		'color',
-		'nro_sprint'
+		'nro_sprint',
+		'porcentaje'
 	];
 
 	public function planificacion()

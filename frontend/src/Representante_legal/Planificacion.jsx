@@ -69,6 +69,7 @@ const Planificacion = () => {
     nSprint: '',
     requerimiento: '',
     color: '',
+    porcentaje: '',
     fechaInicio: '',
     fechaFinal: '',
   });
@@ -90,6 +91,7 @@ const Planificacion = () => {
       const response = await axios.post(`${API_URL}planificacion`, {
         nro_sprint: formValues.nSprint,
         color: formValues.color,
+        porcentaje: formValues.porcentaje,
         fecha_inicio: formValues.fechaInicio,
         fecha_fin: formValues.fechaFinal,
         requerimiento: formValues.requerimiento,
@@ -133,6 +135,7 @@ const Planificacion = () => {
       nSprint: '',
       requerimiento: '',
       color: '',
+      porcentaje: '',
       fechaInicio: '',
       fechaFinal: '',
     });
@@ -199,6 +202,10 @@ const Planificacion = () => {
     if (!/^\d+$/.test(formValues.nSprint)) {
       errors.nSprint = 'El número de sprint debe contener solo números.';
     }
+    if (!/^\d+$/.test(formValues.porcentaje)) {
+      errors.porcentaje = 'El número de porcentaje debe contener solo números.';
+    }
+
     if (/\d/.test(formValues.tarea)) {
       errors.tarea = 'La tarea no debe contener números.';
     }
@@ -466,7 +473,7 @@ const Planificacion = () => {
      </div>
 
       {/* Modal */}
-      <Modal show={showModal} onHide={handleCloseModal} centered size='lg'>
+      <Modal show={showModal} onHide={handleCloseModal}className="custom-width-modal">
         <Modal.Body className='custom-modal'>
           <Form>
             <Row className="mb-3">
@@ -539,7 +546,6 @@ const Planificacion = () => {
                   {formErrors.nSprint && <div className="text-danger">{formErrors.nSprint}</div>}
                 </Form.Group>
               </Col>
-
               <Col md={3}>
                 <Form.Group controlId="formColor">
                   <Form.Label>Color</Form.Label>
@@ -551,10 +557,24 @@ const Planificacion = () => {
                   />
                 </Form.Group>
               </Col>
+              
             </Row>
-
             <Row className="mb-3">
               <Col md={3}>
+                <Form.Group controlId="formPorcentaje">
+                  <Form.Label> % Cobro</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="porcentaje"
+                    value={formValues.porcentaje}
+                    onChange={handleInputChange}
+                    placeholder="PorcentajeCobro"
+                    isInvalid={!!formErrors.porcentaje}
+                  />
+                  {formErrors.porcentaje && <div className="text-danger">{formErrors.porcentaje}</div>}
+                </Form.Group>
+              </Col>
+              <Col md={6}>
                 <Form.Group controlId="formAlcance">
                   <Form.Label>Requerimiento</Form.Label>
                   <Form.Control
@@ -568,8 +588,11 @@ const Planificacion = () => {
                   {formErrors.requerimiento && <div className="text-danger">{formErrors.requerimiento}</div>}
                 </Form.Group>
               </Col>
+            </Row>
 
-              <Col md={3}>
+            <Row className="mb-3">
+
+              <Col md={6}>
                 <Form.Group controlId="formHU">
                   <Form.Label>HU-Tarea</Form.Label>
                   <Form.Control
@@ -598,7 +621,7 @@ const Planificacion = () => {
                 </Form.Group>
               </Col>
 
-              <Col md={3} style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '31px' }}>
+              <Col md={3} style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
                 <Form.Group>
                   <Button className="btn btn-primary" onClick={handleAddTarea}>+</Button>
                 </Form.Group>
