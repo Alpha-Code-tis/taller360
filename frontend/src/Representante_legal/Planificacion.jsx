@@ -50,8 +50,6 @@ const Planificacion = () => {
   const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints obtenidos de la API
   const [fechaInicio, setFechaInicio] = useState(null); // Fecha inicio seleccionada
   const [fechaFinal, setFechaFinal] = useState(null); // Fecha fin seleccionada
-  const [requerimiento,setRequerimiento] = useState('');
-  const [tareas, setTareas]=useState([]);
   const [alcances, setAlcances] = useState([]);
 
   const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
