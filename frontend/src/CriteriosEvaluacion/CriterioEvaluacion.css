@@ -6,29 +6,30 @@
     border: 1px solid #ddd; /* Añadir borde alrededor de la tabla para mejorar la visibilidad */
 }
 
-.estudiantes-table {
+.criterios-table {
     width: 100%;
     min-width: 60vw;
     border-collapse: collapse;
 }
 
-.estudiantes-table th,
-.estudiantes-table td {
+.criterios-table th,
+.criterios-table td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
 
-.estudiantes-table th {
-    background-color: #f4f4f4;
+.criterios-table th {
+    background-color: #1A3254;
+    color: white;
     font-weight: bold;
     position: sticky;
     top: 0;
     z-index: 1;
 }
 
-.estudiantes-table th:last-child,
-.estudiantes-table td:last-child {
+.criterios-table th:last-child,
+.criterios-table td:last-child {
     width: 120px;
     text-align: center;
 }

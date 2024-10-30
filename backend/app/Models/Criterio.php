@@ -9,7 +9,7 @@ class Criterio extends Model
 {
     protected $table = 'criterios';
     protected $primaryKey = 'id_criterio';
-    protected $fillable = ['id_criterio','nombre', 'descripcion', 'ponderacion'];
+    protected $fillable = ['id_criterio','nombre', 'descripcion', 'porcentaje'];
 
     // Relación muchos a muchos con evaluaciones cruzadas
     public function cruzadas(): BelongsToMany

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
+import { FaTrash, FaEdit } from 'react-icons/fa';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
 import './CriterioEvaluacion.css';
@@ -18,6 +19,7 @@ const CriterioEvaluacion = () => {
   const [filteredCriterios, setFilteredCriterios] = useState([]);
   const [currentCriterio, setCurrentCriterio] = useState(null);
   const [value, setValue] = React.useState([20, 37]);
+
   const [formValues, setFormValues] = useState({
     id: '',
     nombre: '',
@@ -32,7 +34,7 @@ const CriterioEvaluacion = () => {
 
   const fetchCriterios = async () => {
     try {
-      const response = await axios.get(`${API_URL}criterios`);
+      const response = await axios.get('http://localhost:8000/api/criterios');
       setCriterio(response.data);
       setFilteredCriterios(response.data);
 
@@ -45,20 +47,21 @@ const CriterioEvaluacion = () => {
 
   };
 
+
   useEffect(()=>{
     fetchCriterios();
   },[]);
 
-
   const handleShowModal = (criterio = null) => {
     if(criterio){
       setFormValues({
-        id: criterio.id_criterio,
-        nombre: criterio.nombre_criterio || '',
+        id: criterio.id,
+        nombre: criterio.nombre || '',
         descripción: criterio.descripcion||'',
         porcentaje: criterio.porcentaje,
       });
       setCurrentCriterio(criterio);
+      setValue([criterio.porcentaje_inicial || 0, criterio.porcentaje_final || 0]);
     }else{
       setFormValues({
         id: '',
@@ -67,6 +70,7 @@ const CriterioEvaluacion = () => {
         porcentaje: '',
       });
       setCurrentCriterio(null);
+      setValue([20,37]);
     }
     setShowModal(true);
   };
@@ -84,7 +88,7 @@ const CriterioEvaluacion = () => {
                 await axios.delete(`${API_URL}criterios/${id}`);
                 toast.dismiss(t.id);
                 toast.success('Criterio eliminado exitosamente');
-                fetchEstudiantes();
+                fetchCriterios();
               } catch (err) {
                 toast.error('Error al eliminar el criterio');
               }
@@ -110,23 +114,16 @@ const CriterioEvaluacion = () => {
     setIsSaving(false);
   };
 
-
-  const handleInputChange = (eventOrValue, fieldName) => {
-      // Para inputs que sí disparan eventos (event.target)
-      const { name, value, type } = eventOrValue.target;
-
-      let newValue = value;
-
-      if (type === 'number') {
-        newValue = value === '' ? '' : Number(value);
-      }
-
-      setFormValues((prevValues) => ({
-        ...prevValues,
-        [name]: newValue, // Actualiza el valor basado en el nombre del campo
-      }));
-    
+  const handleInputChange = (event) => {
+    const { name, value, type } = event.target;
+    const newValue = type === 'number' ? Number(value) : value;
+  
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      [name]: newValue,
+    }));
   };
+
    const [step, setStep] = useState(1);
    const handleStepChange = (event) => {
     const value = event.target.value;
@@ -138,10 +135,11 @@ const CriterioEvaluacion = () => {
   };
   const validateForm = () => {
     const errors = {};
-    
+
     if (!/^\d+$/.test(formValues.id)) {
-      errors.id = 'El id debe ser un numero';
+      errors.id = 'El número de id debe contener solo números.';
     }
+
     if (/\d/.test(formValues.nombre)) {
       errors.nombre = 'El nombre no debe contener números.';
     }
@@ -162,34 +160,32 @@ const CriterioEvaluacion = () => {
 
     setIsSaving(true);
     const criteriosData={
-      nombre_criterio: formValues.nombre,
+      id_criterio: formValues.id,
+      nombre: formValues.nombre,
       descripcion: formValues.descripción,
-      porcentaje: formValues.porcentaje,
+      porcentaje: value[1]-value[0],
     };
 
     const promise = currentCriterio
-    ? axios.put(`${API_URL}criterios/${currentEstudiante.id_criterio}`, criteriosData)
-    : axios.post(`${API_URL}criterios`, criteriosData);
-    
-    toast.promise(
-      promise,
-      {
-        loading: 'Guardando...',
-        success: <b>{currentCriterio ? 'Criterio editado exitosamente' : 'Criterio agregado exitosamente'}</b>,
-        error: <b>Error al guardar el criterio de evaluación</b>,
-      }
-    );
-
+    ? axios.put(`${API_URL}criterios/${currentCriterio.id_criterio}`, criteriosData)
+    : axios.post('http://localhost:8000/api/criterios', criteriosData);
+    console.log(criteriosData);
     try {
-      await promise;
-      await fetchCriterios(); // Refrescamos la lista de estudiantes
+      const response = await promise;
+      await fetchCriterios(); // Refrescamos la lista de criterios
       handleCloseModal();
     } catch (err) {
+      console.error(err.response.data);
       toast.error('Error al guardar el criterio');
     }
   
-  }
+  };
 
+  // Calcular el total de porcentajes
+const totalPorcentaje = filteredCriterios.reduce(
+  (acc, criterio) => acc + parseFloat(criterio.porcentaje),
+  0
+);
   return (
     <div className="container"style={{ transform: 'translateY(-190px)' }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -201,7 +197,7 @@ const CriterioEvaluacion = () => {
 
       {error && <p className="text-danger">{error}</p>}
       <div className="table-container">
-        <table className="table table-hover estudiantes-table">
+        <table className="table table-hover criterios-table">
           <thead className="table-light">
             <tr>
               <th>ID</th>
@@ -214,18 +210,31 @@ const CriterioEvaluacion = () => {
           <tbody>
            {filteredCriterios.map((criterio) => (
               <tr key={criterio.id_criterio}>
-                <td>{`${criterio.nombre} ${criterio.descripcion}`}</td>
-                <td>{criterio.porcentaje}</td>
+                <td>{criterio.id_criterio}</td>
+                <td>{criterio.nombre}</td>
+                <td>{criterio.descripcion}</td>
+                <td>{criterio.porcentaje}%</td>
                 <td>
-                  <button className="icon-button" title="Editar" onClick={() => handleShowModal(estudiante)}>
+                  <button className="icon-button" title="Editar" onClick={() => handleShowModal(criterio)}>
                     <FaEdit />
                   </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(estudiante.id_estudiante)}>
+                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(criterio.id_criterio)}>
                     <FaTrash />
                   </button>
                 </td>
+                {/* Fila del total */}
               </tr>
             ))}
+                {/* Fila del total */}
+            <tr>
+              <td colSpan="3" className="text-end fw-bold">Total</td>
+              <td 
+                style={{ color: totalPorcentaje == 100 ? 'green' : 'inherit', fontWeight: 'bold' }}
+              >
+                {totalPorcentaje}%
+              </td>
+              <td></td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -240,7 +249,7 @@ const CriterioEvaluacion = () => {
                     <Form.Label>Nombre de Criterio</Form.Label>
                     <Form.Control
                       type="text"
-                      name="nombre de criterio"
+                      name="nombre"
                       value={formValues.nombre}
                       onChange={handleInputChange}
                       placeholder="Nombre de criterio"
@@ -257,7 +266,7 @@ const CriterioEvaluacion = () => {
                     <Form.Label>Descripción</Form.Label>
                     <Form.Control
                       type="text"
-                      name="descripcion"
+                      name="descripción"
                       value={formValues.descripción}
                       onChange={handleInputChange}
                       placeholder="Descripción"

@@ -19,7 +19,6 @@ class CriterioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'id_criterio' => 'required|string|max:255|unique:criterios,id_criterio', // Validar id_criterio
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'porcentaje' => 'required|integer|min:0|max:100',
