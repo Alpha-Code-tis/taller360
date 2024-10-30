@@ -21,6 +21,9 @@ return new class extends Migration
             $table->string('progreso', 6)->default('0 %');
             $table->string('avances', 50)->nullable(); 
             $table->integer('estimacion')->nullable();
+            $table->integer('calificacion')->nullable();
+            $table->string('observaciones', 50)->nullable(); 
+            $table->boolean('revisado', false)->nullable(); 
             $table->unique(['id_tarea'], 'tarea_pk');
         });
     }

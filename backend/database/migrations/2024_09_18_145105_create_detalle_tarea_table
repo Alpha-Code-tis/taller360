@@ -1,0 +1,38 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        Schema::create('tarea', function (Blueprint $table) {
+            $table->integer('id_detalle_tarea', true);
+            $table->integer('id_tarea')->nullable()->index('tiene_varia_fk');
+            $table->string('nom_tarea', 35)->nullable();
+            $table->string('estado_tarea', 12)->default('Pendiente');
+            $table->integer('calificacion_tarea')->nullable();
+            $table->string('observaciones_tarea', 50)->nullable(); 
+            $table->boolean('revisado_tarea', false)->nullable(); 
+            $table->integer('semana_sprint')->nullable();
+            $table->unique(['id_detalle_tarea'], 'detalle_tarea_pk');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        Schema::dropIfExists('detalle_tarea');
+    }
+};
