@@ -38,7 +38,7 @@ function App() {
       setRole(storedRole);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     } else {
-      navigate('/Login');
+      navigate('/login');
     }
   }, [navigate]);
 

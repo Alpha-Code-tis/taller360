@@ -114,13 +114,15 @@ export default function PersistentDrawerLeft() {
   };
 
 
-const handleLogout = () => {
-  // Eliminar datos del localStorage (token, rol, etc.)
-  localStorage.removeItem('role');
-  localStorage.removeItem('nombre');
-  // Redireccionar al login
-  navigate('/Login');
-};
+  const handleLogout = () => {
+    // Eliminar datos del localStorage (token, rol, etc.)
+    localStorage.removeItem('role');
+    localStorage.removeItem('token');
+    localStorage.removeItem('nombre');
+    // Redireccionar al login
+    navigate('/login');
+    window.location.reload();
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -280,7 +282,7 @@ const handleLogout = () => {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <TimelineIcon/>
+                <TimelineIcon />
               </ListItemIcon>
               <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -300,7 +302,7 @@ const handleLogout = () => {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <AssignmentTurnedInIcon/>
+                <AssignmentTurnedInIcon />
               </ListItemIcon>
               <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -329,24 +331,24 @@ const handleLogout = () => {
           </ListItem>
           {/* Estudiantes */}
           <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/Estudiantes"
-                onClick={() => handleButtonClick('estudiantes')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <PersonIcon />
-                </ListItemIcon>
-                <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
+            <ListItemButton
+              component={Link}
+              to="/Estudiantes"
+              onClick={() => handleButtonClick('estudiantes')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
         </List>
         <Divider />
       </Drawer>

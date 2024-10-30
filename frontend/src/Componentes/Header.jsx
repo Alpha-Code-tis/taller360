@@ -139,6 +139,7 @@ export default function PersistentDrawerLeft() {
     localStorage.removeItem('nombre');
     // Redireccionar al login
     navigate('/login');
+    window.location.reload();
   };
 
   const [selectedButton, setSelectedButton] = useState(null);

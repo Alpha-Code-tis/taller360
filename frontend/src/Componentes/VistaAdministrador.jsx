@@ -120,10 +120,11 @@ export default function PersistentDrawerLeft() {
   const handleLogout = () => {
     // Eliminar datos del localStorage (token, rol, etc.)
     localStorage.removeItem('role');
+    localStorage.removeItem('token');
     localStorage.removeItem('nombre');
-    
-    // Redirigir al login recargando la página
-    window.location.href = '/Login';
+    // Redireccionar al login
+    navigate('/login');
+    window.location.reload();
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
