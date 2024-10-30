@@ -30,8 +30,11 @@ const TareasEstudiante = () => {
   useEffect(() => {
     const fetchTareas = async () => {
       try {
-        const response = await axios.get(`${API_URL}sprints/${selectedSprint}/tareas`);
+        console.log(selectedSprint);
+        const response = await axios.get(`${API_URL}tareas/${selectedSprint}`);
+        console.log(selectedSprint);
         setTareas(response.data); // Guardar las tareas obtenidas de la API
+        console.log(tareas);
       } catch (error) {
         console.error('Error al obtener las tareas:', error);
       }
