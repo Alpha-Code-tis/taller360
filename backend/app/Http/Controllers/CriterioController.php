@@ -23,7 +23,12 @@ class CriterioController extends Controller
             'descripcion' => 'nullable|string',
             'porcentaje' => 'required|integer|min:0|max:100',
         ]);
-
+        $porcentaje = Criterio::sum("porcentaje");
+        if ($porcentaje + $request->porcentaje > 100) {
+            return response()->json([
+               'message' => 'La suma de los porcentajes no puede superar 100.'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
         $criterio = Criterio::create($request->all());
 
         return response()->json([
@@ -52,7 +57,7 @@ class CriterioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
-            'ponderacion' => 'required|integer|min:0|max:100',
+            'porcentaje' => 'required|integer|min:0|max:100',
         ]);
 
         $criterio = Criterio::where('id_criterio', $id_criterio)->first();
