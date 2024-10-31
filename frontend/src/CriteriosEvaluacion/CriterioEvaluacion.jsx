@@ -159,8 +159,8 @@ const CriterioEvaluacion = () => {
     }
 
     setIsSaving(true);
+    
     const criteriosData={
-      id_criterio: formValues.id,
       nombre: formValues.nombre,
       descripcion: formValues.descripción,
       porcentaje: value[1]-value[0],
@@ -187,7 +187,7 @@ const totalPorcentaje = filteredCriterios.reduce(
   0
 );
   return (
-    <div className="container"style={{ transform: 'translateY(-190px)' }}>
+    <div className="container"style={{ transform: 'translateY(-190px)', marginTop: '230px' }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="m-0">Criterios de Evaluación</h1>
         <div>
