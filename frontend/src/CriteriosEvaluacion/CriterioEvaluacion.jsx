@@ -4,7 +4,7 @@ import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import Slider from '@mui/material/Slider';
 import Box from '@mui/material/Box';
 import { FaTrash, FaEdit } from 'react-icons/fa';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import axios from 'axios';
 import './CriterioEvaluacion.css';
 
@@ -21,32 +21,41 @@ const CriterioEvaluacion = () => {
   const [value, setValue] = React.useState([20, 37]);
 
   const [formValues, setFormValues] = useState({
-    id: '',
     nombre: '',
     descripción: '',
     porcentaje: '',
   });
   const [formErrors, setFormErrors] = useState({});
-  const [searchTerm, setSearchTerm] = useState('');
-  const [file, setFile] = useState(null);
   const [isSaving, setIsSaving] = useState(false);
+  const[nextId, setNextId] = useState(1);
 
 
   const fetchCriterios = async () => {
     try {
       const response = await axios.get('http://localhost:8000/api/criterios');
-      setCriterio(response.data);
-      setFilteredCriterios(response.data);
+      const criteriosData = response.data;
+      setCriterio(criteriosData);
+      setFilteredCriterios(criteriosData);
 
-      if (response.data.length === 0) {
+      // Establecer el siguiente ID temporal para nuevos criterios
+      const lastId = criteriosData.length > 0 ? criteriosData[criteriosData.length - 1].id : 0;
+      setNextId(lastId + 1);
+
+      if (criteriosData.length === 0) {
         toast.error('No hay criterios registrados.');
+      }else{
+        setCriterio(criteriosData);
+        setFilteredCriterios(criteriosData);
+
+        // Establecer el siguiente ID basado en el último criterio
+        const lastId = criteriosData[criteriosData.length - 1]?.id || 0; // Obtén el último ID
+        setNextId(lastId + 1); // Incrementa para el siguiente ID
       }
     } catch (err) {
       toast.error('Error al cargar los criterios.');
     }
 
   };
-
 
   useEffect(()=>{
     fetchCriterios();
@@ -64,7 +73,7 @@ const CriterioEvaluacion = () => {
       setValue([criterio.porcentaje_inicial || 0, criterio.porcentaje_final || 0]);
     }else{
       setFormValues({
-        id: '',
+        id: nextId,
         nombre: '',
         descripción: '',
         porcentaje: '',
@@ -108,6 +117,7 @@ const CriterioEvaluacion = () => {
     ));
   };
 
+
   const handleCloseModal =()=>{
     setShowModal(false);
     setFormErrors({});
@@ -135,11 +145,6 @@ const CriterioEvaluacion = () => {
   };
   const validateForm = () => {
     const errors = {};
-
-    if (!/^\d+$/.test(formValues.id)) {
-      errors.id = 'El número de id debe contener solo números.';
-    }
-
     if (/\d/.test(formValues.nombre)) {
       errors.nombre = 'El nombre no debe contener números.';
     }
@@ -147,17 +152,15 @@ const CriterioEvaluacion = () => {
       errors.descripcion = 'La descripción no debe contener números.';
     }
     if (!/^\d+$/.test(formValues.porcentaje)) {
-      errors.porcentaje = 'El número de porcentaje debe contener solo números.';
+      errors.porcentaje = 'El porcentaje debe contener solo números.';
+    } else if (parseInt(formValues.porcentaje, 10) < 0 || parseInt(formValues.porcentaje, 10) > 100) {
+      errors.porcentaje = 'El porcentaje debe estar entre 0 y 100.';
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   }
 
   const handleSave = async ()=>{
-    if (!validateForm()){
-      toast.error('Por favor, revisa los errores en el formulario.');
-    }
-
     setIsSaving(true);
     
     const criteriosData={
@@ -166,12 +169,22 @@ const CriterioEvaluacion = () => {
       porcentaje: value[1]-value[0],
     };
 
+
     const promise = currentCriterio
     ? axios.put(`${API_URL}criterios/${currentCriterio.id_criterio}`, criteriosData)
     : axios.post('http://localhost:8000/api/criterios', criteriosData);
-    console.log(criteriosData);
+    
+    toast.promise(
+      promise,
+      {
+        loading: 'Guardando...',
+        success: <b>{currentCriterio ? 'Criterio editado exitosamente' : 'Criterio agregado exitosamente'}</b>,
+        error: <b>Error al guardar criterio</b>,
+      }
+    );
+
     try {
-      const response = await promise;
+      await promise;
       await fetchCriterios(); // Refrescamos la lista de criterios
       handleCloseModal();
     } catch (err) {
@@ -208,9 +221,9 @@ const totalPorcentaje = filteredCriterios.reduce(
             </tr>
           </thead>
           <tbody>
-           {filteredCriterios.map((criterio) => (
-              <tr key={criterio.id_criterio}>
-                <td>{criterio.id_criterio}</td>
+           {filteredCriterios.map((criterio,index) => (
+              <tr key={criterio.id_criterio ||criterio.id}>
+                <td>{criterio.id || index + nextId}</td>
                 <td>{criterio.nombre}</td>
                 <td>{criterio.descripcion}</td>
                 <td>{criterio.porcentaje}%</td>
