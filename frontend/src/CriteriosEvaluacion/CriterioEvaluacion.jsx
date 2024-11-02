@@ -161,6 +161,10 @@ const CriterioEvaluacion = () => {
   }
 
   const handleSave = async ()=>{
+    if (validateForm()) {
+    } else {
+      toast.error('Por favor, revisa los errores en el formulario.');
+    }
     setIsSaving(true);
     
     const criteriosData={
