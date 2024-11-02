@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\SprintController;
 use App\Http\Controllers\API\PlanificacionController;
+use App\Http\Controllers\CriterioController;
 use App\Http\Controllers\AutoevaluacionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -127,4 +128,11 @@ Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
 Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
 Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
 Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
+
+//Criterios
+Route::get('/criterios', [CriterioController::class, 'index']);
+Route::get('/criterios/{id_criterio}', [CriterioController::class,'show']);
+Route::post('/criterios', [CriterioController::class,'store']);
+Route::put('/criterios/{id_criterio}', [CriterioController::class,'update']);
+Route::delete('/criterios/{id_criterio}', [CriterioController::class,'destroy']);
 });
