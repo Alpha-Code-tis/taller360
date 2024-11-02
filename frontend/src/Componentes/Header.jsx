@@ -470,6 +470,26 @@ export default function PersistentDrawerLeft() {
                 <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
               </ListItemButton>
             </ListItem>
+
+            <ListItem disablePadding>
+              <ListItemButton
+                component={Link}
+                to="/EvaluationForm"
+                onClick={() => handleButtonClick('evaluationForm')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <AssignmentTurnedInIcon /> {/* Icono para Evaluaciones */}
+                </ListItemIcon>
+                <ListItemText primary="Formulario de Evaluación" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
           </>
           )}
         </List>
@@ -478,4 +498,4 @@ export default function PersistentDrawerLeft() {
       <Main open={open}></Main>
     </Box>
   );
-}  
+}
