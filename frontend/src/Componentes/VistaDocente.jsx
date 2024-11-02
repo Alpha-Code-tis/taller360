@@ -28,6 +28,7 @@ import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Footer from './Footer'; // Asegúrate de que la ruta sea correcta
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 
 const drawerWidth = 240;
@@ -302,6 +303,26 @@ export default function PersistentDrawerLeft() {
               <ChecklistIcon />
               </ListItemIcon>
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/EvaluationForm"
+              onClick={() => handleButtonClick('evaluationForm')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+              <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Formulario de evaluacion" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>
