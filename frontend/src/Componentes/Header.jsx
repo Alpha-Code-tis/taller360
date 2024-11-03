@@ -21,6 +21,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import FactCheckIcon from '@mui/icons-material/FactCheck';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import TimelineIcon from '@mui/icons-material/Timeline';
@@ -30,6 +31,16 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import { API_URL } from '../config';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
+dayjs.locale('es');
 
 const drawerWidth = 240;
 
@@ -105,6 +116,11 @@ export default function PersistentDrawerLeft() {
   const [nombre, setNombre] = useState(''); // Estado para el rol
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
+  const [finalEvalStart, setFinalEvalStart] = useState('');
+  const [finalEvalEnd, setFinalEvalEnd] = useState('');
+  const [autoEvalStart, setAutoEvalStart] = useState('');
+  const [autoEvalEnd, setAutoEvalEnd] = useState('');
+
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -114,8 +130,22 @@ export default function PersistentDrawerLeft() {
       setRole(storedRole);
       setNombre(storedNombre);
     }
+    fetchFechas();
   }, []); // Se ejecuta solo una vez al montar el componente
 
+  const fetchFechas = async () => {
+    try {
+        const response = await axios.get(`${API_URL}ajustes`);
+        const data = response.data;
+
+        setFinalEvalStart(data.fecha_inicio_eva_final);
+        setFinalEvalEnd(data.fecha_fin_eva_final);
+        setAutoEvalStart(data.fecha_inicio_autoevaluacion);
+        setAutoEvalEnd(data.fecha_fin_autoevaluacion);
+    } catch (error) {
+        toast.error('No se recuperaron los datos.');
+    }
+  };
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -213,7 +243,7 @@ export default function PersistentDrawerLeft() {
           />
         </div>
         <Divider />
-  
+
         <List sx={{ mt: 3 }}>
           {/* Estudiante */}
           {role === 'estudiante' && (
@@ -301,25 +331,50 @@ export default function PersistentDrawerLeft() {
                 </ListItem>
 
               {/* Autoevaluacion */}
-              <ListItem disablePadding>
+                {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/Autoevaluacion"
+                      onClick={() => handleButtonClick('autoevaluacion')}
+                      sx={{
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <SchoolIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                  )}
+
+              {/* EvaluacionFinal */}
+              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+                <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
-                  to="/Autoevaluacion"
-                  onClick={() => handleButtonClick('autoevaluacion')}
+                  to="/EvaluacionFinal"
+                  onClick={() => handleButtonClick('evaluacionFinal')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'evaluacionFinal' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <SchoolIcon />
+                    <FactCheckIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Autoevaluacion" sx={{ color: 'white' }} />
+                  <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
                 </ListItemButton>
-              </ListItem>                  
+              </ListItem>
+              )}
 
               <ListItem disablePadding>
             <ListItemButton
@@ -342,7 +397,7 @@ export default function PersistentDrawerLeft() {
           </ListItem>
             </>
           )}
-  
+
           {/* Administrador */}
           {role === 'administrador' && (
             <>
@@ -360,13 +415,13 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <SchoolIcon />
+                    <FactCheckIcon />
                   </ListItemIcon>
                   <ListItemText primary="Docentes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
             </>
-          
+
           )}
 
           {/* docente */}
@@ -478,4 +533,4 @@ export default function PersistentDrawerLeft() {
       <Main open={open}></Main>
     </Box>
   );
-}  
+}

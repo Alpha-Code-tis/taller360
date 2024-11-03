@@ -13,6 +13,8 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PlanillaDocenteController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\EvaluacionFinalController;
+use App\Http\Controllers\AjustesController;
 
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
@@ -80,6 +82,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //Autoevaluación estudiante_tarea
     Route::get('/autoevaluacion/estudiantes-tareas', [AutoevaluacionController::class, 'mostrarEstudiantesTareas']);
     Route::patch('/autoevaluacion/{id_tarea}', [AutoevaluacionController::class, 'update']);
+    //eva_final
+    Route::get('/grupo/integrantes', [EmpresaController::class, 'getIntegrantesGrupo'])->middleware('auth:api');
+    Route::post('/evaluacion_final', [EvaluacionFinalController::class, 'store']);
+    Route::get('/evaluacion_final/{id_est_evaluado}', [EvaluacionFinalController::class, 'showEvaluaciones']);
+    //fechas
+    Route::get('/ajustes', [AjustesController::class, 'show']);
+    Route::patch('/ajustes', [AjustesController::class, 'update']);
+
 
 Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 

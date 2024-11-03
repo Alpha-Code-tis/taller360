@@ -87,4 +87,14 @@ class Estudiante extends Authenticatable
         return $this->belongsToMany(Tarea::class, 'estudiante_tarea', 'id_estudiante', 'id_tarea')
             ->withPivot('resultado_evaluacion', 'descripcion_evaluacion');
     }
+
+    public function evaluadorEvaluacionesFinales()
+    {
+        return $this->hasMany(EvaluacionFinal::class, 'id_est_evaluador', 'id_estudiante');
+    }
+
+    public function evaluadoEvaluacionesFinales()
+    {
+        return $this->hasMany(EvaluacionFinal::class, 'id_est_evaluado', 'id_estudiante');
+    }
 }

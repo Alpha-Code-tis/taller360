@@ -1,5 +1,5 @@
-import 'bootstrap/dist/css/bootstrap.min.css'; 
-import { API_URL } from '../config';              
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { API_URL } from '../config';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import axios from 'axios';
@@ -48,15 +48,16 @@ export default function Login({ onLogin }) {
 
       // Suponiendo que la API devuelve 'success', 'token' y 'role'
       if (response.data.success) {
-        const { token, role, nombre } = response.data;
+        const { token, role, nombre, id_estudiante } = response.data;
 
         localStorage.setItem('token', token);
         localStorage.setItem('role', role);
         localStorage.setItem('nombre', nombre);
+        localStorage.setItem('id_estudiante', id_estudiante ?? '');
         onLogin(role);
 
         if (role === 'estudiante') {
-          window.location.href = '/VistaEstudiante'; 
+          window.location.href = '/VistaEstudiante';
         } else if(role === 'docente'){
             window.location.href = '/VistaDocente';
           }else if(role === 'administrador'){
@@ -78,11 +79,11 @@ export default function Login({ onLogin }) {
     <div
       className="login-background container-fluid p-0 m-0"
       style={{
-        backgroundImage: 'url("./src/assets/imagen.jpg")', 
+        backgroundImage: 'url("./src/assets/imagen.jpg")',
         backgroundRepeat: 'no-repeat',
-        height: '100vh', 
+        height: '100vh',
         width: '100vw',
-        overflow: 'hidden' 
+        overflow: 'hidden'
       }}
     >
       <div className="d-flex justify-content-center align-items-center h-100">
@@ -100,7 +101,7 @@ export default function Login({ onLogin }) {
                 required
                 name='Email'
               />
-              {emailError && <div className="text-danger">{emailError}</div>} 
+              {emailError && <div className="text-danger">{emailError}</div>}
             </div>
             <div className="mb-3">
               <label htmlFor="password" className="form-label">Contraseña</label>
@@ -113,7 +114,7 @@ export default function Login({ onLogin }) {
                 required
                 name='Password'
               />
-              {passwordError && <div className="text-danger">{passwordError}</div>} 
+              {passwordError && <div className="text-danger">{passwordError}</div>}
             </div>
             {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
             <Button type="button" className="btn btn-primary w-100"onClick={handleInicio}>
