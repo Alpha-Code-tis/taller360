@@ -35,6 +35,7 @@ import toast from 'react-hot-toast';
 import axios from 'axios';
 import { API_URL } from '../config';
 import SettingsIcon from '@mui/icons-material/Settings';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 
 const drawerWidth = 240;
 
@@ -350,6 +351,25 @@ export default function PersistentDrawerLeft() {
               <ChecklistIcon />
               </ListItemIcon>
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/EvaluationForm"
+              onClick={() => handleButtonClick('evaluationForm')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+              <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>

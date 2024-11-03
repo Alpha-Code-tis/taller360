@@ -111,11 +111,11 @@ const EvaluationForm = () => {
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Nombre</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Tareas Completadas</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Calificación</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Comentarios</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center', color: '#333', backgroundColor: '#eaeaea' }}>Revisado</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Nombre</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Tareas Completadas</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Calificación</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Comentarios</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center', color: '#fff', backgroundColor: '#1A3254' }}>Revisado</th>
           </tr>
         </thead>
         <tbody>
@@ -163,11 +163,41 @@ const EvaluationForm = () => {
         </tbody>
       </table>
 
+
       {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
-        <button onClick={handleCancel} style={{ padding: '10px 20px', border: 'none', backgroundColor: '#f5f5f5', color: '#333', borderRadius: '4px', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)' }}>Cancelar</button>
-        <button onClick={handleSave} style={{ padding: '10px 20px', border: 'none', backgroundColor: '#007bff', color: '#fff', borderRadius: '4px', cursor: 'pointer', boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)' }}>Guardar</button>
+        <button
+            onClick={handleCancel}
+            style={{
+                padding: '10px 20px',
+                border: 'none',
+                backgroundColor: '#f5f5f5',
+                color: '#333',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                marginRight: '80px', // Margen para separar los botones
+            }}
+        >
+            Cancelar
+        </button>
+        <button
+            onClick={handleSave}
+            style={{
+                padding: '10px 20px',
+                border: 'none',
+                backgroundColor: '#007bff',
+                color: '#fff',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'} // Tono más oscuro al pasar el mouse
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#007bff'} // Restaurar color original
+        >
+            Guardar
+        </button>
       </div>
     </div>
   );
