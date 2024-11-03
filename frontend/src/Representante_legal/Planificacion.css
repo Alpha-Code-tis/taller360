@@ -44,8 +44,9 @@ table-container {
   }
   
   .hu-table th {
-    background-color: #f4f4f4;
+    background-color: #1A3254;
     font-weight: bold;
+    color: white;
   }
   
   .hu-table th:last-child,

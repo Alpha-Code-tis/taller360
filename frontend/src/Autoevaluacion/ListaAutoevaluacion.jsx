@@ -3,6 +3,9 @@ import React, { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import './ListaAutoevaluacion.css';
+import dayjs from 'dayjs';
+import 'dayjs/locale/es';
+dayjs.locale('es');
 
 const ListaAutoevaluacion = () => {
   const [estudiantes, setEstudiantes] = useState([]);

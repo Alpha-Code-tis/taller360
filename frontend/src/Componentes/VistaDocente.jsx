@@ -28,8 +28,13 @@ import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Footer from './Footer'; // Asegúrate de que la ruta sea correcta
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import toast from 'react-hot-toast';
+import axios from 'axios';
+import { API_URL } from '../config';
+import SettingsIcon from '@mui/icons-material/Settings';
 
 const drawerWidth = 240;
 
@@ -94,6 +99,26 @@ export default function PersistentDrawerLeft() {
   const [nombre, setNombre] = useState(''); // Estado para el nombre
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
+  const [modalShow, setModalShow] = useState(false);
+  const [autoEvalStart, setAutoEvalStart] = useState('');
+  const [autoEvalEnd, setAutoEvalEnd] = useState('');
+  const [finalEvalStart, setFinalEvalStart] = useState('');
+  const [finalEvalEnd, setFinalEvalEnd] = useState('');
+
+
+  const fetchFechas = async () => {
+    try {
+        const response = await axios.get(`${API_URL}ajustes`);
+        const data = response.data;
+
+        setAutoEvalStart(data.fecha_inicio_autoevaluacion);
+        setAutoEvalEnd(data.fecha_fin_autoevaluacion);
+        setFinalEvalStart(data.fecha_inicio_eva_final);
+        setFinalEvalEnd(data.fecha_fin_eva_final);
+    } catch (error) {
+        toast.error('No se recuperaron los datos.');
+    }
+  };
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -103,7 +128,10 @@ export default function PersistentDrawerLeft() {
       setRole(storedRole);
       setNombre(storedNombre);
     }
-  }, []); // Se ejecuta solo una vez al montar el componente
+    fetchFechas();
+  }, []);
+
+
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget); // Abre el menú al hacer clic en el ícono
@@ -136,6 +164,23 @@ export default function PersistentDrawerLeft() {
     setSelectedButton(buttonName);
   };
 
+  const handleSaveChanges = async () => {
+    const payload = {
+        fecha_inicio_autoevaluacion: autoEvalStart,
+        fecha_fin_autoevaluacion: autoEvalEnd,
+        fecha_inicio_eva_final: finalEvalStart,
+        fecha_fin_eva_final: finalEvalEnd,
+    };
+
+    try {
+        await axios.patch(`${API_URL}ajustes`, payload);
+        toast.success('Fechas guardadas correctamente');
+        setModalShow(false);
+    } catch (error) {
+        toast.error('Error al guardar las fechas');
+    }
+};
+
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
@@ -160,12 +205,14 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
+            <IconButton color="primary" aria-label="ajustes" onClick={() => setModalShow(true)} className="me-3">
+              <SettingsIcon />
+            </IconButton>
             <FaUserCircle size={30} className="me-2" />
             <span className="m-0">{nombre}</span>
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            {/* Menú desplegable */}
             <Menu
               anchorEl={anchorEl}
               open={Boolean(anchorEl)}
@@ -305,31 +352,47 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/EvaluationForm"
-              onClick={() => handleButtonClick('evaluationForm')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-              <AssignmentTurnedInIcon />
-              </ListItemIcon>
-              <ListItemText primary="Formulario de evaluacion" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
       <Footer/>
+
+      <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Habilitar vistas</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label><strong>Autoevaluación</strong></Form.Label>
+              <div className="d-flex justify-content-between">
+                <Form.Label>Fecha Inicio
+                  <Form.Control type="date" value={autoEvalStart} onChange={(e) => setAutoEvalStart(e.target.value)} />
+                </Form.Label>
+                <Form.Label>Fecha Fin
+                  <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                </Form.Label>
+              </div>
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label><strong>Evaluación Final</strong></Form.Label>
+              <div className="d-flex justify-content-between">
+                <Form.Label>Fecha Inicio
+                  <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />
+                </Form.Label>
+                <Form.Label>Fecha Fin
+                  <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
+                </Form.Label>
+              </div>
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
+          <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
+        </Modal.Footer>
+      </Modal>
     </Box>
   );
 }

@@ -11,9 +11,7 @@
     min-width: 60vw;
     border-collapse: collapse;
 }
-.logo-container {
-    margin-left: 230px;
-  }
+
   
   .company-logo {
     height: 60px;
@@ -102,10 +100,6 @@
     .modal-content {
         padding: 15px; /* Reduce el padding en pantallas pequeñas */
     }
-}
-.logo-container {
-    float: right; /* Esto posiciona el logo a la derecha */
-    margin-left: 10px; /* Esto crea espacio entre el logo y el contenido */
 }
 
 .circular-logo {

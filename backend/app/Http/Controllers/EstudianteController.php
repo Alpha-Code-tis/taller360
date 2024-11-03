@@ -37,7 +37,11 @@ class EstudianteController extends Controller
             }
 
             // Listar los estudiantes que pertenecen a la misma empresa
-            $estudiantes = Estudiante::where('id_empresa', $estudiante->id_empresa)->get();
+            $estudiantes = Estudiante::where('id_empresa', $estudiante->id_empresa)
+                ->with(['evaluadoEvaluacionesFinales' => function ($query) use ($estudiante) {
+                    $query->where('id_est_evaluador', $estudiante->id_estudiante);
+                }])
+                ->get();
 
             return response()->json($estudiantes, 200);
         } catch (\Exception $e) {
