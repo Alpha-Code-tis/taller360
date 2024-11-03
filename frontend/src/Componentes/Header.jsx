@@ -239,7 +239,7 @@ export default function PersistentDrawerLeft() {
             src={logo}
             alt="Logo"
             className="rounded-circle"
-            style={{ width: '100px', height: '100px' }}
+            style={{ width: '100px', height: '100px'}}
           />
         </div>
         <Divider />

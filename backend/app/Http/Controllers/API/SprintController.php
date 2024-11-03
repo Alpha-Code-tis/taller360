@@ -42,6 +42,7 @@ class SprintController extends Controller
             'fecha_inicio' => 'required|date_format:d/m/Y',
             'fecha_fin' => 'required|date_format:d/m/Y|after_or_equal:fecha_inicio',
             'requerimiento' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'porcentaje' => 'required|integer',
             'tareas' => 'required|array',
             'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas.*.estimacion' => 'required|integer',
@@ -121,12 +122,19 @@ class SprintController extends Controller
                         'message' => 'El número de sprint debe ser ' . $siguienteSprint . '.',
                     ], Response::HTTP_CONFLICT);
                 }
+                $totalPorcentaje = Sprint::where('id_planificacion', $id_planificacion)->sum('porcentaje');
+
+                if ($totalPorcentaje + $validated['porcentaje'] > 100) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'El total de los porcentajes no debe exceder el 100% - tu total es: ' .$totalPorcentaje . '.'], Response::HTTP_CONFLICT);
+                }
                 $sprint = new Sprint;
                 $sprint->nro_sprint = $validated['nro_sprint'];
                 $sprint->id_planificacion = $id_planificacion;
                 $sprint->color = $validated['color'];
                 $sprint->fecha_inicio = Carbon::createFromFormat('d/m/Y', $validated['fecha_inicio'])->format('Y-m-d');
                 $sprint->fecha_fin = Carbon::createFromFormat('d/m/Y', $validated['fecha_fin'])->format('Y-m-d');
+                $sprint->porcentaje = $validated['porcentaje'];
                 $sprint->save();
             }
             $alcance = Alcance::where('descripcion', $validated['requerimiento'])

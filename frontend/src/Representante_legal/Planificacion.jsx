@@ -50,9 +50,8 @@ const Planificacion = () => {
   const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints obtenidos de la API
   const [fechaInicio, setFechaInicio] = useState(null); // Fecha inicio seleccionada
   const [fechaFinal, setFechaFinal] = useState(null); // Fecha fin seleccionada
-  const [requerimiento,setRequerimiento] = useState('');
-  const [tareas, setTareas]=useState([]);
   const [alcances, setAlcances] = useState([]);
+  const [porcentaje, setPorcentaje] = useState([]);
 
   const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
   const [showModalEvent, setShowModalEvent] = useState();
@@ -327,6 +326,8 @@ const Planificacion = () => {
           const inicio = dayjs(sprintData.fecha_inicio);
           const fin = dayjs(sprintData.fecha_fin);
           const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
+          const porcentaje = sprintData.porcentaje;
+          setPorcentaje(porcentaje);
           setFechaInicio(inicio);
           setFechaFinal(fin);
 
@@ -378,7 +379,6 @@ const Planificacion = () => {
 
   return (
     <div className="container custom-container pt-3">
-      <Toaster /> {/* Asegúrate de incluir el componente Toaster para mostrar los toasts */}
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex align-items-center">
           <div className="sprint-dropdown me-5"> {/* Añadido 'me-2' para margen a la derecha */}
@@ -435,12 +435,11 @@ const Planificacion = () => {
         {selectedEvent && (
       <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
         <Modal.Header>
-          <Modal.Title>Detalles del {selectedEvent.title}</Modal.Title>
+          <Modal.Title>Detalles del {selectedEvent.title} &nbsp; % Cobro: {porcentaje ? `${porcentaje}%` : 'Porcentaje no disponible'}</Modal.Title>
         </Modal.Header>
       <Modal.Body>
         <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
         <p><strong>Fecha de fin:</strong> {fechaFinal ? fechaFinal.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
-
         <h5>Requerimientos</h5>
         {alcances.length > 0 ? (
           alcances.map((alcance, index) => (
@@ -635,7 +634,7 @@ const Planificacion = () => {
                     <thead className="table-light">
                       <tr>
                         <th>HU-Tareas</th>
-                        <th>Estimacion</th>
+                        <th>Estimación</th>
                         <th>Acciones</th>
                       </tr>
                     </thead>
