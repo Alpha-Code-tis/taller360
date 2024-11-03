@@ -15,6 +15,7 @@ use App\Http\Controllers\PlanillaDocenteController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\CantidadGestionController;
 
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
@@ -146,3 +147,5 @@ Route::get('/evaluacion/tareas/{empresaId}', [EvaluacionController::class, 'getT
 Route::post('/evaluacion/guardar', [EvaluacionController::class, 'saveEvaluation'])->name('evaluacion.guardar');
 Route::get('/evaluacion/revisada/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluacion.revisada');
 
+//Gestion-Cantidad
+Route::post('/gestion', [CantidadGestionController::class, 'store']);
