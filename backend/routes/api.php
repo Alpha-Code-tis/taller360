@@ -14,6 +14,7 @@ use App\Http\Controllers\EmpresaController;
 use App\Http\Controllers\PlanillaDocenteController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
+use App\Http\Controllers\EvaluacionController;
 
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
@@ -136,3 +137,12 @@ Route::post('/criterios', [CriterioController::class,'store']);
 Route::put('/criterios/{id_criterio}', [CriterioController::class,'update']);
 Route::delete('/criterios/{id_criterio}', [CriterioController::class,'destroy']);
 });
+
+//Evaluacion
+Route::get('/evaluacion/form', [EvaluacionController::class, 'showEvaluationForm'])->name('evaluacion.form');
+Route::get('/evaluacion/sprints/{empresaId}', [EvaluacionController::class, 'getSprintsByEmpresa'])->name('evaluacion.sprints');
+Route::get('/evaluacion/semanas/{sprintId}', [EvaluacionController::class, 'getWeeksBySprint'])->name('evaluacion.semanas');
+Route::get('/evaluacion/tareas/{empresaId}', [EvaluacionController::class, 'getTareasByEmpresa'])->name('evaluacion.tareas');
+Route::post('/evaluacion/guardar', [EvaluacionController::class, 'saveEvaluation'])->name('evaluacion.guardar');
+Route::get('/evaluacion/revisada/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluacion.revisada');
+

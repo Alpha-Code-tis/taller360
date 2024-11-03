@@ -23,7 +23,7 @@ return new class extends Migration
             $table->integer('estimacion')->nullable();
             $table->integer('calificacion')->nullable();
             $table->string('observaciones', 50)->nullable(); 
-            $table->boolean('revisado', false)->nullable(); 
+            $table->boolean('revisado')->default(false)->nullable();
             $table->unique(['id_tarea'], 'tarea_pk');
         });
     }

@@ -13,14 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tarea', function (Blueprint $table) {
+        Schema::create('detalle_tarea', function (Blueprint $table) {
             $table->integer('id_detalle_tarea', true);
-            $table->integer('id_tarea')->nullable()->index('tiene_varia_fk');
+            $table->integer('id_tarea')->nullable()->index('tarea_detalle_fk');
             $table->string('nom_tarea', 35)->nullable();
             $table->string('estado_tarea', 12)->default('Pendiente');
             $table->integer('calificacion_tarea')->nullable();
             $table->string('observaciones_tarea', 50)->nullable(); 
-            $table->boolean('revisado_tarea', false)->nullable(); 
+            $table->boolean('revisado_tarea')->default(false)->nullable();
             $table->integer('semana_sprint')->nullable();
             $table->unique(['id_detalle_tarea'], 'detalle_tarea_pk');
         });
