@@ -36,6 +36,7 @@ import axios from 'axios';
 import { API_URL } from '../config';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { Row, Col } from 'react-bootstrap';
 
 const drawerWidth = 240;
 
@@ -183,6 +184,23 @@ export default function PersistentDrawerLeft() {
 };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  
+  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+
+  const handleTeamConfigSave = () => {
+    // Lógica para guardar los ajustes de conformación de equipos
+    setTeamConfigModalShow(false);
+    toast.success('Ajustes de conformación de equipos guardados');
+  };
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
+
+  const handleSettingsMenuOpen = (event) => {
+    setSettingsMenuAnchor(event.currentTarget);
+  };
+
+  const handleSettingsMenuClose = () => {
+    setSettingsMenuAnchor(null);
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -206,7 +224,7 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
-            <IconButton color="primary" aria-label="ajustes" onClick={() => setModalShow(true)} className="me-3">
+            <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
               <SettingsIcon />
             </IconButton>
             <FaUserCircle size={30} className="me-2" />
@@ -214,12 +232,11 @@ export default function PersistentDrawerLeft() {
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              keepMounted
-            >
+            <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
+              <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
+              <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
+            </Menu>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
             </Menu>
           </div>
@@ -413,6 +430,57 @@ export default function PersistentDrawerLeft() {
           <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal Configuración de Equipos */}
+      <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Configuración de Equipos</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="formGroupName">
+              <Form.Label>Gestion</Form.Label>
+              <Form.Control type="text" placeholder="2-2024" />
+            </Form.Group>
+            
+            <Row>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupStartDate">
+                  <Form.Label>Fecha Inicio</Form.Label>
+                  <Form.Control type="text" placeholder="dd/mm/aaaa" />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupEndDate">
+                  <Form.Label>Fecha Fin</Form.Label>
+                  <Form.Control type="text" placeholder="dd/mm/aaaa" />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupMinStudents">
+                  <Form.Label>Cantidad Min. de estudiantes</Form.Label>
+                  <Form.Control type="text" placeholder="3" />
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupMaxStudents">
+                  <Form.Label>Cantidad Max. de estudiantes</Form.Label>
+                  <Form.Control type="text" placeholder="6" />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
+          <Button variant="primary" onClick={handleTeamConfigSave}>Guardar cambios</Button>
+        </Modal.Footer>
+      </Modal>
+
+
     </Box>
   );
 }
