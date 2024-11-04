@@ -8,26 +8,46 @@ use App\Models\Empresa;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use App\Models\DetalleTarea;
+use App\Models\Estudiante;
+use App\Models\EstudianteTarea;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EvaluacionController extends Controller
 {
-    // Método para mostrar el formulario de evaluación
+    // Mostrar el formulario de evaluación
     public function showEvaluationForm()
     {
         // Obtener el docente autenticado
         $docente = Auth::user();
+        // Verificar si el docente está autenticado
+        if (!$docente) {
+            return response()->json([
+                'error' => 'Docente no autenticado.'
+            ], 401);
+        }
 
-        // Obtener todas las empresas del grupo del docente
-        $empresas = Empresa::whereHas('grupos', function ($query) use ($docente) {
-            $query->where('id_docente', $docente->id_docente);
-        })->distinct()->get();        
+        $empresas = Estudiante::whereNotNull('id_empresa')
+            ->whereNotNull('id_representante')
+            ->where('id_grupo', $docente->id_grupo)
+            ->pluck('id_empresa')
+            ->unique();
 
-        return view('evaluation.form', compact('empresas'));
+        // Verificar si hay empresas asociadas
+        if ($empresas->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron empresas para este docente.'
+            ], 404);
+        }
+        $detallesEmpresas = Empresa::whereIn('id_empresa', $empresas)->get();
+
+        // Retornar las empresas en formato JSON
+        return response()->json([
+            'empresas' => $detallesEmpresas
+        ]);
     }
 
-    // Método para obtener los sprints de una empresa seleccionada
+    // Obtener los sprints de una empresa seleccionada
     public function getSprintsByEmpresa($empresaId)
     {
         $sprints = Sprint::whereIn('id_planificacion', function ($query) use ($empresaId) {
@@ -35,11 +55,24 @@ class EvaluacionController extends Controller
                 ->from('planificacion')
                 ->where('id_empresa', $empresaId);
         })->get();
-        
+
         return response()->json($sprints);
     }
+    public function getSprintPercentage($sprintId)
+    {
+        try {
+            // Encuentra el sprint por ID
+            $sprint = Sprint::findOrFail($sprintId);
 
-    // Método para obtener las semanas de un sprint seleccionado
+            // Retornar el porcentaje del sprint
+            return response()->json([
+                'porcentaje' => $sprint->porcentaje
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Sprint no encontrado.'], 404);
+        }
+    }
+    // Obtener las semanas de un sprint seleccionado
     public function getWeeksBySprint($sprintId)
     {
         $sprint = Sprint::findOrFail($sprintId);
@@ -48,76 +81,125 @@ class EvaluacionController extends Controller
         return response()->json($weeks);
     }
 
-    // Método para obtener las tareas de una empresa seleccionada
-    public function getTareasByEmpresa($empresaId)
+    // Obtener las tareas de una empresa seleccionada
+    public function getTareasByEmpresa($empresaId, $sprintId)
     {
-        // Filtrar las tareas de la empresa que tengan estado pendiente, en progreso o terminado (sin revisar)
-        $tareas = Tarea::whereIn('id_alcance', function ($query) use ($empresaId) {
-            $query->select('id_alcance')
-                ->from('alcance')
-                ->whereHas('sprint.planificacion', function ($query) use ($empresaId) {
-                    $query->where('id_empresa', $empresaId);
-                });
+        // Filtrar las tareas de la empresa seleccionada y sprint seleccionado
+        $tareas = Tarea::whereHas('alcance', function ($query) use ($empresaId, $sprintId) {
+            $query->whereHas('sprint', function ($query) use ($empresaId, $sprintId) {
+                $query->where('id_sprint', $sprintId) // Filtrar por el sprint seleccionado
+                    ->whereHas('planificacion', function ($query) use ($empresaId) {
+                        $query->where('id_empresa', $empresaId); // Filtrar por la empresa seleccionada
+                    });
+            });
         })->where(function ($query) {
             $query->whereIn('estado', ['Pendiente', 'En Progreso'])
-                  ->orWhere(function ($query) {
-                      $query->where('estado', 'Terminado')->where('revisado', false);
-                  });
-        })->get();        
+                ->orWhere(function ($query) {
+                    $query->where('estado', 'Terminado')->where('revisado', false);
+                });
+        })->get();
 
-        return response()->json($tareas);
+        // Agregar los nombres de los responsables (estudiantes) para cada tarea
+        $tareasConResponsables = $tareas->map(function ($tarea) {
+            $responsables = EstudianteTarea::where('id_tarea', $tarea->id_tarea)
+                ->with('estudiante')
+                ->get()
+                ->pluck('estudiante.nombre_estudiante')
+                ->implode(', ');
+            $tarea->responsables = $responsables;
+            return $tarea;
+        });
+
+        return response()->json($tareasConResponsables);
     }
 
-    // Método para guardar la evaluación de las tareas
+
+    // Guardar la evaluación de las tareas
     public function saveEvaluation(Request $request)
     {
+        // Validación de datos de entrada
         $request->validate([
             'tareas' => 'required|array',
             'tareas.*.id_tarea' => 'required|exists:tarea,id_tarea',
-            'tareas.*.calificacion' => 'required|integer|min:1|max:100',
+            'tareas.*.calificacion' => ['required', 'regex:/^\d+ \/ \d+$/'],
             'tareas.*.observaciones' => 'nullable|string',
             'tareas.*.revisado' => 'required|boolean',
             'sprint_id' => 'required|exists:sprint,id_sprint',
             'week' => 'required|integer|min:1',
             'week_revisado' => 'required|boolean'
         ]);
+        // Obtener el sprint para verificar el porcentaje máximo permitido
+        $sprint = Sprint::findOrFail($request->sprint_id);
+        $porcentajeMaximo = $sprint->porcentaje;
+     
 
-        DB::transaction(function () use ($request) {
-            // Guardar la evaluación para cada tarea
+        try {
+            // Iniciar una transacción para asegurar la integridad de los datos
+            DB::beginTransaction();
+
+            // Iterar sobre cada tarea proporcionada
             foreach ($request->tareas as $tareaData) {
+                // Obtener el valor de la calificación en formato 'numero / porcentaje'
+                list($calificacion, $porcentaje) = explode(' / ', $tareaData['calificacion']);
+
+                // Convertir calificación y porcentaje a enteros para la validación
+                $calificacion = (int) $calificacion;
+                $porcentaje = (int) $porcentaje;
+
+                // Validar que el porcentaje ingresado coincida con el del sprint
+                if ($porcentaje !== $porcentajeMaximo) {
+                    return response()->json([
+                        'error' => "El porcentaje especificado debe coincidir con el porcentaje del sprint: $porcentajeMaximo"
+                    ], 422);
+                }
+
+                // Validar que la calificación no exceda el porcentaje máximo
+                if ($calificacion > $porcentajeMaximo) {
+                    return response()->json([
+                        'error' => "La calificación no puede exceder el valor máximo permitido del sprint: $porcentajeMaximo"
+                    ], 422);
+                }
+
+                // Encontrar la tarea y actualizar los datos
                 $tarea = Tarea::findOrFail($tareaData['id_tarea']);
-                $tarea->calificacion = $tareaData['calificacion'];
+                $tarea->calificacion = $calificacion; // Asignar la calificación
                 $tarea->observaciones = $tareaData['observaciones'] ?? null;
                 $tarea->revisado = $tareaData['revisado'];
                 $tarea->save();
 
-                // Guardar en detalle tarea
-                DetalleTarea::updateOrCreate(
-                    ['id_tarea' => $tarea->id_tarea, 'semana_sprint' => $request->week],
-                    [
-                        'estado_tarea' => $tarea->estado,
-                        'calificacion_tarea' => $tareaData['calificacion'],
-                        'observaciones_tarea' => $tareaData['observaciones'] ?? '',
-                        'revisado_tarea' => $tareaData['revisado'],
-                        'nom_tarea' => $tarea->nombre_tarea
-                    ]
-                );                
+
+                // Guardar en detalle tarea con nombre del estudiante responsable
+                $estudiantes = EstudianteTarea::where('id_tarea', $tarea->id_tarea)->with('estudiante')->get();
+                foreach ($estudiantes as $estudianteTarea) {
+                    DetalleTarea::updateOrCreate(
+                        ['id_tarea' => $tarea->id_tarea, 'semana_sprint' => $request->week],
+                        [
+                            'nom_estudiante' => $estudianteTarea->estudiante->nombre_estudiante,
+                            'nom_tarea' => $tarea->nombre_tarea,
+                            'calificacion_tarea' => "{$calificacion} / {$porcentajeMaximo}", // Guardar el formato completo
+                            'observaciones_tarea' => $tareaData['observaciones'] ?? '',
+                            'revisado_tarea' => $tareaData['revisado'],
+                            'revisado_semanas' => $request->week_revisado
+                        ]
+                    );
+                }
             }
 
-            // Marcar la semana como revisada si corresponde
-            $sprint = Sprint::findOrFail($request->sprint_id);
-            $sprintWeeks = json_decode($sprint->revisado_semanas, true) ?: [];
-            if ($request->week_revisado && !in_array($request->week, $sprintWeeks, true)) {
-                $sprintWeeks[] = $request->week;
-                $sprint->revisado_semanas = json_encode($sprintWeeks);
-                $sprint->save();
-            }
-        });
+    
 
+            DB::commit();
+        } catch (\Exception $e) {
+            // Rollback en caso de cualquier error
+            DB::rollBack();
+            return response()->json(['error' => 'Error al guardar la evaluación: ' . $e->getMessage()], 500);
+        }
+
+        // Responder con un mensaje de éxito
         return response()->json(['message' => 'Evaluación guardada con éxito.']);
     }
 
-    // Método para obtener la evaluación de una semana que ya fue revisada
+
+    // Obtener la evaluación de una semana que ya fue revisada
     public function getReviewedWeek($sprintId, $week)
     {
         $sprint = Sprint::findOrFail($sprintId);
@@ -129,9 +211,9 @@ class EvaluacionController extends Controller
 
         // Obtener las tareas de esa semana desde la tabla detalle tarea
         $detalleTareas = DetalleTarea::where('semana_sprint', $week)
-                             ->whereHas('tarea.alcance.sprint', function ($query) use ($sprintId) {
-                                 $query->where('id_sprint', $sprintId);
-                             })->distinct()->get();
+            ->whereHas('tarea.alcance.sprint', function ($query) use ($sprintId) {
+                $query->where('id_sprint', $sprintId);
+            })->distinct()->get();
         return response()->json($detalleTareas);
     }
 }
