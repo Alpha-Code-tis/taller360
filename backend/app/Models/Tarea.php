@@ -28,7 +28,7 @@ class Tarea extends Model
     protected $table = 'tarea';
     protected $primaryKey = 'id_tarea';
     protected $fillable = ['nombre_tarea',
-		'estimacion', 'estado', 'progreso', 'avances'];
+		'estimacion', 'estado', 'progreso', 'avances', 'calificion', 'observaciones', 'revisado'];
 
     public function estudiantes()
     {

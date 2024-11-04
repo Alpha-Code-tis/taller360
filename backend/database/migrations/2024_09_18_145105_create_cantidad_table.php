@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('cantidad')->nullable();
             $table->integer('cant_min')->nullable();
             $table->integer('cant_max')->nullable();
+            $table->date('fecha_ini')->nullable();
+            $table->date('fecha_final')->nullable();
 
             $table->unique(['id_cantidad'], 'cantidad_pk');
         });

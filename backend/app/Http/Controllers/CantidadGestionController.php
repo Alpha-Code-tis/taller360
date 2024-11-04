@@ -53,3 +53,4 @@ class CantidadGestionController extends Controller
         return response()->json(['message' => 'Gestion creada exitosamente', 'data' => $empresa], 201);
     }
 }
+

@@ -33,14 +33,18 @@ class Cantidad extends Model
 		'id_empresa' => 'int',
 		'cantidad' => 'int',
 		'cant_min' => 'int',
-		'cant_max' => 'int'
+		'cant_max' => 'int',
+		'fecha_ini' => 'date',
+		'fecha_final' => 'date'
 	];
 
 	protected $fillable = [
 		'id_empresa',
 		'cantidad',
 		'cant_min',
-		'cant_max'
+		'cant_max',
+		'fecha_ini',
+		'fecha_final'
 	];
 
 	public function empresa()
