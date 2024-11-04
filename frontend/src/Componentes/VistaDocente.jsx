@@ -183,6 +183,25 @@ export default function PersistentDrawerLeft() {
     }
 };
 
+
+const handleSaveChangesGrup = async () => {
+  const payload = {
+      gestion:formGroupName,
+      fecha_inicio: formGroupStartDate,
+      fecha_fin: formGroupEndDate,
+      cantidad_minima: finalEvalStart,
+      cantidad_maxima: finalEvalEnd,
+  };
+
+  try {
+      await axios.patch(`${API_URL}ajustes`, payload);
+      toast.success('Fechas guardadas correctamente');
+      setModalShow(false);
+  } catch (error) {
+      toast.error('Error al guardar las fechas');
+  }
+};
+
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
@@ -476,7 +495,7 @@ export default function PersistentDrawerLeft() {
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
-          <Button variant="primary" onClick={handleTeamConfigSave}>Guardar cambios</Button>
+          <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
         </Modal.Footer>
       </Modal>
 

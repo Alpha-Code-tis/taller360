@@ -28,7 +28,6 @@ import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de 
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
-import GearIcon from './Componentes/GearIcon';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -105,7 +104,7 @@ function App() {
           </Routes>
         )}
       </div>
-      {isAuthenticated && role === 'docente' && <GearIcon />}
+      {isAuthenticated && role === 'docente'}
       {/* Solo mostrar Footer si está autenticado */}
       {isAuthenticated && <Footer />}
     </div>

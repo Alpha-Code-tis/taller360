@@ -107,6 +107,8 @@ Route::get('/docentes/{id}', [DocenteController::class, 'show']);
 Route::post('/docentes', [DocenteController::class, 'store']);
 Route::put('/docentes/{id}', [DocenteController::class, 'update']);
 Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
+Route::post('/api/save-team-config', [CantidadGestionController::class, 'store']);
+
 
 //Empresa-equipo
 Route::get('/equipos', [EmpresaController::class, 'index']);
@@ -145,4 +147,6 @@ Route::get('/criterios/{id_criterio}', [CriterioController::class,'show']);
 Route::post('/criterios', [CriterioController::class,'store']);
 Route::put('/criterios/{id_criterio}', [CriterioController::class,'update']);
 Route::delete('/criterios/{id_criterio}', [CriterioController::class,'destroy']);
+//Gestion-Cantidad
+Route::post('/gestion', [CantidadGestionController::class, 'store']);
 });
