@@ -43,7 +43,7 @@ class Cantidad extends Model
 		'cantidad',
 		'cant_min',
 		'cant_max',
-		'fecha_fin',
+		'fecha_ini',
 		'fecha_final'
 	];
 
