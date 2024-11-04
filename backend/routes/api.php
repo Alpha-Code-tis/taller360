@@ -94,75 +94,71 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/ajustes', [AjustesController::class, 'update']);
 
 
-Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
+    Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
 
-//grupo
-Route::get('/grupos', [GrupoController::class, 'index']);
-Route::get('/grupos/{id}', [GrupoController::class, 'show']);
-Route::post('/grupos', [GrupoController::class, 'store']);
-Route::put('/grupos/{id}', [GrupoController::class, 'update']);
-Route::delete('/grupos/{id}', [GrupoController::class, 'destroy']);
+    //grupo
+    Route::get('/grupos', [GrupoController::class, 'index']);
+    Route::get('/grupos/{id}', [GrupoController::class, 'show']);
+    Route::post('/grupos', [GrupoController::class, 'store']);
+    Route::put('/grupos/{id}', [GrupoController::class, 'update']);
+    Route::delete('/grupos/{id}', [GrupoController::class, 'destroy']);
 
-//docente
-Route::get('/docentes', [DocenteController::class, 'index']);
-Route::get('/docentes/{id}', [DocenteController::class, 'show']);
-Route::post('/docentes', [DocenteController::class, 'store']);
-Route::put('/docentes/{id}', [DocenteController::class, 'update']);
-Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
-Route::post('/api/save-team-config', [CantidadGestionController::class, 'store']);
-
-
-//Empresa-equipo
-Route::get('/equipos', [EmpresaController::class, 'index']);
-Route::post('/equipos', [EmpresaController::class, 'store']);
-Route::get('/equipos/{id_empresa}', [EmpresaController::class, 'show']);
-Route::put('/equipos/{id_empresa}', [EmpresaController::class, 'update']);
-Route::delete('/equipos/{id_empresa}', [EmpresaController::class, 'destroy']);
-Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
-Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
-Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
-Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
-
-//Planilla-Docente
-Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
-Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']);
-Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']);
-Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']);
-Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']);
-
-//Planilla-Representante
-Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']);
-Route::get('/sprints/{sprintId}/tareas', [PlanillaController::class, 'mostrarTareas']);
-Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class, 'asignarEstudiantes']);
-Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']);
-
-//Tarea
-Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
-Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
-Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
-Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
-Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
-
-//Criterios
-Route::get('/criterios', [CriterioController::class, 'index']);
-Route::get('/criterios/{id_criterio}', [CriterioController::class,'show']);
-Route::post('/criterios', [CriterioController::class,'store']);
-Route::put('/criterios/{id_criterio}', [CriterioController::class,'update']);
-Route::delete('/criterios/{id_criterio}', [CriterioController::class,'destroy']);
-//Gestion-Cantidad
-Route::post('/gestion', [CantidadGestionController::class, 'store']);
-});
-
-//Evaluacion
-Route::get('/evaluation/form', [EvaluacionController::class, 'showEvaluationForm']);
-Route::get('/evaluation/sprints/{empresaId}', [EvaluacionController::class, 'getSprintsByEmpresa'])->name('evaluation.sprints');
-Route::get('/evaluation/weeks/{sprintId}', [EvaluacionController::class, 'getWeeksBySprint'])->name('evaluation.weeks');
-Route::get('/evaluation/tareas/{empresaId}/sprint/{sprintId}', [EvaluacionController::class, 'getTareasByEmpresa'])->name('evaluation.tareas');
-Route::post('/evaluation/save', [EvaluacionController::class, 'saveEvaluation'])->name('evaluation.save');
-Route::get('/evaluation/reviewed/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluation.reviewed');
-Route::get('/evaluation/sprint/{sprintId}', [EvaluacionController::class, 'getSprintPercentage']);
+    //docente
+    Route::get('/docentes', [DocenteController::class, 'index']);
+    Route::get('/docentes/{id}', [DocenteController::class, 'show']);
+    Route::post('/docentes', [DocenteController::class, 'store']);
+    Route::put('/docentes/{id}', [DocenteController::class, 'update']);
+    Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
+    Route::post('/api/save-team-config', [CantidadGestionController::class, 'store']);
 
 
-//Gestion-Cantidad
-Route::post('/gestion', [CantidadGestionController::class, 'store']);
+    //Empresa-equipo
+    Route::get('/equipos', [EmpresaController::class, 'index']);
+    Route::post('/equipos', [EmpresaController::class, 'store']);
+    Route::get('/equipos/{id_empresa}', [EmpresaController::class, 'show']);
+    Route::put('/equipos/{id_empresa}', [EmpresaController::class, 'update']);
+    Route::delete('/equipos/{id_empresa}', [EmpresaController::class, 'destroy']);
+    Route::get('/sin-empresa', [EmpresaController::class, 'getEstudiantesSinEmpresa']);
+    Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
+    Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
+    Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
+
+    //Planilla-Docente
+    Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
+    Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']);
+    Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']);
+    Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']);
+    Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']);
+
+    //Planilla-Representante
+    Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']);
+    Route::get('/sprints/{sprintId}/tareas', [PlanillaController::class, 'mostrarTareas']);
+    Route::post('/tareas/{tareaId}/asignar-estudiantes', [PlanillaController::class, 'asignarEstudiantes']);
+    Route::delete('/tareas/{tareaId}/estudiantes/{estudianteId}', [PlanillaController::class, 'eliminarEstudianteDeTarea']);
+
+    //Tarea
+    Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
+    Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
+    Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
+    Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
+    Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
+
+    //Criterios
+    Route::get('/criterios', [CriterioController::class, 'index']);
+    Route::get('/criterios/{id_criterio}', [CriterioController::class, 'show']);
+    Route::post('/criterios', [CriterioController::class, 'store']);
+    Route::put('/criterios/{id_criterio}', [CriterioController::class, 'update']);
+    Route::delete('/criterios/{id_criterio}', [CriterioController::class, 'destroy']);
+    //Gestion-Cantidad
+    Route::post('/gestion', [CantidadGestionController::class, 'store']);
+
+
+    //Evaluacion
+    Route::get('/evaluation/form', [EvaluacionController::class, 'showEvaluationForm']);
+    Route::get('/evaluation/sprints/{empresaId}', [EvaluacionController::class, 'getSprintsByEmpresa'])->name('evaluation.sprints');
+    Route::get('/evaluation/weeks/{sprintId}', [EvaluacionController::class, 'getWeeksBySprint'])->name('evaluation.weeks');
+    Route::get('/evaluation/tareas/{empresaId}/sprint/{sprintId}', [EvaluacionController::class, 'getTareasByEmpresa'])->name('evaluation.tareas');
+    Route::post('/evaluation/save', [EvaluacionController::class, 'saveEvaluation'])->name('evaluation.save');
+    Route::get('/evaluation/reviewed/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluation.reviewed');
+    Route::get('/evaluation/sprint/{sprintId}', [EvaluacionController::class, 'getSprintPercentage']);
 });
