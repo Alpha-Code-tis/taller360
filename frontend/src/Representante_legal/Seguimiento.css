@@ -60,7 +60,7 @@ header h1 {
     border: 1px solid #ddd;
     text-align: center; /* Centrar texto en las cabeceras */
     color: white; /* Cambiar color de texto a blanco */
-    background-color: #1A3254; /* Color de fondo para encabezados */
+    background-color: #1a3254; /* Color de fondo para encabezados */
 }
 
 .tasks-table td {

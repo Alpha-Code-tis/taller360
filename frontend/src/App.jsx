@@ -16,6 +16,7 @@ import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
 import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
+import EvaluacionFinal from './EvaluacionFinal/EvaluacionFinal';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
 import './App.css';
@@ -26,6 +27,7 @@ import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
+import EvaluationForm from './EvaluationForm/EvaluationForm';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -80,6 +82,7 @@ function App() {
                 <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
                 <Route path="/Seguimiento" element={<Seguimiento />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
+                <Route path="/EvaluacionFinal" element={<EvaluacionFinal />} />
               </>
             )}
             {role === 'docente' && (
@@ -90,6 +93,7 @@ function App() {
                 <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
+                <Route path="/EvaluationForm" element={<EvaluationForm />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />
@@ -105,5 +109,4 @@ function App() {
     </div>
   );
 }
-
 export default App;

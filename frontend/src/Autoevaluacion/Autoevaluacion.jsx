@@ -89,7 +89,7 @@ const Autoevaluacion = () => {
     fetchSprints();
   }, []);
 
-  const fetchSprints = async() => {
+  const fetchSprints = async () => {
     try {
       const response = await axios.get(`${API_URL}tareas/sprints`);
       setSprints(response.data);
