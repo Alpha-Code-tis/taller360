@@ -104,6 +104,7 @@ function App() {
           </Routes>
         )}
       </div>
+      {isAuthenticated && role === 'docente'}
       {/* Solo mostrar Footer si está autenticado */}
       {isAuthenticated && <Footer />}
     </div>

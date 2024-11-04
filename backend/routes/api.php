@@ -16,6 +16,8 @@ use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\EvaluacionFinalController;
 use App\Http\Controllers\AjustesController;
+use App\Http\Controllers\EvaluacionController;
+use App\Http\Controllers\CantidadGestionController;
 
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
@@ -107,6 +109,8 @@ Route::get('/docentes/{id}', [DocenteController::class, 'show']);
 Route::post('/docentes', [DocenteController::class, 'store']);
 Route::put('/docentes/{id}', [DocenteController::class, 'update']);
 Route::delete('/docentes/{id}', [DocenteController::class, 'destroy']);
+Route::post('/api/save-team-config', [CantidadGestionController::class, 'store']);
+
 
 //Empresa-equipo
 Route::get('/equipos', [EmpresaController::class, 'index']);
@@ -145,4 +149,17 @@ Route::get('/criterios/{id_criterio}', [CriterioController::class,'show']);
 Route::post('/criterios', [CriterioController::class,'store']);
 Route::put('/criterios/{id_criterio}', [CriterioController::class,'update']);
 Route::delete('/criterios/{id_criterio}', [CriterioController::class,'destroy']);
+//Gestion-Cantidad
+Route::post('/gestion', [CantidadGestionController::class, 'store']);
 });
+
+//Evaluacion
+Route::get('/evaluacion/form', [EvaluacionController::class, 'showEvaluationForm'])->name('evaluacion.form');
+Route::get('/evaluacion/sprints/{empresaId}', [EvaluacionController::class, 'getSprintsByEmpresa'])->name('evaluacion.sprints');
+Route::get('/evaluacion/semanas/{sprintId}', [EvaluacionController::class, 'getWeeksBySprint'])->name('evaluacion.semanas');
+Route::get('/evaluacion/tareas/{empresaId}', [EvaluacionController::class, 'getTareasByEmpresa'])->name('evaluacion.tareas');
+Route::post('/evaluacion/guardar', [EvaluacionController::class, 'saveEvaluation'])->name('evaluacion.guardar');
+Route::get('/evaluacion/revisada/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluacion.revisada');
+
+//Gestion-Cantidad
+Route::post('/gestion', [CantidadGestionController::class, 'store']);

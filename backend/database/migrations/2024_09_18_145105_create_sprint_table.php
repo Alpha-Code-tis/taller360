@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('color', 7)->nullable();
             $table->integer('nro_sprint')->nullable();
             $table->integer('porcentaje')->nullable();
+            $table->integer('semanas_cant')->nullable();
             $table->unique(['id_sprint'], 'sprint_pk');
         });
     }

@@ -36,6 +36,7 @@ import axios from 'axios';
 import { API_URL } from '../config';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import { Row, Col } from 'react-bootstrap';
 
 const drawerWidth = 240;
 
@@ -105,19 +106,25 @@ export default function PersistentDrawerLeft() {
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [finalEvalStart, setFinalEvalStart] = useState('');
   const [finalEvalEnd, setFinalEvalEnd] = useState('');
+  const [formGroupName, setFormGroupName] = useState('');
+  const [formGroupStartDate, setformGroupStartDate] = useState('');
+  const [formGroupEndDate, setformGroupEndDate] = useState('');
+  const [formGroupMinStudents, setformGroupMinStudents] = useState('');
+  const [formGroupMaxStudents, setformGroupMaxStudents] = useState('');
+  
 
 
   const fetchFechas = async () => {
     try {
-        const response = await axios.get(`${API_URL}ajustes`);
-        const data = response.data;
+      const response = await axios.get(`${API_URL}ajustes`);
+      const data = response.data;
 
-        setAutoEvalStart(data.fecha_inicio_autoevaluacion);
-        setAutoEvalEnd(data.fecha_fin_autoevaluacion);
-        setFinalEvalStart(data.fecha_inicio_eva_final);
-        setFinalEvalEnd(data.fecha_fin_eva_final);
+      setAutoEvalStart(data.fecha_inicio_autoevaluacion);
+      setAutoEvalEnd(data.fecha_fin_autoevaluacion);
+      setFinalEvalStart(data.fecha_inicio_eva_final);
+      setFinalEvalEnd(data.fecha_fin_eva_final);
     } catch (error) {
-        toast.error('No se recuperaron los datos.');
+      toast.error('No se recuperaron los datos.');
     }
   };
 
@@ -167,22 +174,72 @@ export default function PersistentDrawerLeft() {
 
   const handleSaveChanges = async () => {
     const payload = {
-        fecha_inicio_autoevaluacion: autoEvalStart,
-        fecha_fin_autoevaluacion: autoEvalEnd,
-        fecha_inicio_eva_final: finalEvalStart,
-        fecha_fin_eva_final: finalEvalEnd,
+      fecha_inicio_autoevaluacion: autoEvalStart,
+      fecha_fin_autoevaluacion: autoEvalEnd,
+      fecha_inicio_eva_final: finalEvalStart,
+      fecha_fin_eva_final: finalEvalEnd,
     };
 
     try {
-        await axios.patch(`${API_URL}ajustes`, payload);
-        toast.success('Fechas guardadas correctamente');
-        setModalShow(false);
+      await axios.patch(`${API_URL}ajustes`, payload);
+      toast.success('Fechas guardadas correctamente');
+      setModalShow(false);
     } catch (error) {
-        toast.error('Error al guardar las fechas');
+      toast.error('Error al guardar las fechas');
     }
-};
+  };
+
+
+  const handleSaveChangesGrup = async () => {
+    const payload = {
+      gestion: formGroupName,
+      fecha_inicio: formGroupStartDate,
+      fecha_fin: formGroupEndDate,
+      cantidad_minima: formGroupMinStudents,
+      cantidad_maxima: formGroupMaxStudents,
+    };
+    console.log(payload);
+    try {
+      await axios.post(`${API_URL}gestion`, payload);
+      toast.success('Fechas guardadas correctamente');
+      setModalShow(false);
+  } catch (error) {
+      // Mostrar el mensaje de error en la interfaz
+      toast.error('Error al guardar las fechas');
+      
+      // Mostrar el error completo en la consola para mayor detalle
+      console.error('Error al guardar las fechas:', error);
+  
+      // Si la respuesta del servidor contiene un mensaje específico, también puedes mostrarlo
+      if (error.response) {
+          console.error('Respuesta del servidor:', error.response.data);
+      } else if (error.request) {
+          console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+      } else {
+          console.error('Error de configuración:', error.message);
+      }
+  }
+  
+  };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+
+  const handleTeamConfigSave = () => {
+    // Lógica para guardar los ajustes de conformación de equipos
+    setTeamConfigModalShow(false);
+    toast.success('Ajustes de conformación de equipos guardados');
+  };
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
+
+  const handleSettingsMenuOpen = (event) => {
+    setSettingsMenuAnchor(event.currentTarget);
+  };
+
+  const handleSettingsMenuClose = () => {
+    setSettingsMenuAnchor(null);
+  };
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -206,7 +263,7 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
-            <IconButton color="primary" aria-label="ajustes" onClick={() => setModalShow(true)} className="me-3">
+            <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
               <SettingsIcon />
             </IconButton>
             <FaUserCircle size={30} className="me-2" />
@@ -214,12 +271,11 @@ export default function PersistentDrawerLeft() {
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              keepMounted
-            >
+            <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
+              <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
+              <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
+            </Menu>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
             </Menu>
           </div>
@@ -328,7 +384,7 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-                <PictureAsPdfIcon/>
+                <PictureAsPdfIcon />
               </ListItemIcon>
               <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -348,7 +404,7 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-              <ChecklistIcon />
+                <ChecklistIcon />
               </ListItemIcon>
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -367,7 +423,7 @@ export default function PersistentDrawerLeft() {
               }}
             >
               <ListItemIcon sx={{ color: 'white' }}>
-              <AssignmentTurnedInIcon />
+                <AssignmentTurnedInIcon />
               </ListItemIcon>
               <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
             </ListItemButton>
@@ -376,7 +432,7 @@ export default function PersistentDrawerLeft() {
         <Divider />
       </Drawer>
       <Main open={open}></Main>
-      <Footer/>
+      <Footer />
 
       <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
         <Modal.Header closeButton>
@@ -413,6 +469,63 @@ export default function PersistentDrawerLeft() {
           <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
         </Modal.Footer>
       </Modal>
+
+      {/* Modal Conformación de Equipos */}
+      <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Conformación de Equipos</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group className="mb-3" controlId="formGroupName">
+              <Form.Label>Gestion</Form.Label>
+              <Form.Control type="text" placeholder="2-2024" value={formGroupName} // Vincula el valor con el estado
+                onChange={(e) => setFormGroupName(e.target.value)} // Actualiza el estado al cambiar el texto
+              />
+            </Form.Group>
+
+            <Row>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupStartDate">
+                  <Form.Label>Fecha Inicio</Form.Label>
+                  <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
+                onChange={(e) => setformGroupStartDate(e.target.value)}/>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupEndDate">
+                  <Form.Label>Fecha Fin</Form.Label>
+                  <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
+                onChange={(e) => setformGroupEndDate(e.target.value)}/>
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupMinStudents">
+                  <Form.Label>Cantidad Min. de estudiantes</Form.Label>
+                  <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
+                onChange={(e) => setformGroupMinStudents(e.target.value)}/>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group className="mb-3" controlId="formGroupMaxStudents">
+                  <Form.Label>Cantidad Max. de estudiantes</Form.Label>
+                  <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
+                onChange={(e) => setformGroupMaxStudents(e.target.value)}/>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
+          <Button variant="primary" onClick={handleSaveChangesGrup}>Guardar cambios</Button>
+        </Modal.Footer>
+      </Modal>
+
+
     </Box>
   );
 }
