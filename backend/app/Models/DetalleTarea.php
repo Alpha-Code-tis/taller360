@@ -27,8 +27,7 @@ class DetalleTarea extends Model
 
     protected $table = 'detalle_tarea';
     protected $primaryKey = 'id_detalle_tarea';
-    protected $fillable = ['nom_tarea', 
-        'estado_tarea', 'calificacion_tarea', 'observaciones_tarea','revisado_tarea', 'semana_sprint'];
+    protected $fillable = ['nom_estudiante', 'nom_tarea', 'calificacion_tarea', 'observaciones_tarea','revisado_tarea', 'revisado_semanas','semana_sprint'];
 
     public function tarea()
     {

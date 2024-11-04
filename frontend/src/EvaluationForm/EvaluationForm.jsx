@@ -1,18 +1,104 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const EvaluationForm = () => {
-  const initialMembers = [
-    { name: 'Miembro 1', tasks: '', score: '', comments: '', reviewed: false },
-    { name: 'Miembro 2', tasks: '', score: '', comments: '', reviewed: false },
-  ];
-  
+  const [teams, setTeams] = useState([]);
+  const [sprints, setSprints] = useState([]);
+  const [weeks, setWeeks] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [team, setTeam] = useState('');
   const [sprint, setSprint] = useState('');
   const [week, setWeek] = useState('');
   const [isReviewed, setIsReviewed] = useState(false);
-  const [reviewedWeeks, setReviewedWeeks] = useState([]); // Semanas revisadas
-  const [members, setMembers] = useState(initialMembers); // Inicializamos con los valores iniciales
+  const [reviewedWeeks, setReviewedWeeks] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [percentage, setPercentage] = useState(null);
   const [error, setError] = useState('');
+
+  const API_URL = 'http://localhost:8000/api/evaluation';
+
+  // Obtener equipos (empresas) al montar el componente
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get(`${API_URL}/form`);
+        setTeams(response.data.empresas); // Asegúrate de obtener el objeto correcto según la respuesta del controlador
+      } catch (error) {
+        console.error('Error al obtener equipos:', error);
+      }
+    };
+    fetchTeams();
+  }, []);
+
+  // Obtener sprints de un equipo seleccionado
+  useEffect(() => {
+    if (team) {
+      const fetchSprints = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/sprints/${team}`);
+          setSprints(response.data);
+        } catch (error) {
+          console.error('Error al obtener sprints:', error);
+        }
+      };
+      fetchSprints();
+    }
+  }, [team]);
+
+  // Obtener el porcentaje del sprint seleccionado
+  useEffect(() => {
+    if (sprint) {
+      const fetchSprintPercentage = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/sprint/${sprint}`);
+          setPercentage(response.data.porcentaje); // Asigna el porcentaje obtenido al estado
+        } catch (error) {
+          console.error('Error al obtener el porcentaje del sprint:', error);
+        }
+      };
+      fetchSprintPercentage();
+    }
+  }, [sprint]);
+
+  // Obtener semanas de un sprint seleccionado
+  useEffect(() => {
+    if (sprint) {
+      const fetchWeeks = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/weeks/${sprint}`);
+          setWeeks(response.data);
+        } catch (error) {
+          console.error('Error al obtener semanas:', error);
+        }
+      };
+      fetchWeeks();
+    }
+  }, [sprint]);
+
+  // Obtener tareas de un equipo seleccionado
+  useEffect(() => {
+    if (sprint) {
+      const fetchTasks = async () => {
+        try {
+          const response = await axios.get(`${API_URL}/tareas/${team}/sprint/${sprint}`);
+          setTasks(response.data);
+          setMembers(
+            response.data.map(task => ({
+              id_tarea: task.id_tarea,
+              name: task.responsables,
+              tasks: task.nombre_tarea,
+              score: '',
+              comments: '',
+              reviewed: false,
+            }))
+          );
+        } catch (error) {
+          console.error('Error al obtener tareas:', error);
+        }
+      };
+      fetchTasks();
+    }
+  }, [sprint]);
 
   useEffect(() => {
     // Verificar si todos los miembros están revisados
@@ -23,27 +109,52 @@ const EvaluationForm = () => {
   useEffect(() => {
     // Cuando cambias de semana, reinicia los datos de miembros si la semana no fue revisada
     if (week && !reviewedWeeks.includes(week)) {
-      setMembers(initialMembers.map(member => ({ ...member }))); // Reinicia miembros a valores iniciales
+      setMembers(tasks.map(task => ({
+        id_tarea: task.id_tarea,
+        name: task.responsables,
+        tasks: task.nombre_tarea,
+        score: '',
+        comments: '',
+        reviewed: false,
+      })));
     }
   }, [week]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const incomplete = members.some(member => !member.tasks || !member.score || !member.comments);
     if (!team || !week || !sprint || incomplete) {
       setError('Por favor, complete todos los campos.');
       return;
     }
 
-    // Agregar la semana actual a reviewedWeeks si está completamente revisada y guardada
-    setReviewedWeeks(prevReviewedWeeks => {
-      if (!prevReviewedWeeks.includes(week)) {
-        return [...prevReviewedWeeks, week];
-      }
-      return prevReviewedWeeks;
-    });
+    try {
+      const response = await axios.post(`${API_URL}/save`, {
+        tareas: members.map(member => ({
+          id_tarea: member.id_tarea,
+          name: member.name,
+          tasks: member.tasks,
+          score: member.score,
+          comments: member.comments,
+          calificacion: `${member.score} / ${percentage}`, // Formato "calificación / porcentaje"
+          revisado: member.reviewed ? true : false, // Asegurar que revisado siempre sea booleano
+        })),
+        sprint_id: sprint,
+        week: week,
+        week_revisado: isReviewed,
+      });
+      console.log('Datos guardados:', response.data);
+      alert('¡Evaluación guardada con éxito!');
 
-    console.log('Datos guardados:', { team, sprint, week, members });
-    alert('¡Evaluación guardada con éxito!');
+      // Agregar la semana actual a reviewedWeeks si está completamente revisada y guardada
+      setReviewedWeeks(prevReviewedWeeks => {
+        if (!prevReviewedWeeks.includes(week)) {
+          return [...prevReviewedWeeks, week];
+        }
+        return prevReviewedWeeks;
+      });
+    } catch (error) {
+      console.error('Error al guardar la evaluación:', error);
+    }
   };
 
   const handleCancel = () => {
@@ -52,9 +163,14 @@ const EvaluationForm = () => {
 
   const handleMemberChange = (index, field, value) => {
     const newMembers = [...members];
-    newMembers[index][field] = value;
+    if (field === 'reviewed') {
+      newMembers[index][field] = value === true || value === 'true'; // Garantiza que el valor sea booleano
+    } else {
+      newMembers[index][field] = value;
+    }
     setMembers(newMembers);
   };
+  
 
   return (
     <div style={{ maxWidth: '800px', margin: 'auto', padding: '20px', backgroundColor: '#f9f9f9', borderRadius: '8px', boxShadow: '0 0 10px rgba(0, 0, 0, 0.1)' }}>
@@ -63,8 +179,9 @@ const EvaluationForm = () => {
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#333' }}>Equipo:</label>
         <select value={team} onChange={(e) => setTeam(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}>
           <option value="">Seleccionar equipo</option>
-          <option value="Alpha Code">Alpha Code</option>
-          <option value="Code Soft">Code Soft</option>
+          {teams.map((team) => (
+            <option key={team.id_empresa} value={team.id_empresa}>{team.nombre_empresa}</option>
+          ))}
         </select>
       </div>
 
@@ -72,48 +189,50 @@ const EvaluationForm = () => {
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#333' }}>Sprint:</label>
         <select value={sprint} onChange={(e) => setSprint(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}>
           <option value="">Seleccionar sprint</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
+          {sprints.map((sprint) => (
+            <option key={sprint.id_sprint} value={sprint.id_sprint}>{sprint.nro_sprint}</option>
+          ))}
         </select>
       </div>
 
       <div style={{ display: 'inline-block', width: '32%', marginBottom: '15px', marginRight: '1%', verticalAlign: 'top' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#333' }}>Semana:</label>
-        <select 
-          value={week} 
-          onChange={(e) => setWeek(e.target.value)} 
-          style={{ 
-            width: '100%', 
-            padding: '8px', 
-            border: '1px solid #ccc', 
-            borderRadius: '4px', 
-            boxSizing: 'border-box', 
-            backgroundColor: '#fff', 
-            color: '#000'
+        <select
+          value={week}
+          onChange={(e) => setWeek(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '8px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxSizing: 'border-box',
+            backgroundColor: '#fff',
+            color: '#000',
           }}
         >
           <option value="">Seleccionar semana</option>
-          {[1, 2, 3, 4].map(num => (
-            <option 
-              key={num} 
-              value={num.toString()} 
-              style={{ 
-                backgroundColor: reviewedWeeks.includes(num.toString()) ? '#d4edda' : '#fff', 
-                color: reviewedWeeks.includes(num.toString()) ? '#155724' : '#000' 
+          {weeks.map((week) => (
+            <option
+              key={week}
+              value={week.toString()}
+              style={{
+                backgroundColor: reviewedWeeks.includes(week.toString()) ? '#d4edda' : '#fff',
+                color: reviewedWeeks.includes(week.toString()) ? '#155724' : '#000',
               }}
             >
-              {num}
+              {week}
             </option>
           ))}
         </select>
       </div>
 
+      {/* Tabla para mostrar y editar los miembros */}
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>
             <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Nombre</th>
             <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Tareas Completadas</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Calificación</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Calificación (sobre {percentage})</th>
             <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Comentarios</th>
             <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center', color: '#fff', backgroundColor: '#1A3254' }}>Revisado</th>
           </tr>
@@ -122,24 +241,14 @@ const EvaluationForm = () => {
           {members.map((member, index) => (
             <tr key={index}>
               <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333' }}>{member.name}</td>
-              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                <input
-                  type="text"
-                  value={member.tasks}
-                  onChange={(e) => handleMemberChange(index, 'tasks', e.target.value)}
-                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
-                />
-              </td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>{member.tasks}</td>
               <td style={{ padding: '10px', border: '1px solid #ddd' }}>
                 <input
                   type="number"
                   value={member.score}
-                  onChange={(e) => {
-                    const value = Math.min(100, Math.max(0, e.target.value));
-                    handleMemberChange(index, 'score', value);
-                  }}
+                  onChange={(e) => handleMemberChange(index, 'score', e.target.value)}
                   min="0"
-                  max="100"
+                  max={percentage}
                   style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
                 />
               </td>
@@ -163,40 +272,39 @@ const EvaluationForm = () => {
         </tbody>
       </table>
 
-
       {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
 
       <div style={{ textAlign: 'center', marginTop: '20px' }}>
         <button
-            onClick={handleCancel}
-            style={{
-                padding: '10px 20px',
-                border: 'none',
-                backgroundColor: '#f5f5f5',
-                color: '#333',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                marginRight: '80px', // Margen para separar los botones
-            }}
+          onClick={handleCancel}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            backgroundColor: '#f5f5f5',
+            color: '#333',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+            marginRight: '80px',
+          }}
         >
-            Cancelar
+          Cancelar
         </button>
         <button
-            onClick={handleSave}
-            style={{
-                padding: '10px 20px',
-                border: 'none',
-                backgroundColor: '#007bff',
-                color: '#fff',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-            }}
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'} // Tono más oscuro al pasar el mouse
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#007bff'} // Restaurar color original
+          onClick={handleSave}
+          style={{
+            padding: '10px 20px',
+            border: 'none',
+            backgroundColor: '#007bff',
+            color: '#fff',
+            borderRadius: '4px',
+            cursor: 'pointer',
+            boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+          }}
+          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0056b3')}
+          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#007bff')}
         >
-            Guardar
+          Guardar
         </button>
       </div>
     </div>

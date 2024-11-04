@@ -65,7 +65,7 @@ class Estudiante extends Authenticatable
         return $this->belongsTo(Grupo::class, 'id_grupo');
     }
 
-    public function representate_legal()
+    public function representante_legal()
     {
         return $this->belongsTo(RepresentateLegal::class, 'id_representante');
     }

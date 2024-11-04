@@ -154,12 +154,15 @@ Route::post('/gestion', [CantidadGestionController::class, 'store']);
 });
 
 //Evaluacion
-Route::get('/evaluacion/form', [EvaluacionController::class, 'showEvaluationForm'])->name('evaluacion.form');
-Route::get('/evaluacion/sprints/{empresaId}', [EvaluacionController::class, 'getSprintsByEmpresa'])->name('evaluacion.sprints');
-Route::get('/evaluacion/semanas/{sprintId}', [EvaluacionController::class, 'getWeeksBySprint'])->name('evaluacion.semanas');
-Route::get('/evaluacion/tareas/{empresaId}', [EvaluacionController::class, 'getTareasByEmpresa'])->name('evaluacion.tareas');
-Route::post('/evaluacion/guardar', [EvaluacionController::class, 'saveEvaluation'])->name('evaluacion.guardar');
-Route::get('/evaluacion/revisada/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluacion.revisada');
+Route::get('/evaluation/form', [EvaluacionController::class, 'showEvaluationForm']);
+Route::get('/evaluation/sprints/{empresaId}', [EvaluacionController::class, 'getSprintsByEmpresa'])->name('evaluation.sprints');
+Route::get('/evaluation/weeks/{sprintId}', [EvaluacionController::class, 'getWeeksBySprint'])->name('evaluation.weeks');
+Route::get('/evaluation/tareas/{empresaId}/sprint/{sprintId}', [EvaluacionController::class, 'getTareasByEmpresa'])->name('evaluation.tareas');
+Route::post('/evaluation/save', [EvaluacionController::class, 'saveEvaluation'])->name('evaluation.save');
+Route::get('/evaluation/reviewed/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluation.reviewed');
+Route::get('/evaluation/sprint/{sprintId}', [EvaluacionController::class, 'getSprintPercentage']);
+
 
 //Gestion-Cantidad
 Route::post('/gestion', [CantidadGestionController::class, 'store']);
+});
