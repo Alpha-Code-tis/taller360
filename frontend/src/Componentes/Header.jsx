@@ -38,6 +38,11 @@ import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
+import { Row, Col } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import SettingsIcon from '@mui/icons-material/Settings';
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -98,7 +103,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'flex-end',
 }));
 
-const VistaAdministrador=()=>{
+const VistaAdministrador = () => {
   const navigate = useNavigate(); // Hook para navegación
 }
 
@@ -120,6 +125,8 @@ export default function PersistentDrawerLeft() {
   const [finalEvalEnd, setFinalEvalEnd] = useState('');
   const [autoEvalStart, setAutoEvalStart] = useState('');
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
+  const [modalShow, setModalShow] = useState(false);
+
 
 
   useEffect(() => {
@@ -135,15 +142,15 @@ export default function PersistentDrawerLeft() {
 
   const fetchFechas = async () => {
     try {
-        const response = await axios.get(`${API_URL}ajustes`);
-        const data = response.data;
+      const response = await axios.get(`${API_URL}ajustes`);
+      const data = response.data;
 
-        setFinalEvalStart(data.fecha_inicio_eva_final);
-        setFinalEvalEnd(data.fecha_fin_eva_final);
-        setAutoEvalStart(data.fecha_inicio_autoevaluacion);
-        setAutoEvalEnd(data.fecha_fin_autoevaluacion);
+      setFinalEvalStart(data.fecha_inicio_eva_final);
+      setFinalEvalEnd(data.fecha_fin_eva_final);
+      setAutoEvalStart(data.fecha_inicio_autoevaluacion);
+      setAutoEvalEnd(data.fecha_fin_autoevaluacion);
     } catch (error) {
-        toast.error('No se recuperaron los datos.');
+      toast.error('No se recuperaron los datos.');
     }
   };
 
@@ -172,7 +179,76 @@ export default function PersistentDrawerLeft() {
     navigate('/login');
     window.location.reload();
   };
+  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+  const handleTeamConfigSave = () => {
+    // Lógica para guardar los ajustes de conformación de equipos
+    setTeamConfigModalShow(false);
+    toast.success('Ajustes de conformación de equipos guardados');
+  };
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
 
+  const handleSettingsMenuOpen = (event) => {
+    setSettingsMenuAnchor(event.currentTarget);
+  };
+
+  const handleSettingsMenuClose = () => {
+    setSettingsMenuAnchor(null);
+  };
+
+  const [formGroupName, setFormGroupName] = useState('');
+  const [formGroupStartDate, setformGroupStartDate] = useState('');
+  const [formGroupEndDate, setformGroupEndDate] = useState('');
+  const [formGroupMinStudents, setformGroupMinStudents] = useState('');
+  const [formGroupMaxStudents, setformGroupMaxStudents] = useState('');
+
+  const handleSaveChanges = async () => {
+    const payload = {
+      fecha_inicio_autoevaluacion: autoEvalStart,
+      fecha_fin_autoevaluacion: autoEvalEnd,
+      fecha_inicio_eva_final: finalEvalStart,
+      fecha_fin_eva_final: finalEvalEnd,
+    };
+
+    try {
+      await axios.patch(`${API_URL}ajustes`, payload);
+      toast.success('Fechas guardadas correctamente');
+      setModalShow(false);
+    } catch (error) {
+      toast.error('Error al guardar las fechas');
+    }
+  };
+
+  const handleSaveChangesGrup = async () => {
+    const payload = {
+      gestion: formGroupName,
+      fecha_inicio: formGroupStartDate,
+      fecha_fin: formGroupEndDate,
+      cantidad_minima: formGroupMinStudents,
+      cantidad_maxima: formGroupMaxStudents,
+    };
+    console.log(payload);
+    try {
+      await axios.post(`${API_URL}gestion`, payload);
+      toast.success('Fechas guardadas correctamente');
+      setModalShow(false);
+    } catch (error) {
+      // Mostrar el mensaje de error en la interfaz
+      toast.error('Error al guardar las fechas');
+
+      // Mostrar el error completo en la consola para mayor detalle
+      console.error('Error al guardar las fechas:', error);
+
+      // Si la respuesta del servidor contiene un mensaje específico, también puedes mostrarlo
+      if (error.response) {
+        console.error('Respuesta del servidor:', error.response.data);
+      } else if (error.request) {
+        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+      } else {
+        console.error('Error de configuración:', error.message);
+      }
+    }
+
+  };
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -201,17 +277,19 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
+            <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
+              <SettingsIcon />
+            </IconButton>
             <FaUserCircle size={30} className="me-2" />
             <span className="m-0">{nombre}</span>
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuClose}
-              keepMounted
-            >
+            <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
+              <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
+              <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
+            </Menu>
+            <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
             </Menu>
           </div>
@@ -239,7 +317,7 @@ export default function PersistentDrawerLeft() {
             src={logo}
             alt="Logo"
             className="rounded-circle"
-            style={{ width: '100px', height: '100px'}}
+            style={{ width: '100px', height: '100px' }}
           />
         </div>
         <Divider />
@@ -248,153 +326,153 @@ export default function PersistentDrawerLeft() {
           {/* Estudiante */}
           {role === 'estudiante' && (
             <>
-            <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/Planificacion"
-                onClick={() => handleButtonClick('planificacion')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <NoteAltIcon />
-                </ListItemIcon>
-                <ListItemText primary="Planificación" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
-
-            {/* Equipos */}
-            <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/Equipos"
-                onClick={() => handleButtonClick('equipos')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
-                </ListItemIcon>
-                <ListItemText primary="Equipos" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
-
-
-
-            <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/TareasEstudiante"
-                onClick={() => handleButtonClick('tareasEstudiante')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <AssignmentTurnedInIcon/>
-                </ListItemIcon>
-                <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
               <ListItem disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to="/Seguimiento"
-                    onClick={() => handleButtonClick('seguimiento')}
-                    sx={{
-                      borderRadius: '8px',
-                      backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
-                      '&:hover': {
-                        backgroundColor: '#1A3254',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: 'white' }}>
-                      <TimelineIcon/>
-                    </ListItemIcon>
-                    <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
-                  </ListItemButton>
-                </ListItem>
-
-              {/* Autoevaluacion */}
-                {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      component={Link}
-                      to="/Autoevaluacion"
-                      onClick={() => handleButtonClick('autoevaluacion')}
-                      sx={{
-                        borderRadius: '8px',
-                        backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: '#1A3254',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <SchoolIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                  )}
-
-              {/* EvaluacionFinal */}
-              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
-                <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
-                  to="/EvaluacionFinal"
-                  onClick={() => handleButtonClick('evaluacionFinal')}
+                  to="/Planificacion"
+                  onClick={() => handleButtonClick('planificacion')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'evaluacionFinal' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <FactCheckIcon />
+                    <NoteAltIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
+                  <ListItemText primary="Planificación" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+              {/* Equipos */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Equipos"
+                  onClick={() => handleButtonClick('equipos')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'equipos' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+                  </ListItemIcon>
+                  <ListItemText primary="Equipos" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/TareasEstudiante"
+                  onClick={() => handleButtonClick('tareasEstudiante')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Seguimiento"
+                  onClick={() => handleButtonClick('seguimiento')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <TimelineIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Autoevaluacion */}
+              {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to="/Autoevaluacion"
+                    onClick={() => handleButtonClick('autoevaluacion')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                      <SchoolIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
+                  </ListItemButton>
+                </ListItem>
+              )}
+
+              {/* EvaluacionFinal */}
+              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to="/EvaluacionFinal"
+                    onClick={() => handleButtonClick('evaluacionFinal')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'evaluacionFinal' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                      <FactCheckIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
+                  </ListItemButton>
+                </ListItem>
               )}
 
               <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/PlanillasSemanales" // Agregamos la ruta de las planillas
-              onClick={() => handleButtonClick('planillas')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <CalendarMonthIcon/>
-              </ListItemIcon>
-              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillasSemanales" // Agregamos la ruta de las planillas
+                  onClick={() => handleButtonClick('planillas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <CalendarMonthIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
             </>
           )}
 
@@ -425,27 +503,27 @@ export default function PersistentDrawerLeft() {
           )}
 
           {/* docente */}
-          {role === 'docente' &&(
-          <>
-            <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/PlanificacionEquipos"
-                onClick={() => handleButtonClick('planificacionEquipos')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'planificacionEquipos' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <NoteAltIcon />
-                </ListItemIcon>
-                <ListItemText primary="Planificacion de equipos" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
+          {role === 'docente' && (
+            <>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanificacionEquipos"
+                  onClick={() => handleButtonClick('planificacionEquipos')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planificacionEquipos' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <NoteAltIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planificacion de equipos" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
 
               <ListItem disablePadding>
                 <ListItemButton
@@ -481,71 +559,161 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <PictureAsPdfIcon/>
+                    <PictureAsPdfIcon />
                   </ListItemIcon>
                   <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
               <ListItem disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to="/ListaAutoevaluacion"
-                    onClick={() => handleButtonClick('listaAutoevaluacion')}
-                    sx={{
-                      borderRadius: '8px',
-                      backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
-                      '&:hover': {
-                        backgroundColor: '#1A3254',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: 'white' }}>
-                      <SchoolIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
-                  </ListItemButton>
-                </ListItem>
-                <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/CriterioEvaluacion"
-                onClick={() => handleButtonClick('criterioEvaluacion')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                <ChecklistIcon />
-                </ListItemIcon>
-                <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
+                <ListItemButton
+                  component={Link}
+                  to="/ListaAutoevaluacion"
+                  onClick={() => handleButtonClick('listaAutoevaluacion')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <SchoolIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/CriterioEvaluacion"
+                  onClick={() => handleButtonClick('criterioEvaluacion')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <ChecklistIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
 
-            <ListItem disablePadding>
-              <ListItemButton
-                component={Link}
-                to="/EvaluationForm"
-                onClick={() => handleButtonClick('EvaluationForm')}
-                sx={{
-                  borderRadius: '8px',
-                  backgroundColor: selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
-                  '&:hover': {
-                    backgroundColor: '#1A3254',
-                  },
-                }}
-              >
-                <ListItemIcon sx={{ color: 'white' }}>
-                  <AssignmentTurnedInIcon />
-                </ListItemIcon>
-                <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
-              </ListItemButton>
-            </ListItem>
-          </>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/EvaluationForm"
+                  onClick={() => handleButtonClick('EvaluationForm')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              {/* Modal Conformación de Equipos */}
+              <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Conformación de Equipos</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <Form.Group className="mb-3" controlId="formGroupName">
+                      <Form.Label>Gestion</Form.Label>
+                      <Form.Control type="text" placeholder="2-2024" value={formGroupName} // Vincula el valor con el estado
+                        onChange={(e) => setFormGroupName(e.target.value)} // Actualiza el estado al cambiar el texto
+                      />
+                    </Form.Group>
+
+                    <Row>
+                      <Col>
+                        <Form.Group className="mb-3" controlId="formGroupStartDate">
+                          <Form.Label>Fecha Inicio</Form.Label>
+                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupStartDate(e.target.value)} />
+                        </Form.Group>
+                      </Col>
+                      <Col>
+                        <Form.Group className="mb-3" controlId="formGroupEndDate">
+                          <Form.Label>Fecha Fin</Form.Label>
+                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupEndDate(e.target.value)} />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+
+                    <Row>
+                      <Col>
+                        <Form.Group className="mb-3" controlId="formGroupMinStudents">
+                          <Form.Label>Cantidad Min. de estudiantes</Form.Label>
+                          <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupMinStudents(e.target.value)} />
+                        </Form.Group>
+                      </Col>
+                      <Col>
+                        <Form.Group className="mb-3" controlId="formGroupMaxStudents">
+                          <Form.Label>Cantidad Max. de estudiantes</Form.Label>
+                          <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupMaxStudents(e.target.value)} />
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
+                  <Button variant="primary" onClick={handleSaveChangesGrup}>Guardar cambios</Button>
+                </Modal.Footer>
+              </Modal>
+              <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Habilitar vistas</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Autoevaluación</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>Fecha Inicio
+                          <Form.Control type="date" value={autoEvalStart} onChange={(e) => setAutoEvalStart(e.target.value)} />
+                        </Form.Label>
+                        <Form.Label>Fecha Fin
+                          <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Final</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>Fecha Inicio
+                          <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />
+                        </Form.Label>
+                        <Form.Label>Fecha Fin
+                          <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
+                  <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
+                </Modal.Footer>
+              </Modal>
+
+            </>
           )}
         </List>
         <Divider />
