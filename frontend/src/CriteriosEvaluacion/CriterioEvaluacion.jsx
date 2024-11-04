@@ -18,7 +18,7 @@ const CriterioEvaluacion = () => {
   const [criterio, setCriterio]= useState([]);
   const [filteredCriterios, setFilteredCriterios] = useState([]);
   const [currentCriterio, setCurrentCriterio] = useState(null);
-  const [value, setValue] = React.useState([20, 37]);
+  const [value, setValue] = React.useState([0, 20]);
 
   const [formValues, setFormValues] = useState({
     nombre: '',
@@ -70,7 +70,7 @@ const CriterioEvaluacion = () => {
         porcentaje: criterio.porcentaje,
       });
       setCurrentCriterio(criterio);
-      setValue([criterio.porcentaje_inicial || 0, criterio.porcentaje_final || 0]);
+      setValue([criterio.porcentaje_inicial || 0, criterio.porcentaje_final || 20]);
     }else{
       setFormValues({
         id: nextId,
@@ -79,7 +79,7 @@ const CriterioEvaluacion = () => {
         porcentaje: '',
       });
       setCurrentCriterio(null);
-      setValue([20,37]);
+      setValue([0,20]);
     }
     setShowModal(true);
   };
@@ -162,8 +162,6 @@ const CriterioEvaluacion = () => {
 
   const handleSave = async ()=>{
     if (validateForm()) {
-    } else {
-      toast.error('Por favor, revisa los errores en el formulario.');
     }
     setIsSaving(true);
     
@@ -193,7 +191,13 @@ const CriterioEvaluacion = () => {
       handleCloseModal();
     } catch (err) {
       console.error(err.response.data);
-      toast.error('Error al guardar el criterio');
+
+      // Mostrar mensaje específico de error si la suma de porcentajes supera 100
+      if (err.response?.status === 422 && err.response.data.message === 'La suma de los porcentajes no puede superar 100.') {
+        toast.error('La suma de los porcentajes no puede superar 100.');
+      } else {
+        toast.error('Error al guardar el criterio');
+      }
     }
   
   };
