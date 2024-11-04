@@ -1,14 +1,31 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const EvaluationForm = () => {
+  const initialMembers = [
+    { name: 'Miembro 1', tasks: '', score: '', comments: '', reviewed: false },
+    { name: 'Miembro 2', tasks: '', score: '', comments: '', reviewed: false },
+  ];
+  
   const [team, setTeam] = useState('');
   const [sprint, setSprint] = useState('');
   const [week, setWeek] = useState('');
-  const [members, setMembers] = useState([
-    { name: 'Miembro 1', tasks: '', score: '', comments: '', reviewed: false },
-    { name: 'Miembro 2', tasks: '', score: '', comments: '', reviewed: false },
-  ]);
+  const [isReviewed, setIsReviewed] = useState(false);
+  const [reviewedWeeks, setReviewedWeeks] = useState([]); // Semanas revisadas
+  const [members, setMembers] = useState(initialMembers); // Inicializamos con los valores iniciales
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    // Verificar si todos los miembros están revisados
+    const allReviewed = members.every(member => member.reviewed);
+    setIsReviewed(allReviewed);
+  }, [members]);
+
+  useEffect(() => {
+    // Cuando cambias de semana, reinicia los datos de miembros si la semana no fue revisada
+    if (week && !reviewedWeeks.includes(week)) {
+      setMembers(initialMembers.map(member => ({ ...member }))); // Reinicia miembros a valores iniciales
+    }
+  }, [week]);
 
   const handleSave = () => {
     const incomplete = members.some(member => !member.tasks || !member.score || !member.comments);
@@ -16,6 +33,15 @@ const EvaluationForm = () => {
       setError('Por favor, complete todos los campos.');
       return;
     }
+
+    // Agregar la semana actual a reviewedWeeks si está completamente revisada y guardada
+    setReviewedWeeks(prevReviewedWeeks => {
+      if (!prevReviewedWeeks.includes(week)) {
+        return [...prevReviewedWeeks, week];
+      }
+      return prevReviewedWeeks;
+    });
+
     console.log('Datos guardados:', { team, sprint, week, members });
     alert('¡Evaluación guardada con éxito!');
   };
@@ -53,77 +79,125 @@ const EvaluationForm = () => {
 
       <div style={{ display: 'inline-block', width: '32%', marginBottom: '15px', marginRight: '1%', verticalAlign: 'top' }}>
         <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#333' }}>Semana:</label>
-        <select value={week} onChange={(e) => setWeek(e.target.value)} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}>
+        <select 
+          value={week} 
+          onChange={(e) => setWeek(e.target.value)} 
+          style={{ 
+            width: '100%', 
+            padding: '8px', 
+            border: '1px solid #ccc', 
+            borderRadius: '4px', 
+            boxSizing: 'border-box', 
+            backgroundColor: '#fff', 
+            color: '#000'
+          }}
+        >
           <option value="">Seleccionar semana</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
+          {[1, 2, 3, 4].map(num => (
+            <option 
+              key={num} 
+              value={num.toString()} 
+              style={{ 
+                backgroundColor: reviewedWeeks.includes(num.toString()) ? '#d4edda' : '#fff', 
+                color: reviewedWeeks.includes(num.toString()) ? '#155724' : '#000' 
+              }}
+            >
+              {num}
+            </option>
+          ))}
         </select>
       </div>
 
       <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '20px' }}>
         <thead>
           <tr>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Nombre</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Tareas Completadas</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Calificación</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Comentarios</th>
-            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333', backgroundColor: '#eaeaea' }}>Revisado</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Nombre</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Tareas Completadas</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Calificación</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Comentarios</th>
+            <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center', color: '#fff', backgroundColor: '#1A3254' }}>Revisado</th>
           </tr>
         </thead>
         <tbody>
-            {members.map((member, index) => (
-                <tr key={index}>
-                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333' }}>{member.name}</td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    <input
-                    type="text"
-                    value={member.tasks}
-                    onChange={(e) => handleMemberChange(index, 'tasks', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
-                    />
-                </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    <input
-                    type="number"
-                    value={member.score}
-                    onChange={(e) => {
-                        const value = Math.min(100, Math.max(0, e.target.value)); // Limita el valor entre 0 y 100
-                        handleMemberChange(index, 'score', value);
-                    }}
-                    min="0"
-                    max="100"
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
-                    />
-                </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                    <input
-                    type="text"
-                    value={member.comments}
-                    onChange={(e) => handleMemberChange(index, 'comments', e.target.value)}
-                    style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
-                    />
-                </td>
-                <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>
-                    <div style={{ display: 'flex', justifyContent: 'center', transform: 'scale(1.5)', transformOrigin: 'left' }}>
-                    <input
-                        type="checkbox"
-                        checked={member.reviewed}
-                        onChange={(e) => handleMemberChange(index, 'reviewed', e.target.checked)}
-                        style={{ cursor: 'pointer' }}
-                    />
-                    </div>
-                </td>
-                </tr>
-            ))}
-            </tbody>
-
+          {members.map((member, index) => (
+            <tr key={index}>
+              <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#333' }}>{member.name}</td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                <input
+                  type="text"
+                  value={member.tasks}
+                  onChange={(e) => handleMemberChange(index, 'tasks', e.target.value)}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
+                />
+              </td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                <input
+                  type="number"
+                  value={member.score}
+                  onChange={(e) => {
+                    const value = Math.min(100, Math.max(0, e.target.value));
+                    handleMemberChange(index, 'score', value);
+                  }}
+                  min="0"
+                  max="100"
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
+                />
+              </td>
+              <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+                <input
+                  type="text"
+                  value={member.comments}
+                  onChange={(e) => handleMemberChange(index, 'comments', e.target.value)}
+                  style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}
+                />
+              </td>
+              <td style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center' }}>
+                <input
+                  type="checkbox"
+                  checked={member.reviewed}
+                  onChange={(e) => handleMemberChange(index, 'reviewed', e.target.checked)}
+                />
+              </td>
+            </tr>
+          ))}
+        </tbody>
       </table>
 
-      {error && <p style={{ color: 'red', fontWeight: 'bold', textAlign: 'center', marginTop: '10px' }}>{error}</p>}
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '20px' }}>
-        <button onClick={handleSave} style={{ padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#007bff', color: '#fff' }}>Guardar</button>
-        <button onClick={handleCancel} style={{ padding: '10px 20px', border: 'none', borderRadius: '4px', cursor: 'pointer', backgroundColor: '#6c757d', color: '#fff' }}>Cancelar</button>
+      {error && <p style={{ color: 'red', textAlign: 'center' }}>{error}</p>}
+
+      <div style={{ textAlign: 'center', marginTop: '20px' }}>
+        <button
+            onClick={handleCancel}
+            style={{
+                padding: '10px 20px',
+                border: 'none',
+                backgroundColor: '#f5f5f5',
+                color: '#333',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+                marginRight: '80px', // Margen para separar los botones
+            }}
+        >
+            Cancelar
+        </button>
+        <button
+            onClick={handleSave}
+            style={{
+                padding: '10px 20px',
+                border: 'none',
+                backgroundColor: '#007bff',
+                color: '#fff',
+                borderRadius: '4px',
+                cursor: 'pointer',
+                boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0056b3'} // Tono más oscuro al pasar el mouse
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#007bff'} // Restaurar color original
+        >
+            Guardar
+        </button>
       </div>
     </div>
   );

@@ -121,7 +121,7 @@ const GenerarPlanilla = () => {
   );
 
   return (
-    <div style={{ marginTop: '1px' }}>
+    <div style={{ marginTop: '20px' }}>
       <h1>Generar Planilla</h1>
 
       {/* Vista previa del PDF */}
