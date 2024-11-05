@@ -364,7 +364,7 @@ export default function PersistentDrawerLeft() {
             )}
 
           {/* EvaluacionFinal */}
-          {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+          {/* {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
             <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -384,7 +384,7 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          )}
+          )} */}
         </List>
         <Divider />
       </Drawer>
