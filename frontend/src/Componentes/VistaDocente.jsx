@@ -111,7 +111,7 @@ export default function PersistentDrawerLeft() {
   const [formGroupEndDate, setformGroupEndDate] = useState('');
   const [formGroupMinStudents, setformGroupMinStudents] = useState('');
   const [formGroupMaxStudents, setformGroupMaxStudents] = useState('');
-  
+
 
 
   const fetchFechas = async () => {
@@ -119,10 +119,10 @@ export default function PersistentDrawerLeft() {
       const response = await axios.get(`${API_URL}ajustes`);
       const data = response.data;
 
-      setAutoEvalStart(data.fecha_inicio_autoevaluacion);
-      setAutoEvalEnd(data.fecha_fin_autoevaluacion);
-      setFinalEvalStart(data.fecha_inicio_eva_final);
-      setFinalEvalEnd(data.fecha_fin_eva_final);
+      setFinalEvalStart(data.fecha_inicio_eva_final ?? '');
+      setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
+      setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
+      setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
@@ -206,10 +206,10 @@ export default function PersistentDrawerLeft() {
   } catch (error) {
       // Mostrar el mensaje de error en la interfaz
       toast.error('Error al guardar las fechas');
-      
+
       // Mostrar el error completo en la consola para mayor detalle
       console.error('Error al guardar las fechas:', error);
-  
+
       // Si la respuesta del servidor contiene un mensaje específico, también puedes mostrarlo
       if (error.response) {
           console.error('Respuesta del servidor:', error.response.data);
@@ -219,7 +219,7 @@ export default function PersistentDrawerLeft() {
           console.error('Error de configuración:', error.message);
       }
   }
-  
+
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));

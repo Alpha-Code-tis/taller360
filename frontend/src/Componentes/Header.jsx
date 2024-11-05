@@ -127,8 +127,6 @@ export default function PersistentDrawerLeft() {
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
 
-
-
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
@@ -145,10 +143,10 @@ export default function PersistentDrawerLeft() {
       const response = await axios.get(`${API_URL}ajustes`);
       const data = response.data;
 
-      setFinalEvalStart(data.fecha_inicio_eva_final);
-      setFinalEvalEnd(data.fecha_fin_eva_final);
-      setAutoEvalStart(data.fecha_inicio_autoevaluacion);
-      setAutoEvalEnd(data.fecha_fin_autoevaluacion);
+      setFinalEvalStart(data.fecha_inicio_eva_final ?? '');
+      setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
+      setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
+      setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
@@ -277,9 +275,11 @@ export default function PersistentDrawerLeft() {
             <MenuIcon />
           </IconButton>
           <div className="ms-auto d-flex align-items-center">
-            <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
-              <SettingsIcon />
-            </IconButton>
+            {role === 'docente' && (
+              <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
+                <SettingsIcon />
+              </IconButton>
+            )}
             <FaUserCircle size={30} className="me-2" />
             <span className="m-0">{nombre}</span>
             <IconButton onClick={handleMenuOpen}>
@@ -432,7 +432,7 @@ export default function PersistentDrawerLeft() {
               )}
 
               {/* EvaluacionFinal */}
-              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+              {/* {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
                 <ListItem disablePadding>
                   <ListItemButton
                     component={Link}
@@ -452,7 +452,7 @@ export default function PersistentDrawerLeft() {
                     <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
                   </ListItemButton>
                 </ListItem>
-              )}
+              )} */}
 
               <ListItem disablePadding>
                 <ListItemButton
