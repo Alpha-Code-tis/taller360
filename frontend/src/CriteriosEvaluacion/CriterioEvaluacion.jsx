@@ -32,7 +32,7 @@ const CriterioEvaluacion = () => {
 
   const fetchCriterios = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/criterios');
+      const response = await axios.get(`${API_URL}criterios`);
       const criteriosData = response.data;
       setCriterio(criteriosData);
       setFilteredCriterios(criteriosData);
@@ -174,7 +174,7 @@ const CriterioEvaluacion = () => {
 
     const promise = currentCriterio
     ? axios.put(`${API_URL}criterios/${currentCriterio.id_criterio}`, criteriosData)
-    : axios.post('http://localhost:8000/api/criterios', criteriosData);
+    : axios.post(`${API_URL}criterios`, criteriosData);
     
     toast.promise(
       promise,
