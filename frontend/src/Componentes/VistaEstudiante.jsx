@@ -363,16 +363,16 @@ export default function PersistentDrawerLeft() {
             </ListItem>
             )}
 
-          {/* EvaluacionFinal */}
-          {/* {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+          {/* EvaluacionPares */}
+          {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
             <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/EvaluacionFinal"
-              onClick={() => handleButtonClick('evaluacionFinal')}
+              to="/EvaluacionPares"
+              onClick={() => handleButtonClick('evaluacionPares')}
               sx={{
                 borderRadius: '8px',
-                backgroundColor: selectedButton === 'evaluacionFinal' ? '#1A3254' : 'transparent',
+                backgroundColor: selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
                 '&:hover': {
                   backgroundColor: '#1A3254',
                 },
@@ -381,10 +381,10 @@ export default function PersistentDrawerLeft() {
               <ListItemIcon sx={{ color: 'white' }}>
                 <FactCheckIcon />
               </ListItemIcon>
-              <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
+              <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-          )} */}
+          )}
         </List>
         <Divider />
       </Drawer>

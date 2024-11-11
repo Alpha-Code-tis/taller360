@@ -452,7 +452,7 @@ export default function PersistentDrawerLeft() {
               </div>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label><strong>Evaluación Final</strong></Form.Label>
+              <Form.Label><strong>Evaluación Pares</strong></Form.Label>
               <div className="d-flex justify-content-between">
                 <Form.Label>Fecha Inicio
                   <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />

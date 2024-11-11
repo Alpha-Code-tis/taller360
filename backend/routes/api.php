@@ -18,7 +18,7 @@ use App\Http\Controllers\EvaluacionFinalController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
-
+use App\Http\Controllers\EvaluacionParesController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -161,4 +161,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluation/save', [EvaluacionController::class, 'saveEvaluation'])->name('evaluation.save');
     Route::get('/evaluation/reviewed/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluation.reviewed');
     Route::get('/evaluation/sprint/{sprintId}', [EvaluacionController::class, 'getSprintPercentage']);
+
+    //Evaluación pares
+    Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
+    Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
+
 });

@@ -18,4 +18,14 @@ class Criterio extends Model
                     ->withPivot('nota') // Acceso a la nota en la tabla pivote
                     ->withTimestamps();
     }
+
+    public function evaluadores()
+    {
+        return $this->belongsToMany(Estudiante::class, 'estudiante_criterio', 'id_criterio', 'id_estudiante_evaluador');
+    }
+
+    public function evaluados()
+    {
+        return $this->belongsToMany(Estudiante::class, 'estudiante_criterio', 'id_criterio', 'id_estudiante_evaluado');
+    }
 }

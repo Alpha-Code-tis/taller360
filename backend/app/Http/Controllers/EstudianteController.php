@@ -41,6 +41,9 @@ class EstudianteController extends Controller
                 ->with(['evaluadoEvaluacionesFinales' => function ($query) use ($estudiante) {
                     $query->where('id_est_evaluador', $estudiante->id_estudiante);
                 }])
+                ->with(['evaluadoCriterios' => function ($query) use ($estudiante) {
+                    $query->where('id_estudiante_evaluador', $estudiante->id_estudiante);
+                }])
                 ->get();
 
             return response()->json($estudiantes, 200);
