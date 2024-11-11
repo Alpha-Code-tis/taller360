@@ -1,33 +1,53 @@
 import { API_URL } from '../config';
 import React, { useState, useEffect } from 'react';
-import './EvaluacionFinal.css';
+import './EvaluacionPares.css';
 import { Modal, Button, Form, Dropdown, Badge } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 dayjs.locale('es');
+import { DataGrid } from '@mui/x-data-grid';
+import Table from 'react-bootstrap/Table';
 
-
-const EvaluacionFinal = () => {
+const EvaluacionPares = () => {
   const [estudiantes, setEstudiantes] = useState([]);
   const [selectedSprint, setSelectedSprint] = useState(null);
   const [tasks, setTasks] = useState([]);
   const [selectedEvaluation, setSelectedEvaluation] = useState(null);
-  const [currentTask, setCurrentTask] = useState(null);
+  const [currentStudent, setCurrentStudent] = useState(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [showEvaluationModal, setShowEvaluationModal] = useState(false);
   const [evaluationDetails, setEvaluationDetails] = useState([]);
+  const [criterios, setCriterios]= useState([]);
+  const [currentCriterio, setCurrentCriterio] = useState(null);
   const [formValues, setFormValues] = useState({
     descripcion_evaluacion: '',
+    nombre: '',
+    descripción: '',
+    porcentaje: '',
   });
   const [formErrors, setFormErrors] = useState({});
   const [isEvaluationEnabled, setIsEvaluationEnabled] = useState(false);
 
-  const handleShowDetailsClick = async (estudiante) => {
-    setCurrentTask(estudiante);
-    await fetchEvaluacionDetalles(estudiante.id_estudiante);
-    setShowDetailsModal(true);
+
+  const [selectedRowsData, setSelectedRowsData] = useState([]);
+
+  const columns = [
+    { field: 'id_criterio', headerName: 'ID', width: 90, disableColumnMenu: true },
+    { field: 'nombre', headerName: 'Nombre', width: 150, disableColumnMenu: true },
+    { field: 'descripcion', headerName: 'Descripción', width: 110, disableColumnMenu: true },
+  ];
+
+  const handleSelectionChange = (selection) => {
+    // Filtramos los objetos completos de las filas seleccionadas a partir de los ids seleccionados
+    // const selectedData = criterios.filter((criterio) => selectionModel.includes(criterio.id_criterio));
+    setSelectedRowsData(selection);
+  };
+
+  const handleShowDetailsClick = (estudiante) => {
+    setCurrentStudent(estudiante);
+    fetchEvaluacionDetalles(estudiante.id_estudiante);
   };
 
   const handleCloseDetailsModal = () => {
@@ -36,7 +56,7 @@ const EvaluacionFinal = () => {
   };
 
   const handleEvaluateClick = (estudiante) => {
-    setCurrentTask(estudiante)
+    setCurrentStudent(estudiante)
     setShowEvaluationModal(true);
     setFormValues({
       descripcion_evaluacion: '',
@@ -47,13 +67,14 @@ const EvaluacionFinal = () => {
     setShowEvaluationModal(false);
     setSelectedEvaluation(null);
     setFormErrors({});
+    setSelectedRowsData([]);
   };
 
   const fetchEvaluacionDetalles = async (idEstudiante) => {
     try {
-      const response = await axios.get(`${API_URL}evaluacion_final/${idEstudiante}`);
-      console.log(response.data);
+      const response = await axios.get(`${API_URL}evaluacionPares/${idEstudiante}`);
       setEvaluationDetails(response.data);
+      setShowDetailsModal(true);
     } catch (error) {
       toast.error('Error al cargar los detalles de la evaluación.');
     }
@@ -63,32 +84,28 @@ const EvaluacionFinal = () => {
     if (!validateForm()) {
       return;
     }
-    const evaluation = {
-      id_est_evaluador: localStorage.getItem('id_estudiante'),
-      id_est_evaluado: currentTask.id_estudiante,
-      resultado_escala: selectedEvaluation.label,
-      resultado_comentario: formValues.descripcion_evaluacion,
-    };
+    const data = {
+      criterios_ids: selectedRowsData,
+      id_estudiante_evaludado: currentStudent.id_estudiante
+    }
     try {
-      const response = await axios.post(`${API_URL}evaluacion_final`, evaluation);
+      const response = await axios.post(`${API_URL}evaluacionPares`, data);
       if (response.status === 201) {
         toast.success('Evaluación realizada exitosamente');
         fetchEstudiantes();
+        fetchCriterios();
         handleCloseEvaluationModal();
       }
     } catch (error) {
-      console.error(error.response.data);
       toast.error('Error al realizar la evaluación');
     }
   };
 
   const validateForm = () => {
     const errors = {};
-    if (!selectedEvaluation) {
-      errors.resultado_evaluacion = 'Debe seleccionar una opción de la escala.';
-    }
-    if (!formValues.descripcion_evaluacion.trim()) {
-      errors.descripcion_evaluacion = 'La explicación es requerida';
+    if (selectedRowsData.length === 0) {
+      errors.length = 'Debe seleccionar al menos un criterio antes de guardar.';
+      toast.error('Debe seleccionar al menos un criterio antes de guardar.');
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -114,23 +131,38 @@ const EvaluacionFinal = () => {
 
   useEffect(() => {
     fetchEstudiantes();
+    fetchCriterios();
   }, []);
 
   const fetchEstudiantes = async() => {
     try {
       const response = await axios.get(`${API_URL}listaEstudiantes`);
       const idEstudianteAuth = localStorage.getItem('id_estudiante');
-      console.log('id', idEstudianteAuth);
       const estudiantes = response.data.filter(estudiante => estudiante.id_estudiante != idEstudianteAuth);
       setEstudiantes(estudiantes);
     } catch (error) {
       toast.error('Error al cargar los estudiantes.');
     }
   };
+  const fetchCriterios = async () => {
+    try {
+      const response = await axios.get(`${API_URL}criterios`);
+      const criteriosData = response.data;
+      if (criteriosData.length === 0) {
+        toast.error('No hay criterios registrados.');
+      }else{
+        setCriterios(criteriosData);
+        console.log('çriterios', criteriosData);
+      }
+    } catch (err) {
+      toast.error('Error al cargar los criterios.');
+    }
+
+  };
 
   return (
     <div className="lista-autoevaluacion-container">
-      <h1 className="title">Lista de integrantes</h1>
+      <h1 className="title">Evaluación Entre Pares</h1>
       <table className="autoevaluacion-table">
       <thead>
           <tr>
@@ -147,7 +179,7 @@ const EvaluacionFinal = () => {
                 <button className="view-button" onClick={() => handleShowDetailsClick(estudiante)}>👁️</button>
               </td>
               <td>
-                  {estudiante.evaluado_evaluaciones_finales.length > 0
+                  {estudiante.evaluado_criterios.length > 0
                     ? (<Badge bg="success">Evaluado</Badge>)
                     : (
                       <button className="btn btn-primary btn-sm" type="button"
@@ -162,40 +194,27 @@ const EvaluacionFinal = () => {
         </tbody>
       </table>
 
-
       <Modal show={showEvaluationModal} onHide={handleCloseEvaluationModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{'Evaluación de ' + currentTask?.nombre_estudiante}</Modal.Title>
+          <Modal.Title>{'Evaluación de ' + currentStudent?.nombre_estudiante}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <div className="mb-3">
-              <div className="evaluation-options">
-                {evaluationOptions.map((option, index) => (
-                  <div className="evaluation-item" key={index}>
-                    <button className="evaluation-circle" onClick={() => handleSelectEvaluation(index)} type="button"
-                      style={{ backgroundColor: option.value === selectedEvaluation?.value ? '#0d6efd' : option.color }}>
-                      {option.value}
-                    </button>
-                    <span className="evaluation-label">{option.label}</span>
-                  </div>
-                ))}
-              </div>
+            <div style={{ height: 400, width: '100%' }}>
+              <DataGrid
+                rows={criterios}
+                columns={columns}
+                getRowId={(row) => row.id_criterio}
+                checkboxSelection
+                onRowSelectionModelChange={handleSelectionChange}
+                hideFooter
+              />
+            </div>
               {formErrors.resultado_evaluacion && (
                 <div className="d-block invalid-feedback">{formErrors.resultado_evaluacion}</div>
               )}
             </div>
-            <Form.Group controlId="formDescripcionEvaluacion" className="mb-3">
-              <Form.Label>Explica tu elección</Form.Label>
-              <Form.Control
-                type="text"
-                name="descripcion_evaluacion"
-                value={formValues.descripcion_evaluacion}
-                onChange={handleInputChange}
-                isInvalid={!!formErrors.descripcion_evaluacion}
-              />
-              <Form.Control.Feedback type="invalid">{formErrors.descripcion_evaluacion}</Form.Control.Feedback>
-            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -207,24 +226,38 @@ const EvaluacionFinal = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+
       {/* para ver detalles */}
       <Modal show={showDetailsModal} onHide={handleCloseDetailsModal} centered>
         <Modal.Header closeButton>
-          <Modal.Title>{'Evaluaciones de ' + currentTask?.nombre_estudiante +' ' + currentTask?.ap_pat}</Modal.Title>
+          <Modal.Title>{'Evaluaciones de ' + currentStudent?.nombre_estudiante +' ' + currentStudent?.ap_pat}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {evaluationDetails.length > 0 ? (
-            evaluationDetails.map((detail, index) => (
-              <div key={index}>
-                <p><strong>Evaluado por:</strong> {detail.evaluador.nombre_estudiante +' ' + detail.evaluador.ap_pat +' ' + detail.evaluador.ap_mat}</p>
-                <p><strong>Escala:</strong> {detail.resultado_escala}</p>
-                <p><strong>Comentario:</strong> {detail.resultado_comentario}</p>
-                <br/>
-              </div>
-            ))
-          ) : (
-            <p>No hay evaluaciones disponibles.</p>
-          )}
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estudiante Evaluador</th>
+              </tr>
+            </thead>
+            <tbody>
+              {evaluationDetails.length > 0 ? (
+                evaluationDetails.map((detail, index) => (
+                  <tr key={index}>
+                    <td>{detail.nombre}</td>
+                    <td>{detail.descripcion}</td>
+                    <td>{`${detail.estudiante_evaluador.nombre_estudiante} ${detail.estudiante_evaluador.ap_pat} ${detail.estudiante_evaluador.ap_mat}`}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan='3'>No hay evaluaciones disponibles.</td>
+                </tr>
+              )}
+
+            </tbody>
+          </Table>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseDetailsModal}>
@@ -236,4 +269,4 @@ const EvaluacionFinal = () => {
   );
 };
 
-export default EvaluacionFinal;
+export default EvaluacionPares;

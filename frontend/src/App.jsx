@@ -16,7 +16,7 @@ import Estudiantes from './Estudiantes/Estudiantes';
 import Equipos from './Equipos/Equipos';
 import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
-import EvaluacionFinal from './EvaluacionFinal/EvaluacionFinal';
+import EvaluacionPares from './EvaluacionPares/EvaluacionPares';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
 import './App.css';
@@ -82,7 +82,7 @@ function App() {
                 <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
                 <Route path="/Seguimiento" element={<Seguimiento />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
-                <Route path="/EvaluacionFinal" element={<EvaluacionFinal />} />
+                <Route path="/EvaluacionPares" element={<EvaluacionPares />} />
               </>
             )}
             {role === 'docente' && (

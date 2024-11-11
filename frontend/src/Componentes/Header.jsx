@@ -431,28 +431,28 @@ export default function PersistentDrawerLeft() {
                 </ListItem>
               )}
 
-              {/* EvaluacionFinal */}
-              {/* {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+              {/* EvaluacionPares */}
+              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
                 <ListItem disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to="/EvaluacionFinal"
-                    onClick={() => handleButtonClick('evaluacionFinal')}
-                    sx={{
-                      borderRadius: '8px',
-                      backgroundColor: selectedButton === 'evaluacionFinal' ? '#1A3254' : 'transparent',
-                      '&:hover': {
-                        backgroundColor: '#1A3254',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: 'white' }}>
-                      <FactCheckIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Evaluación Final" sx={{ color: 'white' }} />
-                  </ListItemButton>
-                </ListItem>
-              )} */}
+                <ListItemButton
+                  component={Link}
+                  to="/EvaluacionPares"
+                  onClick={() => handleButtonClick('evaluacionPares')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <FactCheckIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              )}
 
               <ListItem disablePadding>
                 <ListItemButton
@@ -695,7 +695,7 @@ export default function PersistentDrawerLeft() {
                       </div>
                     </Form.Group>
                     <Form.Group className="mb-3">
-                      <Form.Label><strong>Evaluación Final</strong></Form.Label>
+                      <Form.Label><strong>Evaluación Pares</strong></Form.Label>
                       <div className="d-flex justify-content-between">
                         <Form.Label>Fecha Inicio
                           <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />

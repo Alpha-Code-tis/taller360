@@ -16,6 +16,7 @@
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^6.1.0",
     "@mui/material": "^6.1.0",
+    "@mui/x-data-grid": "^7.22.2",
     "@mui/x-date-pickers": "^7.17.0",
     "@nextui-org/react": "^2.4.6",
     "@react-pdf/renderer": "^4.0.0",
