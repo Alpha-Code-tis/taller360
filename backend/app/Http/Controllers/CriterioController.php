@@ -20,20 +20,29 @@ class CriterioController extends Controller
     {
         $request->validate([
             'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
             'porcentaje' => 'required|integer|min:0|max:100',
+            'subcriterios' => 'array',
+            'subcriterios.*.descripcion' => 'required|string|max:255',
+            'subcriterios.*.porcentaje' => 'required|integer|min:0|max:100',
         ]);
-        $porcentaje = Criterio::sum("porcentaje");
-        if ($porcentaje + $request->porcentaje > 100) {
+        $totalPorcentajeSubcriterios = collect($request->subcriterios)->sum('porcentaje');
+        if ($totalPorcentajeSubcriterios > $request->porcentaje) {
             return response()->json([
-               'message' => 'La suma de los porcentajes no puede superar 100.'
+                'message' => 'La suma de los porcentajes de subcriterios no puede superar el porcentaje del criterio.'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $criterio = Criterio::create($request->all());
-
+        $criterio = Criterio::create([
+            'nombre' => $request->nombre,
+            'porcentaje' => $request->porcentaje,
+        ]);
+        if ($request->has('subcriterios')) {
+            foreach ($request->subcriterios as $subcriterioData) {
+                $criterio->subcriterios()->create($subcriterioData);
+            }
+        }
         return response()->json([
-            'message' => 'Criterio creado con éxito.',
-            'data' => $criterio
+            'message' => 'Criterio y subcriterios creados con éxito.',
+            'data' => $criterio->load('subcriterios') // Carga los subcriterios para mostrarlos en la respuesta
         ], Response::HTTP_CREATED);
     }
 
