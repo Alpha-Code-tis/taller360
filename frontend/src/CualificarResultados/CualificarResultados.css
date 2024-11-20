@@ -1,0 +1,52 @@
+/* Contenedor principal */
+.cualificar-container {
+    margin-top: -100px;
+    padding: 20px;
+    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    max-width: 1000px; /* Limitar el ancho de la tabla */
+  }
+  /* Título de la planilla */
+  .planilla-notas-title {
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+  }
+  /* Tabla */
+  .planilla-notas-table {
+    width: 150%;
+    border-collapse: collapse;
+    font-size: 14px; /* Reducir tamaño si es necesario */
+  }
+  /* Encabezados */
+  .planilla-notas-table th {
+    background-color: #f4f4f4;
+    color: #333;
+    padding: 10px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  /* Filas y celdas */
+  .planilla-notas-table td {
+    padding: 8px;
+    text-align: center;
+    border: 1px solid #ddd;
+  }
+  .planilla-notas-table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  .planilla-notas-table tr:hover {
+    background-color: #eaeaea;
+  }
+  /* Asegurar que no afecte estilos globales */
+  .planilla-notas-container,
+  .planilla-notas-title,
+  .planilla-notas-table,
+  .planilla-notas-table th,
+  .planilla-notas-table td {
+    all: unset;
+    all: initial;
+    all: revert;
+  }
