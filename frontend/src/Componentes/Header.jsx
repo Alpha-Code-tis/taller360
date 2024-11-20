@@ -1,36 +1,39 @@
 import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import PersonIcon from '@mui/icons-material/Person';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
+import { Link, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Drawer,
+  CssBaseline,
+  AppBar as MuiAppBar,
+  Toolbar,
+  List,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  Menu,
+  MenuItem,
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
-import { FaUserCircle } from 'react-icons/fa';
-import logo from '../img/logo.jpeg';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import PersonIcon from '@mui/icons-material/Person';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
+import { FaUserCircle } from 'react-icons/fa';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import FactCheckIcon from '@mui/icons-material/FactCheck';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import ChecklistIcon from '@mui/icons-material/Checklist';
-import { Link } from 'react-router-dom';
+import logo from '../img/logo.jpeg';
 import { useState, useEffect } from 'react';
-import { Menu, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { API_URL } from '../config';
@@ -43,6 +46,8 @@ import Form from 'react-bootstrap/Form';
 import { Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import SettingsIcon from '@mui/icons-material/Settings';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -50,7 +55,7 @@ dayjs.locale('es');
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
+  ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -58,67 +63,38 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-          marginLeft: 0,
-        },
-      },
-    ],
-  }),
+    ...(open && {
+      marginLeft: 0,
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }),
+  })
 );
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme }) => ({
+})(({ theme, open }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      },
-    },
-  ],
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
 }));
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
-const VistaAdministrador = () => {
-  const navigate = useNavigate(); // Hook para navegación
-}
-
-const handleButtonClick = (button) => {
-  // Maneja la lógica adicional que necesites al hacer clic
-  console.log(`Button clicked: ${button}`);
-};
-
-const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
 
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
-  const [nombre, setNombre] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el nombre del usuario
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
   const [finalEvalStart, setFinalEvalStart] = useState('');
@@ -127,12 +103,29 @@ export default function PersistentDrawerLeft() {
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
 
+  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
+
+  const [formGroupName, setFormGroupName] = useState('');
+  const [formGroupStartDate, setFormGroupStartDate] = useState('');
+  const [formGroupEndDate, setFormGroupEndDate] = useState('');
+  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
+  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
+
+  // Estado para el botón seleccionado
+  const [selectedButton, setSelectedButton] = useState(null);
+
+  // Estados para controlar el submenú de Evaluaciones
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
+
   useEffect(() => {
-    // Obtener el role del localStorage al montar el componente
+    // Obtener el rol y nombre del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
     const storedNombre = localStorage.getItem('nombre');
     if (storedRole) {
       setRole(storedRole);
+    }
+    if (storedNombre) {
       setNombre(storedNombre);
     }
     fetchFechas();
@@ -177,13 +170,6 @@ export default function PersistentDrawerLeft() {
     navigate('/login');
     window.location.reload();
   };
-  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
-  const handleTeamConfigSave = () => {
-    // Lógica para guardar los ajustes de conformación de equipos
-    setTeamConfigModalShow(false);
-    toast.success('Ajustes de conformación de equipos guardados');
-  };
-  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
 
   const handleSettingsMenuOpen = (event) => {
     setSettingsMenuAnchor(event.currentTarget);
@@ -192,12 +178,6 @@ export default function PersistentDrawerLeft() {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
-
-  const [formGroupName, setFormGroupName] = useState('');
-  const [formGroupStartDate, setformGroupStartDate] = useState('');
-  const [formGroupEndDate, setformGroupEndDate] = useState('');
-  const [formGroupMinStudents, setformGroupMinStudents] = useState('');
-  const [formGroupMaxStudents, setformGroupMaxStudents] = useState('');
 
   const handleSaveChanges = async () => {
     const payload = {
@@ -228,15 +208,10 @@ export default function PersistentDrawerLeft() {
     try {
       await axios.post(`${API_URL}gestion`, payload);
       toast.success('Fechas guardadas correctamente');
-      setModalShow(false);
+      setTeamConfigModalShow(false);
     } catch (error) {
-      // Mostrar el mensaje de error en la interfaz
       toast.error('Error al guardar las fechas');
-
-      // Mostrar el error completo en la consola para mayor detalle
       console.error('Error al guardar las fechas:', error);
-
-      // Si la respuesta del servidor contiene un mensaje específico, también puedes mostrarlo
       if (error.response) {
         console.error('Respuesta del servidor:', error.response.data);
       } else if (error.request) {
@@ -245,11 +220,15 @@ export default function PersistentDrawerLeft() {
         console.error('Error de configuración:', error.message);
       }
     }
-
   };
-  const [selectedButton, setSelectedButton] = useState(null);
+
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
+    if (buttonName === 'evaluaciones') {
+      setEvaluacionesOpen(!evaluacionesOpen);
+    } else {
+      setEvaluacionesOpen(false);
+    }
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -265,12 +244,10 @@ export default function PersistentDrawerLeft() {
         >
           <IconButton
             color="inherit"
-            aria-label="toggle drawer"
-            onClick={() => setOpen(!open)}
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
             edge="start"
-            sx={{
-              mr: 2,
-            }}
+            sx={{ mr: 2, ...(open && { display: 'none' }) }}
           >
             <MenuIcon />
           </IconButton>
@@ -307,7 +284,7 @@ export default function PersistentDrawerLeft() {
             paddingTop: '30px',
           },
         }}
-        variant={isMobile ? 'temporary' : 'persistent'}
+        variant="persistent"
         anchor="left"
         open={open}
         onClose={handleDrawerClose}
@@ -361,14 +338,13 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+                    <GroupsIcon />
                   </ListItemIcon>
                   <ListItemText primary="Equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
-
-
+              {/* Tareas Estudiante */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -388,6 +364,10 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+              
+
+              {/* Seguimiento */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -408,7 +388,7 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
-              {/* Autoevaluacion */}
+              {/* Autoevaluación */}
               {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
                 <ListItem disablePadding>
                   <ListItemButton
@@ -453,26 +433,6 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
               )}
-
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/PlanillasSemanales" // Agregamos la ruta de las planillas
-                  onClick={() => handleButtonClick('planillas')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <CalendarMonthIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
             </>
           )}
 
@@ -493,16 +453,35 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <FactCheckIcon />
+                    <SchoolIcon />
                   </ListItemIcon>
                   <ListItemText primary="Docentes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+              {/* Planillas Semanales */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillasSemanales"
+                  onClick={() => handleButtonClick('planillas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <CalendarMonthIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
             </>
-
           )}
 
-          {/* docente */}
+          {/* Docente */}
           {role === 'docente' && (
             <>
               <ListItem disablePadding>
@@ -521,7 +500,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <NoteAltIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Planificacion de equipos" sx={{ color: 'white' }} />
+                  <ListItemText primary="Planificación de equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
@@ -548,26 +527,6 @@ export default function PersistentDrawerLeft() {
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
-                  to="/GenerarPlanilla"
-                  onClick={() => handleButtonClick('generarPlanilla')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <PictureAsPdfIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
                   to="/ListaAutoevaluacion"
                   onClick={() => handleButtonClick('listaAutoevaluacion')}
                   sx={{
@@ -581,9 +540,10 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <SchoolIcon />
                   </ListItemIcon>
-                  <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+                  <ListItemText primary="Lista Autoevaluación" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -620,9 +580,31 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssignmentTurnedInIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+                  <ListItemText primary="Formulario de Evaluación" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+              {/* Planilla de Notas */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillaNotas"
+                  onClick={() => handleButtonClick('planillaNotas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
               {/* Modal Conformación de Equipos */}
               <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
                 <Modal.Header closeButton>
@@ -631,9 +613,12 @@ export default function PersistentDrawerLeft() {
                 <Modal.Body>
                   <Form>
                     <Form.Group className="mb-3" controlId="formGroupName">
-                      <Form.Label>Gestion</Form.Label>
-                      <Form.Control type="text" placeholder="2-2024" value={formGroupName} // Vincula el valor con el estado
-                        onChange={(e) => setFormGroupName(e.target.value)} // Actualiza el estado al cambiar el texto
+                      <Form.Label>Gestión</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="2-2024"
+                        value={formGroupName}
+                        onChange={(e) => setFormGroupName(e.target.value)}
                       />
                     </Form.Group>
 
@@ -641,15 +626,23 @@ export default function PersistentDrawerLeft() {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupStartDate">
                           <Form.Label>Fecha Inicio</Form.Label>
-                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupStartDate(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="dd/mm/aaaa"
+                            value={formGroupStartDate}
+                            onChange={(e) => setFormGroupStartDate(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupEndDate">
                           <Form.Label>Fecha Fin</Form.Label>
-                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupEndDate(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="dd/mm/aaaa"
+                            value={formGroupEndDate}
+                            onChange={(e) => setFormGroupEndDate(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                     </Row>
@@ -658,15 +651,23 @@ export default function PersistentDrawerLeft() {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMinStudents">
                           <Form.Label>Cantidad Min. de estudiantes</Form.Label>
-                          <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupMinStudents(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="3"
+                            value={formGroupMinStudents}
+                            onChange={(e) => setFormGroupMinStudents(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMaxStudents">
                           <Form.Label>Cantidad Max. de estudiantes</Form.Label>
-                          <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupMaxStudents(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="6"
+                            value={formGroupMaxStudents}
+                            onChange={(e) => setFormGroupMaxStudents(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                     </Row>
@@ -677,6 +678,8 @@ export default function PersistentDrawerLeft() {
                   <Button variant="primary" onClick={handleSaveChangesGrup}>Guardar cambios</Button>
                 </Modal.Footer>
               </Modal>
+
+              {/* Modal Habilitar Vistas */}
               <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
                 <Modal.Header closeButton>
                   <Modal.Title>Habilitar vistas</Modal.Title>
@@ -686,10 +689,12 @@ export default function PersistentDrawerLeft() {
                     <Form.Group className="mb-3">
                       <Form.Label><strong>Autoevaluación</strong></Form.Label>
                       <div className="d-flex justify-content-between">
-                        <Form.Label>Fecha Inicio
+                        <Form.Label>
+                          Fecha Inicio
                           <Form.Control type="date" value={autoEvalStart} onChange={(e) => setAutoEvalStart(e.target.value)} />
                         </Form.Label>
-                        <Form.Label>Fecha Fin
+                        <Form.Label>
+                          Fecha Fin
                           <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
                         </Form.Label>
                       </div>
@@ -697,10 +702,12 @@ export default function PersistentDrawerLeft() {
                     <Form.Group className="mb-3">
                       <Form.Label><strong>Evaluación Pares</strong></Form.Label>
                       <div className="d-flex justify-content-between">
-                        <Form.Label>Fecha Inicio
+                        <Form.Label>
+                          Fecha Inicio
                           <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />
                         </Form.Label>
-                        <Form.Label>Fecha Fin
+                        <Form.Label>
+                          Fecha Fin
                           <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
                         </Form.Label>
                       </div>
@@ -712,13 +719,15 @@ export default function PersistentDrawerLeft() {
                   <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
                 </Modal.Footer>
               </Modal>
-
             </>
           )}
         </List>
         <Divider />
       </Drawer>
-      <Main open={open}></Main>
+      <Main open={open}>
+        {/* Contenido principal */}
+      </Main>
     </Box>
   );
 }
+
