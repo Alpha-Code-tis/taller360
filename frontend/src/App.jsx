@@ -20,8 +20,6 @@ import EvaluacionPares from './EvaluacionPares/EvaluacionPares';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
 import './App.css';
-import Cruzada from './Evaluaciones/Cruzada';
-import Evaluaciones from './Evaluaciones/Cruzada';
 import axios from 'axios';
 import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
