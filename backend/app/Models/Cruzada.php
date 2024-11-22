@@ -45,7 +45,7 @@ class Cruzada extends Model
 		return $this->hasMany(DetalleReporte::class, 'id_cruzada');
 	}
 
-	public function evaluacions()
+	public function evaluaciones()
 	{
 		return $this->hasMany(Evaluacion::class, 'id_cruzada');
 	}

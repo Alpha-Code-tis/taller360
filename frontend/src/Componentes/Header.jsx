@@ -3,6 +3,7 @@ import { styled, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Drawer from '@mui/material/Drawer';
 import CssBaseline from '@mui/material/CssBaseline';
+import Collapse from '@mui/material/Collapse';
 import MuiAppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import List from '@mui/material/List';
@@ -11,6 +12,8 @@ import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import ListItem from '@mui/material/ListItem';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'; // Importación añadida
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Importación añadida
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -18,7 +21,6 @@ import { FaUserCircle } from 'react-icons/fa';
 import logo from '../img/logo.jpeg';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import FactCheckIcon from '@mui/icons-material/FactCheck';
@@ -247,9 +249,19 @@ export default function PersistentDrawerLeft() {
     }
 
   };
+   // Estado para el botón seleccionado
   const [selectedButton, setSelectedButton] = useState(null);
+
+  // Estados para controlar el submenú de Evaluaciones
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
+
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
+    if (buttonName === 'evaluaciones') {
+      setEvaluacionesOpen(!evaluacionesOpen);
+    } else {
+      setEvaluacionesOpen(false);
+    }
   };
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -367,8 +379,6 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
-
-
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -388,6 +398,44 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+              
+              <ListItem disablePadding>
+  <ListItemButton
+    onClick={() => handleButtonClick('evaluaciones')}
+    sx={{
+      borderRadius: '8px',
+      backgroundColor: selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+      '&:hover': {
+        backgroundColor: '#1A3254',
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: 'white' }}>
+      <SchoolIcon />
+    </ListItemIcon>
+    <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+    {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+  </ListItemButton>
+</ListItem>
+<Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+  <List component="div" disablePadding>
+    <ListItem disablePadding>
+      <ListItemButton
+        sx={{ pl: 4 }}
+        component={Link}
+        to="/Cruzada"
+        onClick={() => handleButtonClick('cruzada')}
+      >
+        <ListItemIcon sx={{ color: 'white' }}>
+          <PersonIcon />
+        </ListItemIcon>
+        <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+      </ListItemButton>
+    </ListItem>
+  </List>
+</Collapse>
+
+
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
