@@ -42,16 +42,11 @@ class TareaController extends Controller
         if (!$sprint) {
             return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
         }
-        $alcances = $sprint->alcances()->pluck('id_alcance');
-        // Obtener las tareas asignadas al estudiante autenticado que pertenecen al alcance del sprint seleccionado
-        $idTareasDelEstudiante = EstudianteTarea::where('id_estudiante', $estudiante->id_estudiante)
-    ->pluck('id_tarea');
-    $tareasDelEstudiante = Tarea::whereIn('id_tarea', $idTareasDelEstudiante) // Filtrar por tareas del estudiante
-    ->whereIn('id_alcance', $alcances) // Filtrar por tareas que pertenecen al alcance del sprint
-    ->get();
-        
+        $tareas = $estudiante->tareas()
+                       ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
+                       ->get();
 
-        return response()->json($tareasDelEstudiante);
+        return response()->json($tareas);
     }
 
 
