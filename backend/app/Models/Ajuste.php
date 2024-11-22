@@ -19,7 +19,8 @@ class Ajuste extends Model
         'fecha_inicio_eva_final',
         'fecha_fin_eva_final',
         'fecha_inicio_eva_cruzada',
-        'fecha_fin_eva_cruzada'
+        'fecha_fin_eva_cruzada',
+        'nota_pares'
     ];
 
     // Deshabilita las marcas de tiempo automáticas si no necesitas created_at y updated_at
