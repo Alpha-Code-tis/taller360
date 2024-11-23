@@ -126,6 +126,7 @@ export default function PersistentDrawerLeft() {
   const [autoEvalStart, setAutoEvalStart] = useState('');
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
+  const [notaPares, setNotaPares] = useState('');
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -147,6 +148,7 @@ export default function PersistentDrawerLeft() {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
+      setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
@@ -205,6 +207,7 @@ export default function PersistentDrawerLeft() {
       fecha_fin_autoevaluacion: autoEvalEnd,
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
+      nota_pares: notaPares,
     };
 
     try {
@@ -703,6 +706,18 @@ export default function PersistentDrawerLeft() {
                         <Form.Label>Fecha Fin
                           <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
                         </Form.Label>
+                      </div>
+                      {/* Nota Pares */}
+                      <div>
+                        <Form.Label>Nota Pares</Form.Label>
+                        <Form.Control
+                          type="number"
+                          value={notaPares}
+                          onChange={(e) => setNotaPares(e.target.value)}
+                          placeholder="Ingrese nota"
+                          min={0}
+                          max={100}
+                        />
                       </div>
                     </Form.Group>
                   </Form>

@@ -59,3 +59,38 @@ h1.title {
   color: white;
 }
 
+.custom-modal {
+  max-width: 700px;
+  .modal-content {
+    flex-grow: 1;
+  }
+}
+/* .custom-data-grid {
+  .css-5wdp45-MuiDataGrid-root .MuiDataGrid-cell {
+    background-color: red;
+    text-overflow: clip !important;
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    white-space: normal !important;
+    overflow: visible !important;
+    line-height: normal !important;
+  }
+  .MuiDataGrid-row.MuiDataGrid-row--firstVisible.MuiDataGrid-row--lastVisible.MuiDataGrid-row {
+    min-width: auto !important;
+    max-width: auto !important;
+    height: auto !important;
+    --height: auto !important;
+  }
+} */
+
+/* .custom-data-grid.MuiDataGrid-root .MuiDataGrid-row {
+  --height: auto !important;
+} */
+/* .custom-data-grid .MuiDataGrid-cell {
+  text-overflow: clip !important;
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  white-space: normal !important;
+  overflow: visible !important;
+  line-height: normal !important;
+} */

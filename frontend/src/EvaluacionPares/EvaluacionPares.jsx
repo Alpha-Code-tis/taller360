@@ -34,9 +34,10 @@ const EvaluacionPares = () => {
   const [selectedRowsData, setSelectedRowsData] = useState([]);
 
   const columns = [
-    { field: 'id_criterio', headerName: 'ID', width: 90, disableColumnMenu: true },
-    { field: 'nombre', headerName: 'Nombre', width: 150, disableColumnMenu: true },
-    { field: 'descripcion', headerName: 'Descripción', width: 110, disableColumnMenu: true },
+    { field: 'id_criterio', headerName: 'ID', width: 25, disableColumnMenu: true },
+    { field: 'nombre', headerName: 'Nombre', width: 170, disableColumnMenu: true },
+    { field: 'descripcion', headerName: 'Descripción', width: 150, disableColumnMenu: true },
+    { field: 'porcentaje', headerName: 'Porcentaje', width: 100, disableColumnMenu: true },
   ];
 
   const handleSelectionChange = (selection) => {
@@ -163,7 +164,7 @@ const EvaluacionPares = () => {
   return (
     <div className="lista-autoevaluacion-container">
       <h1 className="title">Evaluación Entre Pares</h1>
-      <table className="autoevaluacion-table">
+      <table className="autoevaluacion-table" >
       <thead>
           <tr>
             <th>Nombre del Estudiante</th>
@@ -194,7 +195,7 @@ const EvaluacionPares = () => {
         </tbody>
       </table>
 
-      <Modal show={showEvaluationModal} onHide={handleCloseEvaluationModal} centered>
+      <Modal show={showEvaluationModal} onHide={handleCloseEvaluationModal} centered size="lg" dialogClassName="custom-modal">
         <Modal.Header closeButton>
           <Modal.Title>{'Evaluación de ' + currentStudent?.nombre_estudiante}</Modal.Title>
         </Modal.Header>
@@ -228,16 +229,17 @@ const EvaluacionPares = () => {
       </Modal>
 
       {/* para ver detalles */}
-      <Modal show={showDetailsModal} onHide={handleCloseDetailsModal} centered>
+      <Modal show={showDetailsModal} onHide={handleCloseDetailsModal} centered >
         <Modal.Header closeButton>
           <Modal.Title>{'Evaluaciones de ' + currentStudent?.nombre_estudiante +' ' + currentStudent?.ap_pat}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Table striped bordered hover>
+          <Table striped bordered hover style={{ tableLayout: 'fixed', wordWrap: 'break-word' }}>
             <thead>
               <tr>
                 <th>Nombre</th>
                 <th>Descripción</th>
+                <th>Porcentaje</th>
                 <th>Estudiante Evaluador</th>
               </tr>
             </thead>
@@ -247,12 +249,13 @@ const EvaluacionPares = () => {
                   <tr key={index}>
                     <td>{detail.nombre}</td>
                     <td>{detail.descripcion}</td>
+                    <td>{detail.porcentaje}</td>
                     <td>{`${detail.estudiante_evaluador.nombre_estudiante} ${detail.estudiante_evaluador.ap_pat} ${detail.estudiante_evaluador.ap_mat}`}</td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan='3'>No hay evaluaciones disponibles.</td>
+                  <td colSpan='4'>No hay evaluaciones disponibles.</td>
                 </tr>
               )}
 

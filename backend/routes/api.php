@@ -92,6 +92,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //fechas
     Route::get('/ajustes', [AjustesController::class, 'show']);
     Route::patch('/ajustes', [AjustesController::class, 'update']);
+    Route::put('/ajustes/update', [AjustesController::class, 'update']);
+
 
 
     Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);

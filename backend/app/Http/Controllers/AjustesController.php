@@ -23,7 +23,8 @@ class AjustesController extends Controller
             'fecha_inicio_eva_final' => ['nullable', 'date'],
             'fecha_fin_eva_final' => ['nullable', 'date'],
             'fecha_inicio_eva_cruzada' => ['nullable', 'date'],
-            'fecha_fin_eva_cruzada' => ['nullable', 'date']
+            'fecha_fin_eva_cruzada' => ['nullable', 'date'],
+            'nota_pares' => ['nullable', 'integer']
         ]);
         if ($validator->fails()) {
             return response()->json([
