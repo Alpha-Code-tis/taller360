@@ -126,6 +126,10 @@ export default function PersistentDrawerLeft() {
   const [autoEvalStart, setAutoEvalStart] = useState('');
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
+  const [evaluacionModalShow, setEvaluacionModalShow] = useState(false);
+  const [autoEvalNota, setAutoEvalNota] = useState('');
+  const [paresEvalNota, setParesEvalNota] = useState('');
+  const [docenteEvalNota, setDocenteEvalNota] = useState('');
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -136,6 +140,7 @@ export default function PersistentDrawerLeft() {
       setNombre(storedNombre);
     }
     fetchFechas();
+    fetchNotas();
   }, []); // Se ejecuta solo una vez al montar el componente
 
   const fetchFechas = async () => {
@@ -152,6 +157,34 @@ export default function PersistentDrawerLeft() {
     }
   };
 
+  const fetchNotas = async () => {
+    try {
+      const response = await axios.get(`${API_URL}configNotasDocente`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Requiere autenticación
+        },
+      });
+  
+      const data = response.data;
+      console.log(data);
+      // Asignar valores a los estados correspondientes
+      setAutoEvalNota(data.autoevaluacion ?? '');
+      setParesEvalNota(data.pares ?? '');
+      setDocenteEvalNota(data.evaluaciondocente ?? '');
+    } catch (error) {
+      toast.error('No se recuperaron las notas.');
+      console.error('Error al obtener las notas:', error);
+  
+      if (error.response) {
+        console.error('Respuesta del servidor:', error.response.data);
+      } else if (error.request) {
+        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+      } else {
+        console.error('Error de configuración:', error.message);
+      }
+    }
+  };
+  
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -247,6 +280,40 @@ export default function PersistentDrawerLeft() {
     }
 
   };
+
+  const handleSaveChangesEva = async () => {
+    const payload = {
+      autoevaluacion: parseInt(autoEvalNota, 10),
+      pares: parseInt(paresEvalNota, 10),
+      evaluaciondocente: parseInt(docenteEvalNota, 10),
+    };
+
+    try {
+      const response = await axios.post(`${API_URL}configNotas`, payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      toast.success(
+        response.status === 201
+          ? 'Evaluación creada correctamente'
+          : 'Evaluación actualizada correctamente'
+      );
+      setEvaluacionModalShow(false);
+    } catch (error) {
+      toast.error('Error al guardar la evaluación');
+      console.error('Error al guardar:', error);
+
+      if (error.response) {
+        console.error('Respuesta del servidor:', error.response.data);
+      } else if (error.request) {
+        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+      } else {
+        console.error('Error de configuración:', error.message);
+      }
+    }
+  };
+
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -288,6 +355,7 @@ export default function PersistentDrawerLeft() {
             <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
               <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
               <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
+              <MenuItem onClick={() => { setEvaluacionModalShow(true); handleSettingsMenuClose(); }}>Configuracion de Evaluaciones</MenuItem>
             </Menu>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
@@ -712,7 +780,43 @@ export default function PersistentDrawerLeft() {
                   <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
                 </Modal.Footer>
               </Modal>
-
+              <Modal show={evaluacionModalShow} onHide={() => setEvaluacionModalShow(false)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Configuracion de Evaluaciones</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Autoevaluación</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          <Form.Control type="number" value={autoEvalNota} onChange={(e) => setAutoEvalNota(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Pares</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          <Form.Control type="number" value={paresEvalNota} onChange={(e) => setParesEvalNota(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Docente</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          <Form.Control type="number" value={docenteEvalNota} onChange={(e) => setDocenteEvalNota(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
+                  <Button variant="primary" onClick={handleSaveChangesEva}>Guardar cambios</Button>
+                </Modal.Footer>
+              </Modal>
             </>
           )}
         </List>
