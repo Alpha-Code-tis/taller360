@@ -19,7 +19,6 @@ import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import EvaluacionPares from './EvaluacionPares/EvaluacionPares';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
-import './App.css';
 import axios from 'axios';
 import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
@@ -53,7 +52,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div >
 
       <Toaster position="bottom-center" />
       {/* Solo mostrar Header y Footer si está autenticado */}

@@ -266,17 +266,20 @@ export default function PersistentDrawerLeft() {
             color: 'black',
           }}
         >
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={() => setOpen(!open)}
-            edge="start"
-            sx={{
-              mr: 2,
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {/* Mostrar solo en pantallas pequeñas */}
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="toggle drawer"
+              onClick={() => setOpen(!open)}
+              edge="start"
+              sx={{
+                mr: 2,
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <div className="ms-auto d-flex align-items-center">
             {role === 'docente' && (
               <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
@@ -312,7 +315,7 @@ export default function PersistentDrawerLeft() {
         }}
         variant={isMobile ? 'temporary' : 'persistent'}
         anchor="left"
-        open={open}
+        open={open || !isMobile}
         onClose={handleDrawerClose}
       >
         <div className="d-flex flex-column align-items-center">
