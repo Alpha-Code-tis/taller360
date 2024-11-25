@@ -1,61 +1,47 @@
-/* Contenedor principal */
-.planilla-notas-container {
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-    max-width: 1000px; /* Limitar el ancho de la tabla */
-  }
-  
-  /* Título de la planilla */
-  .planilla-notas-title {
-    font-size: 1.5em;
-    margin-bottom: 20px;
-    color: #333;
-    text-align: center;
-  }
-  
-  /* Tabla */
-  .planilla-notas-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px; /* Reducir tamaño si es necesario */
-  }
-  
-  /* Encabezados */
-  .planilla-notas-table th {
-    background-color: #f4f4f4;
-    color: #333;
-    padding: 10px;
-    text-align: center;
-    border: 1px solid #ddd;
-  }
-  
-  /* Filas y celdas */
-  .planilla-notas-table td {
-    padding: 8px;
-    text-align: center;
-    border: 1px solid #ddd;
-  }
-  
-  .planilla-notas-table tr:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-  
-  .planilla-notas-table tr:hover {
-    background-color: #eaeaea;
-  }
-  
-  /* Asegurar que no afecte estilos globales */
-  .planilla-notas-container,
-  .planilla-notas-title,
-  .planilla-notas-table,
-  .planilla-notas-table th,
-  .planilla-notas-table td {
-    all: unset;
-    all: initial;
-    all: revert;
-  }
-  
-  
+/* Título principal */
+.main-title {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  margin: 40px 0 20px; /* Margen superior más grande */
+}
+
+/* Títulos de tablas */
+.table-title {
+  color: #1A3254; /* Azul */
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+/* Encabezados azules */
+table th {
+  background-color: #1A3254;
+  color: white;
+  font-weight: bold;
+}
+/* Desplegables (select) */
+.filters select {
+  width: 200px;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9; /* Fondo claro */
+  color: #333; /* Texto oscuro */
+  appearance: none; /* Oculta el estilo predeterminado del navegador */
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns%3D%27http%3A//www.w3.org/2000/svg%27 width%3D%2710%27 height%3D%275%27 viewBox%3D%270 0 10 5%27%3E%3Cpath fill%3D%27%23333%27 d%3D%27M0 0l5 5 5-5z%27/%3E%3C/svg%3E');
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  background-size: 10px 5px;
+}
+
+/* Hover y enfoque */
+.filters select:hover {
+  border-color: #007bff;
+}
+
+.filters select:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+}
