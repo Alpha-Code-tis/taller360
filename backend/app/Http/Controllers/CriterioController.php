@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Criterio;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -11,36 +12,54 @@ class CriterioController extends Controller
     // Obtener todos los criterios
     public function index()
     {
-        $criterios = Criterio::all();
+        $criterios = Criterio::with('subcriterios')->get();
         return response()->json($criterios, Response::HTTP_OK);
     }
 
     // Almacenar un nuevo criterio
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
+        // Definir reglas de validación para los datos del criterio y subcriterios
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255|unique:criterios,nombre',
             'porcentaje' => 'required|integer|min:0|max:100',
+            'subcriterios' => 'array',
+            'subcriterios.*.descripcion' => 'required|string|max:255',
+            'subcriterios.*.porcentaje' => 'required|integer|min:0|max:100',
         ]);
-        $porcentaje = Criterio::sum("porcentaje");
-        if ($porcentaje + $request->porcentaje > 100) {
+
+        if ($validator->fails()) {
             return response()->json([
-               'message' => 'La suma de los porcentajes no puede superar 100.'
+                'message' => 'Datos no válidos',
+                'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $criterio = Criterio::create($request->all());
 
+        $totalPorcentajeSubcriterios = collect($request->subcriterios)->sum('porcentaje');
+        if ($totalPorcentajeSubcriterios > $request->porcentaje) {
+            return response()->json([
+                'message' => 'La suma de los porcentajes de subcriterios no puede superar el porcentaje del criterio.'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        $criterio = Criterio::create([
+            'nombre' => $request->nombre,
+            'porcentaje' => $request->porcentaje,
+        ]);
+        if ($request->has('subcriterios')) {
+            foreach ($request->subcriterios as $subcriterioData) {
+                $criterio->subcriterios()->create($subcriterioData);
+            }
+        }
         return response()->json([
-            'message' => 'Criterio creado con éxito.',
-            'data' => $criterio
+            'message' => 'Criterio y subcriterios creados con éxito.',
+            'data' => $criterio->load('subcriterios') // Carga los subcriterios para mostrarlos en la respuesta
         ], Response::HTTP_CREATED);
     }
 
     // Mostrar un criterio específico
     public function show($id_criterio)
     {
-        $criterio = Criterio::where('id_criterio', $id_criterio)->first();
+        $criterio = Criterio::with('subcriterios')->where('id_criterio', $id_criterio)->first();
 
         if (!$criterio) {
             return response()->json([
@@ -54,13 +73,23 @@ class CriterioController extends Controller
     // Actualizar un criterio existente
     public function update(Request $request, $id_criterio)
     {
-        $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
+        $validator = Validator::make($request->all(), [
+            'nombre' => 'required|string|max:255|unique:criterios,nombre,' . $id_criterio . ',id_criterio',
             'porcentaje' => 'required|integer|min:0|max:100',
+            'subcriterios' => 'array',
+            'subcriterios.*.id_subcriterios' => 'sometimes|exists:subcriterios,id_subcriterios',
+            'subcriterios.*.descripcion' => 'required|string|max:255',
+            'subcriterios.*.porcentaje' => 'required|integer|min:0|max:100',
         ]);
 
-        $criterio = Criterio::where('id_criterio', $id_criterio)->first();
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no válidos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        $criterio = Criterio::with('subcriterios')->where('id_criterio', $id_criterio)->first();
 
         if (!$criterio) {
             return response()->json([
@@ -68,18 +97,40 @@ class CriterioController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $criterio->update($request->all());
+        $criterio->update($request->only(['nombre', 'porcentaje']));
+
+        if ($request->has('subcriterios')) {
+            $totalPorcentajeSubcriterios = collect($request->subcriterios)->sum('porcentaje');
+            if ($totalPorcentajeSubcriterios > $request->porcentaje) {
+                return response()->json([
+                    'message' => 'La suma de los porcentajes de subcriterios no puede superar el porcentaje del criterio.'
+                ], Response::HTTP_UNPROCESSABLE_ENTITY);
+            }
+            $existingSubcriterios = $criterio->subcriterios->keyBy('id_cri');
+            foreach ($request->subcriterios as $subcriterioData) {
+                if (isset($subcriterioData['id']) && $existingSubcriterios->has($subcriterioData['id'])) {
+                    $existingSubcriterios[$subcriterioData['id']]->update($subcriterioData);
+                    $existingSubcriterios->forget($subcriterioData['id']);
+                } else {
+                    $criterio->subcriterios()->create($subcriterioData);
+                }
+            }
+
+            foreach ($existingSubcriterios as $subcriterio) {
+                $subcriterio->delete();
+            }
+        }
 
         return response()->json([
-            'message' => 'Criterio actualizado con éxito.',
-            'data' => $criterio
+            'message' => 'Criterio y subcriterios actualizados con éxito.',
+            'data' => $criterio->load('subcriterios')
         ], Response::HTTP_OK);
     }
 
-    // Eliminar un criterio
+    // Eliminar un criterio junto con sus subcriterios
     public function destroy($id_criterio)
     {
-        $criterio = Criterio::where('id_criterio', $id_criterio)->first();
+        $criterio = Criterio::with('subcriterios')->where('id_criterio', $id_criterio)->first();
 
         if (!$criterio) {
             return response()->json([
@@ -87,10 +138,11 @@ class CriterioController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
+        $criterio->subcriterios()->delete();
         $criterio->delete();
 
         return response()->json([
-            'message' => 'Criterio eliminado con éxito.'
-        ], Response::HTTP_NO_CONTENT);
+            'message' => 'Criterio y sus subcriterios eliminados con éxito.'
+        ], Response::HTTP_OK);
     }
 }
