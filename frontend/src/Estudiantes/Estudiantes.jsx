@@ -275,8 +275,8 @@ const Estudiantes = () => {
       </div>
 
       {/* Modal para agregar/editar estudiante */}
-      <Modal show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
+      <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header>
           <Modal.Title>{currentEstudiante ? 'Editar Estudiante' : 'Agregar Estudiante'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>

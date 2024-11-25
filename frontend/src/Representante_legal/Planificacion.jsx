@@ -472,7 +472,7 @@ const Planificacion = () => {
      </div>
 
       {/* Modal */}
-      <Modal show={showModal} onHide={handleCloseModal}className="custom-width-modal">
+      <Modal show={showModal} onHide={handleCloseModal}className="custom custom-width-modal">
         <Modal.Body className='custom-modal'>
           <Form>
             <Row className="mb-3">
