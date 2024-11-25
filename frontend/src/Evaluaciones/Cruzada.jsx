@@ -32,6 +32,8 @@ const Cruzada = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           Accept: 'application/json',
+        },params: {
+          gestion: '2-2024',
         },
       });
       setEquipos(response.data);
@@ -45,7 +47,7 @@ const Cruzada = () => {
 
   const fetchUsuarioAutenticado = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/usuario', {
+      const response = await axios.get(`${API_URL}usuario`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           Accept: 'application/json',
@@ -69,7 +71,7 @@ const Cruzada = () => {
         return;
       }
 
-      const response = await axios.get(`http://localhost:8000/api/tareas/tareasEmpresa/${equipo.id_empresa}`, {
+      const response = await axios.get(`${API_URL}tareas/tareasEmpresa/${equipo.id_empresa}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
@@ -104,7 +106,7 @@ const Cruzada = () => {
   // Obtener los criterios asociados a una tarea específica desde el backend
   const fetchCriterios = async (tareaId) => {
     try {
-      const response = await axios.get(`http://localhost:8000/api/criterios/tarea/${tareaId}`, {
+      const response = await axios.get(`${API_URL}criterios/tarea/${tareaId}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           Accept: 'application/json',
@@ -144,7 +146,7 @@ const Cruzada = () => {
       // Obtén el equipo del usuario autenticado
       const equipoUsuario = await fetchUsuarioAutenticado();
 
-      const response = await axios.get(`http://localhost:8000/api/cruzada/empresas/${equipo.id_empresa}/estudiantes`, {
+      const response = await axios.get(`${API_URL}cruzada/empresas/${equipo.id_empresa}/estudiantes`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           Accept: 'application/json',
@@ -225,7 +227,7 @@ const Cruzada = () => {
         })),
       };
 
-      await axios.post('http://localhost:8000/api/autoevaluacion/evaluaciones', evaluacionData, {
+      await axios.post(`${API_URL}autoevaluacion/evaluaciones`, evaluacionData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
