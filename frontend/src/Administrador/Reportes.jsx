@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Form, Button, Spinner, Table } from 'react-bootstrap';
@@ -16,7 +17,7 @@ const Reportes = () => {
   useEffect(() => {
     const fetchEquipos = async () => {
       try {
-        const response = await axios.get('http://localhost:8000/api/equipos', {
+        const responseEquipos = await axios.get(`${API_URL}equipos`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -35,7 +36,7 @@ const Reportes = () => {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('http://localhost:8000/api/reporte', {
+      const responseReporte = await axios.post(`${API_URL}reporte`, data, {
         id_empresa: equipoSeleccionado,
         fecha_inicio: fechaInicio,
         fecha_fin: fechaFin,
@@ -69,22 +70,6 @@ const Reportes = () => {
               </option>
             ))}
           </Form.Select>
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Fecha Inicio</Form.Label>
-          <Form.Control
-            type="date"
-            value={fechaInicio}
-            onChange={(e) => setFechaInicio(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group>
-          <Form.Label>Fecha Fin</Form.Label>
-          <Form.Control
-            type="date"
-            value={fechaFin}
-            onChange={(e) => setFechaFin(e.target.value)}
-          />
         </Form.Group>
         <Form.Group>
           <Form.Label>Sprint ID</Form.Label>

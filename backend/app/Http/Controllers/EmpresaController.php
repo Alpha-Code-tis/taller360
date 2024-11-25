@@ -17,7 +17,8 @@ class EmpresaController extends Controller
     public function index(Request $request)
 {
     // Filtrar empresas por la gestión actual
-    $gestion = $request->input('gestion', '2-2024'); // Valor por defecto: '2-2024'
+    $gestionActual = '2-2024';
+    $gestion = $request->input('gestion', $gestionActual); // Valor por defecto: '2-2024'
 
     $empresas = Empresa::with(['cantidad', 'representate_legal', 'planificacion'])
         ->where('gestion', $gestion)

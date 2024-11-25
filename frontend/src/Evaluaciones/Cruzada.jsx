@@ -32,7 +32,7 @@ const Cruzada = () => {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           Accept: 'application/json',
-        },params: {
+        }, params: {
           gestion: '2-2024',
         },
       });
@@ -155,8 +155,10 @@ const Cruzada = () => {
 
       // Filtra los estudiantes del equipo actual que no pertenezcan al equipo del usuario
       const estudiantesFiltrados = response.data.filter(
-        (estudiante) => estudiante.id_equipo !== equipoUsuario
+        (estudiante) =>
+          estudiante.id_equipo !== equipoUsuario || equipo.id_empresa === equipoUsuario
       );
+
 
       setEstudiantes(estudiantesFiltrados);
     } catch (error) {
@@ -314,7 +316,7 @@ const Cruzada = () => {
                                 No permitido
                               </Button>
                             ) : (
-                              tarea.evaluada ? (
+                              estudiante.evaluado ? (
                                 <Button variant="success" size="sm" disabled>
                                   Evaluado
                                 </Button>
@@ -328,6 +330,7 @@ const Cruzada = () => {
                                 </Button>
                               )
                             )}
+
                           </td>
                         </tr>
                       ))
