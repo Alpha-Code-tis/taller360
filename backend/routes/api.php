@@ -20,6 +20,7 @@ use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\CruzadaController;
+use App\Http\Controllers\ReporteController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -178,4 +179,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/cruzada/empresas', [CruzadaController::class, 'getEmpresas']);
         Route::get('/cruzada/empresas/{id}/estudiantes', [CruzadaController::class, 'getEstudiantesByEmpresa']);
     
+    // Reportes por Equipo
+    Route::post('/reporte', [ReporteController::class, 'generarReporte']);
 });

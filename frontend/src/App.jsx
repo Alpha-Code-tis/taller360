@@ -18,6 +18,7 @@ import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import EvaluacionPares from './EvaluacionPares/EvaluacionPares';
 import Footer from './Componentes/Footer';
+import Reportes from './Administrador/Reportes';
 import Header from './Componentes/Header';
 import './App.css';
 import Cruzada from './Evaluaciones/Cruzada';
@@ -97,6 +98,7 @@ function App() {
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
+                <Route path="/Reportes" element={<Reportes />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />

@@ -1,4 +1,4 @@
-import { API_URL } from '../config';              
+import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Modal, Button, Dropdown, Spinner, Form } from 'react-bootstrap';
@@ -43,6 +43,22 @@ const Cruzada = () => {
     }
   };
 
+  const fetchUsuarioAutenticado = async () => {
+    try {
+      const response = await axios.get('http://localhost:8000/api/usuario', {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+          Accept: 'application/json',
+        },
+      });
+      return response.data.equipo_id; // Suponiendo que el backend devuelve el equipo del usuario
+    } catch (error) {
+      console.error('Error al obtener el usuario autenticado:', error);
+      toast.error('Error al obtener la información del usuario.');
+      return null;
+    }
+  };
+
   // Cargar las tareas cuando se selecciona un equipo
   const fetchTareas = async (equipo) => {
     try {
@@ -52,14 +68,20 @@ const Cruzada = () => {
         navigate('/login');
         return;
       }
-  
+
       const response = await axios.get(`http://localhost:8000/api/tareas/tareasEmpresa/${equipo.id_empresa}`, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: 'application/json',
         },
       });
-      setTareas(response.data);
+
+      const tareasConEvaluacion = response.data.map((tarea) => ({
+        ...tarea,
+        evaluada: tarea.estudiantes.some((estudiante) => estudiante.evaluado), // Campo que indica si está evaluado
+      }));
+
+      setTareas(tareasConEvaluacion);
     } catch (error) {
       if (error.response) {
         if (error.response.status === 401) {
@@ -78,9 +100,6 @@ const Cruzada = () => {
       }
     }
   };
-  
-  
-  
 
   // Obtener los criterios asociados a una tarea específica desde el backend
   const fetchCriterios = async (tareaId) => {
@@ -120,14 +139,24 @@ const Cruzada = () => {
   // Obtener los estudiantes para el equipo seleccionado
   const fetchEstudiantes = async (equipo) => {
     setLoadingEstudiantes(true);
+
     try {
+      // Obtén el equipo del usuario autenticado
+      const equipoUsuario = await fetchUsuarioAutenticado();
+
       const response = await axios.get(`http://localhost:8000/api/cruzada/empresas/${equipo.id_empresa}/estudiantes`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           Accept: 'application/json',
         },
       });
-      setEstudiantes(response.data);
+
+      // Filtra los estudiantes del equipo actual que no pertenezcan al equipo del usuario
+      const estudiantesFiltrados = response.data.filter(
+        (estudiante) => estudiante.id_equipo !== equipoUsuario
+      );
+
+      setEstudiantes(estudiantesFiltrados);
     } catch (error) {
       toast.error('Error al cargar los estudiantes del equipo');
       console.error('Error al cargar los estudiantes del equipo:', error);
@@ -152,7 +181,7 @@ const Cruzada = () => {
 
   // Cerrar el modal y limpiar los estados relacionados
   const handleCloseModal = () => {
-    setShowModal(false); 
+    setShowModal(false);
     setFeedback('');
     setRatings({});
     setSelectedEstudiante(null); // Limpiar el estudiante seleccionado al cerrar el modal
@@ -171,7 +200,6 @@ const Cruzada = () => {
 
   // Función para guardar la evaluación
   const handleSave = async () => {
-    // Calcular la nota total
     const nota = Object.values(ratings).reduce((total, rating) => total + rating, 0);
 
     if (nota === 0) {
@@ -179,14 +207,10 @@ const Cruzada = () => {
       return;
     }
 
-    // Verificar que se haya seleccionado un estudiante
     if (!selectedEstudiante) {
       toast.error('Debes seleccionar un estudiante para la evaluación.');
       return;
     }
-
-    // Obtener cruzada_id desde currentEquipo o selectedEstudiante
-    // Ajusta esto según tu lógica de negocio
 
     try {
       const evaluacionData = {
@@ -201,8 +225,7 @@ const Cruzada = () => {
         })),
       };
 
-      // Realizar la solicitud POST consolidada
-      const response = await axios.post('http://localhost:8000/api/autoevaluacion/evaluaciones', evaluacionData, {
+      await axios.post('http://localhost:8000/api/autoevaluacion/evaluaciones', evaluacionData, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
           'Content-Type': 'application/json',
@@ -210,6 +233,16 @@ const Cruzada = () => {
       });
 
       toast.success('Evaluación guardada exitosamente.');
+
+      // Actualizar el estado para reflejar que la tarea fue evaluada
+      setTareas((prevTareas) =>
+        prevTareas.map((tarea) =>
+          tarea.id_tarea === selectedTarea.id_tarea
+            ? { ...tarea, evaluada: true }
+            : tarea
+        )
+      );
+
       handleCloseModal();
     } catch (error) {
       const errorMessage = error.response?.data?.errors
@@ -274,9 +307,25 @@ const Cruzada = () => {
                           </td>
                           <td>{tarea.estado}</td>
                           <td>
-                            <Button variant="primary" size="sm" onClick={() => handleOpenModal(tarea, estudiante)}>
-                              Evaluar
-                            </Button>
+                            {estudiante.id_equipo === currentEquipo.id_equipo ? (
+                              <Button variant="danger" size="sm" disabled>
+                                No permitido
+                              </Button>
+                            ) : (
+                              tarea.evaluada ? (
+                                <Button variant="success" size="sm" disabled>
+                                  Evaluado
+                                </Button>
+                              ) : (
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  onClick={() => handleOpenModal(tarea, estudiante)}
+                                >
+                                  Evaluar
+                                </Button>
+                              )
+                            )}
                           </td>
                         </tr>
                       ))

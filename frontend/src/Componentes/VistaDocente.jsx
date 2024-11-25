@@ -24,6 +24,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -203,7 +204,7 @@ export default function PersistentDrawerLeft() {
       await axios.post(`${API_URL}gestion`, payload);
       toast.success('Fechas guardadas correctamente');
       setModalShow(false);
-  } catch (error) {
+    } catch (error) {
       // Mostrar el mensaje de error en la interfaz
       toast.error('Error al guardar las fechas');
 
@@ -212,13 +213,13 @@ export default function PersistentDrawerLeft() {
 
       // Si la respuesta del servidor contiene un mensaje específico, también puedes mostrarlo
       if (error.response) {
-          console.error('Respuesta del servidor:', error.response.data);
+        console.error('Respuesta del servidor:', error.response.data);
       } else if (error.request) {
-          console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
       } else {
-          console.error('Error de configuración:', error.message);
+        console.error('Error de configuración:', error.message);
       }
-  }
+    }
 
   };
 
@@ -428,11 +429,35 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
+          {/* Botón de Reportes */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/Reportes"
+              onClick={() => handleButtonClick('reportes')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'reportes' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssessmentIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
         </List>
         <Divider />
       </Drawer>
       <Main open={open}></Main>
       <Footer />
+
+
 
       <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
         <Modal.Header closeButton>
@@ -489,14 +514,14 @@ export default function PersistentDrawerLeft() {
                 <Form.Group className="mb-3" controlId="formGroupStartDate">
                   <Form.Label>Fecha Inicio</Form.Label>
                   <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
-                onChange={(e) => setformGroupStartDate(e.target.value)}/>
+                    onChange={(e) => setformGroupStartDate(e.target.value)} />
                 </Form.Group>
               </Col>
               <Col>
                 <Form.Group className="mb-3" controlId="formGroupEndDate">
                   <Form.Label>Fecha Fin</Form.Label>
                   <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
-                onChange={(e) => setformGroupEndDate(e.target.value)}/>
+                    onChange={(e) => setformGroupEndDate(e.target.value)} />
                 </Form.Group>
               </Col>
             </Row>
@@ -506,14 +531,14 @@ export default function PersistentDrawerLeft() {
                 <Form.Group className="mb-3" controlId="formGroupMinStudents">
                   <Form.Label>Cantidad Min. de estudiantes</Form.Label>
                   <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
-                onChange={(e) => setformGroupMinStudents(e.target.value)}/>
+                    onChange={(e) => setformGroupMinStudents(e.target.value)} />
                 </Form.Group>
               </Col>
               <Col>
                 <Form.Group className="mb-3" controlId="formGroupMaxStudents">
                   <Form.Label>Cantidad Max. de estudiantes</Form.Label>
                   <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
-                onChange={(e) => setformGroupMaxStudents(e.target.value)}/>
+                    onChange={(e) => setformGroupMaxStudents(e.target.value)} />
                 </Form.Group>
               </Col>
             </Row>
