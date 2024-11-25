@@ -21,7 +21,6 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
@@ -37,6 +36,7 @@ import { API_URL } from '../config';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { Row, Col } from 'react-bootstrap';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const drawerWidth = 240;
 
@@ -111,7 +111,6 @@ export default function PersistentDrawerLeft() {
   const [formGroupEndDate, setformGroupEndDate] = useState('');
   const [formGroupMinStudents, setformGroupMinStudents] = useState('');
   const [formGroupMaxStudents, setformGroupMaxStudents] = useState('');
-  const [notaPares, setNotaPares] = useState('');
 
 
 
@@ -124,7 +123,6 @@ export default function PersistentDrawerLeft() {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
-      setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
@@ -180,7 +178,6 @@ export default function PersistentDrawerLeft() {
       fecha_fin_autoevaluacion: autoEvalEnd,
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
-      nota_pares: notaPares,
     };
 
     try {
@@ -376,26 +373,6 @@ export default function PersistentDrawerLeft() {
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/GenerarPlanilla"
-              onClick={() => handleButtonClick('generarPlanilla')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <PictureAsPdfIcon />
-              </ListItemIcon>
-              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
               to="/CriterioEvaluacion"
               onClick={() => handleButtonClick('criterioEvaluacion')}
               sx={{
@@ -412,6 +389,28 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+          
+          {/* Otras opciones compartidas */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales"
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <CalendarMonthIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -429,6 +428,27 @@ export default function PersistentDrawerLeft() {
                 <AssignmentTurnedInIcon />
               </ListItemIcon>
               <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
+          {/* Planilla de Notas */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillaNotas"
+              onClick={() => handleButtonClick('planillaNotas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>
@@ -463,18 +483,6 @@ export default function PersistentDrawerLeft() {
                 <Form.Label>Fecha Fin
                   <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
                 </Form.Label>
-              </div>
-              {/* Nota Pares */}
-              <div>
-                <Form.Label>Nota Pares</Form.Label>
-                <Form.Control
-                  type="number"
-                  value={notaPares}
-                  onChange={(e) => setNotaPares(e.target.value)}
-                  placeholder="Ingrese nota"
-                  min={0}
-                  max={100}
-                />
               </div>
             </Form.Group>
           </Form>

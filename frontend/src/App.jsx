@@ -25,7 +25,7 @@ import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
 import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
-import GenerarPlanilla from './Administrador/GenerarPlanilla';
+import GenerarPlanilla from './Planillas/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
 
