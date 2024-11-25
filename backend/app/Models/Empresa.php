@@ -93,5 +93,10 @@ class Empresa extends Model
 	}
 	public function estudiantes() // Nueva relación en Empresa
 	{
-		return $this->hasMany(Estudiante::class, 'id_empresa', 'id_empresa');	}
+		return $this->hasMany(Estudiante::class, 'id_empresa', 'id_empresa');	
+	}
+	public function tareas()
+	{
+		return $this->hasMany(Tarea::class, 'id_empresa', 'id_empresa'); // Ajusta las claves según tu estructura
+	}
 }

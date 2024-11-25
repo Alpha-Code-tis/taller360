@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Criterio;
+use App\Models\Tarea;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -92,5 +93,26 @@ class CriterioController extends Controller
         return response()->json([
             'message' => 'Criterio eliminado con éxito.'
         ], Response::HTTP_NO_CONTENT);
+    }
+
+    public function criteriosPorTarea($tareaId)
+    {
+        // Verificar que la tarea existe (opcional, si tienes un modelo Tarea)
+        // Puedes omitir esto si no es necesario
+        
+        $tarea = Tarea::find($tareaId);
+        if (!$tarea) {
+            return response()->json(['message' => 'Tarea no encontrada'], Response::HTTP_NOT_FOUND);
+        }
+        
+
+        // Obtener los criterios asociados a la tarea
+        $criterios = Criterio::where('tarea_id', $tareaId)->get();
+
+        if ($criterios->isEmpty()) {
+            return response()->json(['message' => 'No hay criterios para esta tarea.'], Response::HTTP_OK);
+        }
+
+        return response()->json($criterios, Response::HTTP_OK);
     }
 }

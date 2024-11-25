@@ -19,6 +19,8 @@ use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\EvaluacionParesController;
+use App\Http\Controllers\CruzadaController;
+use App\Http\Controllers\ReporteController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -140,7 +142,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Tarea
     Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
+    Route::get('/tareas/tareasEmpresa/{empresaId}', [TareaController::class, 'mostrarTodasLasTareas']);
     Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
+    Route::get('/tareas', [TareaController::class, 'mostrarTarea']);
     Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
     Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
     Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
@@ -151,6 +155,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/criterios', [CriterioController::class, 'store']);
     Route::put('/criterios/{id_criterio}', [CriterioController::class, 'update']);
     Route::delete('/criterios/{id_criterio}', [CriterioController::class, 'destroy']);
+    Route::get('/criterios/tarea/{tareaId}', [CriterioController::class, 'criteriosPorTarea']);
+
     //Gestion-Cantidad
     Route::post('/gestion', [CantidadGestionController::class, 'store']);
 
@@ -163,9 +169,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluation/save', [EvaluacionController::class, 'saveEvaluation'])->name('evaluation.save');
     Route::get('/evaluation/reviewed/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluation.reviewed');
     Route::get('/evaluation/sprint/{sprintId}', [EvaluacionController::class, 'getSprintPercentage']);
+    Route::post('autoevaluacion/evaluaciones/', [EvaluacionController::class, 'guardarEvaluacion']);
+
 
     //Evaluación pares
     Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
 
+    // Rutas de Evaluación Cruzada
+        Route::get('/cruzada/planillas', [PlanillaController::class, 'obtenerPlanillasCruzada']);
+        Route::get('/cruzada/empresas', [CruzadaController::class, 'getEmpresas']);
+        Route::get('/cruzada/empresas/{id}/estudiantes', [CruzadaController::class, 'getEstudiantesByEmpresa']);
+    
+    // Reportes por Equipo
+    Route::post('/reporte', [ReporteController::class, 'generarReporte']);
 });

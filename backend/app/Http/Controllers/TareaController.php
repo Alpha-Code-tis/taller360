@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Alcance;
 use App\Models\EstudianteTarea;
 use App\Models\Planificacion;
 use App\Models\Sprint;
@@ -140,5 +141,57 @@ class TareaController extends Controller
         }
 
         return response()->json(['error' => 'Avance no encontrado'], 404);
+    }
+
+    public function mostrarTarea($id)
+    {
+        // Obtener la tarea junto con los criterios asociados
+        $tarea = Tarea::with('criterios')->find($id);
+
+        if (!$tarea) {
+            return response()->json(['error' => 'Tarea no encontrada'], 404);
+        }
+
+        return response()->json($tarea, 200);
+    }
+
+    public function mostrarTodasLasTareas($empresaId)
+    {
+        // Obtener el estudiante autenticado
+        $estudiante = auth()->guard('sanctum')->user();
+
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
+
+        // Verificar que la empresa existe
+        $planificacion = Planificacion::where('id_empresa', $empresaId)->first();
+        if (!$planificacion) {
+            return response()->json(['error' => 'No se encontró la planificación para la empresa especificada'], 404);
+        }
+
+        // Obtener todos los sprints asociados a la planificación
+        $sprints = Sprint::where('id_planificacion', $planificacion->id_planificacion)->get();
+
+        if ($sprints->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron sprints para la empresa especificada'], 404);
+        }
+
+        // Obtener todos los alcances de los sprints
+        $alcances = Alcance::whereIn('id_sprint', $sprints->pluck('id_sprint'))->get();
+        if ($alcances->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron alcances para los sprints de la empresa especificada'], 404);
+        }
+
+        // Obtener todas las tareas de los alcances, incluyendo los estudiantes asignados
+        $tareas = Tarea::whereIn('id_alcance', $alcances->pluck('id_alcance'))
+            ->with('estudiantes') // Eager loading de estudiantes asignados
+            ->get();
+
+        if ($tareas->isEmpty()) {
+            return response()->json(['error' => 'No se encontraron tareas para la empresa especificada'], 404);
+        }
+
+        return response()->json($tareas, 200);
     }
 }

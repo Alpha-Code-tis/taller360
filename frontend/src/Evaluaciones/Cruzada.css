@@ -1,0 +1,108 @@
+/* Estilos para el contenedor principal */
+.container {
+    margin-top: 10px;
+    padding-top: 0;
+}
+
+/* Ajustes para la tabla de tareas */
+.table-hover  {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table-hover th {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: center;
+    color: white; /* Texto blanco para encabezados */
+    background-color: #1A3254; /* Fondo de encabezados */
+}
+
+.table-hover td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+    color: black; /* Texto negro en celdas */
+}
+
+.tasks-table tr:nth-child(even) {
+    background-color: #f9f9f9; /* Fondo alternado en filas pares */
+}
+
+.tasks-table tr:hover {
+    background-color: #e0e0e0; /* Fondo al pasar el cursor */
+}
+
+.tasks-table td:last-child {
+    text-align: center;
+}
+
+/* Selector de responsables */
+.responsable-select {
+    width: 100%;
+}
+
+.responsable-list {
+    margin-top: 5px;
+}
+
+.responsable-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.remove-button {
+    background-color: transparent;
+    border: none;
+    color: red;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Estilos para el modal */
+.modal {
+    margin-top: 20px;
+}
+
+.modal-dialog {
+    max-width: 600px;
+    margin: 20px auto;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Botones de evaluación en el modal */
+.rating-button {
+    margin: 0 5px;
+}
+
+@media (max-width: 768px) {
+    .modal-dialog {
+        max-width: 90%;
+        margin: 10px auto;
+    }
+
+    .modal-content {
+        padding: 15px;
+    }
+}
+
+/* Aplicar color personalizado a los botones */
+button, .btn-primary {
+    background-color: #1A3254 ;
+    border-color: #1A3254 ;
+    color: white;
+}   
+
+button:hover, .btn-primary:hover {
+    background-color: #14223D ;
+    border-color: #14223D ;
+}
+

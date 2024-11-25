@@ -18,8 +18,11 @@ import Autoevaluacion from './Autoevaluacion/Autoevaluacion';
 import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import EvaluacionPares from './EvaluacionPares/EvaluacionPares';
 import Footer from './Componentes/Footer';
+import Reportes from './Administrador/Reportes';
 import Header from './Componentes/Header';
 import './App.css';
+import Cruzada from './Evaluaciones/Cruzada';
+import Evaluaciones from './Evaluaciones/Cruzada';
 import axios from 'axios';
 import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
@@ -28,7 +31,6 @@ import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de 
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
-
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
@@ -83,6 +85,8 @@ function App() {
                 <Route path="/Seguimiento" element={<Seguimiento />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
                 <Route path="/EvaluacionPares" element={<EvaluacionPares />} />
+                <Route path="/Evaluaciones" element={<Evaluaciones />} />
+                <Route path="/Cruzada" element={<Cruzada />} />
               </>
             )}
             {role === 'docente' && (
@@ -94,6 +98,7 @@ function App() {
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
+                <Route path="/Reportes" element={<Reportes />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />
