@@ -19,6 +19,7 @@ use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\EvaluacionParesController;
+use App\Http\Controllers\NotaController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -92,6 +93,8 @@ Route::middleware('auth:sanctum')->group(function () {
     //fechas
     Route::get('/ajustes', [AjustesController::class, 'show']);
     Route::patch('/ajustes', [AjustesController::class, 'update']);
+    Route::put('/ajustes/update', [AjustesController::class, 'update']);
+
 
 
     Route::get('/login-with-token', [DocenteController::class, 'loginWithToken']);
@@ -165,5 +168,11 @@ Route::middleware('auth:sanctum')->group(function () {
     //Evaluación pares
     Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
+
+    //Configuración de notas
+    Route::get('/configNotas', [NotaController::class, 'index']);
+    Route::get('/configNotasDocente', [NotaController::class, 'show']);
+    Route::put('/configNotas', [NotaController::class, 'update']);
+    Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
 
 });
