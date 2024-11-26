@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Nota;
+use App\Models\Planificacion;
+use App\Models\Sprint;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
@@ -15,20 +17,32 @@ class NotaController extends Controller
         $notas = Nota::all();
         return response()->json($notas, Response::HTTP_OK);
     }
-    public function show()
+    public function show($id_empresa, $sprint)
     {
+        if (!$id_empresa || !$sprint) {
+            return response()->json(['message' => 'Empresa o Sprint no seleccionados'], Response::HTTP_BAD_REQUEST);
+        }
         $docente = auth()->guard('sanctum')->user();
-    
+
         // Buscar las notas asociadas al docente autenticado
-        $nota = Nota::where('id_docente', $docente->id_docente)->first();
-    
+        $planificacion = Planificacion::where('id_empresa', $id_empresa)
+            ->first();
+
+        $sprint = Sprint::where('id_planificacion', $planificacion->id_planificacion)
+            ->where('nro_sprint', $sprint)
+            ->first();
+        $nota = Nota::where('id_docente', $docente->id_docente)
+            ->where('id_empresa', $id_empresa)
+            ->where('id_sprint', $sprint->id_sprint)
+            ->first();
+
         if ($nota) {
             return response()->json($nota);
         }
-    
-        return response()->json(['message' => 'Nota no encontrada'], 404);
+
+        return response()->json(['message' => 'Nota no encontrada'], Response::HTTP_NO_CONTENT);
     }
-   
+
     public function store(Request $request)
     {
         $docente = auth()->guard('sanctum')->user();
@@ -55,7 +69,7 @@ class NotaController extends Controller
             'id_docente' => $docente->id_docente, // Agregar el id_docente
         ]);
 
-        return response()->json($nota, 201);
+        return response()->json($nota, Response::HTTP_CREATED);
     }
 
     public function update(Request $request, $id)
@@ -88,9 +102,11 @@ class NotaController extends Controller
         $docente = auth()->guard('sanctum')->user();
 
         $validator = Validator::make($request->all(), [
-            'autoevaluacion' => 'required|integer',
-            'pares' => 'required|integer',
-            'evaluaciondocente' => 'required|integer',
+            'empresa' => 'required|integer|exists:empresa,id_empresa',
+            'sprint' => 'required|integer',
+            'autoevaluacion' => 'required|integer|between:1,100',
+            'pares' => 'required|integer|between:1,100',
+            'evaluaciondocente' => 'required|integer|between:1,100',
         ]);
 
         if ($validator->fails()) {
@@ -99,10 +115,25 @@ class NotaController extends Controller
                 'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+        $planificacion = Planificacion::where('id_empresa', $request->empresa)
+            ->first();
 
-        // Crear o actualizar la nota según el id_docente
+        $sprint = Sprint::where('id_planificacion', $planificacion->id_planificacion)
+            ->where('nro_sprint', $request->sprint)
+            ->first();
+        if (!$sprint) {
+            return response()->json([
+                'message' => 'Sprint no encontrado para la empresa proporcionada.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        // Crear o actualizar la nota según el id_docente, id_sprint y id_empresa
         $nota = Nota::updateOrCreate(
-            ['id_docente' => $docente->id_docente], // Criterio de búsqueda
+            [
+                'id_docente' => $docente->id_docente,
+                'id_empresa' => $request->empresa,
+                'id_sprint' => $sprint->id_sprint,
+            ],
             [
                 'autoevaluacion' => $request->autoevaluacion,
                 'pares' => $request->pares,
@@ -110,7 +141,10 @@ class NotaController extends Controller
             ]
         );
 
-        return response()->json($nota, $nota->wasRecentlyCreated ? 201 : 200);
+        return response()->json([
+            'message' => $nota->wasRecentlyCreated ? 'Nota creada correctamente.' : 'Nota actualizada correctamente.',
+            'nota' => $nota,
+        ], $nota->wasRecentlyCreated ? Response::HTTP_CREATED : Response::HTTP_OK);
     }
 
 
