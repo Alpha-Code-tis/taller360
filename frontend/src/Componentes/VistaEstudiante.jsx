@@ -278,27 +278,6 @@ export default function PersistentDrawerLeft() {
             </ListItemButton>
           </ListItem>
 
-          {/* Otras opciones compartidas */}
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/PlanillasSemanales"
-              onClick={() => handleButtonClick('planillas')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <CalendarMonthIcon />
-              </ListItemIcon>
-              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
           <ListItem disablePadding>
             <ListItemButton
               component={Link}

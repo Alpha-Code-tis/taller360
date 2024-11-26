@@ -25,10 +25,10 @@ import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
 import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
-import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
-
+import PlanillaNotas from './PlanillaNotas/PlanillaNotas';
+import PlanillaNotasFinal from './PlanillaNotas/PlanillaNotasFinal';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
@@ -78,9 +78,10 @@ function App() {
                 <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
-                <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+                
                 <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
                 <Route path="/Seguimiento" element={<Seguimiento />} />
+                <Route path="/Estudiantes" element={<Estudiantes />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
                 <Route path="/EvaluacionPares" element={<EvaluacionPares />} />
               </>
@@ -90,14 +91,16 @@ function App() {
                 <Route path="/VistaDocente" element={<VistaDocentes />} />
                 <Route path="/PlanificacionEquipos" element={<PlanificacionEquipos />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
-                <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
+                <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+                <Route path="/PlanillaNotas" element={<PlanillaNotas />} />
+                <Route path="/PlanillaNotasFinal" element={<PlanillaNotasFinal />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />
-            <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
+            
             <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
             <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} /> */}
             <Route path="*" element={<Login onLogin={handleLogin} />} />

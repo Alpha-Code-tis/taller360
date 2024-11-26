@@ -21,7 +21,6 @@ import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import { Link } from 'react-router-dom';
 import { Menu, MenuItem } from '@mui/material';
@@ -37,6 +36,7 @@ import { API_URL } from '../config';
 import SettingsIcon from '@mui/icons-material/Settings';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { Row, Col } from 'react-bootstrap';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 
 const drawerWidth = 240;
 
@@ -376,26 +376,6 @@ export default function PersistentDrawerLeft() {
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
-              to="/GenerarPlanilla"
-              onClick={() => handleButtonClick('generarPlanilla')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <PictureAsPdfIcon />
-              </ListItemIcon>
-              <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
               to="/CriterioEvaluacion"
               onClick={() => handleButtonClick('criterioEvaluacion')}
               sx={{
@@ -412,6 +392,7 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -429,6 +410,69 @@ export default function PersistentDrawerLeft() {
                 <AssignmentTurnedInIcon />
               </ListItemIcon>
               <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          
+          {/* Otras opciones compartidas */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales"
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <CalendarMonthIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          
+          {/* Planilla de Notas */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillaNotas"
+              onClick={() => handleButtonClick('planillaNotas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          
+          {/* Planilla de Notas Finales */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillaNotasFinal"
+              onClick={() => handleButtonClick('planillaNotasFinal')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>
