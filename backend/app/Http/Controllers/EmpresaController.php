@@ -15,17 +15,21 @@ use Illuminate\Support\Facades\Storage;
 class EmpresaController extends Controller
 {
     public function index(Request $request)
-{
-    // Filtrar empresas por la gestión actual
-    $gestionActual = '2-2024';
-    $gestion = $request->input('gestion', $gestionActual); // Valor por defecto: '2-2024'
-
-    $empresas = Empresa::with(['cantidad', 'representate_legal', 'planificacion'])
-        ->where('gestion', $gestion)
-        ->get();
-
-    return response()->json($empresas);
-}
+    {
+        $gestionActual = '2-2024'; // Gestión predeterminada
+        $gestion = $request->input('gestion', $gestionActual); // Filtro de gestión
+    
+        // Filtrar equipos por gestión
+        $equipos = Empresa::with(['cantidad', 'representate_legal', 'planificacion'])
+            ->where('gestion', $gestion)
+            ->get();
+    
+        if ($equipos->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
+        }
+    
+        return response()->json($equipos, 200);
+    }
 
 
     public function gestiones()

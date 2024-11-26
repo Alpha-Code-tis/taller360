@@ -17,6 +17,7 @@ import ListItemText from '@mui/material/ListItemText';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { FaUserCircle } from 'react-icons/fa';
 import logo from '../img/logo.jpeg';
+import GroupIcon from '@mui/icons-material/Group';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
@@ -460,6 +461,26 @@ export default function PersistentDrawerLeft() {
       <Main open={open}></Main>
       <Footer />
 
+      {/* Botón de Evaluación Entre Equipos */}
+      <ListItem disablePadding>
+        <ListItemButton
+          component={Link}
+          to="/EvaluacionEntreEquipos"
+          onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
+          sx={{
+            borderRadius: '8px',
+            backgroundColor: selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
+            '&:hover': {
+              backgroundColor: '#1A3254',
+            },
+          }}
+        >
+          <ListItemIcon sx={{ color: 'white' }}>
+            <GroupIcon /> {/* Puedes reemplazar este ícono por uno relacionado con equipos */}
+          </ListItemIcon>
+          <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
+        </ListItemButton>
+      </ListItem>
 
 
       <Modal show={modalShow} onHide={() => setModalShow(false)} centered>

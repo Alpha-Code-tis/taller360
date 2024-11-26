@@ -1,408 +1,386 @@
 import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Modal, Button, Dropdown, Spinner, Form } from 'react-bootstrap';
+import { Dropdown, Spinner, Table, Button, Form, Row, Col, Modal } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import './Cruzada.css';
 
 const Cruzada = () => {
-  const [equipos, setEquipos] = useState([]);
-  const [currentEquipo, setCurrentEquipo] = useState(null);
-  const [estudiantes, setEstudiantes] = useState([]);
-  const [loadingEquipos, setLoadingEquipos] = useState(false);
-  const [loadingEstudiantes, setLoadingEstudiantes] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [feedback, setFeedback] = useState('');
-  const [criterios, setCriterios] = useState([]);
-  const [ratings, setRatings] = useState({});
-  const [selectedTarea, setSelectedTarea] = useState(null);
-  const [selectedEstudiante, setSelectedEstudiante] = useState(null); // Estudiante seleccionado
-  const [tareas, setTareas] = useState([]);
+  const [equipos, setEquipos] = useState([]); // Equipos asignados para evaluar
+  const [currentEquipo, setCurrentEquipo] = useState(null); // Equipo seleccionado
+  const [criterios, setCriterios] = useState([]); // Criterios de evaluación
+  const [evaluaciones, setEvaluaciones] = useState({}); // Evaluaciones asignadas a los criterios
+  const [totalNota, setTotalNota] = useState(0); // Suma total de las evaluaciones
+  const [driveLink, setDriveLink] = useState(''); // Enlace de Google Drive del equipo seleccionado
+  const [especificaciones, setEspecificaciones] = useState(''); // Especificaciones del equipo seleccionado
+  const [modalVisible, setModalVisible] = useState(false); // Control del modal para subir datos
+  const [newDriveLink, setNewDriveLink] = useState(''); // Enlace de Google Drive para subir
+  const [newEspecificaciones, setNewEspecificaciones] = useState(''); // Especificaciones para subir
+  const [loading, setLoading] = useState(false);
 
-  // Función para calcular el porcentaje por botón como número entero
-  const getButtonPercentage = (criterioPorcentaje, buttonNumber) => {
-    return Math.round((criterioPorcentaje / 5) * buttonNumber);
-  };
+  const [modalNotasVisible, setModalNotasVisible] = useState(false); // Control del modal de notas
+  const [notasDetalle, setNotasDetalle] = useState([]); // Detalles de notas del equipo seleccionado
 
-  // Obtener la lista de equipos
-  const fetchEquipos = async () => {
-    setLoadingEquipos(true);
+  // Obtener los equipos asignados para evaluar
+  const fetchEquiposCruzada = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`${API_URL}equipos`, {
+      const response = await axios.get(`${API_URL}cruzada/equipos`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
-          Accept: 'application/json',
-        }, params: {
-          gestion: '2-2024',
         },
       });
-      setEquipos(response.data);
+      setEquipos(response.data); // Guardar equipos asignados
     } catch (error) {
-      toast.error('Error al cargar los equipos');
-      console.error('Error al cargar los equipos:', error);
+      console.error('Error al obtener los equipos:', error.response?.data || error.message);
+      toast.error('Error al cargar los equipos asignados para evaluar');
     } finally {
-      setLoadingEquipos(false);
+      setLoading(false);
     }
   };
 
-  const fetchUsuarioAutenticado = async () => {
-    try {
-      const response = await axios.get(`${API_URL}usuario`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          Accept: 'application/json',
-        },
-      });
-      return response.data.equipo_id; // Suponiendo que el backend devuelve el equipo del usuario
-    } catch (error) {
-      console.error('Error al obtener el usuario autenticado:', error);
-      toast.error('Error al obtener la información del usuario.');
-      return null;
+
+  // Guardar enlace del Drive y especificaciones
+  const guardarDriveYEspecificaciones = async () => {
+    if (!newDriveLink) {
+      toast.error('El enlace de Google Drive no puede estar vacío');
+      return;
     }
-  };
 
-  // Cargar las tareas cuando se selecciona un equipo
-  const fetchTareas = async (equipo) => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        toast.error('No estás autenticado. Por favor, inicia sesión.');
-        navigate('/login');
-        return;
-      }
-
-      const response = await axios.get(`${API_URL}tareas/tareasEmpresa/${equipo.id_empresa}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          Accept: 'application/json',
+      await axios.post(
+        `${API_URL}empresa/subir`,
+        {
+          drive_link: newDriveLink,
+          especificaciones: newEspecificaciones,
         },
-      });
-
-      const tareasConEvaluacion = response.data.map((tarea) => ({
-        ...tarea,
-        evaluada: tarea.estudiantes.some((estudiante) => estudiante.evaluado), // Campo que indica si está evaluado
-      }));
-
-      setTareas(tareasConEvaluacion);
-    } catch (error) {
-      if (error.response) {
-        if (error.response.status === 401) {
-          toast.error('No autenticado. Por favor, inicia sesión nuevamente.');
-          navigate('/login');
-        } else {
-          console.error('Error en la respuesta del servidor:', error.response.data);
-          toast.error(`Error ${error.response.status}: ${error.response.data.message || 'al cargar las tareas'}`);
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
         }
-      } else if (error.request) {
-        console.error('No se recibió respuesta del servidor:', error.request);
-        toast.error('No se recibió respuesta del servidor');
-      } else {
-        console.error('Error al configurar la solicitud:', error.message);
-        toast.error('Error al configurar la solicitud');
-      }
+      );
+      toast.success('Enlace de Drive y especificaciones guardados correctamente');
+      setDriveLink(newDriveLink);
+      setEspecificaciones(newEspecificaciones);
+      setModalVisible(false); // Cerrar modal tras guardar
+    } catch (error) {
+      console.error('Error al guardar los datos:', error.response?.data || error.message);
+      toast.error('Error al guardar el enlace de Drive y especificaciones');
     }
   };
 
-  // Obtener los criterios asociados a una tarea específica desde el backend
-  const fetchCriterios = async (tareaId) => {
-    try {
-      const response = await axios.get(`${API_URL}criterios/tarea/${tareaId}`, {
+
+
+  // Guardar evaluación
+  // Guardar evaluación
+const guardarEvaluacion = async () => {
+  if (totalNota > 100) {
+    toast.error('La nota total no puede exceder el 100%');
+    return;
+  }
+
+  // Preparar el detalle de notas
+  const detalleNotas = Object.entries(evaluaciones).map(([criterioId, nota]) => ({
+    id_criterio: parseInt(criterioId, 10),
+    nota,
+  }));
+
+  try {
+    await axios.post(
+      `${API_URL}cruzada/guardar-nota`,
+      {
+        equipo_evaluado_id: currentEquipo?.id_empresa, // Solo enviar el ID del equipo evaluado
+        nota_cruzada: totalNota,
+        detalle_notas: detalleNotas, // Enviar el detalle de notas
+      },
+      {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
-          Accept: 'application/json',
+        },
+      }
+    );
+
+    toast.success('Evaluación guardada correctamente');
+
+    // Eliminar el equipo evaluado del estado
+    setEquipos((prevEquipos) =>
+      prevEquipos.filter((equipo) => equipo.id_empresa !== currentEquipo?.id_empresa)
+    );
+
+    // Limpiar los estados relacionados
+    setCurrentEquipo(null);
+    setTotalNota(0);
+    setEvaluaciones({});
+    setCriterios([]);
+    setDriveLink('');
+    setEspecificaciones('');
+  } catch (error) {
+    console.error('Error al guardar la evaluación:', error.response?.data || error.message);
+    toast.error('Error al guardar la evaluación');
+  }
+};
+
+
+  // Obtener las notas asignadas al equipo seleccionado
+  const fetchNotasDetalle = async () => {
+    try {
+      const response = await axios.get(`${API_URL}cruzada/mis-notas`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
-      if (Array.isArray(response.data)) {
-        setCriterios(response.data);
-        console.log('Criterios cargados:', response.data);
-      } else {
-        setCriterios([]);
-        console.error('La respuesta de criterios no es un array:', response.data);
-      }
+  
+      setNotasDetalle(response.data); // Guardar las notas asignadas
+      setModalNotasVisible(true); // Mostrar modal
     } catch (error) {
-      setCriterios([]);
-      toast.error('Error al cargar los criterios');
-      console.error('Error al cargar los criterios:', error);
+      console.error('Error al cargar detalles de las notas:', error.response?.data || error.message);
+      toast.error('Error al cargar los detalles de las notas');
     }
   };
-
-  useEffect(() => {
-    fetchEquipos();
-  }, []);
+  
 
   // Manejar la selección de un equipo desde el dropdown
-  const handleSelectEquipo = (equipo) => {
-    console.log("Equipo seleccionado:", equipo);
+  const handleSelectEquipo = async (equipo) => {
     setCurrentEquipo(equipo);
-    fetchEstudiantes(equipo);
-    fetchTareas(equipo);
-  };
-
-  // Obtener los estudiantes para el equipo seleccionado
-  const fetchEstudiantes = async (equipo) => {
-    setLoadingEstudiantes(true);
-
+  
     try {
-      // Obtén el equipo del usuario autenticado
-      const equipoUsuario = await fetchUsuarioAutenticado();
-
-      const response = await axios.get(`${API_URL}cruzada/empresas/${equipo.id_empresa}/estudiantes`, {
+      const response = await axios.get(`${API_URL}empresa/detalle/${equipo.id_empresa}`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
-          Accept: 'application/json',
         },
       });
-
-      // Filtra los estudiantes del equipo actual que no pertenezcan al equipo del usuario
-      const estudiantesFiltrados = response.data.filter(
-        (estudiante) =>
-          estudiante.id_equipo !== equipoUsuario || equipo.id_empresa === equipoUsuario
-      );
-
-
-      setEstudiantes(estudiantesFiltrados);
+  
+      // Asignar datos al estado
+      setDriveLink(response.data.drive_link || '');
+      setEspecificaciones(response.data.especificaciones || '');
+      setCriterios(response.data.criterios || []);
     } catch (error) {
-      toast.error('Error al cargar los estudiantes del equipo');
-      console.error('Error al cargar los estudiantes del equipo:', error);
-    } finally {
-      setLoadingEstudiantes(false);
+      console.error('Error al cargar detalles del equipo:', error.response?.data || error.message);
+      toast.error('Error al cargar los detalles del equipo');
+      setDriveLink('');
+      setEspecificaciones('');
+      setCriterios([]);
     }
   };
 
-  // Abrir el modal y cargar los criterios para la tarea seleccionada
-  const handleOpenModal = (tarea, estudiante) => {
-    if (!tarea || !tarea.id_tarea) {
-      console.error("La tarea seleccionada es inválida:", tarea);
-      toast.error("No se ha seleccionado una tarea válida.");
-      return;
-    }
 
-    setSelectedTarea(tarea);
-    setSelectedEstudiante(estudiante); // Asigna el estudiante seleccionado
-    fetchCriterios(tarea.id_tarea);
-    setShowModal(true);
-  };
+  useEffect(() => {
+    fetchEquiposCruzada();
+  }, []);
 
-  // Cerrar el modal y limpiar los estados relacionados
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setFeedback('');
-    setRatings({});
-    setSelectedEstudiante(null); // Limpiar el estudiante seleccionado al cerrar el modal
-  };
-
-  // Manejar el cambio de rating para un criterio específico
-  const handleRatingChange = (criterioId, value) => {
+  // Manejar cambios en la evaluación de un criterio
+  const handleEvaluationChange = (criterioId, value) => {
     const criterio = criterios.find((c) => c.id_criterio === criterioId);
-    const adjustedRating = getButtonPercentage(criterio.porcentaje, value);
-
-    setRatings((prevRatings) => ({
-      ...prevRatings,
-      [criterioId]: adjustedRating, // Guardamos el valor ajustado
-    }));
-  };
-
-  // Función para guardar la evaluación
-  const handleSave = async () => {
-    const nota = Object.values(ratings).reduce((total, rating) => total + rating, 0);
-
-    if (nota === 0) {
-      toast.error('Debes asignar una puntuación a cada criterio antes de guardar.');
-      return;
+    
+    if (!criterio) {
+        toast.error('Criterio no encontrado');
+        return;
     }
 
-    if (!selectedEstudiante) {
-      toast.error('Debes seleccionar un estudiante para la evaluación.');
-      return;
+    const maxValue = criterio?.porcentaje || 0;
+
+    if (value > maxValue) {
+        toast.error(`No puedes asignar más de ${maxValue}% para este criterio`);
+        return;
     }
 
-    try {
-      const evaluacionData = {
-        tarea_id: selectedTarea?.id_tarea,
-        feedback: feedback,
-        nota: nota,
-        id_empresa: currentEquipo?.id_empresa,
-        id_estudiante: selectedEstudiante.id_estudiante,
-        criterios: Object.keys(ratings).map((criterioId) => ({
-          criterio_id: criterioId,
-          valor: ratings[criterioId],
-        })),
-      };
+    setEvaluaciones((prev) => ({ ...prev, [criterioId]: value }));
+    const newTotal = Object.values({ ...evaluaciones, [criterioId]: value }).reduce((acc, val) => acc + val, 0);
+    setTotalNota(newTotal);
+};
 
-      await axios.post(`${API_URL}autoevaluacion/evaluaciones`, evaluacionData, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      toast.success('Evaluación guardada exitosamente.');
-
-      // Actualizar el estado para reflejar que la tarea fue evaluada
-      setTareas((prevTareas) =>
-        prevTareas.map((tarea) =>
-          tarea.id_tarea === selectedTarea.id_tarea
-            ? { ...tarea, evaluada: true }
-            : tarea
-        )
-      );
-
-      handleCloseModal();
-    } catch (error) {
-      const errorMessage = error.response?.data?.errors
-        ? Object.values(error.response.data.errors).flat().join(' ')
-        : error.response?.data?.message || 'Error desconocido.';
-      toast.error(`Error al guardar la evaluación: ${errorMessage}`);
-      console.log('Error al guardar la evaluación:', error);
-    }
-  };
 
   return (
-    <div className="container mt-2 pt-3">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1 className="m-0">Evaluación Cruzada de Equipos</h1>
-        <Dropdown>
-          <Dropdown.Toggle variant="primary" id="dropdown-basic">
-            {currentEquipo ? currentEquipo.nombre_empresa : 'Equipos a Evaluar'}
-          </Dropdown.Toggle>
-          <Dropdown.Menu>
-            {equipos.map((equipo) => (
-              <Dropdown.Item key={equipo.id_empresa} onClick={() => handleSelectEquipo(equipo)}>
-                {equipo.nombre_empresa}
-              </Dropdown.Item>
-            ))}
-          </Dropdown.Menu>
-        </Dropdown>
+    <div className="container mt-3">
+      <div className="d-flex justify-content-between align-items-center mb-4">
+        <h1>Evaluación Cruzada de Equipos</h1>
+        <div className="d-flex align-items-center">
+          <Dropdown>
+            <Dropdown.Toggle variant="primary" id="dropdown-basic">
+              {currentEquipo ? currentEquipo.nombre_empresa : 'Selecciona un equipo'}
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {equipos.map((equipo) => (
+                <Dropdown.Item
+                  key={equipo.id_empresa}
+                  onClick={() => handleSelectEquipo(equipo)}
+                >
+                  {equipo.nombre_empresa}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+          <Button className="ms-3" onClick={() => setModalVisible(true)}>
+            Subir Enlace y Especificaciones
+          </Button>
+          <Button className="ms-3" onClick={fetchNotasDetalle}>
+            Detalles de Notas
+          </Button>
+        </div>
       </div>
 
-      {loadingEquipos && (
-        <div className="text-center my-4">
+      {loading ? (
+        <div className="text-center">
           <Spinner animation="border" variant="primary" />
-          <span className="ms-2">Cargando equipos...</span>
+          <p className="mt-3">Cargando equipos...</p>
         </div>
-      )}
-      {currentEquipo && (
-        <div className="mt-4">
-          <h2>{currentEquipo.nombre_empresa}</h2>
-          <div className="table-container">
-            {loadingEstudiantes ? (
-              <div className="text-center my-4">
-                <Spinner animation="border" variant="primary" />
-                <span className="ms-2">Cargando estudiantes...</span>
-              </div>
-            ) : (
-              <table className="table-hover tasks-table estudiantes-table">
-                <thead className="table-light">
-                  <tr>
-                    <th>Tarea</th>
-                    <th>Responsable</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
+      ) : (
+        <Row>
+          <Col md={8}>
+            <Table bordered hover className="text-center">
+              <thead className="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Criterio</th>
+                  <th>Porcentaje Máximo</th>
+                  <th>Evaluación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {criterios.map((criterio, index) => (
+                  <tr key={criterio.id_criterio}>
+                    <td>{index + 1}</td>
+                    <td>{criterio.nombre}</td>
+                    <td>{criterio.porcentaje}%</td>
+                    <td>
+                      <Form.Control
+                        type="number"
+                        min="0"
+                        max={criterio.porcentaje}
+                        value={evaluaciones[criterio.id_criterio] || ''}
+                        onChange={(e) =>
+                          handleEvaluationChange(criterio.id_criterio, parseInt(e.target.value, 10) || 0)
+                        }
+                      />
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {tareas.map((tarea) =>
-                    tarea.estudiantes && tarea.estudiantes.length > 0 ? (
-                      tarea.estudiantes.map((estudiante) => (
-                        <tr key={`${tarea.id_tarea}-${estudiante.id_estudiante}`}>
-                          <td>{tarea.nombre_tarea}</td>
-                          <td>
-                            {estudiante.nombre_estudiante} {estudiante.ap_pat} {estudiante.ap_mat}
-                          </td>
-                          <td>{tarea.estado}</td>
-                          <td>
-                            {estudiante.id_equipo === currentEquipo.id_equipo ? (
-                              <Button variant="danger" size="sm" disabled>
-                                No permitido
-                              </Button>
-                            ) : (
-                              estudiante.evaluado ? (
-                                <Button variant="success" size="sm" disabled>
-                                  Evaluado
-                                </Button>
-                              ) : (
-                                <Button
-                                  variant="primary"
-                                  size="sm"
-                                  onClick={() => handleOpenModal(tarea, estudiante)}
-                                >
-                                  Evaluar
-                                </Button>
-                              )
-                            )}
+                ))}
+              </tbody>
 
-                          </td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr key={tarea.id_tarea}>
-                        <td>{tarea.nombre_tarea}</td>
-                        <td>No asignado</td>
-                        <td>{tarea.estado}</td>
-                        <td>
-                          <Button variant="primary" size="sm" onClick={() => handleOpenModal(tarea, null)}>
-                            Evaluar
-                          </Button>
-                        </td>
-                      </tr>
-                    )
-                  )}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
+            </Table>
+          </Col>
+
+          <Col md={4}>
+            <Form.Group>
+              <Form.Label>Enlace de Google Drive</Form.Label>
+              <div className="d-flex align-items-center">
+                <Form.Control type="text" readOnly value={driveLink} placeholder="No disponible" />
+                {driveLink && (
+                  <Button variant="link" href={driveLink} target="_blank" className="ms-2">
+                    Ver
+                  </Button>
+                )}
+              </div>
+            </Form.Group>
+
+            <Form.Group className="mt-3">
+              <Form.Label>Especificaciones</Form.Label>
+              <Form.Control
+                as="textarea"
+                rows={6}
+                readOnly
+                value={especificaciones}
+                placeholder="No disponible"
+              />
+            </Form.Group>
+
+            <div className="text-center mt-4">
+              <h3>Total Evaluación: {totalNota}%</h3>
+              <Button variant="primary" onClick={guardarEvaluacion} disabled={totalNota === 0}>
+                Guardar Evaluación
+              </Button>
+            </div>
+          </Col>
+        </Row>
       )}
-      {/* Modal para evaluación */}
-      <Modal show={showModal} onHide={handleCloseModal} size="lg">
+
+      {/* Modal para subir datos */}
+      <Modal show={modalVisible} onHide={() => setModalVisible(false)}>
         <Modal.Header closeButton>
-          <Modal.Title>Evaluar Tarea: {selectedTarea?.nombre_tarea}</Modal.Title>
+          <Modal.Title>Subir Enlace y Especificaciones</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          {criterios.length > 0 ? (
-            criterios.map((criterio) => (
-              <div key={criterio.id_criterio} className="mb-4">
-                <h5 className="text-center mb-3">
-                  {criterio.nombre} ({criterio.porcentaje}%)
-                </h5>
-                <p className="text-center mb-3">{criterio.descripcion}</p>
-                <div className="d-flex justify-content-center mb-2">
-                  {[1, 2, 3, 4, 5].map((value) => (
-                    <Button
-                      key={value}
-                      variant={ratings[criterio.id_criterio] === getButtonPercentage(criterio.porcentaje, value) ? 'dark' : 'light'}
-                      onClick={() => handleRatingChange(criterio.id_criterio, value)}
-                      className="mx-1"
-                    >
-                      {getButtonPercentage(criterio.porcentaje, value)}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-            ))
-          ) : (
-            <p className="text-center">No hay criterios disponibles para esta tarea.</p>
-          )}
+          <Form.Group>
+            <Form.Label>Enlace de Google Drive</Form.Label>
+            <Form.Control
+              type="text"
+              placeholder="Ingresa el enlace de Google Drive"
+              value={newDriveLink}
+              onChange={(e) => setNewDriveLink(e.target.value)}
+            />
+          </Form.Group>
+
           <Form.Group className="mt-3">
-            <Form.Label>Comentarios adicionales</Form.Label>
+            <Form.Label>Especificaciones</Form.Label>
             <Form.Control
               as="textarea"
-              rows={3}
-              placeholder="Explique brevemente su evaluación"
-              value={feedback}
-              onChange={(e) => setFeedback(e.target.value)}
+              rows={6}
+              placeholder="Ingresa las especificaciones adicionales"
+              value={newEspecificaciones}
+              onChange={(e) => setNewEspecificaciones(e.target.value)}
             />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>
+          <Button variant="secondary" onClick={() => setModalVisible(false)}>
             Cancelar
           </Button>
-          <Button variant="primary" onClick={handleSave}>
+          <Button variant="primary" onClick={guardarDriveYEspecificaciones}>
             Guardar
           </Button>
         </Modal.Footer>
       </Modal>
+
+     {/* Modal para detalles de notas */}
+<Modal show={modalNotasVisible} onHide={() => setModalNotasVisible(false)} size="lg">
+  <Modal.Header closeButton>
+    <Modal.Title>Detalles de Notas Asignadas a Tu Equipo</Modal.Title>
+  </Modal.Header>
+  <Modal.Body>
+    {notasDetalle.length === 0 ? (
+      <p>No hay notas disponibles para tu equipo.</p>
+    ) : (
+      notasDetalle.map((evaluacion, index) => (
+        <div key={index} className="mb-4">
+          <h5>Evaluador: {evaluacion.evaluador}</h5>
+          <Table bordered hover className="text-center">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Criterio</th>
+                <th>Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              {evaluacion.detalles.map((nota, idx) => (
+                <tr key={idx}>
+                  <td>{idx + 1}</td>
+                  <td>{nota.criterio_nombre}</td>
+                  <td>{nota.nota}</td>
+                </tr>
+              ))}
+              <tr>
+                <td colSpan="2">
+                  <strong>Total</strong>
+                </td>
+                <td>
+                  <strong>{evaluacion.nota_total}</strong>
+                </td>
+              </tr>
+            </tbody>
+          </Table>
+        </div>
+      ))
+    )}
+  </Modal.Body>
+  <Modal.Footer>
+    <Button variant="secondary" onClick={() => setModalNotasVisible(false)}>
+      Cerrar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
     </div>
   );
 };

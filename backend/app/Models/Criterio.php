@@ -34,4 +34,9 @@ class Criterio extends Model
     {
         return $this->belongsTo(Tarea::class, 'tarea_id');
     }
+    public function empresa()
+{
+    return $this->belongsTo(Empresa::class, 'empresa_id', 'id_empresa');
+}
+
 }

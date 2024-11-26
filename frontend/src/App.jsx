@@ -31,6 +31,8 @@ import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de 
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
+import EvaluacionEntreEquipos from './Administrador/EvaluacionEntreEquipos';
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
@@ -99,6 +101,7 @@ function App() {
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
                 <Route path="/Reportes" element={<Reportes />} />
+                <Route path="/EvaluacionEntreEquipos" element={<EvaluacionEntreEquipos />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />

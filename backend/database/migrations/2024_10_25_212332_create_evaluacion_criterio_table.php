@@ -8,16 +8,17 @@ class CreateEvaluacionCriterioTable extends Migration
     public function up()
     {
         Schema::create('evaluacion_criterio', function (Blueprint $table) {
-            $table->id(); // ID de la relación
+            $table->id();
+            $table->unsignedBigInteger('id_cruzada');
             $table->unsignedBigInteger('id_criterio');
+            $table->foreign('id_cruzada')->references('id_cruzada')->on('cruzada')->onDelete('cascade');
             $table->foreign('id_criterio')->references('id_criterio')->on('criterios')->onDelete('cascade');
-            $table->integer('nota'); // Nota asignada al criterio en esa evaluación cruzada
-            $table->timestamps(); // Timestamps para creación y actualización
+            $table->timestamps();
         });
     }
-
+    
     public function down()
     {
         Schema::dropIfExists('evaluacion_criterio');
-    }
+    }    
 }

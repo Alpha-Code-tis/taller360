@@ -177,10 +177,19 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
 
     // Rutas de Evaluación Cruzada
-        Route::get('/cruzada/planillas', [PlanillaController::class, 'obtenerPlanillasCruzada']);
-        Route::get('/cruzada/empresas', [CruzadaController::class, 'getEmpresas']);
-        Route::get('/cruzada/empresas/{id}/estudiantes', [CruzadaController::class, 'getEstudiantesByEmpresa']);
-    
+    Route::get('/cruzada/planillas', [PlanillaController::class, 'obtenerPlanillasCruzada']);
+    Route::get('/cruzada/empresas', [CruzadaController::class, 'getEmpresas']);
+    Route::get('/cruzada/empresas/{id}/estudiantes', [CruzadaController::class, 'getEstudiantesByEmpresa']);
+    Route::post('/cruzada', [CruzadaController::class, 'guardarEvaluacion']);
+    Route::get('/cruzada', [CruzadaController::class, 'obtenerEvaluaciones']);
+    Route::get('/cruzada/equipos', [CruzadaController::class, 'getEquiposCruzada']);
+    Route::post('/empresa/subir', [CruzadaController::class, 'guardarDriveYEspecificaciones']);
+    Route::get('/empresa/detalle/{empresaId}', [CruzadaController::class, 'obtenerDriveYEspecificaciones']);
+    Route::post('cruzada/guardar-nota', [CruzadaController::class, 'guardarNotaCruzada']);
+    Route::get('cruzada/notas/{idEmpresa}', [CruzadaController::class, 'obtenerNotas']);
+    Route::get('cruzada/mis-notas', [CruzadaController::class, 'obtenerMisNotas']);
+
+
     // Reportes por Equipo
     Route::post('/reporte', [ReporteController::class, 'generarReporte']);
 });
