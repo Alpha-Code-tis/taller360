@@ -1,42 +1,114 @@
-import React from 'react';
-import './PlanillaNotas.css';
+import React, { useState } from "react"; 
+import "./PlanillaNotas.css";
 
-const PlanillaNotas = () => {
-  const students = [
-    { name: 'Maria Johnson', selfEval: 85, crossEval: 88, peerEval: 88, finalGrade: 88 },
-    { name: 'Maria Vargas', selfEval: 50, crossEval: 30, peerEval: 76, finalGrade: 76 },
-    { name: 'Laura Brown', selfEval: 70, crossEval: 10, peerEval: 50, finalGrade: 50 },
-    { name: 'James Smith', selfEval: 65, crossEval: 30, peerEval: 30, finalGrade: 30 },
-    { name: 'Sarah Miller', selfEval: 65, crossEval: 65, peerEval: 65, finalGrade: 65 },
+const EvaluationTables = () => {
+  const [selectedTeam, setSelectedTeam] = useState("");
+  const [selectedSprint, setSelectedSprint] = useState("");
+
+  const dataTable = [
+    {
+      team: "Alpha code",
+      name: "María Johnson",
+      eval: 7,
+      crossEval: 4,
+      selfEval: 4,
+      sprint: 1,
+      finalGrade: 15,
+    },
+    {
+      team: "Alpha code",
+      name: "María Vargas",
+      eval: 8,
+      crossEval: 3,
+      selfEval: 5,
+      sprint: 1,
+      finalGrade: 16,
+    },
+    {
+      team: "Code Soft",
+      name: "Laura Brown",
+      eval: 7,
+      crossEval: 5,
+      selfEval: 5,
+      sprint: 2,
+      finalGrade: 17,
+    },
+    {
+      team: "Code Soft",
+      name: "James Smith",
+      eval: 9,
+      crossEval: 4,
+      selfEval: 4,
+      sprint: 2,
+      finalGrade: 17,
+    },
+    {
+      team: "Code Soft",
+      name: "Sarah Miller",
+      eval: 5,
+      crossEval: 5,
+      selfEval: 5,
+      sprint: 2,
+      finalGrade: 15,
+    },
   ];
 
+  const filteredData = dataTable.filter(
+    (row) =>
+      (selectedTeam === "" || row.team === selectedTeam) &&
+      (selectedSprint === "" || row.sprint === Number(selectedSprint))
+  );
+
+  const handleTeamChange = (e) => setSelectedTeam(e.target.value);
+  const handleSprintChange = (e) => setSelectedSprint(e.target.value);
+
   return (
-    <div className="planilla-notas-container">
-      <h2>Planilla de Notas</h2>
-      <table className="planilla-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Autoevaluación</th>
-            <th>Ev. Cruzada</th>
-            <th>Ev. Pares</th>
-            <th>Nota Final</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((student, index) => (
-            <tr key={index}>
-              <td>{student.name}</td>
-              <td>{student.selfEval}</td>
-              <td>{student.crossEval}</td>
-              <td>{student.peerEval}</td>
-              <td>{student.finalGrade}</td>
+    <div className="page-container">
+      <h1 className="main-title">Planilla de Notas Sprints</h1>
+      <div className="filters">
+        <label>
+          Equipos:
+          <select value={selectedTeam} onChange={handleTeamChange}>
+            <option value="">Seleccionar equipo</option>
+            <option value="Alpha code">Alpha code</option>
+            <option value="Code Soft">Code Soft</option>
+          </select>
+        </label>
+        <label>
+          Sprint:
+          <select value={selectedSprint} onChange={handleSprintChange}>
+            <option value="">Seleccionar sprint</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </label>
+      </div>
+      <div className="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Evaluación / 10</th>
+              <th>Ev.Pares/ 5</th>
+              <th>Autoevaluación / 5</th>
+              <th>Nota Final / 20</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredData.map((row, index) => (
+              <tr key={index}>
+                <td>{row.name}</td>
+                <td>{row.eval}</td>
+                <td>{row.crossEval}</td>
+                <td>{row.selfEval}</td>
+                <td>{row.finalGrade}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
 
-export default PlanillaNotas;
+export default EvaluationTables;
