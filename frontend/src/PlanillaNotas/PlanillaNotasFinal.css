@@ -1,0 +1,85 @@
+/* Contenedor principal */
+.container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+  }
+  
+  /* Título */
+  .title {
+    text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* Filtros */
+  .filter {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .filter label {
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .filter select {
+    margin-left: 10px;
+    padding: 8px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+  }
+  
+  /* Tabla */
+  .table-container {
+    max-width: 100%;
+    overflow-x: auto;
+    margin: 0 auto;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: #ffffff; /* Fondo blanco */
+  }
+  
+  table th {
+    background-color: #1A3254; /* Fondo azul */
+    color: #ffffff; /* Texto blanco */
+    padding: 10px;
+    text-align: left;
+    font-size: 14px;
+  }
+  
+  table td {
+    padding: 10px;
+    border: 1px solid #ddd;
+    text-align: left;
+    font-size: 14px;
+  }
+  
+  table tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  table tr:hover {
+    background-color: #f0f8ff;
+  }
+  
+  /* Input en el encabezado */
+  .input-header {
+    width: 50px;
+    margin-left: 5px;
+    padding: 2px 5px;
+    font-size: 12px;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #ffffff; /* Fondo blanco */
+    color: #000000; /* Texto negro */
+  }
+  

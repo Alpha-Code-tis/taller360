@@ -461,26 +461,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Docentes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-              {/* Planillas Semanales */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/PlanillasSemanales"
-                  onClick={() => handleButtonClick('planillas')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <CalendarMonthIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
+              
             </>
           )}
 
@@ -587,6 +568,27 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
+              {/* Planillas Semanales */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillasSemanales"
+                  onClick={() => handleButtonClick('planillas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <CalendarMonthIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
               {/* Planilla de Notas */}
               <ListItem disablePadding>
                 <ListItemButton
@@ -607,7 +609,29 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+              
+              {/* Planilla de Notas Final */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillaNotasFinal"
+                  onClick={() => handleButtonClick('planillaNotasFinal')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
 
+              
               {/* Modal Conformación de Equipos */}
               <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
                 <Modal.Header closeButton>

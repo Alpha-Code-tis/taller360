@@ -28,6 +28,7 @@ import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de 
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
 import PlanillaNotas from './PlanillaNotas/PlanillaNotas';
+import PlanillaNotasFinal from './PlanillaNotas/PlanillaNotasFinal';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [role, setRole] = useState(null);
@@ -80,8 +81,6 @@ function App() {
                 
                 <Route path="/TareasEstudiante" element={<TareasEstudiante />} />
                 <Route path="/Seguimiento" element={<Seguimiento />} />
-                <Route path="/Evaluaciones" element={<Evaluaciones />} />
-                <Route path="/Cruzada" element={<Cruzada />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
                 <Route path="/Autoevaluacion" element={<Autoevaluacion />} />
                 <Route path="/EvaluacionPares" element={<EvaluacionPares />} />
@@ -97,6 +96,7 @@ function App() {
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
                 <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
                 <Route path="/PlanillaNotas" element={<PlanillaNotas />} />
+                <Route path="/PlanillaNotasFinal" element={<PlanillaNotasFinal />} />
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />

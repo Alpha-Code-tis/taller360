@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import "./PlanillaNotas.css";
 
 const EvaluationTables = () => {
@@ -12,9 +12,8 @@ const EvaluationTables = () => {
       eval: 7,
       crossEval: 4,
       selfEval: 4,
-      sprint: 20,
-      peerEval: 88,
-      finalGrade: 80,
+      sprint: 1,
+      finalGrade: 15,
     },
     {
       team: "Alpha code",
@@ -22,9 +21,8 @@ const EvaluationTables = () => {
       eval: 8,
       crossEval: 3,
       selfEval: 5,
-      sprint: 17,
-      peerEval: 76,
-      finalGrade: 76,
+      sprint: 1,
+      finalGrade: 16,
     },
     {
       team: "Code Soft",
@@ -32,9 +30,8 @@ const EvaluationTables = () => {
       eval: 7,
       crossEval: 5,
       selfEval: 5,
-      sprint: 70,
-      peerEval: 50,
-      finalGrade: 50,
+      sprint: 2,
+      finalGrade: 17,
     },
     {
       team: "Code Soft",
@@ -42,9 +39,17 @@ const EvaluationTables = () => {
       eval: 9,
       crossEval: 4,
       selfEval: 4,
-      sprint: 65,
-      peerEval: 30,
-      finalGrade: 30,
+      sprint: 2,
+      finalGrade: 17,
+    },
+    {
+      team: "Code Soft",
+      name: "Sarah Miller",
+      eval: 5,
+      crossEval: 5,
+      selfEval: 5,
+      sprint: 2,
+      finalGrade: 15,
     },
   ];
 
@@ -59,12 +64,12 @@ const EvaluationTables = () => {
 
   return (
     <div className="page-container">
-      <h1 className="main-title">Planilla de Notas</h1>
+      <h1 className="main-title">Planilla de Notas Sprints</h1>
       <div className="filters">
         <label>
-          Equipo:
+          Equipos:
           <select value={selectedTeam} onChange={handleTeamChange}>
-            <option value="">Todos</option>
+            <option value="">Seleccionar equipo</option>
             <option value="Alpha code">Alpha code</option>
             <option value="Code Soft">Code Soft</option>
           </select>
@@ -72,11 +77,9 @@ const EvaluationTables = () => {
         <label>
           Sprint:
           <select value={selectedSprint} onChange={handleSprintChange}>
-            <option value="">Todos</option>
-            <option value="20">1</option>
-            <option value="17">2</option>
-            <option value="70">3</option>
-            <option value="65">4</option>
+            <option value="">Seleccionar sprint</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
           </select>
         </label>
       </div>
@@ -85,12 +88,10 @@ const EvaluationTables = () => {
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Evaluación</th>
-              <th>Ev. Cruzada</th>
-              <th>Autoevaluación</th>
-              <th>Sprint</th>
-              <th>Evaluación Pares</th>
-              <th>Nota Final</th>
+              <th>Evaluación / 10</th>
+              <th>Ev.Pares/ 5</th>
+              <th>Autoevaluación / 5</th>
+              <th>Nota Final / 20</th>
             </tr>
           </thead>
           <tbody>
@@ -100,8 +101,6 @@ const EvaluationTables = () => {
                 <td>{row.eval}</td>
                 <td>{row.crossEval}</td>
                 <td>{row.selfEval}</td>
-                <td>{row.sprint}</td>
-                <td>{row.peerEval}</td>
                 <td>{row.finalGrade}</td>
               </tr>
             ))}

@@ -392,6 +392,26 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/EvaluationForm"
+              onClick={() => handleButtonClick('evaluationForm')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
           
           {/* Otras opciones compartidas */}
           <ListItem disablePadding>
@@ -413,27 +433,7 @@ export default function PersistentDrawerLeft() {
               <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
-
-          <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/EvaluationForm"
-              onClick={() => handleButtonClick('evaluationForm')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <AssignmentTurnedInIcon />
-              </ListItemIcon>
-              <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
-
+          
           {/* Planilla de Notas */}
           <ListItem disablePadding>
             <ListItemButton
@@ -452,6 +452,27 @@ export default function PersistentDrawerLeft() {
                 <AssignmentTurnedInIcon />
               </ListItemIcon>
               <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+          
+          {/* Planilla de Notas Finales */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillaNotasFinal"
+              onClick={() => handleButtonClick('planillaNotasFinal')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
             </ListItemButton>
           </ListItem>
         </List>
