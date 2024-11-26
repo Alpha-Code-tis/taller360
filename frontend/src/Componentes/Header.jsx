@@ -122,7 +122,6 @@ export default function PersistentDrawerLeft() {
   const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
 
   // Estado para el botón seleccionado
-  const [selectedButton, setSelectedButton] = useState(null);
 
   // Estados para controlar el submenú de Evaluaciones
   const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
