@@ -4,9 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // src/App.jsx
 import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import VistaDocentes from './Componentes/VistaDocente';
-import VistaEstudiantes from './Componentes/VistaEstudiante';
-import VistaAdministrador from './Componentes/VistaAdministrador';
 import PlanificacionEquipos from './Estudiantes/PlanificacionEquipos';
 import Login from './Componentes/Login';
 import { Toaster } from 'react-hot-toast';
@@ -69,12 +66,10 @@ function App() {
             {role === 'administrador' && (
               <>
                 <Route path="/Docentes" element={<Docentes />} />
-                <Route path="/VistaAdministrador" element={<VistaAdministrador />} />
               </>
             )}
             {role === 'estudiante' && (
               <>
-                <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
                 <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
@@ -86,7 +81,6 @@ function App() {
             )}
             {role === 'docente' && (
               <>
-                <Route path="/VistaDocente" element={<VistaDocentes />} />
                 <Route path="/PlanificacionEquipos" element={<PlanificacionEquipos />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
                 <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />

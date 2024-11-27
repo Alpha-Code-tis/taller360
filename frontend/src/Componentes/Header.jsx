@@ -127,10 +127,13 @@ export default function PersistentDrawerLeft() {
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
   const [evaluacionModalShow, setEvaluacionModalShow] = useState(false);
+  const [notificarModalShow, setNotificarModalShow] = useState(false);
   const [autoEvalNota, setAutoEvalNota] = useState('');
   const [paresEvalNota, setParesEvalNota] = useState('');
   const [docenteEvalNota, setDocenteEvalNota] = useState('');
   const [notaPares, setNotaPares] = useState('');
+  const [notificacion, setNotificacion] = useState('');
+  const [redirected, setRedirected] = useState(false);
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -143,6 +146,23 @@ export default function PersistentDrawerLeft() {
     fetchFechas();
     fetchNotas();
   }, []); // Se ejecuta solo una vez al montar el componente
+
+  useEffect(() => {
+    // Verificar si el usuario no ha sido redirigido aún
+    if (!redirected && role) {
+      // Redirigir según el rol
+      if (role === "administrador") {
+        navigate("/Docentes");
+      } else if (role === "docente") {
+        navigate("/PlanificacionEquipos");
+      } else if (role === "estudiante") {
+        navigate("/Planificacion");
+      }
+      setRedirected(true); // Marcar que la redirección inicial ya ocurrió
+    }
+  }, [role, redirected, navigate]);
+
+
 
   const fetchFechas = async () => {
     try {
@@ -241,6 +261,7 @@ export default function PersistentDrawerLeft() {
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
       nota_pares: notaPares,
+      notificacion_eva: notificacion, 
     };
 
     try {
@@ -317,6 +338,10 @@ export default function PersistentDrawerLeft() {
     }
   };
 
+  /**Enviar notificaciones*/
+  const handleSaveChangesNotif = async () => {
+  };
+
   const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
@@ -361,7 +386,8 @@ export default function PersistentDrawerLeft() {
             <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
               <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
               <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
-              <MenuItem onClick={() => { setEvaluacionModalShow(true); handleSettingsMenuClose(); }}>Configuracion de Evaluaciones</MenuItem>
+              <MenuItem onClick={() => { setEvaluacionModalShow(true); handleSettingsMenuClose(); }}>Configuracion de Evaluaciones por Sprint</MenuItem>
+              <MenuItem onClick={() => { setNotificarModalShow(true); handleSettingsMenuClose(); }}>Notificar Evaluaciones</MenuItem>
             </Menu>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
@@ -752,7 +778,7 @@ export default function PersistentDrawerLeft() {
                 </Modal.Footer>
               </Modal>
               <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
-                <Modal.Header closeButton>
+                <Modal.Header>
                   <Modal.Title>Habilitar vistas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -800,7 +826,7 @@ export default function PersistentDrawerLeft() {
               </Modal>
               <Modal show={evaluacionModalShow} onHide={() => setEvaluacionModalShow(false)} centered>
                 <Modal.Header closeButton>
-                  <Modal.Title>Configuracion de Evaluaciones</Modal.Title>
+                  <Modal.Title>Configuracion de Evaluaciones por Sprint</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
@@ -833,6 +859,51 @@ export default function PersistentDrawerLeft() {
                 <Modal.Footer>
                   <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
                   <Button variant="primary" onClick={handleSaveChangesEva}>Guardar cambios</Button>
+                </Modal.Footer>
+              </Modal>
+              <Modal show={notificarModalShow} onHide={() => setNotificarModalShow(false)} centered>
+                <Modal.Header>
+                  <Modal.Title>Notificar Evaluaciones</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    
+                    <Form.Group className="mb-3">
+                      <Form.Label>Autoevaluación </Form.Label>
+                      <div>
+                        <p><strong>Fecha de inicio:</strong> {autoEvalStart ||'Fecha no disponible'}</p>
+                        <p><strong>Fecha de fin:</strong> {autoEvalEnd ||'Fecha no disponible'}</p>
+                      
+                      </div>
+                      <Form.Label>Evaluación Pares</Form.Label>
+
+                        <p><strong>Fecha de fin:</strong> {finalEvalStart ||'Fecha no disponible'}</p>
+                        <p><strong>Fecha de fin:</strong> {finalEvalEnd ||'Fecha no disponible'}</p>
+
+                      <div><Form.Label>Evaluación Cruzada</Form.Label>
+                        <p><strong>Fecha de fin:</strong> {finalEvalStart ||'Fecha no disponible'}</p>
+                        <p><strong>Fecha de fin:</strong> {finalEvalEnd ||'Fecha no disponible'}</p>
+                      </div>
+
+
+
+                      {/* Detalles de notificacion */}
+                      <div>
+                        <Form.Label><strong>Detalles </strong></Form.Label>
+                          <Form.Control
+                            type="text"
+                            value= {notificacion}
+                            onChange={(e) => setNotificacion(e.target.value)}
+                            style={{ width: "380px", height: "50px" }}
+                          />
+                      </div>
+                      
+                    </Form.Group>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>Cancelar</Button>
+                  <Button variant="primary" onClick={handleSaveChangesNotif}>Enviar</Button>
                 </Modal.Footer>
               </Modal>
             </>
