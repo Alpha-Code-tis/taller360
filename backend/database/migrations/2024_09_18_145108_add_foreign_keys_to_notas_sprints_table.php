@@ -13,8 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('notas', function (Blueprint $table) {
-            $table->foreign(['Identifier_1'], 'fk_notas_identifier_1')->references(['id_estudiante'])->on('estudiante');
+        Schema::table('notas_sprints', function (Blueprint $table) {
+            $table->foreign(['identifier_1'], 'fk_notas_sprints_identifier_1')->references(['id_estudiante'])->on('estudiante');
         });
     }
 
@@ -25,8 +25,9 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('notas', function (Blueprint $table) {
-            $table->dropForeign('fk_notas_identifier_1');
+        Schema::table('notas_sprints', function (Blueprint $table) {
+            $table->dropForeign('fk_notas_sprints_identifier_1');
         });
     }
 };
+

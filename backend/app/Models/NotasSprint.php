@@ -12,32 +12,38 @@ use Illuminate\Database\Eloquent\Model;
 /**
  * Class NotasSprint
  *
- * @property int $id_notas
- * @property int|null $NotaTarea
- * @property int|null $NotaEvPares
- * @property int|null $NotaAutoEv
- * @property int|null $Identifier_1
+ * @property int $id_notas_sprint
+ * @property int|null $nota_tarea
+ * @property int|null $nota_ev_pares
+ * @property int|null $nota_auto_ev
+ * @property int|null $id_tarea
  *
  * @package App\Models
  */
 class NotasSprint extends Model
 {
-    use HasFactory;
+    use HasFactory;  // Agregamos HasFactory para soporte de factory.
 
-    protected $table = 'notas';
-    protected $primaryKey = 'id_notas';
-    protected $fillable = [
-        'NotaTarea',
-        'NotaEvPares',
-        'NotaAutoEv',
-        'Identifier_1'
-    ];
-
+    protected $table = 'notas_sprints';
+    protected $primaryKey = 'id_notas_sprint';
     public $timestamps = false;
 
-    // Assuming Identifier_1 is a foreign key reference to another table, for example, Estudiante
-    public function estudiante()
+    protected $casts = [
+        'id_tarea' => 'int',
+        'nota_tarea' => 'int',
+        'nota_ev_pares' => 'int',
+        'nota_auto_ev' => 'int',
+    ];
+
+    protected $fillable = [
+        'nota_tarea',
+        'nota_ev_pares',
+        'nota_auto_ev',
+        'id_tarea',
+    ];
+
+    public function tarea()
     {
-        return $this->belongsTo(Estudiante::class, 'Identifier_1');
+        return $this->belongsTo(Tarea::class, 'id_tarea');
     }
 }
