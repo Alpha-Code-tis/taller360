@@ -8,6 +8,7 @@ use App\Models\Planificacion;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -19,7 +20,7 @@ class TareaController extends Controller
         $estudiante = auth()->guard('sanctum')->user();
 
         // Obtener todos los sprints de la empresa a la que pertenece el estudiante
-        $sprints = Sprint::whereHas('planificacion.empresa.estudiantes', function($query) use ($estudiante) {
+        $sprints = Sprint::whereHas('planificacion.empresa.estudiantes', function ($query) use ($estudiante) {
             $query->where('id_estudiante', $estudiante->id_estudiante);
         })->get();
 
@@ -36,7 +37,7 @@ class TareaController extends Controller
         }
 
         // Verificar que el sprint pertenece a la empresa del estudiante
-        $planificacion = Planificacion::where('id_empresa',$estudiante->id_empresa)->first();
+        $planificacion = Planificacion::where('id_empresa', $estudiante->id_empresa)->first();
         $sprint = Sprint::where('id_sprint', $sprintId)
             ->where('id_planificacion', $planificacion->id_planificacion)
             ->first();
@@ -44,12 +45,11 @@ class TareaController extends Controller
             return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
         }
         $tareas = $estudiante->tareas()
-                       ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-                       ->get();
+            ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
+            ->get();
 
         return response()->json($tareas);
     }
-
 
     public function subirAvance(Request $request, $tareaId)
     {
@@ -193,5 +193,30 @@ class TareaController extends Controller
         }
 
         return response()->json($tareas, 200);
+    }
+    public function getSprintsConTareas($equipoId)
+    {
+        try {
+            // Obtener planificaciones asociadas al equipo
+            $planificacion = Planificacion::where('id_empresa', $equipoId)->first();
+
+            if (!$planificacion) {
+                return response()->json(['message' => 'No se encontró planificación para este equipo'], 404);
+            }
+
+            // Obtener sprints asociados
+            $sprints = Sprint::with('alcances.tareas.estudiantes')
+                ->where('id_planificacion', $planificacion->id_planificacion)
+                ->get();
+
+            if ($sprints->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron sprints para este equipo'], 404);
+            }
+
+            return response()->json($sprints, 200);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener sprints y tareas: ' . $e->getMessage());
+            return response()->json(['message' => 'Error al obtener los sprints'], 500);
+        }
     }
 }

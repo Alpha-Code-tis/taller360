@@ -1,60 +1,144 @@
-import { API_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Form, Button, Spinner, Table } from 'react-bootstrap';
+import { Form, Table, Button, Alert, Spinner } from 'react-bootstrap';
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
 
-const Reportes = () => {
+const API_URL = 'http://localhost:8000/api/'; // Cambia según tu configuración
+
+const Reporte = () => {
   const [equipos, setEquipos] = useState([]);
+  const [sprints, setSprints] = useState([]);
+  const [tareas, setTareas] = useState([]);
+  const [evaluaciones, setEvaluaciones] = useState([]);
   const [equipoSeleccionado, setEquipoSeleccionado] = useState('');
-  const [fechaInicio, setFechaInicio] = useState('');
-  const [fechaFin, setFechaFin] = useState('');
-  const [sprintId, setSprintId] = useState('');
+  const [sprintSeleccionado, setSprintSeleccionado] = useState('');
   const [loading, setLoading] = useState(false);
-  const [reporte, setReporte] = useState(null);
   const [error, setError] = useState('');
 
-  // Cargar la lista de equipos desde el backend
+  // Obtener equipos de la gestión actual
   useEffect(() => {
     const fetchEquipos = async () => {
+      setLoading(true);
       try {
-        const responseEquipos = await axios.get(`${API_URL}equipos`, {
+        const response = await axios.get(`${API_URL}listarEmpresas/2-2024`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
         setEquipos(response.data);
       } catch (error) {
-        console.error('Error al cargar equipos:', error);
-        setError('No se pudo cargar la lista de equipos.');
+        console.error('Error al cargar los equipos:', error);
+        setError('No se pudieron cargar los equipos.');
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchEquipos();
   }, []);
 
-  const generarReporte = async () => {
-    setLoading(true);
-    setError('');
-    try {
-      const responseReporte = await axios.post(`${API_URL}reporte`, data, {
-        id_empresa: equipoSeleccionado,
-        fecha_inicio: fechaInicio,
-        fecha_fin: fechaFin,
-        sprint_id: sprintId,
-      });
-      setReporte(response.data);
-    } catch (error) {
-      setError(
-        error.response?.data?.message || 'Error al generar el reporte. Intenta nuevamente.'
-      );
-    } finally {
-      setLoading(false);
+  // Obtener sprints del equipo seleccionado
+  useEffect(() => {
+    if (equipoSeleccionado) {
+      const fetchSprints = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get(`${API_URL}planilla/empresas/${equipoSeleccionado}/sprints`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          setSprints(response.data);
+        } catch (error) {
+          console.error('Error al cargar los sprints:', error);
+          setError('No se pudieron cargar los sprints.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchSprints();
+    } else {
+      setSprints([]);
+      setSprintSeleccionado('');
     }
+  }, [equipoSeleccionado]);
+
+  // Obtener tareas y evaluaciones cruzadas
+  useEffect(() => {
+    if (sprintSeleccionado) {
+      const fetchData = async () => {
+        setLoading(true);
+        try {
+          const [tareasResponse, evaluacionesResponse] = await Promise.all([
+            axios.get(`${API_URL}sprints/${sprintSeleccionado}/tareas`, {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+            }),
+            axios.get(`${API_URL}cruzada/notas/${equipoSeleccionado}`, {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+            }),
+          ]);
+          setTareas(tareasResponse.data);
+          setEvaluaciones(evaluacionesResponse.data);
+        } catch (error) {
+          console.error('Error al cargar los datos:', error);
+          setError('No se pudieron cargar los datos.');
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    } else {
+      setTareas([]);
+      setEvaluaciones([]);
+    }
+  }, [sprintSeleccionado]);
+
+  // Generar reporte en PDF
+  const generarPDF = () => {
+    const doc = new jsPDF();
+    doc.text('Reporte Completo', 20, 10);
+
+    if (tareas.length > 0) {
+      doc.text('Tareas del Sprint:', 10, 20);
+      const tareasData = tareas.map((tarea) => [
+        tarea.nombre_tarea,
+        tarea.estado,
+        `${tarea.progreso}%`,
+        tarea.estudiantes.map((est) => est.nombre_estudiante).join(', '),
+      ]);
+      doc.autoTable({
+        head: [['Tarea', 'Estado', 'Progreso', 'Responsables']],
+        body: tareasData,
+        startY: 30,
+      });
+    }
+
+    if (evaluaciones.length > 0) {
+      doc.text('Evaluaciones Cruzadas:', 10, doc.previousAutoTable.finalY + 10);
+      const evaluacionesData = evaluaciones.map((evaluacion) => [
+        evaluacion.criterio_nombre,
+        evaluacion.nota,
+      ]);
+      doc.autoTable({
+        head: [['Criterio', 'Nota']],
+        body: evaluacionesData,
+        startY: doc.previousAutoTable.finalY + 20,
+      });
+    }
+
+    doc.save('reporte.pdf');
   };
 
   return (
     <div className="container mt-4">
-      <h1>Generar Reporte por Equipo</h1>
+      <h1>Reporte de Seguimiento y Evaluación Cruzada</h1>
+
+      {error && <Alert variant="danger">{error}</Alert>}
+
       <Form className="mb-4">
         <Form.Group>
           <Form.Label>Equipo</Form.Label>
@@ -71,65 +155,83 @@ const Reportes = () => {
             ))}
           </Form.Select>
         </Form.Group>
-        <Form.Group>
-          <Form.Label>Sprint ID</Form.Label>
-          <Form.Control
-            type="text"
-            value={sprintId}
-            onChange={(e) => setSprintId(e.target.value)}
-            placeholder="Ingrese el numero del sprint (opcional)"
-          />
+
+        <Form.Group className="mt-3">
+          <Form.Label>Sprint</Form.Label>
+          <Form.Select
+            value={sprintSeleccionado}
+            onChange={(e) => setSprintSeleccionado(e.target.value)}
+            aria-label="Seleccionar sprint"
+          >
+            <option value="">Seleccione un sprint</option>
+            {sprints.map((sprint) => (
+              <option key={sprint.id_sprint} value={sprint.id_sprint}>
+                Sprint {sprint.nro_sprint}
+              </option>
+            ))}
+          </Form.Select>
         </Form.Group>
-        <Button variant="primary" onClick={generarReporte} disabled={loading}>
-          {loading ? <Spinner animation="border" size="sm" /> : 'Generar Reporte'}
-        </Button>
       </Form>
 
-      {error && <div className="alert alert-danger">{error}</div>}
+      {loading && <Spinner animation="border" />}
 
-      {reporte && (
-        <div>
-          <h2>Reporte del Equipo: {reporte.equipo}</h2>
-          <h3>Tareas</h3>
+      {tareas.length > 0 && (
+        <div className="mt-4">
+          <h3>Tareas del Sprint Seleccionado</h3>
           <Table striped bordered hover>
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Nombre</th>
+                <th>Tarea</th>
                 <th>Estado</th>
+                <th>Progreso</th>
+                <th>Responsables</th>
               </tr>
             </thead>
             <tbody>
-              {reporte.tareas.map((tarea) => (
+              {tareas.map((tarea) => (
                 <tr key={tarea.id_tarea}>
-                  <td>{tarea.id_tarea}</td>
                   <td>{tarea.nombre_tarea}</td>
                   <td>{tarea.estado}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-          <h3>Sprints</h3>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reporte.sprint.map((sprint) => (
-                <tr key={sprint.id_sprint}>
-                  <td>{sprint.id_sprint}</td>
-                  <td>{sprint.nombre_sprint}</td>
+                  <td>{tarea.progreso}%</td>
+                  <td>
+                    {tarea.estudiantes.map((est) => est.nombre_estudiante).join(', ')}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </Table>
         </div>
       )}
+
+      {evaluaciones.length > 0 && (
+        <div className="mt-4">
+          <h3>Evaluaciones Cruzadas</h3>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
+                <th>Criterio</th>
+                <th>Nota</th>
+              </tr>
+            </thead>
+            <tbody>
+              {evaluaciones.map((evaluacion, index) => (
+                <tr key={index}>
+                  <td>{evaluacion.criterio_nombre}</td>
+                  <td>{evaluacion.nota}</td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        </div>
+      )}
+
+      {(tareas.length > 0 || evaluaciones.length > 0) && (
+        <Button variant="primary" className="mt-4" onClick={generarPDF}>
+          Generar PDF
+        </Button>
+      )}
     </div>
   );
 };
 
-export default Reportes;
+export default Reporte;

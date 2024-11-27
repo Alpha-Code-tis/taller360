@@ -318,7 +318,6 @@ const Cruzada = () => {
                 placeholder="No disponible"
               />
             </Form.Group>
-
             <div className="text-center mt-4">
               <h3>Total Evaluación: {totalNota}%</h3>
               <Button variant="primary" onClick={guardarEvaluacion} disabled={totalNota === 0 || !puedeEvaluar}>
@@ -327,7 +326,6 @@ const Cruzada = () => {
             </div>
           </Col>
         </Row>
-      
       )}
  </>
  )}

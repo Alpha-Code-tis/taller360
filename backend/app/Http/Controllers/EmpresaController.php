@@ -240,4 +240,24 @@ class EmpresaController extends Controller
             return response()->json(['error' => 'Error al actualizar la empresa: ' . $e->getMessage()], 500);
         }
     }
+
+    public function getEquiposConEvaluaciones($gestion)
+{
+    try {
+        // Obtener equipos de la gestión con evaluaciones cruzadas
+        $equipos = Empresa::with(['planificacion.sprints.alcances.tareas', 'evaluacionesCruzadas'])
+            ->where('gestion', $gestion)
+            ->get();
+
+        if ($equipos->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
+        }
+
+        return response()->json($equipos, 200);
+    } catch (\Exception $e) {
+        Log::error('Error al obtener equipos y evaluaciones cruzadas: ' . $e->getMessage());
+        return response()->json(['message' => 'Error al obtener los equipos'], 500);
+    }
+}
+
 }

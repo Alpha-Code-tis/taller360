@@ -192,4 +192,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reportes por Equipo
     Route::post('/reporte', [ReporteController::class, 'generarReporte']);
+    Route::get('/equiposGestion/{gestion}', [EmpresaController::class, 'getEquiposConEvaluaciones']);
+Route::get('/sprintsTareas/{equipoId}', [TareaController::class, 'getSprintsConTareas']);
 });

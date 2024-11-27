@@ -12,20 +12,11 @@ class ReporteController extends Controller
         // Validar los filtros proporcionados
         $request->validate([
             'equipo_id' => 'required|exists:equipos,id_equipo',
-            'fecha_inicio' => 'nullable|date',
-            'fecha_fin' => 'nullable|date|after_or_equal:fecha_inicio',
             'sprint_id' => 'nullable|exists:sprints,id_sprint',
         ]);
 
         // Filtrar por equipo
         $query = Empresa::where('id_equipo', $request->equipo_id);
-
-        // Aplicar filtros opcionales
-        if ($request->filled('fecha_inicio') && $request->filled('fecha_fin')) {
-            $query->whereHas('tareas', function ($q) use ($request) {
-                $q->whereBetween('fecha_creacion', [$request->fecha_inicio, $request->fecha_fin]);
-            });
-        }
 
         if ($request->filled('sprint_id')) {
             $query->whereHas('sprints', function ($q) use ($request) {

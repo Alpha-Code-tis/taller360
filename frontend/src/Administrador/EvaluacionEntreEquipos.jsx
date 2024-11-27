@@ -18,22 +18,27 @@ const EvaluacionEntreEquipos = () => {
 
     // Obtener equipos al cargar el componente
     useEffect(() => {
-        const fetchEquipos = async () => {
-            try {
-                const response = await axios.get(`${API_URL}equipos`, {
-                    params: { gestion: gestionActual },
-                });
-                setEquipos(response.data);
-                setEquiposDisponibles(response.data); // Inicialmente, todos los equipos están disponibles
-            } catch (error) {
-                console.error('Error al cargar los equipos:', error.response?.data || error.message);
-                toast.error('Error al cargar los equipos de la gestión actual');
-            }
-        };
+  const fetchEquipos = async () => {
+    try {
+      const response = await axios.get(`${API_URL}equipos`, {
+        params: {
+          gestion: '2-2024',
+        },
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      setEquipos(response.data);
+    } catch (error) {
+      console.error('Error al cargar equipos:', error);
+      setError('No se pudo cargar la lista de equipos.');
+    }
+  };
 
-        fetchEquipos();
-    }, []);
+  fetchEquipos();
+}, []);
 
+      
     // Obtener asignaciones al cargar el componente
     useEffect(() => {
         const fetchAsignaciones = async () => {
