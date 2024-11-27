@@ -7,6 +7,8 @@ use Illuminate\Http\Response;
 use App\Models\Cruzada;
 use App\Models\Criterio;
 use App\Models\Empresa;
+use Carbon\Carbon;
+use App\Models\Ajuste;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Log;
@@ -75,6 +77,25 @@ class CruzadaController extends Controller
             'equipo_evaluado_id' => 'required|exists:empresa,id_empresa|different:equipo_evaluador_id',
             'gestion' => 'required|string',
         ]);
+        // Obtener los ajustes
+    $ajustes = Ajuste::first();
+
+    if (!$ajustes || !$ajustes->fecha_inicio_eva_cruzada || !$ajustes->fecha_fin_eva_cruzada) {
+        return response()->json(['message' => 'Las fechas de evaluación cruzada no están configuradas.'], 400);
+    }
+
+    // Obtener la fecha actual
+    $fechaActual = Carbon::now();
+
+    // Verificar si la fecha actual está dentro del rango permitido
+    if (
+        $fechaActual->lt(Carbon::parse($ajustes->fecha_inicio_eva_cruzada)) ||
+        $fechaActual->gt(Carbon::parse($ajustes->fecha_fin_eva_cruzada))
+    ) {
+        return response()->json([
+            'message' => 'No está permitido realizar la evaluación cruzada en estas fechas.',
+        ], 403);
+    }
 
         try {
             // Verificar si ya existe una evaluación cruzada
@@ -296,7 +317,7 @@ public function obtenerMisNotas()
     }
 }
 
-    
+
 }
 
 

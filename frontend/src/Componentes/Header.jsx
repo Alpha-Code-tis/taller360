@@ -131,6 +131,9 @@ export default function PersistentDrawerLeft() {
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
   const [notaPares, setNotaPares] = useState('');
+  const [cruzadaStart, setCruzadaStart] = useState('');
+  const [cruzadaEnd, setCruzadaEnd] = useState('');
+
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -152,6 +155,8 @@ export default function PersistentDrawerLeft() {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
+      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? ''); 
+      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');    
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
@@ -209,6 +214,8 @@ export default function PersistentDrawerLeft() {
     const payload = {
       fecha_inicio_autoevaluacion: autoEvalStart,
       fecha_fin_autoevaluacion: autoEvalEnd,
+      fecha_inicio_eva_cruzada: cruzadaStart, 
+      fecha_fin_eva_cruzada: cruzadaEnd,    
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
       nota_pares: notaPares,
@@ -787,6 +794,27 @@ export default function PersistentDrawerLeft() {
                         </Form.Label>
                         <Form.Label>Fecha Fin
                           <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Cruzada</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          Fecha Inicio
+                          <Form.Control
+                            type="date"
+                            value={cruzadaStart} 
+                            onChange={(e) => setCruzadaStart(e.target.value)} 
+                          />
+                        </Form.Label>
+                        <Form.Label>
+                          Fecha Fin
+                          <Form.Control
+                            type="date"
+                            value={cruzadaEnd} 
+                            onChange={(e) => setCruzadaEnd(e.target.value)} 
+                          />
                         </Form.Label>
                       </div>
                     </Form.Group>
