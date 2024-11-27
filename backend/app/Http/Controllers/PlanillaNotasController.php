@@ -10,6 +10,7 @@ use App\Models\Planificacion;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use App\Models\NotasSprint;
+use App\Models\Estudiante;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -28,7 +29,9 @@ class PlanillaNotasController extends Controller
 
     public function getSprints($empresaId)
     {
-        $sprints = Sprint::where('id_empresa', $empresaId)->get();
+        $sprints = Sprint::whereHas('planificacion', function ($query) use ($empresaId) {
+            $query->where('id_empresa', $empresaId);
+        })->get();
         return response()->json($sprints);
     }
 
@@ -60,6 +63,7 @@ class PlanillaNotasController extends Controller
         }
 
         $evaluacionDocente = $nota->evaluaciondocente;
+        $autoEvaluacion = $nota->autoevaluacion;
 
         // Obtener todos los alcances del sprint seleccionado
         $alcances = Alcance::where('id_sprint', $sprint->id_sprint)->get();
@@ -76,6 +80,19 @@ class PlanillaNotasController extends Controller
         }
 
         // Crear una estructura para almacenar las notas por estudiante
+        $notasEstudiantes = $this->calcularNotaEvaluacion($tareas, $evaluacionDocente, $sprint);
+        $notasEstudiantes = $this->calcularNotaAutoEvaluacion($tareas, $notasEstudiantes, $autoEvaluacion, $sprint);
+
+        // Devolver la respuesta con las notas promedio por cada estudiante, incluyendo la evaluación docente y autoevaluación
+        return response()->json([
+            'evaluacionDocente' => $evaluacionDocente,
+            'autoEvaluacion' => $autoEvaluacion,
+            'notasEstudiantes' => array_values($notasEstudiantes)
+        ], 200);
+    }
+
+    private function calcularNotaEvaluacion($tareas, $evaluacionDocente, $sprint)
+    {
         $notasEstudiantes = [];
 
         // Recorrer todas las tareas para calcular las notas promedio de cada estudiante
@@ -88,42 +105,90 @@ class PlanillaNotasController extends Controller
                         'promedioNotas' => 0,
                         'totalTareas' => 0,
                         'evaluacionDocente' => $evaluacionDocente,
+                        'notaAutoEv' => 0,
+                        'totalEvaluaciones' => 0
                     ];
                 }
                 // Sumar la calificación de la tarea actual al estudiante correspondiente
-                $notasEstudiantes[$estudiante->id_estudiante]['promedioNotas'] += $tarea->calificion;
+                $notasEstudiantes[$estudiante->id_estudiante]['promedioNotas'] += $tarea->calificacion;
                 $notasEstudiantes[$estudiante->id_estudiante]['totalTareas']++;
+
+                // Calcular el promedio final de tareas
+                if ($notasEstudiantes[$estudiante->id_estudiante]['totalTareas'] > 0) {
+                    $promedioTareas = $notasEstudiantes[$estudiante->id_estudiante]['promedioNotas'] / max($notasEstudiantes[$estudiante->id_estudiante]['totalTareas'], 1);
+
+                    // Crear o actualizar NotasSprint con la nota promedio de tareas
+                    $notaSprint = NotasSprint::updateOrCreate(
+                        [
+                            'id_estudiante' => $estudiante->id_estudiante, // Relacionar con el estudiante correspondiente
+                            'id_sprint' => $sprint->id_sprint // Añadido para relacionar correctamente con el sprint
+                        ],
+                        [
+                            'nota_tarea' => $promedioTareas,
+                        ]
+                    );
+
+                    // Calcular el promedio final incluyendo la evaluación docente
+                    $notaPromedio = $promedioTareas * ($evaluacionDocente / 100);
+
+                    // Actualizar nota promedio en NotasSprint
+                    $notaSprint->nota_tarea = $notaPromedio;
+                    $notaSprint->save();
+
+                    // Guardar la nueva nota promedio para mostrar en la tabla
+                    $notasEstudiantes[$estudiante->id_estudiante]['promedioNotas'] = $notaPromedio;
+                }
             }
         }
 
-        // Calcular el promedio final de cada estudiante y guardar en NotasSprint
-        foreach ($notasEstudiantes as $idEstudiante => &$estudianteData) {
-            if ($estudianteData['totalTareas'] > 0) {
-                $promedioTareas = $estudianteData['promedioNotas'] / $estudianteData['totalTareas'];
+        return $notasEstudiantes;
+    }
 
-                // Crear o actualizar NotasSprint con la nota promedio de tareas
-                $notaSprint = NotasSprint::updateOrCreate(
-                    [
-                        'id_tarea' => $tarea->id_tarea, // Relacionar con la tarea correspondiente
-                    ],
-                    [
-                        'nota_tarea' => $promedioTareas,
-                    ]
-                );
+    private function calcularNotaAutoEvaluacion($tareas, $notasEstudiantes, $autoEvaluacion, $sprint)
+    {
+        foreach ($tareas as $tarea) {
+            foreach ($tarea->estudiantes as $estudiante) {
+                // Obtener la autoevaluación de la tarea
+                if ($tarea->pivot && isset($tarea->pivot->resultado_evaluacion)) {
+                    // Convertir el valor de resultado_evaluacion de cadena a número
+                    $resultadoEvaluacionMap = [
+                        'Malo' => 1,
+                        'Regular' => 2,
+                        'Aceptable' => 3,
+                        'Bueno' => 4,
+                        'Excelente' => 5
+                    ];
+                    $resultadoEvaluacion = $resultadoEvaluacionMap[$tarea->pivot->resultado_evaluacion] ?? null;
 
-                // Calcular el promedio final incluyendo la evaluación docente
-                $notaPromedio = ($promedioTareas * $evaluacionDocente) / 100;
+                    // Verificar que el resultado de la evaluación esté en el rango válido
+                    if ($resultadoEvaluacion !== null) {
+                        $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'] += $resultadoEvaluacion;
+                        $notasEstudiantes[$estudiante->id_estudiante]['totalEvaluaciones']++;
+                    }
+                }
 
-                // Actualizar nota promedio en NotasSprint
-                $notaSprint->nota_tarea = $notaPromedio;
-                $notaSprint->save();
+                // Calcular el promedio de autoevaluación
+                if ($notasEstudiantes[$estudiante->id_estudiante]['totalEvaluaciones'] > 0) {
+                    $promedioAutoEv = $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'] / max($notasEstudiantes[$estudiante->id_estudiante]['totalEvaluaciones'], 1);
+                    $notaAutoEvPromedio = $promedioAutoEv * ($autoEvaluacion / 100);
 
-                // Guardar la nueva nota promedio para mostrar en la tabla
-                $estudianteData['promedioNotas'] = $notaPromedio;
+                    // Crear o actualizar NotasSprint con la nota de autoevaluación
+                    $notaSprint = NotasSprint::updateOrCreate(
+                        [
+                            'id_estudiante' => $estudiante->id_estudiante,
+                            'id_sprint' => $sprint->id_sprint
+                        ],
+                        [
+                            'nota_auto_ev' => $notaAutoEvPromedio
+                        ]
+                    );
+
+                    // Guardar la nota de autoevaluación para mostrar en la tabla
+                    $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'] = $notaAutoEvPromedio;
+                }
             }
         }
 
-        // Devolver la respuesta con las notas promedio por cada estudiante
-        return response()->json(array_values($notasEstudiantes), 200);
+        return $notasEstudiantes;
     }
 }
