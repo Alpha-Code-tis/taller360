@@ -28,7 +28,6 @@ class EvaluacionController extends Controller
         }
 
         $empresas = Estudiante::whereNotNull('id_empresa')
-            ->whereNotNull('id_representante')
             ->where('id_grupo', $docente->id_grupo)
             ->pluck('id_empresa')
             ->unique();
@@ -116,87 +115,110 @@ class EvaluacionController extends Controller
 
     // Guardar la evaluación de las tareas
     public function saveEvaluation(Request $request)
-    {
-        // Validación de datos de entrada
-        $request->validate([
-            'tareas' => 'required|array',
-            'tareas.*.id_tarea' => 'required|exists:tarea,id_tarea',
-            'tareas.*.calificacion' => ['required', 'regex:/^\d+ \/ \d+$/'],
-            'tareas.*.observaciones' => 'nullable|string',
-            'tareas.*.revisado' => 'required|boolean',
-            'sprint_id' => 'required|exists:sprint,id_sprint',
-            'week' => 'required|integer|min:1',
-            'week_revisado' => 'required|boolean'
-        ]);
-        // Obtener el sprint para verificar el porcentaje máximo permitido
-        $sprint = Sprint::findOrFail($request->sprint_id);
-        $porcentajeMaximo = $sprint->porcentaje;
-     
+{
+    // Validación de datos de entrada
+    $request->validate([
+        'tareas' => 'required|array',
+        'tareas.*.id_tarea' => 'required|exists:tarea,id_tarea',
+        'tareas.*.calificacion' => ['required', 'regex:/^\d+ \/ \d+$/'],
+        'tareas.*.observaciones' => 'nullable|string',
+        'tareas.*.revisado' => 'required|boolean',
+        'sprint_id' => 'required|exists:sprint,id_sprint',
+        'week' => 'required|integer|min:0',
+        'week_revisado' => 'required|boolean'
+    ]);
 
-        try {
-            // Iniciar una transacción para asegurar la integridad de los datos
-            DB::beginTransaction();
+    // Obtener el sprint para verificar el porcentaje máximo permitido
+    $sprint = Sprint::findOrFail($request->sprint_id);
+    $porcentajeMaximo = $sprint->porcentaje;
 
-            // Iterar sobre cada tarea proporcionada
-            foreach ($request->tareas as $tareaData) {
-                // Obtener el valor de la calificación en formato 'numero / porcentaje'
-                list($calificacion, $porcentaje) = explode(' / ', $tareaData['calificacion']);
+    try {
+        // Iniciar una transacción para asegurar la integridad de los datos
+        DB::beginTransaction();
 
-                // Convertir calificación y porcentaje a enteros para la validación
-                $calificacion = (int) $calificacion;
-                $porcentaje = (int) $porcentaje;
+        // Iterar sobre cada tarea proporcionada
+        foreach ($request->tareas as $tareaData) {
+            // Obtener el valor de la calificación en formato 'numero / porcentaje'
+            list($calificacion, $porcentaje) = explode(' / ', $tareaData['calificacion']);
 
-                // Validar que el porcentaje ingresado coincida con el del sprint
-                if ($porcentaje !== $porcentajeMaximo) {
-                    return response()->json([
-                        'error' => "El porcentaje especificado debe coincidir con el porcentaje del sprint: $porcentajeMaximo"
-                    ], 422);
-                }
+            // Convertir calificación y porcentaje a enteros para la validación
+            $calificacion = (int) $calificacion;
+            $porcentaje = (int) $porcentaje;
 
-                // Validar que la calificación no exceda el porcentaje máximo
-                if ($calificacion > $porcentajeMaximo) {
-                    return response()->json([
-                        'error' => "La calificación no puede exceder el valor máximo permitido del sprint: $porcentajeMaximo"
-                    ], 422);
-                }
-
-                // Encontrar la tarea y actualizar los datos
-                $tarea = Tarea::findOrFail($tareaData['id_tarea']);
-                $tarea->calificacion = $calificacion; // Asignar la calificación
-                $tarea->observaciones = $tareaData['observaciones'] ?? null;
-                $tarea->revisado = $tareaData['revisado'];
-                $tarea->save();
-
-
-                // Guardar en detalle tarea con nombre del estudiante responsable
-                $estudiantes = EstudianteTarea::where('id_tarea', $tarea->id_tarea)->with('estudiante')->get();
-                foreach ($estudiantes as $estudianteTarea) {
-                    DetalleTarea::updateOrCreate(
-                        ['id_tarea' => $tarea->id_tarea, 'semana_sprint' => $request->week],
-                        [
-                            'nom_estudiante' => $estudianteTarea->estudiante->nombre_estudiante,
-                            'nom_tarea' => $tarea->nombre_tarea,
-                            'calificacion_tarea' => "{$calificacion} / {$porcentajeMaximo}", // Guardar el formato completo
-                            'observaciones_tarea' => $tareaData['observaciones'] ?? '',
-                            'revisado_tarea' => $tareaData['revisado'],
-                            'revisado_semanas' => $request->week_revisado
-                        ]
-                    );
-                }
+            // Validar que el porcentaje ingresado coincida con el del sprint
+            if ($porcentaje !== $porcentajeMaximo) {
+                return response()->json([
+                    'error' => "El porcentaje especificado debe coincidir con el porcentaje del sprint: $porcentajeMaximo"
+                ], 422);
             }
 
-    
+            // Validar que la calificación no exceda el porcentaje máximo
+            if ($calificacion > $porcentajeMaximo) {
+                return response()->json([
+                    'error' => "La calificación no puede exceder el valor máximo permitido del sprint: $porcentajeMaximo"
+                ], 422);
+            }
 
-            DB::commit();
-        } catch (\Exception $e) {
-            // Rollback en caso de cualquier error
-            DB::rollBack();
-            return response()->json(['error' => 'Error al guardar la evaluación: ' . $e->getMessage()], 500);
+            // Encontrar la tarea y validar su existencia
+            $tarea = Tarea::findOrFail($tareaData['id_tarea']);
+            
+            // Actualizar los datos de la tarea
+            $tarea->calificacion = $calificacion; // Asignar la calificación
+            $tarea->observaciones = $tareaData['observaciones'] ?? null;
+            $tarea->revisado = $tareaData['revisado'];
+            $tarea->save();
+
+            // Obtener los estudiantes asociados a la tarea
+            $estudiantes = EstudianteTarea::where('id_tarea', $tarea->id_tarea)->with('estudiante')->get();
+            if ($estudiantes->isEmpty()) {
+                return response()->json(['error' => 'No se encontraron estudiantes asociados a la tarea'], 422);
+            }
+
+            // Iterar sobre los estudiantes y crear o actualizar el registro en detalle_tarea
+            foreach ($estudiantes as $estudianteTarea) {
+                // Verificar si ya existe un registro de detalle para la tarea y la semana
+                $detalleTarea = DetalleTarea::where('id_tarea', $tarea->id_tarea)
+                    ->where('semana_sprint', $request->week)
+                    ->first();
+
+                if (!$detalleTarea) {
+                    // Crear un nuevo registro si no existe
+                    DetalleTarea::create([
+                        'id_tarea' => $tarea->id_tarea,
+                        'semana_sprint' => $request->week,
+                        'nom_estudiante' => $estudianteTarea->estudiante->nombre_estudiante,
+                        'nom_tarea' => $tarea->nombre_tarea,
+                        'calificacion_tarea' => "{$calificacion} / {$porcentajeMaximo}",
+                        'observaciones_tarea' => $tareaData['observaciones'] ?? '',
+                        'revisado_tarea' => $tareaData['revisado'],
+                        'revisado_semanas' => $request->week_revisado
+                    ]);
+                } else {
+                    // Actualizar el registro existente
+                    $detalleTarea->update([
+                        'nom_estudiante' => $estudianteTarea->estudiante->nombre_estudiante,
+                        'nom_tarea' => $tarea->nombre_tarea,
+                        'calificacion_tarea' => "{$calificacion} / {$porcentajeMaximo}",
+                        'observaciones_tarea' => $tareaData['observaciones'] ?? '',
+                        'revisado_tarea' => $tareaData['revisado'],
+                        'revisado_semanas' => $request->week_revisado
+                    ]);
+                }
+            }
         }
 
-        // Responder con un mensaje de éxito
-        return response()->json(['message' => 'Evaluación guardada con éxito.']);
+        // Confirmar la transacción
+        DB::commit();
+    } catch (\Exception $e) {
+        // Rollback en caso de cualquier error
+        DB::rollBack();
+        return response()->json(['error' => 'Error al guardar la evaluación: ' . $e->getMessage()], 500);
     }
+
+    // Responder con un mensaje de éxito
+    return response()->json(['message' => 'Evaluación guardada con éxito.']);
+}
+
 
 
     // Obtener la evaluación de una semana que ya fue revisada

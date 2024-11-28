@@ -33,12 +33,14 @@ class NotasSprint extends Model
         'nota_tarea' => 'int',
         'nota_ev_pares' => 'int',
         'nota_auto_ev' => 'int',
+        'nota_total' => 'int',
     ];
 
     protected $fillable = [
         'nota_tarea',
         'nota_ev_pares',
         'nota_auto_ev',
+        'nota_total',
         'id_tarea',
     ];
 

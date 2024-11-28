@@ -20,6 +20,7 @@ use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\NotaController;
+use App\Http\Controllers\PlanillaNotasController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -175,4 +176,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/configNotas', [NotaController::class, 'update']);
     Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
 
+    //Planilla Notas
+    Route::get('/equipos', [PlanillaNotasController::class, 'getEquipos']);
+    Route::get('/sprints/{empresaId}', [PlanillaNotasController::class, 'getSprints']);
+    Route::get('/nota-evaluacion/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
+    Route::get('/evaluacion-pares/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'calcularEvaluacionPares']);
+    Route::get('/sumatoria-notas/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
+    
+    //Planillas Notas Finales 
 });

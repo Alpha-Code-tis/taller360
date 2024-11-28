@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('nota_tarea')->nullable();
             $table->integer('nota_ev_pares')->nullable();
             $table->integer('nota_auto_ev')->nullable();
+            $table->integer('nota_total')->nullable();
 
             $table->unique(['id_notas_sprint'], 'notas_sprints_pk');
         });

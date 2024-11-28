@@ -127,6 +127,7 @@ const EvaluationForm = () => {
       setError('Por favor, complete todos los campos.');
       return;
     }
+    console.log(members);
 
     try {
       const response = await axios.post(`${API_URL}/save`, {
