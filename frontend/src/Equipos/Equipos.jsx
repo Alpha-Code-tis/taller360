@@ -294,8 +294,8 @@ const Equipos = () => {
         </table>
       </div>
 
-      <Modal show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
+      <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header>
           <Modal.Title>{currentEquipo ? 'Editar Equipo' : 'Agregar Equipo'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>

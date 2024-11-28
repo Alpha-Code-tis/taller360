@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Box,
   Drawer,
@@ -17,27 +18,43 @@ import {
   Menu,
   MenuItem,
 } from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Assessment as AssessmentIcon,
-  Person as PersonIcon,
-  ExpandLess as ExpandLessIcon,
-  ExpandMore as ExpandMoreIcon,
-  Group as GroupIcon,
-  NoteAlt as NoteAltIcon,
-  School as SchoolIcon,
-  Groups as GroupsIcon,
-  FactCheck as FactCheckIcon,
-  CalendarMonth as CalendarMonthIcon,
-  Timeline as TimelineIcon,
-  AssignmentTurnedIn as AssignmentTurnedInIcon,
-  Checklist as ChecklistIcon,
-  Settings as SettingsIcon,
-} from '@mui/icons-material';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import Collapse from '@mui/material/Collapse';
+import MuiAppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import AssessmentIcon from '@mui/icons-material/Assessment';
+import PersonIcon from '@mui/icons-material/Person';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import ListItem from '@mui/material/ListItem';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'; // Importación añadida
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'; // Importación añadida
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import GroupIcon from '@mui/icons-material/Group';
 import { FaUserCircle } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import logo from '../img/logo.jpeg';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
+import PersonIcon from '@mui/icons-material/Person';
+import ExpandLess from '@mui/icons-material/ExpandLess';
+import ExpandMore from '@mui/icons-material/ExpandMore';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import SchoolIcon from '@mui/icons-material/School';
+import { FaUserCircle } from 'react-icons/fa';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
+import FactCheckIcon from '@mui/icons-material/FactCheck';
+import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import logo from '../img/logo.jpeg';
+import { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { API_URL } from '../config';
@@ -49,6 +66,8 @@ import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
+import SettingsIcon from '@mui/icons-material/Settings';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -112,10 +131,8 @@ export default function PersistentDrawerLeft() {
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState('');
   const [sprintSeleccionado, setSprintSeleccionado] = useState('');
   const [empresas, setEmpresas] = useState([]);
-  const [sprints, setSprints] = useState([]);
+  const [sprints, setSprints] = useState([]); 
   const [notaPares, setNotaPares] = useState('');
-  const [cruzadaStart, setCruzadaStart] = useState('');
-  const [cruzadaEnd, setCruzadaEnd] = useState('');
 
   const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
   const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
@@ -127,10 +144,12 @@ export default function PersistentDrawerLeft() {
   const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
 
   // Estado para el botón seleccionado
-  const [selectedButton, setSelectedButton] = useState(null);
 
   // Estados para controlar el submenú de Evaluaciones
   const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
+  const [cruzadaStart, setCruzadaStart] = useState('');
+  const [cruzadaEnd, setCruzadaEnd] = useState('');
+
 
   useEffect(() => {
     // Obtener el rol y nombre del localStorage al montar el componente
@@ -148,20 +167,20 @@ export default function PersistentDrawerLeft() {
       fetchNotasPorEmpresaYSprint(empresaSeleccionada, sprintSeleccionado);
     }
   }, [empresaSeleccionada, sprintSeleccionado]);
-
+  
   const fetchNotasPorEmpresaYSprint = async (empresaId, sprintId) => {
     try {
       const response = await axios.get(
-        `${API_URL}configNotasDocente/${empresaId}/${sprintId}`,
+        `${API_URL}configNotasDocente/${empresaId}/${sprintId}`, 
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`, // Requiere autenticación
           },
         }
       );
-
+      
       const data = response.data;
-
+  
       // Actualiza los campos de evaluación con los datos obtenidos
       setAutoEvalNota(data.autoevaluacion ?? '');
       setParesEvalNota(data.pares ?? '');
@@ -170,24 +189,23 @@ export default function PersistentDrawerLeft() {
       toast.error('No se pudieron cargar las notas para la empresa y sprint seleccionados.');
     }
   };
-
   const fetchEmpresas = async () => {
     try {
       const response = await axios.get(`${API_URL}listarEmpresas/2-2024`);
       setEmpresas(response.data || []); // Suponiendo que el array de empresas viene aquí
     } catch (error) {
-      toast.error('No se pudieron cargar las empresas.');
+      toast.error("No se pudieron cargar las empresas.");
     }
   };
-
   const fetchSprints = async (empresaId) => {
     try {
       const response = await axios.get(`${API_URL}listarSprintsEmpresa/${empresaId}`);
       setSprints(response.data || []); // Filtra los sprints según la empresa
     } catch (error) {
-      toast.error('No se pudieron cargar los sprints.');
+      toast.error("No se pudieron cargar los sprints.");
     }
   };
+  }, []); // Se ejecuta solo una vez al montar el componente
 
   const fetchFechas = async () => {
     try {
@@ -198,13 +216,15 @@ export default function PersistentDrawerLeft() {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
-      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? '');
-      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');
+      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? ''); 
+      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');    
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
   };
+
+  
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -244,11 +264,12 @@ export default function PersistentDrawerLeft() {
     const payload = {
       fecha_inicio_autoevaluacion: autoEvalStart,
       fecha_fin_autoevaluacion: autoEvalEnd,
-      fecha_inicio_eva_cruzada: cruzadaStart,
-      fecha_fin_eva_cruzada: cruzadaEnd,
+      fecha_inicio_eva_cruzada: cruzadaStart, 
+      fecha_fin_eva_cruzada: cruzadaEnd,    
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
       nota_pares: notaPares,
+      notificacion_eva: notificacion, 
     };
 
     try {
@@ -327,9 +348,22 @@ export default function PersistentDrawerLeft() {
 
       // Mostrar el mensaje de error junto con los datos que se intentaron enviar
       toast.error(errorMessage);
+  // Estado para el botón seleccionado
+  const [selectedButton, setSelectedButton] = useState(null);
+
+  // Estados para controlar el submenú de Evaluaciones
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
+
+  const handleButtonClick = (buttonName) => {
+    setSelectedButton(buttonName);
+    if (buttonName === 'evaluaciones') {
+      setEvaluacionesOpen(!evaluacionesOpen);
+    } else {
+      setEvaluacionesOpen(false);
     }
   };
 
+  const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
     setSelectedButton(buttonName);
     if (buttonName === 'evaluaciones') {
@@ -371,35 +405,9 @@ export default function PersistentDrawerLeft() {
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            <Menu
-              anchorEl={settingsMenuAnchor}
-              open={Boolean(settingsMenuAnchor)}
-              onClose={handleSettingsMenuClose}
-            >
-              <MenuItem
-                onClick={() => {
-                  setModalShow(true);
-                  handleSettingsMenuClose();
-                }}
-              >
-                Habilitar vistas
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setTeamConfigModalShow(true);
-                  handleSettingsMenuClose();
-                }}
-              >
-                Conformación de Equipos
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setEvaluacionModalShow(true);
-                  handleSettingsMenuClose();
-                }}
-              >
-                Configuración de Evaluaciones
-              </MenuItem>
+            <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
+              <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
+              <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
             </Menu>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
@@ -421,7 +429,7 @@ export default function PersistentDrawerLeft() {
         }}
         variant="persistent"
         anchor="left"
-        open={open}
+        open={open || !isMobile}
         onClose={handleDrawerClose}
       >
         <div className="d-flex flex-column align-items-center">
@@ -482,6 +490,7 @@ export default function PersistentDrawerLeft() {
               </ListItem>
 
               {/* Tareas Estudiante */}
+
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -503,14 +512,16 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
-              {/* Evaluaciones */}
+              
+
+              {/* Seguimiento */}
+
               <ListItem disablePadding>
                 <ListItemButton
                   onClick={() => handleButtonClick('evaluaciones')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -541,77 +552,72 @@ export default function PersistentDrawerLeft() {
                 </List>
               </Collapse>
 
-              {/* Seguimiento */}
+
               <ListItem disablePadding>
                 <ListItemButton
-                  component={Link}
-                  to="/Seguimiento"
-                  onClick={() => handleButtonClick('seguimiento')}
+                  onClick={() => handleButtonClick('evaluaciones')}
                   sx={{
                     borderRadius: '8px',
                     backgroundColor:
-                      selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                      selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <TimelineIcon />
+                    <SchoolIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
+                  <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+                  {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
 
               {/* Autoevaluación */}
-              {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') &&
-                dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      component={Link}
-                      to="/Autoevaluacion"
-                      onClick={() => handleButtonClick('autoevaluacion')}
-                      sx={{
-                        borderRadius: '8px',
-                        backgroundColor:
-                          selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: '#1A3254',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <SchoolIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                )}
+              {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to="/Autoevaluacion"
+                    onClick={() => handleButtonClick('autoevaluacion')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                      <SchoolIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
+                  </ListItemButton>
+                </ListItem>
+              )}
 
-              {/* Evaluación Pares */}
-              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') &&
-                dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      component={Link}
-                      to="/EvaluacionPares"
-                      onClick={() => handleButtonClick('evaluacionPares')}
-                      sx={{
-                        borderRadius: '8px',
-                        backgroundColor:
-                          selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: '#1A3254',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <FactCheckIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                )}
+              {/* EvaluacionPares */}
+              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+                <ListItem disablePadding>
+                  <ListItemButton
+                    component={Link}
+                    to="/EvaluacionPares"
+                    onClick={() => handleButtonClick('evaluacionPares')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                      <FactCheckIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
+                  </ListItemButton>
+                </ListItem>
+              )}
             </>
           )}
 
@@ -637,10 +643,11 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Docentes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+              
             </>
           )}
 
-          {/* Menú para Docente */}
+          {/* Docente */}
           {role === 'docente' && (
             <>
               <ListItem disablePadding>
@@ -692,8 +699,7 @@ export default function PersistentDrawerLeft() {
                   onClick={() => handleButtonClick('listaAutoevaluacion')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -713,8 +719,7 @@ export default function PersistentDrawerLeft() {
                   onClick={() => handleButtonClick('criterioEvaluacion')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -734,8 +739,7 @@ export default function PersistentDrawerLeft() {
                   onClick={() => handleButtonClick('EvaluationForm')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -748,7 +752,7 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
-              {/* Reportes */}
+              {/* Planillas Semanales */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -763,31 +767,9 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <AssessmentIcon />
+                    <CalendarMonthIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-
-              {/* Evaluación Entre Equipos */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/EvaluacionEntreEquipos"
-                  onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <GroupIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
@@ -799,8 +781,7 @@ export default function PersistentDrawerLeft() {
                   onClick={() => handleButtonClick('planillaNotas')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -812,7 +793,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-
+              
               {/* Planilla de Notas Final */}
               <ListItem disablePadding>
                 <ListItemButton
@@ -821,8 +802,7 @@ export default function PersistentDrawerLeft() {
                   onClick={() => handleButtonClick('planillaNotasFinal')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -835,7 +815,50 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
-              {/* Modals */}
+              
+
+              {/* Botón de Reportes */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Reportes"
+                  onClick={() => handleButtonClick('Reportes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'Reportes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssessmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              {/* Botón de Evaluación Entre Equipos */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/EvaluacionEntreEquipos"
+                  onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <GroupIcon /> {/* Puedes reemplazar este ícono por uno relacionado con equipos */}
+                  </ListItemIcon>
+                  <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+
               {/* Modal Conformación de Equipos */}
               <Modal
                 show={teamConfigModalShow}
@@ -920,7 +943,7 @@ export default function PersistentDrawerLeft() {
 
               {/* Modal Habilitar Vistas */}
               <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
-                <Modal.Header closeButton>
+                <Modal.Header>
                   <Modal.Title>Habilitar vistas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -932,18 +955,31 @@ export default function PersistentDrawerLeft() {
                       <div className="d-flex justify-content-between">
                         <Form.Label>
                           Fecha Inicio
+                          <Form.Control type="date" value={autoEvalStart} onChange={(e) => setAutoEvalStart(e.target.value)} />
+                        </Form.Label>
+                        <Form.Label>
+                          Fecha Fin
+                          <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Cruzada</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          Fecha Inicio
                           <Form.Control
                             type="date"
-                            value={autoEvalStart}
-                            onChange={(e) => setAutoEvalStart(e.target.value)}
+                            value={cruzadaStart} 
+                            onChange={(e) => setCruzadaStart(e.target.value)} 
                           />
                         </Form.Label>
                         <Form.Label>
                           Fecha Fin
                           <Form.Control
                             type="date"
-                            value={autoEvalEnd}
-                            onChange={(e) => setAutoEvalEnd(e.target.value)}
+                            value={cruzadaEnd} 
+                            onChange={(e) => setCruzadaEnd(e.target.value)} 
                           />
                         </Form.Label>
                       </div>
@@ -955,42 +991,11 @@ export default function PersistentDrawerLeft() {
                       <div className="d-flex justify-content-between">
                         <Form.Label>
                           Fecha Inicio
-                          <Form.Control
-                            type="date"
-                            value={cruzadaStart}
-                            onChange={(e) => setCruzadaStart(e.target.value)}
-                          />
+                          <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />
                         </Form.Label>
                         <Form.Label>
                           Fecha Fin
-                          <Form.Control
-                            type="date"
-                            value={cruzadaEnd}
-                            onChange={(e) => setCruzadaEnd(e.target.value)}
-                          />
-                        </Form.Label>
-                      </div>
-                    </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label>
-                        <strong>Evaluación Pares</strong>
-                      </Form.Label>
-                      <div className="d-flex justify-content-between">
-                        <Form.Label>
-                          Fecha Inicio
-                          <Form.Control
-                            type="date"
-                            value={finalEvalStart}
-                            onChange={(e) => setFinalEvalStart(e.target.value)}
-                          />
-                        </Form.Label>
-                        <Form.Label>
-                          Fecha Fin
-                          <Form.Control
-                            type="date"
-                            value={finalEvalEnd}
-                            onChange={(e) => setFinalEvalEnd(e.target.value)}
-                          />
+                          <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
                         </Form.Label>
                       </div>
                       {/* Nota Pares */}
@@ -1017,13 +1022,7 @@ export default function PersistentDrawerLeft() {
                   </Button>
                 </Modal.Footer>
               </Modal>
-
-              {/* Modal Configuración de Evaluaciones */}
-              <Modal
-                show={evaluacionModalShow}
-                onHide={() => setEvaluacionModalShow(false)}
-                centered
-              >
+              <Modal show={evaluacionModalShow} onHide={() => setEvaluacionModalShow(false)} centered>
                 <Modal.Header closeButton>
                   <Modal.Title>Configuración de Evaluaciones</Modal.Title>
                 </Modal.Header>
@@ -1031,9 +1030,7 @@ export default function PersistentDrawerLeft() {
                   <Form>
                     {/* Selección de Empresa */}
                     <Form.Group className="mb-3">
-                      <Form.Label>
-                        <strong>Seleccionar Empresa</strong>
-                      </Form.Label>
+                      <Form.Label><strong>Seleccionar Empresa</strong></Form.Label>
                       <Form.Select
                         value={empresaSeleccionada}
                         onChange={(e) => {
@@ -1052,17 +1049,15 @@ export default function PersistentDrawerLeft() {
 
                     {/* Selección de Sprint */}
                     <Form.Group className="mb-3">
-                      <Form.Label>
-                        <strong>Seleccionar Sprint</strong>
-                      </Form.Label>
+                      <Form.Label><strong>Seleccionar Sprint</strong></Form.Label>
                       <Form.Select
                         value={sprintSeleccionado}
                         onChange={(e) => setSprintSeleccionado(e.target.value)}
                       >
                         <option value="">Selecciona un sprint</option>
                         {sprints.map((sprint) => (
-                          <option key={sprint.id_sprint} value={sprint.id_sprint}>
-                            {sprint.nro_sprint}
+                          <option key={sprint} value={sprint}>
+                            {sprint}
                           </option>
                         ))}
                       </Form.Select>
@@ -1072,9 +1067,7 @@ export default function PersistentDrawerLeft() {
                     <div className="row">
                       <div className="col-md-6">
                         <Form.Group className="mb-3">
-                          <Form.Label>
-                            <strong>Autoevaluación</strong>
-                          </Form.Label>
+                          <Form.Label><strong>Autoevaluación</strong></Form.Label>
                           <Form.Control
                             type="number"
                             value={autoEvalNota}
@@ -1084,9 +1077,7 @@ export default function PersistentDrawerLeft() {
                       </div>
                       <div className="col-md-6">
                         <Form.Group className="mb-3">
-                          <Form.Label>
-                            <strong>Evaluación Pares</strong>
-                          </Form.Label>
+                          <Form.Label><strong>Evaluación Pares</strong></Form.Label>
                           <Form.Control
                             type="number"
                             value={paresEvalNota}
@@ -1099,9 +1090,7 @@ export default function PersistentDrawerLeft() {
                     <div className="row">
                       <div className="col-md-6">
                         <Form.Group className="mb-3">
-                          <Form.Label>
-                            <strong>Evaluación Docente</strong>
-                          </Form.Label>
+                          <Form.Label><strong>Evaluación Docente</strong></Form.Label>
                           <Form.Control
                             type="number"
                             value={docenteEvalNota}
@@ -1121,12 +1110,16 @@ export default function PersistentDrawerLeft() {
                   </Button>
                 </Modal.Footer>
               </Modal>
+
             </>
           )}
         </List>
         <Divider />
       </Drawer>
-      <Main open={open}>{/* Contenido principal */}</Main>
+      <Main open={open}>
+        {/* Contenido principal */}
+      </Main>
     </Box>
   );
 }
+

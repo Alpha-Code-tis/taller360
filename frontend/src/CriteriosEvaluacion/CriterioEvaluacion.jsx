@@ -261,7 +261,7 @@ const totalPorcentaje = filteredCriterios.reduce(
       </div>
 
             {/* Modal para agregar/editar criterio*/}
-        <Modal show={showModal} onHide={handleCloseModal}className="custom-width-modal">
+        <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
           <Modal.Body className='custom-modal'>
             <Form>
               <Row className="mb-3">
