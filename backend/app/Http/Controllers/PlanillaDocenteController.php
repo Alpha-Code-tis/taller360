@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empresa;
+use App\Models\Estudiante;
+use App\Models\EstudianteTarea;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
@@ -13,10 +15,11 @@ class PlanillaDocenteController extends Controller
     public function mostrarEmpresas()
     {
         // Obtener el docente autenticado
+
         $docente = Auth::user();
 
         // Obtener las empresas asociadas a los grupos que el docente tiene asignados
-        $empresas = Empresa::whereHas('grupos', function($query) use ($docente) {
+        $empresas = Empresa::whereHas('grupos', function ($query) use ($docente) {
             $query->where('id_docente', $docente->id_docente);
         })->get();
 
@@ -27,39 +30,75 @@ class PlanillaDocenteController extends Controller
     {
         // Obtener el docente autenticado
         $docente = Auth::user();
+        // Verificar si el docente está autenticado
+        if (!$docente) {
+            return response()->json([
+                'error' => 'Docente no autenticado.'
+            ], 401);
+        }
 
-        // Verificar que la empresa pertenece a un grupo del docente
-        $empresa = Empresa::where('id_empresa', $empresaId)
-                          ->whereHas('grupos', function($query) use ($docente) {
-                              $query->where('id_docente', $docente->id_docente);
-                          })->firstOrFail();
+        $empresas = Estudiante::whereNotNull('id_empresa')
+            ->whereNotNull('id_representante')
+            ->where('id_grupo', $docente->id_grupo)
+            ->pluck('id_empresa')
+            ->unique();
 
-        // Obtener los sprints de la empresa
-        $sprints = Sprint::where('id_planificacion', $empresa->planificacion->id_planificacion)->get();
+        // Verificar si hay empresas asociadas
+        if ($empresas->isEmpty()) {
+            return response()->json([
+                'message' => 'No se encontraron empresas para este docente.'
+            ], 404);
+        }
+        $detallesEmpresas = Empresa::whereIn('id_empresa', $empresas)->get();
+
+        // Retornar las empresas en formato JSON
+        return response()->json([
+            'empresas' => $detallesEmpresas
+        ]);
+    }
+
+    // Obtener los sprints de una empresa seleccionada
+    public function getSprintsByEmpresa($empresaId)
+    {
+        $sprints = Sprint::whereIn('id_planificacion', function ($query) use ($empresaId) {
+            $query->select('id_planificacion')
+                ->from('planificacion')
+                ->where('id_empresa', $empresaId);
+        })->get();
 
         return response()->json($sprints);
     }
 
-    public function mostrarTareas($sprintId)
+
+    public function mostrarTareas($empresaId, $sprintId)
     {
-        // Obtener el docente autenticado
-        $docente = Auth::user();
+        // Filtrar las tareas de la empresa seleccionada y sprint seleccionado
+        $tareas = Tarea::whereHas('alcance', function ($query) use ($empresaId, $sprintId) {
+            $query->whereHas('sprint', function ($query) use ($empresaId, $sprintId) {
+                $query->where('id_sprint', $sprintId) // Filtrar por el sprint seleccionado
+                    ->whereHas('planificacion', function ($query) use ($empresaId) {
+                        $query->where('id_empresa', $empresaId); // Filtrar por la empresa seleccionada
+                    });
+            });
+        })->where(function ($query) {
+            $query->whereIn('estado', ['Pendiente', 'En Progreso'])
+                ->orWhere(function ($query) {
+                    $query->where('estado', 'Terminado')->where('revisado', false);
+                });
+        })->get();
 
-        // Obtener tareas del sprint seleccionado
-        $sprint = Sprint::where('id_sprint', $sprintId)
-                        ->whereHas('planificacion.empresa.grupos', function($query) use ($docente) {
-                            $query->where('id_docente', $docente->id_docente);
-                        })->firstOrFail();
+        // Agregar los nombres de los responsables (estudiantes) para cada tarea
+        $tareasConResponsables = $tareas->map(function ($tarea) {
+            $responsables = EstudianteTarea::where('id_tarea', $tarea->id_tarea)
+                ->with('estudiante')
+                ->get()
+                ->pluck('estudiante.nombre_estudiante')
+                ->implode(', ');
+            $tarea->responsables = $responsables;
+            return $tarea;
+        });
 
-        // Obtener las tareas del sprint
-        $tareas = Tarea::whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))->with('estudiantes')->get();
-
-        // Añadir el símbolo de porcentaje al progreso
-        foreach ($tareas as $tarea) {
-            $tarea->progreso = $tarea->progreso . ' %';
-        }
-
-        return response()->json($tareas);
+        return response()->json($tareasConResponsables);
     }
 
     public function actualizarProgreso(Request $request, $tareaId)
@@ -72,17 +111,10 @@ class PlanillaDocenteController extends Controller
         // Obtener el docente autenticado
         $docente = Auth::user();
 
-        // Obtener la tarea y verificar que pertenece al grupo del docente
+        // Obtener la tarea y verificar que pertenece al grupo del docente,
+        // filtrando también por empresa y sprint
         $tarea = Tarea::where('id_tarea', $tareaId)
-                      ->whereHas('alcance.sprint.planificacion.empresa.grupos', function($query) use ($docente) {
-                          $query->where('id_docente', $docente->id_docente);
-                      })->firstOrFail();
-
-        // Verificar que la fecha actual está dentro del rango del sprint
-        $sprint = $tarea->alcance->sprint;
-        if (now()->lt($sprint->fecha_inicio) || now()->gt($sprint->fecha_fin)) {
-            return response()->json(['error' => 'Fuera del rango de fechas permitidas del sprint'], 403);
-        }
+            ->firstOrFail();
 
         // Actualizar el progreso de la tarea
         $tarea->progreso = $request->input('progreso');
@@ -101,6 +133,7 @@ class PlanillaDocenteController extends Controller
         return response()->json(['message' => 'Progreso de la tarea actualizado correctamente']);
     }
 
+
     public function verAvances($tareaId)
     {
         // Obtener el docente autenticado
@@ -108,9 +141,7 @@ class PlanillaDocenteController extends Controller
 
         // Obtener la tarea y verificar que pertenece al grupo del docente
         $tarea = Tarea::where('id_tarea', $tareaId)
-                      ->whereHas('alcance.sprint.planificacion.empresa.grupos', function($query) use ($docente) {
-                          $query->where('id_docente', $docente->id_docente);
-                      })->firstOrFail();
+            ->firstOrFail();
 
         // Obtener la lista de avances
         $avances = $tarea->avances ? explode(",", $tarea->avances) : [];

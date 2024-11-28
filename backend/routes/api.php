@@ -21,6 +21,7 @@ use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\CruzadaController;
 use App\Http\Controllers\ReporteController;
+use App\Http\Controllers\NotaController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -194,4 +195,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reporte', [ReporteController::class, 'generarReporte']);
     Route::get('/equiposGestion/{gestion}', [EmpresaController::class, 'getEquiposConEvaluaciones']);
 Route::get('/sprintsTareas/{equipoId}', [TareaController::class, 'getSprintsConTareas']);
+    //Configuración de notas
+    Route::get('/configNotas', [NotaController::class, 'index']);
+    Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);
+    Route::put('/configNotas', [NotaController::class, 'update']);
+    Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
+
 });
