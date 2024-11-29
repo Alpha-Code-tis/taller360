@@ -13,6 +13,9 @@ const FinalGradeTable = () => {
   const [dataTable, setDataTable] = useState([]); // Datos de estudiantes y notas
   const [numSprints, setNumSprints] = useState(0); // Número de sprints dinámico
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   // Obtener la lista de equipos al montar el componente
   useEffect(() => {
     const fetchTeams = async () => {
@@ -22,7 +25,7 @@ const FinalGradeTable = () => {
         setTeams(response.data.empresas);
       } catch (error) {
         console.error('Error al obtener equipos:', error);
-        // Manejar el error si es necesario
+        setErrorMessage("Error al obtener equipos.");
       }
     };
     fetchTeams();
@@ -47,6 +50,7 @@ const FinalGradeTable = () => {
           console.error("Error al obtener notas de estudiantes:", error);
           setDataTable([]); // Asegurarse de que dataTable sea un arreglo
           setNumSprints(0);
+          setErrorMessage("Error al obtener notas de estudiantes.");
         });
     } else {
       setDataTable([]);
@@ -61,7 +65,8 @@ const FinalGradeTable = () => {
   const handleUpdateFinalGrades = () => {
     // Validar que los valores no excedan 100
     if (parseFloat(maxSprintScore) + parseFloat(maxCrossEval) > 100) {
-      alert("La suma de Nota Sprint y Evaluación Cruzada no debe superar 100.");
+      setErrorMessage("La suma de Nota Sprint y Evaluación Cruzada no debe superar 100.");
+      setSuccessMessage("");
       return;
     }
 
@@ -86,16 +91,91 @@ const FinalGradeTable = () => {
       .catch((error) => {
         console.error("Error al actualizar notas finales:", error);
         if (error.response && error.response.data.error) {
-          alert(error.response.data.error);
+          setErrorMessage(error.response.data.error);
         } else {
-          alert("Error al actualizar notas finales.");
+          setErrorMessage("Error al actualizar notas finales.");
         }
+        setSuccessMessage("");
       });
   };
+  const handleCloseSuccess = () => setSuccessMessage("");
+  const handleCloseError = () => setErrorMessage("");
+
+  // Opcional: Ocultar mensajes automáticamente después de 5 segundos
+  useEffect(() => {
+    let timer;
+    if (successMessage) {
+      timer = setTimeout(() => {
+        handleCloseSuccess();
+      }, 5000); // Ocultar después de 5 segundos
+    }
+    return () => clearTimeout(timer);
+  }, [successMessage]);
+
+  useEffect(() => {
+    let timer;
+    if (errorMessage) {
+      timer = setTimeout(() => {
+        handleCloseError();
+      }, 5000); // Ocultar después de 5 segundos
+    }
+    return () => clearTimeout(timer);
+  }, [errorMessage]);
+
 
   return (
     <div className="container">
       <h1 className="title">Planilla de Notas Final</h1>
+      {/* Mensajes de Éxito y Error */}
+      {successMessage && (
+        <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '10px 20px',
+          backgroundColor: 'white', // Verde claro
+          color: 'black',           // Verde oscuro
+          border: '1px solid #c3e6cb',
+          borderRadius: '5px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          fontWeight: 'bold',
+          zIndex: 1000,               // Asegura que el mensaje esté por encima de otros elementos
+          opacity: successMessage ? 1 : 0,
+          transition: 'opacity 0.5s ease-in-out',
+          fontFamily: 'Arial, sans-serif', // Fuente específica para el mensaje
+          fontSize: '12px',                // Tamaño de fuente específico para el mensaje
+        }}
+      >
+        {successMessage}
+      </div>
+    )}
+    {errorMessage && (
+      <div
+        style={{
+          position: 'fixed',
+          bottom: '20px',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          padding: '10px 20px',
+          backgroundColor: 'white', // Rojo claro
+          color: 'black',           // Rojo oscuro
+          border: '1px solid #f5c6cb',
+          borderRadius: '5px',
+          boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+          fontWeight: 'bold',
+          zIndex: 1000,               // Asegura que el mensaje esté por encima de otros elementos
+          opacity: errorMessage ? 1 : 0,
+          transition: 'opacity 0.5s ease-in-out',
+          fontFamily: 'Arial, sans-serif', // Fuente específica para el mensaje
+          fontSize: '12px',                // Tamaño de fuente específico para el mensaje
+        }}
+      >
+        {errorMessage}
+      </div>
+    )}
+
       <div className="filter">
         <div style={{ display: 'inline-block', width: '32%', marginBottom: '15px', marginRight: '1%', verticalAlign: 'top' }}>
           <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#333' }}>Equipo:</label>
@@ -119,36 +199,64 @@ const FinalGradeTable = () => {
           </select>
         </div>
       </div>
-      {selectedTeam && (
-        <div className="inputs">
-          <label>
-            Nota Sprint (%):
-            <input
-              type="number"
-              value={maxSprintScore}
-              onChange={(e) => setMaxSprintScore(e.target.value)}
-              min="0"
-              max="100"
-              style={{ marginLeft: '10px', marginRight: '20px' }}
-            />
-          </label>
-          <label>
-            Evaluación Cruzada (%):
-            <input
-              type="number"
-              value={maxCrossEval}
-              onChange={(e) => setMaxCrossEval(e.target.value)}
-              min="0"
-              max="100"
-              style={{ marginLeft: '10px' }}
-            />
-          </label>
-          <button onClick={handleUpdateFinalGrades} style={{ marginLeft: '20px', padding: '8px 16px' }}>
-            Actualizar Notas Finales
-          </button>
-        </div>
-      )}
+
       <div className="table-container">
+        {selectedTeam && (
+          <div className="inputs">
+            <label>
+              Nota Sprint (%):
+              <input
+                type="number"
+                value={maxSprintScore}
+                onChange={(e) => setMaxSprintScore(e.target.value)}
+                min="0"
+                max="100"
+                style={{
+                  marginLeft: '10px',
+                  marginRight: '20px',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  border: '2px solid #AEC6CF',
+                  padding: '10px',
+                  borderRadius: '4px' // Añadido para mejor apariencia
+                }}
+              />
+            </label>
+            <label>
+              Evaluación Cruzada (%):
+              <input
+                type="number"
+                value={maxCrossEval}
+                onChange={(e) => setMaxCrossEval(e.target.value)}
+                min="0"
+                max="100"
+                style={{
+                  marginLeft: '10px',
+                  marginRight: '20px',
+                  backgroundColor: 'white',
+                  color: 'black',
+                  border: '2px solid #AEC6CF',
+                  padding: '10px',
+                  borderRadius: '4px' // Añadido para mejor apariencia
+                }}
+              />
+            </label>
+            <button onClick={handleUpdateFinalGrades}
+              style={{
+                marginLeft: '10px',
+                marginRight: '20px',
+                backgroundColor: '#2D5981', // Añadido '#' para código de color válido
+                color: 'white', // Cambiado a 'white' para mejor contraste
+                border: '2px solid #AEC6CF',
+                padding: '10px',
+                borderRadius: '4px', // Añadido para mejor apariencia
+                cursor: 'pointer' // Añadido para indicar que es clickable
+              }}>
+              Actualizar Notas Finales
+
+            </button>
+          </div>
+        )}
         <table>
           <thead>
             <tr>
@@ -156,7 +264,7 @@ const FinalGradeTable = () => {
               {[...Array(numSprints)].map((_, index) => (
                 <th key={index}>Sprint {index + 1}</th>
               ))}
-              <th>Promedio Sprint</th>
+              <th>Nota Sprints</th>
               <th>Nota Cruzada</th>
               <th>Nota Final</th>
             </tr>
@@ -186,7 +294,7 @@ const FinalGradeTable = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={(5 + numSprints) || '5'}>No hay datos disponibles.</td>
+                <td colSpan={(numSprints) || 0}>No hay datos disponibles.</td>
               </tr>
             )}
           </tbody>
