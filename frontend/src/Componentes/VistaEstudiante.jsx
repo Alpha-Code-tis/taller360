@@ -19,6 +19,8 @@ import logo from '../img/logo.jpeg';
 import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'; // Importación añadida
+import Collapse from '@mui/material/Collapse'; // Asegúrate de importar Collapse
 import SchoolIcon from '@mui/icons-material/School';
 import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
 import FactCheckIcon from '@mui/icons-material/FactCheck';
@@ -99,6 +101,7 @@ const DrawerHeader = styled('div')(({ theme }) => ({
 
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
   const [nombre, setNombre] = useState(''); // Estado para el nombre
@@ -108,6 +111,8 @@ export default function PersistentDrawerLeft() {
   const [finalEvalEnd, setFinalEvalEnd] = useState('');
   const [autoEvalStart, setAutoEvalStart] = useState('');
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
+  const [selectedButton, setSelectedButton] = useState(null);
+
 
 
   useEffect(() => {
@@ -123,15 +128,15 @@ export default function PersistentDrawerLeft() {
 
   const fetchFechas = async () => {
     try {
-        const response = await axios.get(`${API_URL}ajustes`);
-        const data = response.data;
+      const response = await axios.get(`${API_URL}ajustes`);
+      const data = response.data;
 
-        setFinalEvalStart(data.fecha_inicio_eva_final);
-        setFinalEvalEnd(data.fecha_fin_eva_final);
-        setAutoEvalStart(data.fecha_inicio_autoevaluacion);
-        setAutoEvalEnd(data.fecha_fin_autoevaluacion);
+      setFinalEvalStart(data.fecha_inicio_eva_final);
+      setFinalEvalEnd(data.fecha_fin_eva_final);
+      setAutoEvalStart(data.fecha_inicio_autoevaluacion);
+      setAutoEvalEnd(data.fecha_fin_autoevaluacion);
     } catch (error) {
-        toast.error('No se recuperaron los datos.');
+      toast.error('No se recuperaron los datos.');
     }
   };
 
@@ -162,8 +167,10 @@ export default function PersistentDrawerLeft() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
-  const [selectedButton, setSelectedButton] = useState(null);
   const handleButtonClick = (buttonName) => {
+    if (buttonName === 'evaluaciones') {
+      setEvaluacionesOpen(!evaluacionesOpen);
+    }
     setSelectedButton(buttonName);
   };
 
@@ -278,6 +285,67 @@ export default function PersistentDrawerLeft() {
             </ListItemButton>
           </ListItem>
 
+
+          {/* Evaluaciones */}
+          <ListItem disablePadding>
+            <ListItemButton
+              onClick={() => handleButtonClick('evaluaciones')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <SchoolIcon />
+              </ListItemIcon>
+              <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+              {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+            </ListItemButton>
+          </ListItem>
+
+          {/* Submenú de Evaluaciones */}
+          <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+            <List component="div" disablePadding>
+              <ListItem disablePadding>
+                <ListItemButton
+                  sx={{ pl: 4 }}
+                  component={Link} // Se agrega Link para navegación
+                  to="/Cruzada"  // Ruta a la página de Evaluaciones Cruzada
+                  onClick={() => handleButtonClick('cruzada')}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <PersonIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          </Collapse>
+
+          {/* Otras opciones compartidas */}
+          <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/PlanillasSemanales"
+              onClick={() => handleButtonClick('planillas')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <CalendarMonthIcon />
+              </ListItemIcon>
+              <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
           <ListItem disablePadding>
             <ListItemButton
               component={Link}
@@ -340,29 +408,29 @@ export default function PersistentDrawerLeft() {
                 <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
               </ListItemButton>
             </ListItem>
-            )}
+          )}
 
           {/* EvaluacionPares */}
           {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
             <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/EvaluacionPares"
-              onClick={() => handleButtonClick('evaluacionPares')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <FactCheckIcon />
-              </ListItemIcon>
-              <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
+              <ListItemButton
+                component={Link}
+                to="/EvaluacionPares"
+                onClick={() => handleButtonClick('evaluacionPares')}
+                sx={{
+                  borderRadius: '8px',
+                  backgroundColor: selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
+                  '&:hover': {
+                    backgroundColor: '#1A3254',
+                  },
+                }}
+              >
+                <ListItemIcon sx={{ color: 'white' }}>
+                  <FactCheckIcon />
+                </ListItemIcon>
+                <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
+              </ListItemButton>
+            </ListItem>
           )}
         </List>
         <Divider />

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 use App\Models\Docente;
 use App\Models\Empresa;
@@ -9,7 +10,9 @@ use App\Models\Sprint;
 use App\Models\Tarea;
 use App\Models\DetalleTarea;
 use App\Models\Estudiante;
+use App\Models\Evaluacion;
 use App\Models\EstudianteTarea;
+use App\Models\Cruzada;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -237,5 +240,40 @@ class EvaluacionController extends Controller
                 $query->where('id_sprint', $sprintId);
             })->distinct()->get();
         return response()->json($detalleTareas);
+    }
+
+    public function guardarEvaluacion(Request $request)
+    {
+        $validatedData = $request->validate([
+            'tarea_id' => 'required|exists:tarea,id_tarea',
+            'nota' => 'required|integer|min:1|max:100',
+            'feedback' => 'nullable|string',
+            'id_empresa' => 'required|integer|exists:empresa,id_empresa', 
+            'id_estudiante' => 'required|integer|exists:estudiante,id_estudiante', // Validación del estudiante evaluado
+        ]);
+        $usuarioEvaluador = Auth::user();
+    
+        if (!$usuarioEvaluador) {
+            return response()->json(['error' => 'Usuario no autenticado'], 401);
+        }
+    
+        // Guardar la evaluación
+        $evaluacion = new Evaluacion();
+        $evaluacion->tarea_id = $validatedData['tarea_id'];
+        $evaluacion->id_estudiante = $validatedData['id_estudiante']; // Estudiante evaluado
+        $evaluacion->nota = $validatedData['nota'];
+        $evaluacion->feedback = $validatedData['feedback'] ?? null;
+        $evaluacion->id_empresa = $validatedData['id_empresa'];
+        $evaluacion->save();
+    
+        // Asociar criterios
+        foreach ($request->criterios as $criterio) {
+            $evaluacion->criterios()->attach($criterio['criterio_id'], ['valor' => $criterio['valor']]);
+        }
+
+        return response()->json([
+            'message' => 'Evaluación guardada exitosamente.',
+            'data' => $evaluacion
+        ], Response::HTTP_CREATED);
     }
 }

@@ -14,10 +14,23 @@ use Illuminate\Support\Facades\Storage;
 
 class EmpresaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return Empresa::with(['cantidad', 'representate_legal', 'planificacion'])->get();
+        $gestionActual = '2-2024'; // Gestión predeterminada
+        $gestion = $request->input('gestion', $gestionActual); // Filtro de gestión
+    
+        // Filtrar equipos por gestión
+        $equipos = Empresa::with(['cantidad', 'representate_legal', 'planificacion'])
+            ->where('gestion', $gestion)
+            ->get();
+    
+        if ($equipos->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
+        }
+    
+        return response()->json($equipos, 200);
     }
+
 
     public function gestiones()
     {
@@ -227,4 +240,41 @@ class EmpresaController extends Controller
             return response()->json(['error' => 'Error al actualizar la empresa: ' . $e->getMessage()], 500);
         }
     }
+
+    public function getEquiposConEvaluaciones($gestion)
+{
+    try {
+        // Obtener equipos de la gestión con evaluaciones cruzadas
+        $equipos = Empresa::with(['planificacion.sprints.alcances.tareas', 'evaluacionesCruzadas'])
+            ->where('gestion', $gestion)
+            ->get();
+
+        if ($equipos->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
+        }
+
+        return response()->json($equipos, 200);
+    } catch (\Exception $e) {
+        Log::error('Error al obtener equipos y evaluaciones cruzadas: ' . $e->getMessage());
+        return response()->json(['message' => 'Error al obtener los equipos'], 500);
+    }
+}
+public function getReporteEmpresa($id_empresa)
+{
+    try {
+        $empresa = Empresa::with([
+            'estudiantes',
+            'planificacions.sprints.alcances.tareas',
+            'evaluacionesCruzadas.evaluador',
+            'criterios',
+        ])->findOrFail($id_empresa);
+
+        return response()->json($empresa, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['error' => 'Empresa no encontrada'], 404);
+    } catch (\Exception $e) {
+        Log::error('Error al obtener el reporte de la empresa: ' . $e->getMessage());
+        return response()->json(['error' => 'Error al obtener el reporte'], 500);
+    }
+}
 }

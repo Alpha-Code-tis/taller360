@@ -282,8 +282,8 @@ const EvaluationForm = () => {
           style={{
             padding: '10px 20px',
             border: 'none',
-            backgroundColor: '#f5f5f5',
-            color: '#333',
+            backgroundColor: '#6c757d',
+            color: '#ddd',
             borderRadius: '4px',
             cursor: 'pointer',
             boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',

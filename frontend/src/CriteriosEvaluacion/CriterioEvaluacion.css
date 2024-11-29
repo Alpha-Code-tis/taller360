@@ -1,3 +1,9 @@
+.modal.modal-custom .modal-content {
+    background-color: #c2c9dc; 
+    padding: 20px; 
+    border-radius: 10px;
+}
+
 .table-container {
     max-width: 100%;
     max-height: 400px;

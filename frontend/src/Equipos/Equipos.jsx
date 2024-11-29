@@ -33,6 +33,7 @@ const Equipos = () => {
   const fetchEquipos = async () => {
     try {
       const response = await axios.get(`${API_URL}equipos`);
+      console.log(response.data); // Verifica aquí si `gestion` está incluido
       setEquipos(response.data);
       setFilteredEquipos(response.data);
     } catch (error) {
@@ -266,7 +267,7 @@ const Equipos = () => {
             <tr>
               <th>Nombre del Equipo</th>
               <th>Correo de la Empresa</th>
-              <th>Teléfono</th>
+              <th>Gestion</th>
               <th>Acciones</th>
             </tr>
           </thead>
@@ -293,8 +294,8 @@ const Equipos = () => {
         </table>
       </div>
 
-      <Modal show={showModal} onHide={handleCloseModal} centered>
-        <Modal.Header closeButton>
+      <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header>
           <Modal.Title>{currentEquipo ? 'Editar Equipo' : 'Agregar Equipo'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>

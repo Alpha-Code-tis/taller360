@@ -19,6 +19,8 @@ use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\EvaluacionParesController;
+use App\Http\Controllers\CruzadaController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotaController;
 use App\Http\Controllers\PlanillaNotasController;
 use App\Models\Planificacion;
@@ -142,7 +144,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Tarea
     Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
+    Route::get('/tareas/tareasEmpresa/{empresaId}', [TareaController::class, 'mostrarTodasLasTareas']);
     Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
+    Route::get('/tareas', [TareaController::class, 'mostrarTarea']);
     Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
     Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
     Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);
@@ -153,6 +157,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/criterios', [CriterioController::class, 'store']);
     Route::put('/criterios/{id_criterio}', [CriterioController::class, 'update']);
     Route::delete('/criterios/{id_criterio}', [CriterioController::class, 'destroy']);
+    Route::get('/criterios/tarea/{tareaId}', [CriterioController::class, 'criteriosPorTarea']);
+
     //Gestion-Cantidad
     Route::post('/gestion', [CantidadGestionController::class, 'store']);
 
@@ -165,10 +171,32 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluation/save', [EvaluacionController::class, 'saveEvaluation'])->name('evaluation.save');
     Route::get('/evaluation/reviewed/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek'])->name('evaluation.reviewed');
     Route::get('/evaluation/sprint/{sprintId}', [EvaluacionController::class, 'getSprintPercentage']);
+    Route::post('autoevaluacion/evaluaciones/', [EvaluacionController::class, 'guardarEvaluacion']);
+
 
     //Evaluación pares
     Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
+
+    // Rutas de Evaluación Cruzada
+    Route::get('/cruzada/planillas', [PlanillaController::class, 'obtenerPlanillasCruzada']);
+    Route::get('/cruzada/empresas', [CruzadaController::class, 'getEmpresas']);
+    Route::get('/cruzada/empresas/{id}/estudiantes', [CruzadaController::class, 'getEstudiantesByEmpresa']);
+    Route::post('/cruzada', [CruzadaController::class, 'guardarEvaluacion']);
+    Route::get('/cruzada', [CruzadaController::class, 'obtenerEvaluaciones']);
+    Route::get('/cruzada/equipos', [CruzadaController::class, 'getEquiposCruzada']);
+    Route::post('/empresa/subir', [CruzadaController::class, 'guardarDriveYEspecificaciones']);
+    Route::get('/empresa/detalle/{empresaId}', [CruzadaController::class, 'obtenerDriveYEspecificaciones']);
+    Route::post('cruzada/guardar-nota', [CruzadaController::class, 'guardarNotaCruzada']);
+    Route::get('cruzada/notas/{idEmpresa}', [CruzadaController::class, 'obtenerNotas']);
+    Route::get('cruzada/mis-notas', [CruzadaController::class, 'obtenerMisNotas']);
+
+
+    // Reportes por Equipo
+    Route::post('/reporte', [ReporteController::class, 'generarReporte']);
+    Route::get('/equiposGestion/{gestion}', [EmpresaController::class, 'getEquiposConEvaluaciones']);
+    Route::get('/sprintsTareas/{equipoId}', [TareaController::class, 'getSprintsConTareas']);
+    Route::get('empresa/{id_empresa}/reporte', [EmpresaController::class, 'getReporteEmpresa']);
 
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);

@@ -43,7 +43,10 @@ class Evaluacion extends Model
 		'id_empresa' => 'int',
 		'id_autoe' => 'int',
 		'nota' => 'int',
-		'tiempo' => 'datetime'
+		'tiempo' => 'datetime',
+		'id_estudiante' => 'int',
+		'tarea_id' => 'int',
+		'feedback' => 'string'
 	];
 
 	protected $fillable = [
@@ -52,7 +55,10 @@ class Evaluacion extends Model
 		'id_empresa',
 		'id_autoe',
 		'nota',
-		'tiempo'
+		'tiempo',
+		'id_estudiante',
+		'tarea_id',
+		'feedback'
 	];
 
 	public function pare()
@@ -80,13 +86,24 @@ class Evaluacion extends Model
 		return $this->hasMany(Autoevaluacion::class, 'id_evaluacion');
 	}
 
-	public function cruzadas()
-	{
-		return $this->hasMany(Cruzada::class, 'id_evaluacion');
-	}
-
 	public function pares()
 	{
 		return $this->hasMany(Pare::class, 'id_evaluacion');
 	}
+	// Relación con Estudiante
+	public function estudiante()
+	{
+		return $this->belongsTo(Estudiante::class, 'id_estudiante');
+	}
+	// Relación con Tarea
+	public function tarea()
+	{
+		return $this->belongsTo(Tarea::class, 'tarea_id');
+	}
+	// En el modelo Evaluacion
+public function criterios()
+{
+    return $this->belongsToMany(Criterio::class, 'evaluacion_criterio', 'evaluacion_id', 'id_criterio')
+                ->withPivot('valor');  // Esto asocia el campo `valor` a la tabla pivot
+}
 }

@@ -40,4 +40,16 @@ class Tarea extends Model
     {
         return $this->belongsTo(Alcance::class, 'id_alcance');
     }
+
+    // Relación con Criterios
+    public function criterios()
+    {
+        return $this->hasMany(Criterio::class, 'tarea_id', 'tarea_id');
+    }
+
+    // Relación con Evaluaciones
+    public function evaluacion()
+    {
+        return $this->hasMany(Evaluacion::class, 'tarea_id');
+    }
 }

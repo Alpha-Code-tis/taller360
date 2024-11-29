@@ -9,7 +9,7 @@ class Criterio extends Model
 {
     protected $table = 'criterios';
     protected $primaryKey = 'id_criterio';
-    protected $fillable = ['id_criterio','nombre', 'descripcion', 'porcentaje'];
+    protected $fillable = ['id_criterio','nombre', 'descripcion', 'porcentaje', 'tarea_id'];
 
     // Relación muchos a muchos con evaluaciones cruzadas
     public function cruzadas(): BelongsToMany
@@ -28,4 +28,15 @@ class Criterio extends Model
     {
         return $this->belongsToMany(Estudiante::class, 'estudiante_criterio', 'id_criterio', 'id_estudiante_evaluado');
     }
+
+    // Relación con Tarea
+    public function tarea()
+    {
+        return $this->belongsTo(Tarea::class, 'tarea_id');
+    }
+    public function empresa()
+{
+    return $this->belongsTo(Empresa::class, 'empresa_id', 'id_empresa');
+}
+
 }
