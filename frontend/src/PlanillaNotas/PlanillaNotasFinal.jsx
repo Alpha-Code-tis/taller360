@@ -1,131 +1,153 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./PlanillaNotasFinal.css";
+
+// **Configurar la URL base para Axios**
+axios.defaults.baseURL = 'http://localhost:8000/api';
 
 const FinalGradeTable = () => {
   const [selectedTeam, setSelectedTeam] = useState("");
-  const [maxSprintScore, setMaxSprintScore] = useState( ); // Valor editable para Nota Sprint
-  const [maxCrossEval, setMaxCrossEval] = useState(); // Valor editable para Ev. Cruzada
+  const [maxSprintScore, setMaxSprintScore] = useState(0); // Valor editable para Nota Sprint
+  const [maxCrossEval, setMaxCrossEval] = useState(0); // Valor editable para Ev. Cruzada
+  const [teams, setTeams] = useState([]); // **Declaración e inicialización de 'teams'**
+  const [dataTable, setDataTable] = useState([]); // Datos de estudiantes y notas
 
-  const dataTable = [
-    {
-      name: "Maria Johnson",
-      sprint1: 20,
-      sprint2: 88,
-      sprint3: 88,
-      sprint4: 88,
-      sprintGrade: 88,
-      crossEval: 88,
-      finalGrade: 80,
-      team: "Alpha code",
-    },
-    {
-      name: "Maria Vargas",
-      sprint1: 17,
-      sprint2: 30,
-      sprint3: 76,
-      sprint4: 76,
-      sprintGrade: 76,
-      crossEval: 88,
-      finalGrade: 76,
-      team: "Alpha code",
-    },
-    {
-      name: "Laura Brown",
-      sprint1: 70,
-      sprint2: 10,
-      sprint3: 50,
-      sprint4: 50,
-      sprintGrade: 50,
-      crossEval: 88,
-      finalGrade: 50,
-      team: "Code Soft",
-    },
-    {
-      name: "James Smith",
-      sprint1: 65,
-      sprint2: 30,
-      sprint3: 30,
-      sprint4: 30,
-      sprintGrade: 30,
-      crossEval: 88,
-      finalGrade: 30,
-      team: "Code Soft",
-    },
-    {
-      name: "Sarah Miller",
-      sprint1: 65,
-      sprint2: 65,
-      sprint3: 65,
-      sprint4: 65,
-      sprintGrade: 65,
-      crossEval: 88,
-      finalGrade: 65,
-      team: "Code Soft",
-    },
-  ];
+  // Obtener la lista de equipos al montar el componente
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const response = await axios.get('/equipos');
+        console.log("Equipos:", response.data.empresas); // Verificar los datos recibidos
+        setTeams(response.data.empresas);
+      } catch (error) {
+        console.error('Error al obtener equipos:', error);
+        // Manejar el error si es necesario
+      }
+    };
+    fetchTeams();
+  }, []);
 
-  const filteredData = dataTable.filter(
-    (row) => selectedTeam === "" || row.team === selectedTeam
-  );
+  // Obtener estudiantes y sus notas cuando se selecciona un equipo
+  useEffect(() => {
+    if (selectedTeam) {
+      axios
+        .get(`/estudiantes-con-notas/${selectedTeam}`)
+        .then((response) => {
+          console.log("Estudiantes y notas:", response.data); // Verificar los datos recibidos
+          setDataTable(response.data);
+        })
+        .catch((error) => {
+          console.error("Error al obtener notas de estudiantes:", error);
+          setDataTable([]); // Asegurarse de que dataTable sea un arreglo
+        });
+    } else {
+      setDataTable([]);
+    }
+  }, [selectedTeam]);
 
+  // Manejar cambios en la selección de equipo
   const handleTeamChange = (e) => setSelectedTeam(e.target.value);
+
+  // Actualizar las notas finales en el backend
+  const handleUpdateFinalGrades = () => {
+    // Validar que los valores no excedan 100
+    if (parseFloat(maxSprintScore) + parseFloat(maxCrossEval) > 100) {
+      alert("La suma de Nota Sprint y Evaluación Cruzada no debe superar 100.");
+      return;
+    }
+
+    axios
+      .post(`/actualizar-notas-finales/${selectedTeam}`, {
+        nota_valor_sprint: parseFloat(maxSprintScore),
+        nota_valor_cruzada: parseFloat(maxCrossEval),
+      })
+      .then((response) => {
+        alert(response.data.message);
+        // Volver a obtener los datos actualizados
+        axios
+          .get(`/estudiantes-con-notas/${selectedTeam}`)
+          .then((response) => {
+            setDataTable(response.data);
+          })
+          .catch((error) => {
+            console.error("Error al obtener notas de estudiantes:", error);
+            setDataTable([]); // Asegurarse de que dataTable sea un arreglo
+          });
+      })
+      .catch((error) => {
+        console.error("Error al actualizar notas finales:", error);
+        if (error.response && error.response.data.error) {
+          alert(error.response.data.error);
+        } else {
+          alert("Error al actualizar notas finales.");
+        }
+      });
+  };
 
   return (
     <div className="container">
       <h1 className="title">Planilla de Notas Final</h1>
       <div className="filter">
-        <label>
-          Equipos:
-          <select value={selectedTeam} onChange={handleTeamChange}>
+        <div style={{ display: 'inline-block', width: '32%', marginBottom: '15px', marginRight: '1%', verticalAlign: 'top' }}>
+          <label style={{ fontWeight: 'bold', display: 'block', marginBottom: '5px', color: '#333' }}>Equipo:</label>
+          <select value={selectedTeam} onChange={handleTeamChange} style={{ width: '100%', padding: '8px', border: '1px solid #ccc', borderRadius: '4px', boxSizing: 'border-box', backgroundColor: '#fff', color: '#000' }}>
             <option value="">Seleccionar equipo</option>
-            <option value="Alpha code">Alpha code</option>
-            <option value="Code Soft">Code Soft</option>
+            {teams.map((team) => (
+              <option key={team.id_empresa} value={team.id_empresa}>{team.nombre_empresa}</option>
+            ))}
           </select>
-        </label>
+        </div>
       </div>
+      {selectedTeam && (
+        <div className="inputs">
+          <label>
+            Nota Sprint:
+            <input
+              type="number"
+              value={maxSprintScore}
+              onChange={(e) => setMaxSprintScore(e.target.value)}
+            />
+          </label>
+          <label>
+            Ev. Cruzada:
+            <input
+              type="number"
+              value={maxCrossEval}
+              onChange={(e) => setMaxCrossEval(e.target.value)}
+            />
+          </label>
+          <button onClick={handleUpdateFinalGrades}>
+            Actualizar Notas Finales
+          </button>
+        </div>
+      )}
       <div className="table-container">
         <table>
           <thead>
             <tr>
               <th>Nombre</th>
-              <th>Sprint 1</th>
-              <th>Sprint 2</th>
-              <th>Sprint 3</th>
-              <th>Sprint 4</th>
-              <th>
-                Nota Sprint /{" "}
-                <input
-                  type="number"
-                  value={maxSprintScore}
-                  onChange={(e) => setMaxSprintScore(e.target.value)}
-                  className="input-header"
-                />
-              </th>
-              <th>
-                Ev. Cruzada /{" "}
-                <input
-                  type="number"
-                  value={maxCrossEval}
-                  onChange={(e) => setMaxCrossEval(e.target.value)}
-                  className="input-header"
-                />
-              </th>
-              <th>Nota Final / 100</th>
+              <th>Nota Total Sprint</th>
+              <th>Nota Cruzada</th>
+              <th>Nota Final</th>
             </tr>
           </thead>
           <tbody>
-            {filteredData.map((row, index) => (
-              <tr key={index}>
-                <td>{row.name}</td>
-                <td>{row.sprint1}</td>
-                <td>{row.sprint2}</td>
-                <td>{row.sprint3}</td>
-                <td>{row.sprint4}</td>
-                <td>{row.sprintGrade}</td>
-                <td>{row.crossEval}</td>
-                <td>{row.finalGrade}</td>
+            {Array.isArray(dataTable) ? (
+              dataTable.map((row, index) => (
+                <tr key={index}>
+                  <td>
+                    {row.nombre} {row.apellidos}
+                  </td>
+                  <td>{row.notaTotalSprint}</td>
+                  <td>{row.notaCruzada}</td>
+                  <td>{row.notaFin}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No hay datos disponibles.</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

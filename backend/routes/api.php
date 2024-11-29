@@ -23,6 +23,7 @@ use App\Http\Controllers\CruzadaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotaController;
 use App\Http\Controllers\PlanillaNotasController;
+use App\Http\Controllers\PlanillaNotasFinalesController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -210,6 +211,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/nota-evaluacion/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
     Route::get('/evaluacion-pares/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'calcularEvaluacionPares']);
     Route::get('/sumatoria-notas/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
-    
+
     //Planillas Notas Finales 
+    Route::get('/equipos', [PlanillaNotasFinalesController::class, 'getEquipos']);
+    Route::get('/estudiantes-con-notas/{empresaId}', [PlanillaNotasFinalesController::class, 'getEstudiantesConNotas']);
+    Route::post('/actualizar-notas-finales/{empresaId}', [PlanillaNotasFinalesController::class, 'actualizarNotasFinales']);
+    
 });

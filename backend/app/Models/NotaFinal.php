@@ -31,15 +31,19 @@ class NotaFinal extends Model
     protected $casts = [
         'id_notas_sprint' => 'int',
         'nota_total_sprint' => 'int',
-        'nota_cruzada' => 'int',
+        'notas_cruzada' => 'int',
+        'nota_valor_sprint' => 'int',
+        'nota_valor_cruzada' => 'int',
         'nota_fin' => 'int',
     ];
 
     protected $fillable = [
         'nota_total_sprint',
-        'nota_cruzada',
+        'notas_cruzada',
         'nota_fin',
         'id_notas_sprint',
+        'nota_valor_sprint',
+        'nota_valor_cruzada',
     ];
 
     public function tarea()
