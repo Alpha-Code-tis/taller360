@@ -1,237 +1,207 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Form, Table, Button, Alert, Spinner } from 'react-bootstrap';
-import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+import { API_URL } from '../config'; // Asegúrate de que la URL de tu API esté configurada correctamente
+import { Spinner, Table, Card, ListGroup, Dropdown, DropdownButton } from 'react-bootstrap';
+import './Reportes.css';
 
-const API_URL = 'http://localhost:8000/api/'; // Cambia según tu configuración
+const Reportes = () => {
+  const [empresas, setEmpresas] = useState([]);
+  const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
+  const [sprintSeleccionado, setSprintSeleccionado] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
-const Reporte = () => {
-  const [equipos, setEquipos] = useState([]);
-  const [sprints, setSprints] = useState([]);
-  const [tareas, setTareas] = useState([]);
-  const [evaluaciones, setEvaluaciones] = useState([]);
-  const [equipoSeleccionado, setEquipoSeleccionado] = useState('');
-  const [sprintSeleccionado, setSprintSeleccionado] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  // Obtener equipos de la gestión actual
   useEffect(() => {
-    const fetchEquipos = async () => {
-      setLoading(true);
+    const fetchEmpresas = async () => {
       try {
-        const response = await axios.get(`${API_URL}listarEmpresas/2-2024`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        setEquipos(response.data);
-      } catch (error) {
-        console.error('Error al cargar los equipos:', error);
-        setError('No se pudieron cargar los equipos.');
-      } finally {
+        const response = await axios.get(`${API_URL}empresa/gestion/2-2024`);
+        setEmpresas(response.data);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error al obtener los datos:', err);
+        setError(true);
         setLoading(false);
       }
     };
-    fetchEquipos();
+
+    fetchEmpresas();
   }, []);
 
-  // Obtener sprints del equipo seleccionado
-  useEffect(() => {
-    if (equipoSeleccionado) {
-      const fetchSprints = async () => {
-        setLoading(true);
-        try {
-          const response = await axios.get(`${API_URL}planilla/empresas/${equipoSeleccionado}/sprints`, {
-            headers: {
-              Authorization: `Bearer ${localStorage.getItem('token')}`,
-            },
-          });
-          setSprints(response.data);
-        } catch (error) {
-          console.error('Error al cargar los sprints:', error);
-          setError('No se pudieron cargar los sprints.');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchSprints();
-    } else {
-      setSprints([]);
-      setSprintSeleccionado('');
-    }
-  }, [equipoSeleccionado]);
-
-  // Obtener tareas y evaluaciones cruzadas
-  useEffect(() => {
-    if (sprintSeleccionado) {
-      const fetchData = async () => {
-        setLoading(true);
-        try {
-          const [tareasResponse, evaluacionesResponse] = await Promise.all([
-            axios.get(`${API_URL}sprints/${sprintSeleccionado}/tareas`, {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            }),
-            axios.get(`${API_URL}cruzada/notas/${equipoSeleccionado}`, {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            }),
-          ]);
-          setTareas(tareasResponse.data);
-          setEvaluaciones(evaluacionesResponse.data);
-        } catch (error) {
-          console.error('Error al cargar los datos:', error);
-          setError('No se pudieron cargar los datos.');
-        } finally {
-          setLoading(false);
-        }
-      };
-      fetchData();
-    } else {
-      setTareas([]);
-      setEvaluaciones([]);
-    }
-  }, [sprintSeleccionado]);
-
-  // Generar reporte en PDF
-  const generarPDF = () => {
-    const doc = new jsPDF();
-    doc.text('Reporte Completo', 20, 10);
-
-    if (tareas.length > 0) {
-      doc.text('Tareas del Sprint:', 10, 20);
-      const tareasData = tareas.map((tarea) => [
-        tarea.nombre_tarea,
-        tarea.estado,
-        `${tarea.progreso}%`,
-        tarea.estudiantes.map((est) => est.nombre_estudiante).join(', '),
-      ]);
-      doc.autoTable({
-        head: [['Tarea', 'Estado', 'Progreso', 'Responsables']],
-        body: tareasData,
-        startY: 30,
-      });
-    }
-
-    if (evaluaciones.length > 0) {
-      doc.text('Evaluaciones Cruzadas:', 10, doc.previousAutoTable.finalY + 10);
-      const evaluacionesData = evaluaciones.map((evaluacion) => [
-        evaluacion.criterio_nombre,
-        evaluacion.nota,
-      ]);
-      doc.autoTable({
-        head: [['Criterio', 'Nota']],
-        body: evaluacionesData,
-        startY: doc.previousAutoTable.finalY + 20,
-      });
-    }
-
-    doc.save('reporte.pdf');
+  const handleEquipoSeleccionado = (equipo) => {
+    setEquipoSeleccionado(equipo);
+    setSprintSeleccionado(null); // Reinicia el filtro de sprint al cambiar el equipo
   };
 
+  const handleSprintSeleccionado = (sprint) => {
+    setSprintSeleccionado(sprint);
+  };
+
+  if (loading) {
+    return (
+      <div className="text-center mt-5">
+        <Spinner animation="border" variant="primary" />
+        <p>Cargando datos...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return <p>Error al cargar los datos.</p>;
+  }
+
   return (
-    <div className="container mt-4">
-      <h1>Reporte de Seguimiento y Evaluación Cruzada</h1>
+    <div className="container mt-5">
+      <h1>Reporte de Gestión 2-2024</h1>
 
-      {error && <Alert variant="danger">{error}</Alert>}
+      {/* Filtros */}
+      <div className="mb-4 d-flex align-items-center">
+        <DropdownButton
+          id="dropdown-equipos"
+          title={equipoSeleccionado ? equipoSeleccionado.nombre_equipo : "Seleccionar Equipo"}
+          className="me-3"
+        >
+          {empresas.map((empresa) =>
+            empresa.equipos.map((equipo) => (
+              <Dropdown.Item
+                key={equipo.id_equipo}
+                onClick={() => handleEquipoSeleccionado(equipo)}
+              >
+                {equipo.nombre_equipo}
+              </Dropdown.Item>
+            ))
+          )}
+        </DropdownButton>
 
-      <Form className="mb-4">
-        <Form.Group>
-          <Form.Label>Equipo</Form.Label>
-          <Form.Select
-            value={equipoSeleccionado}
-            onChange={(e) => setEquipoSeleccionado(e.target.value)}
-            aria-label="Seleccionar equipo"
-          >
-            <option value="">Seleccione un equipo</option>
-            {equipos.map((equipo) => (
-              <option key={equipo.id_empresa} value={equipo.id_empresa}>
-                {equipo.nombre_empresa}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
+        <DropdownButton
+          id="dropdown-sprints"
+          title={sprintSeleccionado ? `Sprint ${sprintSeleccionado.nro_sprint}` : "Seleccionar Sprint"}
+          disabled={!equipoSeleccionado}
+        >
+          {equipoSeleccionado?.sprints.map((sprint) => (
+            <Dropdown.Item
+              key={sprint.id_sprint}
+              onClick={() => handleSprintSeleccionado(sprint)}
+            >
+              Sprint {sprint.nro_sprint}
+            </Dropdown.Item>
+          ))}
+        </DropdownButton>
+      </div>
 
-        <Form.Group className="mt-3">
-          <Form.Label>Sprint</Form.Label>
-          <Form.Select
-            value={sprintSeleccionado}
-            onChange={(e) => setSprintSeleccionado(e.target.value)}
-            aria-label="Seleccionar sprint"
-          >
-            <option value="">Seleccione un sprint</option>
-            {sprints.map((sprint) => (
-              <option key={sprint.id_sprint} value={sprint.id_sprint}>
-                Sprint {sprint.nro_sprint}
-              </option>
-            ))}
-          </Form.Select>
-        </Form.Group>
-      </Form>
+      {/* Detalle de la Empresa */}
+      {equipoSeleccionado && sprintSeleccionado && (
+        <>
+          <Card className="mb-4">
+            <Card.Header>Información de la Empresa</Card.Header>
+            <Card.Body>
+              <Card.Text>
+                <strong>Nombre:</strong> {equipoSeleccionado.empresa.nombre_empresa}
+              </Card.Text>
+              <Card.Text>
+                <strong>Dirección:</strong> {equipoSeleccionado.empresa.direccion}
+              </Card.Text>
+              <Card.Text>
+                <strong>Teléfono:</strong> {equipoSeleccionado.empresa.telefono}
+              </Card.Text>
+              <Card.Text>
+                <strong>Correo:</strong> {equipoSeleccionado.empresa.correo_empresa}
+              </Card.Text>
+            </Card.Body>
+          </Card>
 
-      {loading && <Spinner animation="border" />}
+          {/* Detalle del Sprint */}
+          <Card className="mb-4">
+            <Card.Header>Sprint {sprintSeleccionado.nro_sprint}</Card.Header>
+            <Card.Body>
+              <Card.Text>
+                <strong>Fecha Inicio:</strong> {sprintSeleccionado.fecha_inicio}
+              </Card.Text>
+              <Card.Text>
+                <strong>Fecha Fin:</strong> {sprintSeleccionado.fecha_fin}
+              </Card.Text>
+              <Card.Text>
+                <strong>Porcentaje:</strong> {sprintSeleccionado.porcentaje}%
+              </Card.Text>
 
-      {tareas.length > 0 && (
-        <div className="mt-4">
-          <h3>Tareas del Sprint Seleccionado</h3>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Tarea</th>
-                <th>Estado</th>
-                <th>Progreso</th>
-                <th>Responsables</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tareas.map((tarea) => (
-                <tr key={tarea.id_tarea}>
-                  <td>{tarea.nombre_tarea}</td>
-                  <td>{tarea.estado}</td>
-                  <td>{tarea.progreso}%</td>
-                  <td>
-                    {tarea.estudiantes.map((est) => est.nombre_estudiante).join(', ')}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      )}
+              {/* Tareas */}
+              {sprintSeleccionado.alcances && sprintSeleccionado.alcances.length > 0 ? (
+                sprintSeleccionado.alcances.map((alcance) => (
+                  <div key={alcance.id_alcance}>
+                    <Card.Title>Requerimiento: {alcance.descripcion}</Card.Title>
+                    {alcance.tareas && alcance.tareas.length > 0 ? (
+                      <Table striped bordered hover size="sm">
+                        <thead>
+                          <tr>
+                            <th>Nombre Tarea</th>
+                            <th>Estimación</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {alcance.tareas.map((tarea) => (
+                            <tr key={tarea.id_tarea}>
+                              <td>{tarea.nombre_tarea}</td>
+                              <td>{tarea.estimacion}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    ) : (
+                      <p>No hay tareas para este alcance.</p>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p>No hay alcances para este sprint.</p>
+              )}
+            </Card.Body>
+          </Card>
 
-      {evaluaciones.length > 0 && (
-        <div className="mt-4">
-          <h3>Evaluaciones Cruzadas</h3>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>Criterio</th>
-                <th>Nota</th>
-              </tr>
-            </thead>
-            <tbody>
-              {evaluaciones.map((evaluacion, index) => (
-                <tr key={index}>
-                  <td>{evaluacion.criterio_nombre}</td>
-                  <td>{evaluacion.nota}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </div>
-      )}
-
-      {(tareas.length > 0 || evaluaciones.length > 0) && (
-        <Button variant="primary" className="mt-4" onClick={generarPDF}>
-          Generar PDF
-        </Button>
+          {/* Evaluaciones Cruzadas */}
+          <Card className="mb-4">
+            <Card.Header>Evaluaciones Cruzadas</Card.Header>
+            {equipoSeleccionado.evaluaciones_cruzadas &&
+            equipoSeleccionado.evaluaciones_cruzadas.length > 0 ? (
+              equipoSeleccionado.evaluaciones_cruzadas.map((evaluacion) => (
+                <Card className="mb-3" key={evaluacion.id_cruzada}>
+                  <Card.Body>
+                    <Card.Text>
+                      <strong>Evaluador:</strong> {evaluacion.evaluador.nombre_empresa}
+                    </Card.Text>
+                    <Card.Text>
+                      <strong>Nota Total:</strong> {evaluacion.nota_cruzada}
+                    </Card.Text>
+                    {/* Detalle de notas por criterio */}
+                    {evaluacion.detalle_notas && (
+                      <Table striped bordered hover size="sm">
+                        <thead>
+                          <tr>
+                            <th>Criterio</th>
+                            <th>Nota</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {evaluacion.detalle_notas.map((detalle, index) => (
+                            <tr key={index}>
+                              <td>{detalle.criterio_nombre}</td>
+                              <td>{detalle.nota}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </Table>
+                    )}
+                  </Card.Body>
+                </Card>
+              ))
+            ) : (
+              <Card.Body>
+                <p>No hay evaluaciones cruzadas disponibles.</p>
+              </Card.Body>
+            )}
+          </Card>
+        </>
       )}
     </div>
   );
 };
 
-export default Reporte;
+export default Reportes;

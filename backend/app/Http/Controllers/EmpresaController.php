@@ -259,5 +259,22 @@ class EmpresaController extends Controller
         return response()->json(['message' => 'Error al obtener los equipos'], 500);
     }
 }
+public function getReporteEmpresa($id_empresa)
+{
+    try {
+        $empresa = Empresa::with([
+            'estudiantes',
+            'planificacions.sprints.alcances.tareas',
+            'evaluacionesCruzadas.evaluador',
+            'criterios',
+        ])->findOrFail($id_empresa);
 
+        return response()->json($empresa, 200);
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['error' => 'Empresa no encontrada'], 404);
+    } catch (\Exception $e) {
+        Log::error('Error al obtener el reporte de la empresa: ' . $e->getMessage());
+        return response()->json(['error' => 'Error al obtener el reporte'], 500);
+    }
+}
 }

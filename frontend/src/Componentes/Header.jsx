@@ -747,8 +747,28 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Formulario de Evaluación" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-
               {/* Reportes */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Reportes"
+                  onClick={() => handleButtonClick('reportes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'reportes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssessmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Planilla Semanales */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -765,7 +785,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssessmentIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
