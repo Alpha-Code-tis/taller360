@@ -43,6 +43,8 @@ import Form from 'react-bootstrap/Form';
 import { Row, Col } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Select from 'react-select';
+import StarIcon from '@mui/icons-material/Star';
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -134,7 +136,31 @@ export default function PersistentDrawerLeft() {
   const [notaPares, setNotaPares] = useState('');
   const [notificacion, setNotificacion] = useState('');
   const [redirected, setRedirected] = useState(false);
+  const [cruzadaStart, setCruzadaStart] = useState('');
+  const [cruzadaEnd, setCruzadaEnd] = useState('');
 
+
+    const [evaluacionesSeleccionadas, setEvaluacionesSeleccionadas] = useState([]);
+   
+
+    const opcionesEvaluaciones = [
+        { value: 'autoevaluacion', label: 'Autoevaluación' },
+        { value: 'eva_final', label: 'Evaluación Final' },
+        { value: 'eva_cruzada', label: 'Evaluación Cruzada' }
+    ];
+
+   
+
+    // Manejar la selección múltiple de evaluaciones
+    const handleEvaluacionesChange = selectedOptions => {
+        setEvaluacionesSeleccionadas(selectedOptions);
+    };
+
+    const handleChange = (e) => {
+      setNotificacion(e.target.value); // Actualiza el estado con el texto ingresado
+    };
+
+ 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
@@ -173,6 +199,9 @@ export default function PersistentDrawerLeft() {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
+      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? ''); 
+      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');    
+
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
@@ -258,10 +287,11 @@ export default function PersistentDrawerLeft() {
     const payload = {
       fecha_inicio_autoevaluacion: autoEvalStart,
       fecha_fin_autoevaluacion: autoEvalEnd,
+      fecha_inicio_eva_cruzada: cruzadaStart, 
+      fecha_fin_eva_cruzada: cruzadaEnd,    
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
       nota_pares: notaPares,
-      notificacion_eva: notificacion, 
     };
 
     try {
@@ -343,10 +373,8 @@ export default function PersistentDrawerLeft() {
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
-  const handleButtonClick = (buttonName) => {
-    setSelectedButton(buttonName);
-  };
 
+  
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <Box sx={{ display: 'flex' }}>
@@ -723,6 +751,27 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/CualificarResultados"
+                  onClick={() => handleButtonClick('CualificarRes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'CualificarRes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                  <StarIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Cualififcar Resultados" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
               {/* Modal Conformación de Equipos */}
               <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
                 <Modal.Header closeButton>
@@ -791,6 +840,27 @@ export default function PersistentDrawerLeft() {
                         </Form.Label>
                         <Form.Label>Fecha Fin
                           <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Cruzada</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          Fecha Inicio
+                          <Form.Control
+                            type="date"
+                            value={cruzadaStart} 
+                            onChange={(e) => setCruzadaStart(e.target.value)} 
+                          />
+                        </Form.Label>
+                        <Form.Label>
+                          Fecha Fin
+                          <Form.Control
+                            type="date"
+                            value={cruzadaEnd} 
+                            onChange={(e) => setCruzadaEnd(e.target.value)} 
+                          />
                         </Form.Label>
                       </div>
                     </Form.Group>
@@ -867,35 +937,37 @@ export default function PersistentDrawerLeft() {
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
-                    
                     <Form.Group className="mb-3">
-                      <Form.Label>Autoevaluación </Form.Label>
-                      <div>
-                        <p><strong>Fecha de inicio:</strong> {autoEvalStart ||'Fecha no disponible'}</p>
-                        <p><strong>Fecha de fin:</strong> {autoEvalEnd ||'Fecha no disponible'}</p>
-                      
-                      </div>
-                      <Form.Label>Evaluación Pares</Form.Label>
-
-                        <p><strong>Fecha de fin:</strong> {finalEvalStart ||'Fecha no disponible'}</p>
-                        <p><strong>Fecha de fin:</strong> {finalEvalEnd ||'Fecha no disponible'}</p>
-
-                      <div><Form.Label>Evaluación Cruzada</Form.Label>
-                        <p><strong>Fecha de fin:</strong> {finalEvalStart ||'Fecha no disponible'}</p>
-                        <p><strong>Fecha de fin:</strong> {finalEvalEnd ||'Fecha no disponible'}</p>
-                      </div>
-
+                    <Row>
+                      <Col md={12}>
+                        <Form.Group controlId="formEvaluaciones" className="mb-3">
+                          <Form.Label>Seleccionar Tipos de Evaluaciones</Form.Label>
+                          <Select
+                            isMulti
+                            name="evaluacionesSeleccionadas"
+                            value={evaluacionesSeleccionadas}
+                            options={opcionesEvaluaciones} 
+                            onChange={setEvaluacionesSeleccionadas} 
+                            placeholder="Selecciona evaluaciones"
+                          />
+                        </Form.Group>
+                      </Col>
+                    </Row>
 
 
                       {/* Detalles de notificacion */}
                       <div>
-                        <Form.Label><strong>Detalles </strong></Form.Label>
+                        <Form.Group className="mt-3">
+                          <Form.Label><strong>Detalles </strong></Form.Label>
                           <Form.Control
-                            type="text"
-                            value= {notificacion}
-                            onChange={(e) => setNotificacion(e.target.value)}
+                            as="textarea"
+                            rows={6}
+                            value={notificacion}
+                            onChange={handleChange}
+                            placeholder="Ingrese los detalles de la notificación"
                             style={{ width: "380px", height: "50px" }}
                           />
+                        </Form.Group>
                       </div>
                       
                     </Form.Group>
@@ -905,7 +977,7 @@ export default function PersistentDrawerLeft() {
                   <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>Cancelar</Button>
                   <Button variant="primary" onClick={handleSaveChangesNotif}>Enviar</Button>
                 </Modal.Footer>
-              </Modal>
+               </Modal> 
             </>
           )}
         </List>
