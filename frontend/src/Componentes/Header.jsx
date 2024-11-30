@@ -39,11 +39,9 @@ import 'dayjs/locale/es';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import { Row, Col } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
 import SettingsIcon from '@mui/icons-material/Settings';
 import Select from 'react-select';
+import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
 import StarIcon from '@mui/icons-material/Star';
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -138,27 +136,63 @@ export default function PersistentDrawerLeft() {
   const [redirected, setRedirected] = useState(false);
   const [cruzadaStart, setCruzadaStart] = useState('');
   const [cruzadaEnd, setCruzadaEnd] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState(''); 
+  const [toastVariant, setToastVariant] = useState('success'); 
+
+  // Estados para almacenar las opciones de evaluaciones y las fechas
+  const [fechas, setFechas] = useState([]);
+  const [selectedTipos, setSelectedTipos] = useState(["autoevaluacion"]); // Valor inicial por defecto
+
+  // Función para obtener las fechas de las evaluaciones basadas en los tipos seleccionados
+  const obtenerFechasEvaluaciones = async (tipos) => {
+    try {
+      let url = `${API_URL}listaFechasEvaluciones?tipos[]=${tipos[0]}`;
+      // Añadir más tipos si es necesario
+      if (tipos.length > 1) {
+        tipos.forEach((tipo) => {
+          url += `&tipos[]=${tipo}`;
+        });
+      }
+
+      // Hacer la solicitud GET
+      const response = await axios.get(url);
+
+      console.log(response.data);
+      // Actualizar el estado con las fechas recibidas
+      setFechas(response.data);
+    } catch (error) {
+      // Si hay un error, verificar la respuesta
+    if (error.response) {
+      // Respuesta de error del servidor (por ejemplo, 404)
+      console.error("Error del servidor:", error.response.status);
+      console.error("Respuesta del servidor:", error.response.data);
+    } else {
+      // Error en la solicitud
+      console.error("Error en la solicitud:", error.message);
+    }
+
+    }
+  };
+
+// useEffect para cargar las fechas cada vez que cambia la selección
+useEffect(() => {
+  obtenerFechasEvaluaciones(selectedTipos);
+}, [selectedTipos]); // Se ejecuta cada vez que `selectedTipos` cambie
 
 
-    const [evaluacionesSeleccionadas, setEvaluacionesSeleccionadas] = useState([]);
-   
+  // Manejar cambio en la selección del `select`
+  const handleChangee = (event) => {
+    const { value } = event.target;
+    // Si se selecciona una opción, actualizamos los tipos seleccionados
+    setSelectedTipos(value.split(','));
+  };
 
-    const opcionesEvaluaciones = [
-        { value: 'autoevaluacion', label: 'Autoevaluación' },
-        { value: 'eva_final', label: 'Evaluación Final' },
-        { value: 'eva_cruzada', label: 'Evaluación Cruzada' }
-    ];
 
-   
 
-    // Manejar la selección múltiple de evaluaciones
-    const handleEvaluacionesChange = selectedOptions => {
-        setEvaluacionesSeleccionadas(selectedOptions);
-    };
-
-    const handleChange = (e) => {
-      setNotificacion(e.target.value); // Actualiza el estado con el texto ingresado
-    };
+  const handleChange = (e) => {
+    setNotificacion(e.target.value); // Actualiza el estado con el texto ingresado
+  };
 
  
   useEffect(() => {
@@ -370,6 +404,27 @@ export default function PersistentDrawerLeft() {
 
   /**Enviar notificaciones*/
   const handleSaveChangesNotif = async () => {
+      const data = {
+        titulo:"Notificación de Evaluaciones",
+        mensaje: notificacion,
+        tipos: selectedTipos,
+      };
+
+    try {
+      await axios.post(`${API_URL}notificacion`, data);
+      setToastMessage('Notificación guardada correctamente');
+      setToastVariant('success');
+      setShowToast(true);
+    } catch (error) {
+      if (error.response) {
+        setToastMessage('Error al guardar la notificación: ' + error.response.data.message);
+        setToastVariant('danger');
+      } else {
+        setToastMessage('Error de red o de conexión');
+        setToastVariant('danger');
+      }
+      setShowToast(true);
+    }
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
@@ -768,7 +823,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                   <StarIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Cualififcar Resultados" sx={{ color: 'white' }} />
+                  <ListItemText primary="Cualificar Resultados" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
@@ -942,19 +997,38 @@ export default function PersistentDrawerLeft() {
                       <Col md={12}>
                         <Form.Group controlId="formEvaluaciones" className="mb-3">
                           <Form.Label>Seleccionar Tipos de Evaluaciones</Form.Label>
-                          <Select
-                            isMulti
-                            name="evaluacionesSeleccionadas"
-                            value={evaluacionesSeleccionadas}
-                            options={opcionesEvaluaciones} 
-                            onChange={setEvaluacionesSeleccionadas} 
-                            placeholder="Selecciona evaluaciones"
-                          />
+                          {/* Lista desplegable con las opciones */}
+                          <select onChange={handleChangee} value={selectedTipos.join(',')}>
+                            <option value="autoevaluacion"> Autoevaluación</option>
+                            <option value="pares">EV Pares</option>
+                            <option value="cruzada"> EV Cruzada</option>
+                            <option value="autoevaluacion,pares"> Autoevaluación + EV Pares</option>
+                            <option value="autoevaluacion,cruzada"> Autoevaluación + EV Cruzada</option>
+                            <option value="pares,cruzada"> EV Pares + EV Cruzada</option>
+                            <option value="autoevaluacion,pares,cruzada"> Autoevaluación + EV Pares + EV Cruzada</option>
+                          </select>
+                          {/* Mostrar las fechas de las evaluaciones seleccionadas */}
+                              <div>
+                                <label>Fechas de Evaluación:</label>
+                                <ul>
+                                  {Object.keys(fechas).length > 0 ? (
+                                    Object.keys(fechas).map((tipo) => (
+                                      <li key={tipo}>
+                                        <strong>{tipo}</strong>: 
+                                          {fechas[tipo].fecha_inicio && fechas[tipo].fecha_fin ? 
+                                            `${fechas[tipo].fecha_inicio} - ${fechas[tipo].fecha_fin}` : 
+                                            "Fecha no disponible"
+                                          }
+                                      </li>
+                                    ))
+                                  ) : (
+                                    <p>No se encontraron evaluaciones para mostrar.</p>
+                                  )}
+                                </ul>
+                              </div>
                         </Form.Group>
                       </Col>
                     </Row>
-
-
                       {/* Detalles de notificacion */}
                       <div>
                         <Form.Group className="mt-3">
@@ -972,6 +1046,17 @@ export default function PersistentDrawerLeft() {
                       
                     </Form.Group>
                   </Form>
+                  {/* Toast para mostrar el mensaje de éxito o error */}
+                  <Toast
+                    show={showToast}
+                    onClose={() => setShowToast(false)}
+                    delay={3000}
+                    autohide
+                    bg={toastVariant}
+                    className="position-fixed bottom-0 end-0 m-3"
+                  >
+                    <Toast.Body>{toastMessage}</Toast.Body>
+                  </Toast>
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>Cancelar</Button>
