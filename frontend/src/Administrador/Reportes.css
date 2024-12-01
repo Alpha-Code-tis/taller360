@@ -1,0 +1,45 @@
+.container {
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+/* Sección del filtro */
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+.empresa-select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+/* Detalles */
+.detalles {
+    margin-top: 30px;
+}
+
+.detalles h2 {
+    margin-bottom: 15px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    margin: 10px 0;
+}

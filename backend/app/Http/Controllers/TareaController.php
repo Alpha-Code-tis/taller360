@@ -28,34 +28,35 @@ class TareaController extends Controller
     }
 
     public function mostrarTareas($sprintId)
-    {
-        // Obtener el estudiante autenticado
-        $estudiante = auth()->guard('sanctum')->user();
+{
+    // Obtener el estudiante autenticado
+    $estudiante = auth()->guard('sanctum')->user();
 
-        if (!$estudiante) {
-            return response()->json(['error' => 'No autenticado'], 401);
-        }
-
-        // Verificar que el sprint pertenece a la empresa del estudiante
-        $planificacion = Planificacion::where('id_empresa', $estudiante->id_empresa)->first();
-        $sprint = Sprint::where('id_sprint', $sprintId)
-            ->where('id_planificacion', $planificacion->id_planificacion)
-            ->first();
-        if (!$sprint) {
-            return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
-        }
-        $alcances = $sprint->alcances()->pluck('id_alcance');
-        // Obtener las tareas asignadas al estudiante autenticado que pertenecen al alcance del sprint seleccionado
-        $idTareasDelEstudiante = EstudianteTarea::where('id_estudiante', $estudiante->id_estudiante)
-            ->pluck('id_tarea');
-        $tareasDelEstudiante = Tarea::whereIn('id_tarea', $idTareasDelEstudiante) // Filtrar por tareas del estudiante
-            ->whereIn('id_alcance', $alcances) // Filtrar por tareas que pertenecen al alcance del sprint
-            ->get();
-
-
-        return response()->json($tareasDelEstudiante);
+    if (!$estudiante) {
+        return response()->json(['error' => 'No autenticado'], 401);
     }
 
+    // Verificar que el sprint pertenece a la empresa del estudiante
+    $planificacion = Planificacion::where('id_empresa', $estudiante->id_empresa)->first();
+    $sprint = Sprint::where('id_sprint', $sprintId)
+        ->where('id_planificacion', $planificacion->id_planificacion)
+        ->first();
+
+    if (!$sprint) {
+        return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
+    }
+
+    $alcances = $sprint->alcances()->pluck('id_alcance');
+
+    // Obtener las tareas asignadas al estudiante con la relación pivote
+    $tareasDelEstudiante = Tarea::with(['estudiantes' => function ($query) use ($estudiante) {
+            $query->where('id_estudiante', $estudiante->id_estudiante);
+        }])
+        ->whereIn('id_alcance', $alcances)
+        ->get();
+
+    return response()->json($tareasDelEstudiante);
+}
     public function subirAvance(Request $request, $tareaId)
     {
         // Obtener el estudiante autenticado

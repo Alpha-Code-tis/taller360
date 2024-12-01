@@ -195,7 +195,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reporte', [ReporteController::class, 'generarReporte']);
     Route::get('/equiposGestion/{gestion}', [EmpresaController::class, 'getEquiposConEvaluaciones']);
     Route::get('/sprintsTareas/{equipoId}', [TareaController::class, 'getSprintsConTareas']);
-    Route::get('empresa/{id_empresa}/reporte', [EmpresaController::class, 'getReporteEmpresa']);
+    Route::get('empresa/{id_empresa}/reporte', [EmpresaController::class, 'getReporte']);
 
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);

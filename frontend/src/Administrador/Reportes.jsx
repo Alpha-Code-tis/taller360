@@ -1,207 +1,117 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config'; // Asegúrate de que la URL de tu API esté configurada correctamente
-import { Spinner, Table, Card, ListGroup, Dropdown, DropdownButton } from 'react-bootstrap';
+import { API_URL } from '../config';
 import './Reportes.css';
 
 const Reportes = () => {
-  const [empresas, setEmpresas] = useState([]);
-  const [equipoSeleccionado, setEquipoSeleccionado] = useState(null);
-  const [sprintSeleccionado, setSprintSeleccionado] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+    const [empresas, setEmpresas] = useState([]);
+    const [empresaSeleccionada, setEmpresaSeleccionada] = useState(null);
 
-  useEffect(() => {
-    const fetchEmpresas = async () => {
-      try {
-        const response = await axios.get(`${API_URL}empresa/gestion/2-2024`);
-        setEmpresas(response.data);
-        setLoading(false);
-      } catch (err) {
-        console.error('Error al obtener los datos:', err);
-        setError(true);
-        setLoading(false);
-      }
+    useEffect(() => {
+        axios.get(`${API_URL}equipos`)
+            .then(response => {
+                console.log('Empresas recibidas:', response.data);
+                setEmpresas(response.data);
+            })
+            .catch(error => console.error('Error al cargar las empresas:', error));
+    }, []);
+
+    const handleSelectChange = async (event) => {
+        const id_empresa = event.target.value;
+
+        try {
+          const response = await axios.get(`${API_URL}empresa/${id_empresa}/reporte`);
+          console.log('Detalles de la empresa seleccionada:', response.data);
+            setEmpresaSeleccionada(response.data);
+        } catch (error) {
+            console.error('Error al cargar los detalles de la empresa:', error);
+        }
     };
 
-    fetchEmpresas();
-  }, []);
-
-  const handleEquipoSeleccionado = (equipo) => {
-    setEquipoSeleccionado(equipo);
-    setSprintSeleccionado(null); // Reinicia el filtro de sprint al cambiar el equipo
-  };
-
-  const handleSprintSeleccionado = (sprint) => {
-    setSprintSeleccionado(sprint);
-  };
-
-  if (loading) {
     return (
-      <div className="text-center mt-5">
-        <Spinner animation="border" variant="primary" />
-        <p>Cargando datos...</p>
-      </div>
-    );
-  }
+        <div className="container">
+            <h1>Empresas de la Gestión 2-2024</h1>
 
-  if (error) {
-    return <p>Error al cargar los datos.</p>;
-  }
+            <div className="filter-section">
+                <label htmlFor="empresa-select">Filtrar Empresas:</label>
+                <select
+                    id="empresa-select"
+                    className="empresa-select"
+                    onChange={handleSelectChange}
+                    defaultValue=""
+                >
+                    <option value="" disabled>Selecciona una empresa</option>
+                    {empresas.map(empresa => (
+                        <option key={empresa.id_empresa} value={empresa.id_empresa}>
+                            {empresa.nombre_empresa}
+                        </option>
+                    ))}
+                </select>
+            </div>
 
-  return (
-    <div className="container mt-5">
-      <h1>Reporte de Gestión 2-2024</h1>
+            {empresaSeleccionada && (
+                <div className="detalles">
+                    <h2>Detalles de {empresaSeleccionada.nombre_empresa}</h2>
+                    <p><strong>Nombre corto:</strong> {empresaSeleccionada.nombre_corto}</p>
+                    <p><strong>Correo:</strong> {empresaSeleccionada.correo_empresa}</p>
+                    <p><strong>Teléfono:</strong> {empresaSeleccionada.telefono}</p>
+                    <p><strong>Dirección:</strong> {empresaSeleccionada.direccion}</p>
 
-      {/* Filtros */}
-      <div className="mb-4 d-flex align-items-center">
-        <DropdownButton
-          id="dropdown-equipos"
-          title={equipoSeleccionado ? equipoSeleccionado.nombre_equipo : "Seleccionar Equipo"}
-          className="me-3"
-        >
-          {empresas.map((empresa) =>
-            empresa.equipos.map((equipo) => (
-              <Dropdown.Item
-                key={equipo.id_equipo}
-                onClick={() => handleEquipoSeleccionado(equipo)}
-              >
-                {equipo.nombre_equipo}
-              </Dropdown.Item>
-            ))
-          )}
-        </DropdownButton>
-
-        <DropdownButton
-          id="dropdown-sprints"
-          title={sprintSeleccionado ? `Sprint ${sprintSeleccionado.nro_sprint}` : "Seleccionar Sprint"}
-          disabled={!equipoSeleccionado}
-        >
-          {equipoSeleccionado?.sprints.map((sprint) => (
-            <Dropdown.Item
-              key={sprint.id_sprint}
-              onClick={() => handleSprintSeleccionado(sprint)}
-            >
-              Sprint {sprint.nro_sprint}
-            </Dropdown.Item>
-          ))}
-        </DropdownButton>
-      </div>
-
-      {/* Detalle de la Empresa */}
-      {equipoSeleccionado && sprintSeleccionado && (
-        <>
-          <Card className="mb-4">
-            <Card.Header>Información de la Empresa</Card.Header>
-            <Card.Body>
-              <Card.Text>
-                <strong>Nombre:</strong> {equipoSeleccionado.empresa.nombre_empresa}
-              </Card.Text>
-              <Card.Text>
-                <strong>Dirección:</strong> {equipoSeleccionado.empresa.direccion}
-              </Card.Text>
-              <Card.Text>
-                <strong>Teléfono:</strong> {equipoSeleccionado.empresa.telefono}
-              </Card.Text>
-              <Card.Text>
-                <strong>Correo:</strong> {equipoSeleccionado.empresa.correo_empresa}
-              </Card.Text>
-            </Card.Body>
-          </Card>
-
-          {/* Detalle del Sprint */}
-          <Card className="mb-4">
-            <Card.Header>Sprint {sprintSeleccionado.nro_sprint}</Card.Header>
-            <Card.Body>
-              <Card.Text>
-                <strong>Fecha Inicio:</strong> {sprintSeleccionado.fecha_inicio}
-              </Card.Text>
-              <Card.Text>
-                <strong>Fecha Fin:</strong> {sprintSeleccionado.fecha_fin}
-              </Card.Text>
-              <Card.Text>
-                <strong>Porcentaje:</strong> {sprintSeleccionado.porcentaje}%
-              </Card.Text>
-
-              {/* Tareas */}
-              {sprintSeleccionado.alcances && sprintSeleccionado.alcances.length > 0 ? (
-                sprintSeleccionado.alcances.map((alcance) => (
-                  <div key={alcance.id_alcance}>
-                    <Card.Title>Requerimiento: {alcance.descripcion}</Card.Title>
-                    {alcance.tareas && alcance.tareas.length > 0 ? (
-                      <Table striped bordered hover size="sm">
-                        <thead>
-                          <tr>
-                            <th>Nombre Tarea</th>
-                            <th>Estimación</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {alcance.tareas.map((tarea) => (
-                            <tr key={tarea.id_tarea}>
-                              <td>{tarea.nombre_tarea}</td>
-                              <td>{tarea.estimacion}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
+                    <h3>Estudiantes en el equipo</h3>
+                    {empresaSeleccionada.estudiantes && empresaSeleccionada.estudiantes.length > 0 ? (
+                        <ul>
+                            {empresaSeleccionada.estudiantes.map(estudiante => (
+                                <li key={estudiante.id_estudiante}>
+                                    {estudiante.nombre_estudiante} {estudiante.ap_pat} {estudiante.ap_mat}
+                                </li>
+                            ))}
+                        </ul>
                     ) : (
-                      <p>No hay tareas para este alcance.</p>
+                        <p>No hay estudiantes asignados a esta empresa.</p>
                     )}
-                  </div>
-                ))
-              ) : (
-                <p>No hay alcances para este sprint.</p>
-              )}
-            </Card.Body>
-          </Card>
 
-          {/* Evaluaciones Cruzadas */}
-          <Card className="mb-4">
-            <Card.Header>Evaluaciones Cruzadas</Card.Header>
-            {equipoSeleccionado.evaluaciones_cruzadas &&
-            equipoSeleccionado.evaluaciones_cruzadas.length > 0 ? (
-              equipoSeleccionado.evaluaciones_cruzadas.map((evaluacion) => (
-                <Card className="mb-3" key={evaluacion.id_cruzada}>
-                  <Card.Body>
-                    <Card.Text>
-                      <strong>Evaluador:</strong> {evaluacion.evaluador.nombre_empresa}
-                    </Card.Text>
-                    <Card.Text>
-                      <strong>Nota Total:</strong> {evaluacion.nota_cruzada}
-                    </Card.Text>
-                    {/* Detalle de notas por criterio */}
-                    {evaluacion.detalle_notas && (
-                      <Table striped bordered hover size="sm">
-                        <thead>
-                          <tr>
-                            <th>Criterio</th>
-                            <th>Nota</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {evaluacion.detalle_notas.map((detalle, index) => (
-                            <tr key={index}>
-                              <td>{detalle.criterio_nombre}</td>
-                              <td>{detalle.nota}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </Table>
+                    <h3>Tareas Asignadas</h3>
+                    {empresaSeleccionada.planificacion?.sprints && empresaSeleccionada.planificacion.sprints.length > 0 ? (
+                        empresaSeleccionada.planificacion.sprints.map(sprint => (
+                            <div key={sprint.id_sprint}>
+                                <h4>Sprint {sprint.nro_sprint}:</h4>
+                                <p>{sprint.fecha_inicio} - {sprint.fecha_fin}</p>
+                                {sprint.alcances?.length > 0 && sprint.alcances.map(alcance => (
+                                    <div key={alcance.id_alcance}>
+                                        <h5>Alcance: {alcance.descripcion}</h5>
+                                        {alcance.tareas && alcance.tareas.length > 0 ? (
+                                            <ul>
+                                                {alcance.tareas.map(tarea => (
+                                                    <li key={tarea.id_tarea}>{tarea.nombre_tarea}</li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <p>No hay tareas para este alcance.</p>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        ))
+                    ) : (
+                        <p>No hay sprints disponibles para esta empresa.</p>
                     )}
-                  </Card.Body>
-                </Card>
-              ))
-            ) : (
-              <Card.Body>
-                <p>No hay evaluaciones cruzadas disponibles.</p>
-              </Card.Body>
+
+                    <h3>Criterios de Evaluación</h3>
+                    {empresaSeleccionada.criterios && empresaSeleccionada.criterios.length > 0 ? (
+                        <ul>
+                            {empresaSeleccionada.criterios.map(criterio => (
+                                <li key={criterio.id_criterio}>
+                                    {criterio.nombre}: {criterio.descripcion} ({criterio.porcentaje}%)
+                                </li>
+                            ))}
+                        </ul>
+                    ) : (
+                        <p>No hay criterios de evaluación definidos.</p>
+                    )}
+                </div>
             )}
-          </Card>
-        </>
-      )}
-    </div>
-  );
+        </div>
+    );
 };
 
 export default Reportes;

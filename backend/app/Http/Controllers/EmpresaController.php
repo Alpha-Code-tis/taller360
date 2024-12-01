@@ -259,17 +259,82 @@ class EmpresaController extends Controller
         return response()->json(['message' => 'Error al obtener los equipos'], 500);
     }
 }
-public function getReporteEmpresa($id_empresa)
+public function getReporte($id_empresa, Request $request)
 {
     try {
+        // Obtener el parámetro de gestión desde la solicitud
+        $gestion = $request->input('gestion');
+
+        // Consultar la empresa con sus relaciones
         $empresa = Empresa::with([
             'estudiantes',
+            'planificacions' => function ($query) use ($gestion) {
+                if ($gestion) {
+                    // Filtrar las planificaciones por gestión
+                    $query->where('gestion', $gestion);
+                }
+            },
             'planificacions.sprints.alcances.tareas',
             'evaluacionesCruzadas.evaluador',
             'criterios',
         ])->findOrFail($id_empresa);
 
-        return response()->json($empresa, 200);
+        // Devuelve los datos de la empresa junto con los estudiantes
+        return response()->json([
+            'empresa' => [
+                'id_empresa' => $empresa->id_empresa,
+                'nombre_empresa' => $empresa->nombre_empresa,
+                'nombre_corto' => $empresa->nombre_corto,
+                'direccion' => $empresa->direccion,
+                'telefono' => $empresa->telefono,
+                'correo_empresa' => $empresa->correo_empresa,
+                'logo' => $empresa->logo, // Aquí está la URL completa del logo
+                'estudiantesSeleccionados' => $empresa->estudiantes->map(function ($estudiante) {
+                    return [
+                        'id_estudiante' => $estudiante->id_estudiante,
+                        'nombre' => $estudiante->nombre_estudiante,
+                    ];
+                }),
+                'planificaciones' => $empresa->planificacions->map(function ($planificacion) {
+                    return [
+                        'id_planificacion' => $planificacion->id_planificacion,
+                        'sprints' => $planificacion->sprints->map(function ($sprint) {
+                            return [
+                                'id_sprint' => $sprint->id_sprint,
+                                'nro_sprint' => $sprint->nro_sprint,
+                                'fecha_inicio' => $sprint->fecha_inicio,
+                                'fecha_fin' => $sprint->fecha_fin,
+                                'alcances' => $sprint->alcances->map(function ($alcance) {
+                                    return [
+                                        'id_alcance' => $alcance->id_alcance,
+                                        'descripcion' => $alcance->descripcion,
+                                        'tareas' => $alcance->tareas->map(function ($tarea) {
+                                            return [
+                                                'id_tarea' => $tarea->id_tarea,
+                                                'nombre_tarea' => $tarea->nombre_tarea,
+                                                'estimacion' => $tarea->estimacion,
+                                            ];
+                                        }),
+                                    ];
+                                }),
+                            ];
+                        }),
+                    ];
+                }),
+                'evaluacionesCruzadas' => $empresa->evaluacionesCruzadas->map(function ($evaluacion) {
+                    return [
+                        'id_cruzada' => $evaluacion->id_cruzada,
+                        'evaluator' => $evaluacion->evaluador->nombre_empresa ?? null,
+                    ];
+                }),
+                'criterios' => $empresa->criterios->map(function ($criterio) {
+                    return [
+                        'id_criterio' => $criterio->id_criterio,
+                        'nombre' => $criterio->nombre,
+                    ];
+                }),
+            ],
+        ]);
     } catch (ModelNotFoundException $e) {
         return response()->json(['error' => 'Empresa no encontrada'], 404);
     } catch (\Exception $e) {
@@ -277,4 +342,5 @@ public function getReporteEmpresa($id_empresa)
         return response()->json(['error' => 'Error al obtener el reporte'], 500);
     }
 }
+
 }

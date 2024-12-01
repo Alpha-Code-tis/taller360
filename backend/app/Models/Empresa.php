@@ -80,9 +80,10 @@ class Empresa extends Model
 	}
 
 	public function criterios()
-	{
-		return $this->hasMany(Criterio::class, 'empresa_id', 'id_empresa');
-	}
+{
+    return $this->belongsToMany(Criterio::class, 'empresa_criterio', 'id_empresa', 'id_criterio');
+}
+
 
 	public function planificacions()
 	{
@@ -95,7 +96,7 @@ class Empresa extends Model
 	}
 	public function estudiantes() 
 	{
-		return $this->hasMany(Estudiante::class, 'id_empresa', 'id_empresa');
+		return $this->hasMany(Estudiante::class, 'id_empresa');
 	}
 	public function tareas()
 	{
