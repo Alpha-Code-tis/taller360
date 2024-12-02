@@ -18,8 +18,6 @@ class Ajuste extends Model
         'fecha_fin_autoevaluacion',
         'fecha_inicio_eva_final',
         'fecha_fin_eva_final',
-        'fecha_inicio_eva_cruzada',
-        'fecha_fin_eva_cruzada',
         'nota_pares'
     ];
 

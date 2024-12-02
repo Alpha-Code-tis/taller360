@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Criterio;
 use App\Models\Tarea;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -13,6 +12,7 @@ class CriterioController extends Controller
     // Obtener todos los criterios
     public function index()
     {
+        $criterios = Criterio::all();
         $criterios = Criterio::all();
         return response()->json($criterios, Response::HTTP_OK);
     }
@@ -23,17 +23,27 @@ class CriterioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
             'porcentaje' => 'required|integer|min:0|max:100',
         ]);
         $porcentaje = Criterio::sum("porcentaje");
         if ($porcentaje + $request->porcentaje > 100) {
+        $porcentaje = Criterio::sum("porcentaje");
+        if ($porcentaje + $request->porcentaje > 100) {
             return response()->json([
+               'message' => 'La suma de los porcentajes no puede superar 100.'
                'message' => 'La suma de los porcentajes no puede superar 100.'
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
         $criterio = Criterio::create($request->all());
 
+        $criterio = Criterio::create($request->all());
+
         return response()->json([
+            'message' => 'Criterio creado con éxito.',
+            'data' => $criterio
             'message' => 'Criterio creado con éxito.',
             'data' => $criterio
         ], Response::HTTP_CREATED);
@@ -42,6 +52,7 @@ class CriterioController extends Controller
     // Mostrar un criterio específico
     public function show($id_criterio)
     {
+        $criterio = Criterio::where('id_criterio', $id_criterio)->first();
         $criterio = Criterio::where('id_criterio', $id_criterio)->first();
 
         if (!$criterio) {
@@ -59,9 +70,14 @@ class CriterioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
+        $request->validate([
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
             'porcentaje' => 'required|integer|min:0|max:100',
         ]);
+        ]);
 
+        $criterio = Criterio::where('id_criterio', $id_criterio)->first();
         $criterio = Criterio::where('id_criterio', $id_criterio)->first();
 
         if (!$criterio) {
@@ -71,8 +87,11 @@ class CriterioController extends Controller
         }
 
         $criterio->update($request->all());
+        $criterio->update($request->all());
 
         return response()->json([
+            'message' => 'Criterio actualizado con éxito.',
+            'data' => $criterio
             'message' => 'Criterio actualizado con éxito.',
             'data' => $criterio
         ], Response::HTTP_OK);

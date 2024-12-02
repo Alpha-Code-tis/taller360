@@ -1,4 +1,12 @@
-  /* Estilos para el header inicialmente */
+.modal-content {
+  background-color: #c2c9dc;
+  padding: 20px;
+  border-radius: 8px;
+  width: 80%;
+  max-width: 600px;
+}
+ 
+ /* Estilos para el header inicialmente */
 .header-navbar {
    /* Ancho completo de la pantalla */
     background-color: #4CAF50; /* Color de fondo (puedes cambiar el código hexadecimal) */

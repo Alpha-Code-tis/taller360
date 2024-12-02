@@ -14,6 +14,7 @@ class EvaluacionParesController extends Controller
         $validator = Validator::make($request->all(), [
             'criterios_ids.*' => ['required', 'integer', 'exists:criterios,id_criterio'],
             'id_estudiante_evaludado' => ['required', 'integer', 'exists:estudiante,id_estudiante'],
+            'id_sprint' => ['nullable', 'integer', 'exists:sprint,id_sprint' ]
         ]);
 
         if ($validator->fails()) {
@@ -27,7 +28,12 @@ class EvaluacionParesController extends Controller
             $estudianteEvaluador = auth()->guard('sanctum')->user();
             $estudianteEvaluado = Estudiante::find($request->id_estudiante_evaludado);
 
-            $estudianteEvaluado->evaluadoCriterios()->syncWithPivotValues($request->criterios_ids, ['id_estudiante_evaluador' => $estudianteEvaluador->id_estudiante]);
+            foreach ($request->criterios_ids as $criterioId) {
+                $estudianteEvaluado->evaluadoCriterios()->attach($criterioId, [
+                    'id_estudiante_evaluador' => $estudianteEvaluador->id_estudiante,
+                    'id_sprint' => $request->id_sprint
+                ]);
+            }
 
             return response()->json([
                 'message' => 'evaluación realizada exitosamente.'
@@ -42,6 +48,7 @@ class EvaluacionParesController extends Controller
     public function getEvaluacionPares($id_estudiante_evaluado)
     {
         $estudianteEvaluado = Estudiante::find($id_estudiante_evaluado);
+        $sprintId = request('sprintId');
 
         if (!$estudianteEvaluado) {
             return response()->json([
@@ -49,12 +56,33 @@ class EvaluacionParesController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $criteriosEvaluado = $estudianteEvaluado->evaluadoCriterios;
+        $criteriosEvaluado = $estudianteEvaluado->evaluadoCriterios()
+            ->when(isset($sprintId), fn ($q) => $q->where('estudiante_criterio.id_sprint', $sprintId))
+            ->get();
         $criteriosEvaludoAgrupado = $criteriosEvaluado->map(function ($item, $key) {
             $item->estudiante_evaluador = Estudiante::find($item->pivot->id_estudiante_evaluador);
             return $item;
         })->values();
 
         return response()->json($criteriosEvaludoAgrupado, Response::HTTP_OK);
+    }
+
+    public function report()
+    {
+        $empresaId = request('empresaId');
+        $sprintId = request('sprintId');
+        $estudiantes = Estudiante::where('id_empresa', $empresaId)
+            ->with(['evaluadoCriterios' => function ($query) use ($sprintId) {
+                $query->wherePivot('id_sprint', $sprintId);
+            }])
+            ->get();
+        $criteriosEvaludoAgrupado = $estudiantes->map(function ($estudiante) {
+            $estudiante->evaluado_criterios = $estudiante->evaluadoCriterios->map(function ($item, $key) {
+                $item->estudiante_evaluador = Estudiante::find($item->pivot->id_estudiante_evaluador);
+                return $item;
+            });
+            return $estudiante;
+        });
+        return response()->json($criteriosEvaludoAgrupado);
     }
 }

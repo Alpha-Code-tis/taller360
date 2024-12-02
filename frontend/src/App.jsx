@@ -27,6 +27,8 @@ import Seguimiento from './Representante_legal/Seguimiento';
 import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de que esta sea la ruta correcta
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
+import ReportePorEvaluaciones from './ReportePorEvaluciones/ReportePorEvaluaciones';
+import CualificarResultados from './CualificarResultados/CualificarResultados';
 import EvaluacionEntreEquipos from './Administrador/EvaluacionEntreEquipos';
 
 import PlanillaNotas from './PlanillaNotas/PlanillaNotas';
@@ -95,6 +97,8 @@ function App() {
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
+                <Route path="/ReportePorEvaluaciones" element={<ReportePorEvaluaciones />} />
+                <Route path="/CualificarResultados" element={<CualificarResultados/>}/>
                 <Route path="/Reportes" element={<Reportes />} />
                 <Route path="/EvaluacionEntreEquipos" element={<EvaluacionEntreEquipos />} />
                 <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
