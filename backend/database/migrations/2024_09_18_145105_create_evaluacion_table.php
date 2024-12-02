@@ -19,6 +19,8 @@ return new class extends Migration
             $table->integer('id_cruzada')->nullable()->index('es_un_fk');
             $table->integer('id_empresa')->nullable()->index('realiza_fk');
             $table->integer('id_autoe')->nullable()->index('es_una_fk');
+            $table->integer('id_estudiante')->nullable()->index('evaluacion_estudiante_fk');
+            $table->integer('tarea_id')->nullable()->index('evaluacion_tarea_fk');
             $table->integer('nota')->nullable();
             $table->time('tiempo')->nullable();
 

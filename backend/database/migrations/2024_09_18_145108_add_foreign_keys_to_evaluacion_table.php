@@ -18,6 +18,8 @@ return new class extends Migration
             $table->foreign(['id_empresa'], 'fk_evaluaci_realiza_empresa')->references(['id_empresa'])->on('empresa');
             $table->foreign(['id_pares'], 'fk_evaluaci_es_pares')->references(['id_pares'])->on('pares');
             $table->foreign(['id_autoe'], 'fk_evaluaci_es_una_autoeval')->references(['id_autoe'])->on('autoevaluacion');
+            $table->foreign('id_estudiante', 'evaluacion_estudiante_fk')->references('id_estudiante')->on('estudiante')->onDelete('set null');
+            $table->foreign('tarea_id', 'evaluacion_tarea_fk')->references('id_tarea')->on('tarea')->onDelete('set null');
         });
     }
 
@@ -33,6 +35,8 @@ return new class extends Migration
             $table->dropForeign('fk_evaluaci_realiza_empresa');
             $table->dropForeign('fk_evaluaci_es_pares');
             $table->dropForeign('fk_evaluaci_es_una_autoeval');
+            $table->dropForeign('id_estudiante', 'evaluacion_estudiante_fk');
+            $table->dropForeign('tarea_id', 'evaluacion_tarea_fk');
         });
     }
 };

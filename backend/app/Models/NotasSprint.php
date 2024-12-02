@@ -30,10 +30,10 @@ class NotasSprint extends Model
 
     protected $casts = [
         'id_tarea' => 'int',
-        'nota_tarea' => 'int',
-        'nota_ev_pares' => 'int',
-        'nota_auto_ev' => 'int',
-        'nota_total' => 'int',
+        'nota_tarea' => 'float',
+        'nota_ev_pares' => 'float',
+        'nota_auto_ev' => 'float',
+        'nota_total' => 'float',
     ];
 
     protected $fillable = [

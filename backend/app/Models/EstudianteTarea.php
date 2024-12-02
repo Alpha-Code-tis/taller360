@@ -24,12 +24,16 @@ class EstudianteTarea extends Model
 
     protected $casts = [
         'id_estudiante' => 'int',
-        'id_tarea' => 'int'
+        'id_tarea' => 'int',
+        'resultado_evaluacion' => 'string',
+        'descripcion_evaluacion' => 'string',
     ];
-
+    
     protected $fillable = [
         'id_estudiante',
-        'id_tarea'
+        'id_tarea',
+        'resultado_evaluacion',
+        'descripcion_evaluacion',
     ];
 
     public function estudiante()
