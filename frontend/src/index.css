@@ -71,7 +71,7 @@ background: linear-gradient(146deg, rgba(255,255,255,1) 0%, rgba(207,232,239,1) 
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
+    color: #1470c1;
     background-color: #ffffff;
   }
   a:hover {
