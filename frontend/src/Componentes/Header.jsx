@@ -759,26 +759,6 @@ useEffect(() => {
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
-                  to="/GenerarPlanilla"
-                  onClick={() => handleButtonClick('generarPlanilla')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'generarPlanilla' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <PictureAsPdfIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Generar Planilla PDF" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
                   to="/ListaAutoevaluacion"
                   onClick={() => handleButtonClick('listaAutoevaluacion')}
                   sx={{
