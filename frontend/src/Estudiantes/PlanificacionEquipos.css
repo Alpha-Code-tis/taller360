@@ -1,3 +1,5 @@
+
+
 .custom-modal {
     padding: 10px;
     margin-left: 8%;
@@ -49,3 +51,48 @@
   .weekend {
     background-color: transparent; /* No colorear los fines de semana */
   }
+
+/* Media Query para pantallas pequeñas */
+@media (max-width: 768px) {
+  /* Contenedor de los botones */
+  .dropdown-container {
+    display: flex;
+    flex-direction: column; /* Apilar los botones en una columna */
+    gap: 1.5rem; /* Añadir espacio entre los botones */
+  }
+
+  /* Botón de gestión */
+  .gestion-dropdown {
+    margin-right: 0; /* Quitar margen derecho */
+    margin-left: 0;  /* Quitar margen izquierdo */
+  }
+
+  /* Botón de empresa */
+  .empresa-dropdown {
+    margin-right: 0; /* Quitar margen derecho */
+    margin-left: 0;  /* Quitar margen izquierdo */
+  }
+
+  /* Botón de sprint */
+  .sprint-dropdown {
+    margin-right: 0; /* Quitar margen derecho */
+    margin-left: 0;  /* Quitar margen izquierdo */
+  }
+
+  /* Botones con ancho automático */
+  .sprint-dropdown button,
+  .gestion-dropdown button,
+  .empresa-dropdown button {
+    width: 100%; /* Asegura que los botones ocupen todo el ancho */
+  }
+
+  /* Asegura que el calendario esté centrado */
+  .calendar-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+  }
+}
+

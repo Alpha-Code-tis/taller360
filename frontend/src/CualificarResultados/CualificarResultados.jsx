@@ -21,26 +21,30 @@ const CualificarResultados = () => {
 
 
   return (
-    <div className="cualificar-container">
-      <h2>Cualificar Resultados</h2>
-      <table className="planilla-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Puntaje de Evaluación</th>
-            <th>Categoría</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((student, index) => (
-            <tr key={index}>
-              <td>{student.nombre}</td>
-              <td>{student.nota}</td>
-              <td>{student.clasificacion} </td>
+    <div>
+      <div className="justify-content-between align-items-center mb-3">
+        <h1 className='m-0'>Cualificar Resultados</h1>
+      </div>
+      <div className="cualificar-container">
+        <table className="table table-hover cualificar-table">
+          <thead className="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Puntaje de Evaluación</th>
+              <th>Categoría</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {students.map((student, index) => (
+              <tr key={index}>
+                <td>{student.nombre}</td>
+                <td>{student.nota}</td>
+                <td>{student.clasificacion} </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

@@ -24,6 +24,7 @@ import TareasEstudiante from './Estudiantes/TareasEstudiante'; // Asegúrate de 
 import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
+import ReportePorEvaluaciones from './ReportePorEvaluciones/ReportePorEvaluaciones';
 import CualificarResultados from './CualificarResultados/CualificarResultados';
 
 function App() {
@@ -88,6 +89,7 @@ function App() {
                 <Route path="/ListaAutoevaluacion" element={<ListaAutoevaluacion />} />
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
+                <Route path="/ReportePorEvaluaciones" element={<ReportePorEvaluaciones />} />
                 <Route path="/CualificarResultados" element={<CualificarResultados/>}/>
               </>
             )}

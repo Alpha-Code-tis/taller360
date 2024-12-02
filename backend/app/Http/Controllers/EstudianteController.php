@@ -30,6 +30,7 @@ class EstudianteController extends Controller
         try {
             // Obtener el estudiante autenticado
             $estudiante = auth()->guard('sanctum')->user();
+            $sprintId = request('sprintId');
 
             // Verificar si el estudiante tiene asignada una empresa
             if (!$estudiante || !$estudiante->id_empresa) {
@@ -41,8 +42,9 @@ class EstudianteController extends Controller
                 ->with(['evaluadoEvaluacionesFinales' => function ($query) use ($estudiante) {
                     $query->where('id_est_evaluador', $estudiante->id_estudiante);
                 }])
-                ->with(['evaluadoCriterios' => function ($query) use ($estudiante) {
-                    $query->where('id_estudiante_evaluador', $estudiante->id_estudiante);
+                ->with(['evaluadoCriterios' => function ($query) use ($estudiante, $sprintId) {
+                    $query->where('id_estudiante_evaluador', $estudiante->id_estudiante)
+                    ->when(isset($sprintId), fn ($q) => $q->where('id_sprint', $sprintId));
                 }])
                 ->get();
 
