@@ -26,6 +26,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -39,10 +40,10 @@ import 'dayjs/locale/es';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
-import { Row, Col } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
 import SettingsIcon from '@mui/icons-material/Settings';
+import Select from 'react-select';
+import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
+import StarIcon from '@mui/icons-material/Star';
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -126,7 +127,74 @@ export default function PersistentDrawerLeft() {
   const [autoEvalStart, setAutoEvalStart] = useState('');
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
+  const [evaluacionModalShow, setEvaluacionModalShow] = useState(false);
+  const [notificarModalShow, setNotificarModalShow] = useState(false);
+  const [autoEvalNota, setAutoEvalNota] = useState('');
+  const [paresEvalNota, setParesEvalNota] = useState('');
+  const [docenteEvalNota, setDocenteEvalNota] = useState('');
   const [notaPares, setNotaPares] = useState('');
+  const [notificacion, setNotificacion] = useState('');
+  const [redirected, setRedirected] = useState(false);
+  const [cruzadaStart, setCruzadaStart] = useState('');
+  const [cruzadaEnd, setCruzadaEnd] = useState('');
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastVariant, setToastVariant] = useState('success');
+
+  // Estados para almacenar las opciones de evaluaciones y las fechas
+  const [fechas, setFechas] = useState([]);
+  const [selectedTipos, setSelectedTipos] = useState(["autoevaluacion"]); // Valor inicial por defecto
+
+  // Función para obtener las fechas de las evaluaciones basadas en los tipos seleccionados
+  const obtenerFechasEvaluaciones = async (tipos) => {
+    try {
+      let url = `${API_URL}listaFechasEvaluciones?tipos[]=${tipos[0]}`;
+      // Añadir más tipos si es necesario
+      if (tipos.length > 1) {
+        tipos.forEach((tipo) => {
+          url += `&tipos[]=${tipo}`;
+        });
+      }
+
+      // Hacer la solicitud GET
+      const response = await axios.get(url);
+
+      console.log(response.data);
+      // Actualizar el estado con las fechas recibidas
+      setFechas(response.data);
+    } catch (error) {
+      // Si hay un error, verificar la respuesta
+    if (error.response) {
+      // Respuesta de error del servidor (por ejemplo, 404)
+      console.error("Error del servidor:", error.response.status);
+      console.error("Respuesta del servidor:", error.response.data);
+    } else {
+      // Error en la solicitud
+      console.error("Error en la solicitud:", error.message);
+    }
+
+    }
+  };
+
+// useEffect para cargar las fechas cada vez que cambia la selección
+useEffect(() => {
+  obtenerFechasEvaluaciones(selectedTipos);
+}, [selectedTipos]); // Se ejecuta cada vez que `selectedTipos` cambie
+
+
+  // Manejar cambio en la selección del `select`
+  const handleChangee = (event) => {
+    const { value } = event.target;
+    // Si se selecciona una opción, actualizamos los tipos seleccionados
+    setSelectedTipos(value.split(','));
+  };
+
+
+
+  const handleChange = (e) => {
+    setNotificacion(e.target.value); // Actualiza el estado con el texto ingresado
+  };
+
 
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
@@ -137,7 +205,25 @@ export default function PersistentDrawerLeft() {
       setNombre(storedNombre);
     }
     fetchFechas();
+    fetchNotas();
   }, []); // Se ejecuta solo una vez al montar el componente
+
+  useEffect(() => {
+    // Verificar si el usuario no ha sido redirigido aún
+    if (!redirected && role) {
+      // Redirigir según el rol
+      if (role === "administrador") {
+        navigate("/Docentes");
+      } else if (role === "docente") {
+        navigate("/PlanificacionEquipos");
+      } else if (role === "estudiante") {
+        navigate("/Planificacion");
+      }
+      setRedirected(true); // Marcar que la redirección inicial ya ocurrió
+    }
+  }, [role, redirected, navigate]);
+
+
 
   const fetchFechas = async () => {
     try {
@@ -148,9 +234,40 @@ export default function PersistentDrawerLeft() {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
+      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? '');
+      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');
+
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
+    }
+  };
+
+  const fetchNotas = async () => {
+    try {
+      const response = await axios.get(`${API_URL}configNotasDocente`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`, // Requiere autenticación
+        },
+      });
+
+      const data = response.data;
+      console.log(data);
+      // Asignar valores a los estados correspondientes
+      setAutoEvalNota(data.autoevaluacion ?? '');
+      setParesEvalNota(data.pares ?? '');
+      setDocenteEvalNota(data.evaluaciondocente ?? '');
+    } catch (error) {
+      toast.error('No se recuperaron las notas.');
+      console.error('Error al obtener las notas:', error);
+
+      if (error.response) {
+        console.error('Respuesta del servidor:', error.response.data);
+      } else if (error.request) {
+        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+      } else {
+        console.error('Error de configuración:', error.message);
+      }
     }
   };
 
@@ -205,6 +322,8 @@ export default function PersistentDrawerLeft() {
     const payload = {
       fecha_inicio_autoevaluacion: autoEvalStart,
       fecha_fin_autoevaluacion: autoEvalEnd,
+      fecha_inicio_eva_cruzada: cruzadaStart,
+      fecha_fin_eva_cruzada: cruzadaEnd,
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
       nota_pares: notaPares,
@@ -250,10 +369,67 @@ export default function PersistentDrawerLeft() {
     }
 
   };
-  const [selectedButton, setSelectedButton] = useState(null);
-  const handleButtonClick = (buttonName) => {
-    setSelectedButton(buttonName);
+
+  const handleSaveChangesEva = async () => {
+    const payload = {
+      autoevaluacion: parseInt(autoEvalNota, 10),
+      pares: parseInt(paresEvalNota, 10),
+      evaluaciondocente: parseInt(docenteEvalNota, 10),
+    };
+
+    try {
+      const response = await axios.post(`${API_URL}configNotas`, payload, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+      });
+      toast.success(
+        response.status === 201
+          ? 'Evaluación creada correctamente'
+          : 'Evaluación actualizada correctamente'
+      );
+      setEvaluacionModalShow(false);
+    } catch (error) {
+      toast.error('Error al guardar la evaluación');
+      console.error('Error al guardar:', error);
+
+      if (error.response) {
+        console.error('Respuesta del servidor:', error.response.data);
+      } else if (error.request) {
+        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
+      } else {
+        console.error('Error de configuración:', error.message);
+      }
+    }
   };
+
+  /**Enviar notificaciones*/
+  const handleSaveChangesNotif = async () => {
+      const data = {
+        titulo:"Notificación de Evaluaciones",
+        mensaje: notificacion,
+        tipos: selectedTipos,
+      };
+
+    try {
+      await axios.post(`${API_URL}notificacion`, data);
+      setToastMessage('Notificación guardada correctamente');
+      setToastVariant('success');
+      setShowToast(true);
+    } catch (error) {
+      if (error.response) {
+        setToastMessage('Error al guardar la notificación: ' + error.response.data.message);
+        setToastVariant('danger');
+      } else {
+        setToastMessage('Error de red o de conexión');
+        setToastVariant('danger');
+      }
+      setShowToast(true);
+    }
+  };
+
+  const [selectedButton, setSelectedButton] = useState(null);
+
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   return (
@@ -266,17 +442,20 @@ export default function PersistentDrawerLeft() {
             color: 'black',
           }}
         >
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={() => setOpen(!open)}
-            edge="start"
-            sx={{
-              mr: 2,
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
+          {/* Mostrar solo en pantallas pequeñas */}
+          {isMobile && (
+            <IconButton
+              color="inherit"
+              aria-label="toggle drawer"
+              onClick={() => setOpen(!open)}
+              edge="start"
+              sx={{
+                mr: 2,
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
           <div className="ms-auto d-flex align-items-center">
             {role === 'docente' && (
               <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
@@ -291,6 +470,8 @@ export default function PersistentDrawerLeft() {
             <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
               <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
               <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
+              <MenuItem onClick={() => { setEvaluacionModalShow(true); handleSettingsMenuClose(); }}>Configuracion de Evaluaciones por Sprint</MenuItem>
+              <MenuItem onClick={() => { setNotificarModalShow(true); handleSettingsMenuClose(); }}>Notificar Evaluaciones</MenuItem>
             </Menu>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
@@ -312,7 +493,7 @@ export default function PersistentDrawerLeft() {
         }}
         variant={isMobile ? 'temporary' : 'persistent'}
         anchor="left"
-        open={open}
+        open={open || !isMobile}
         onClose={handleDrawerClose}
       >
         <div className="d-flex flex-column align-items-center">
@@ -628,24 +809,44 @@ export default function PersistentDrawerLeft() {
               </ListItem>
 
               <ListItem disablePadding>
-            <ListItemButton
-              component={Link}
-              to="/ReportePorEvaluaciones"
-              onClick={() => handleButtonClick('ReportePorEvaluaciones')}
-              sx={{
-                borderRadius: '8px',
-                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
-                '&:hover': {
-                  backgroundColor: '#1A3254',
-                },
-              }}
-            >
-              <ListItemIcon sx={{ color: 'white' }}>
-                <AssignmentTurnedInIcon />
-              </ListItemIcon>
-              <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
-            </ListItemButton>
-          </ListItem>
+                <ListItemButton
+                  component={Link}
+                  to="/ReportePorEvaluaciones"
+                  onClick={() => handleButtonClick('ReportePorEvaluaciones')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <SummarizeIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/CualificarResultados"
+                  onClick={() => handleButtonClick('CualificarRes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'CualificarRes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                  <StarIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Cualificar Resultados" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
 
               {/* Modal Conformación de Equipos */}
               <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
@@ -702,7 +903,7 @@ export default function PersistentDrawerLeft() {
                 </Modal.Footer>
               </Modal>
               <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
-                <Modal.Header closeButton>
+                <Modal.Header>
                   <Modal.Title>Habilitar vistas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -715,6 +916,27 @@ export default function PersistentDrawerLeft() {
                         </Form.Label>
                         <Form.Label>Fecha Fin
                           <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Cruzada</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          Fecha Inicio
+                          <Form.Control
+                            type="date"
+                            value={cruzadaStart}
+                            onChange={(e) => setCruzadaStart(e.target.value)}
+                          />
+                        </Form.Label>
+                        <Form.Label>
+                          Fecha Fin
+                          <Form.Control
+                            type="date"
+                            value={cruzadaEnd}
+                            onChange={(e) => setCruzadaEnd(e.target.value)}
+                          />
                         </Form.Label>
                       </div>
                     </Form.Group>
@@ -748,7 +970,120 @@ export default function PersistentDrawerLeft() {
                   <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
                 </Modal.Footer>
               </Modal>
+              <Modal show={evaluacionModalShow} onHide={() => setEvaluacionModalShow(false)} centered>
+                <Modal.Header closeButton>
+                  <Modal.Title>Configuracion de Evaluaciones por Sprint</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Autoevaluación</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          <Form.Control type="number" value={autoEvalNota} onChange={(e) => setAutoEvalNota(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Pares</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          <Form.Control type="number" value={paresEvalNota} onChange={(e) => setParesEvalNota(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                    <Form.Group className="mb-3">
+                      <Form.Label><strong>Evaluación Docente</strong></Form.Label>
+                      <div className="d-flex justify-content-between">
+                        <Form.Label>
+                          <Form.Control type="number" value={docenteEvalNota} onChange={(e) => setDocenteEvalNota(e.target.value)} />
+                        </Form.Label>
+                      </div>
+                    </Form.Group>
+                  </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
+                  <Button variant="primary" onClick={handleSaveChangesEva}>Guardar cambios</Button>
+                </Modal.Footer>
+              </Modal>
+              <Modal show={notificarModalShow} onHide={() => setNotificarModalShow(false)} centered>
+                <Modal.Header>
+                  <Modal.Title>Notificar Evaluaciones</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                  <Form>
+                    <Form.Group className="mb-3">
+                    <Row>
+                      <Col md={12}>
+                        <Form.Group controlId="formEvaluaciones" className="mb-3">
+                          <Form.Label>Seleccionar Tipos de Evaluaciones</Form.Label>
+                          {/* Lista desplegable con las opciones */}
+                          <select onChange={handleChangee} value={selectedTipos.join(',')}>
+                            <option value="autoevaluacion"> Autoevaluación</option>
+                            <option value="pares">EV Pares</option>
+                            <option value="cruzada"> EV Cruzada</option>
+                            <option value="autoevaluacion,pares"> Autoevaluación + EV Pares</option>
+                            <option value="autoevaluacion,cruzada"> Autoevaluación + EV Cruzada</option>
+                            <option value="pares,cruzada"> EV Pares + EV Cruzada</option>
+                            <option value="autoevaluacion,pares,cruzada"> Autoevaluación + EV Pares + EV Cruzada</option>
+                          </select>
+                          {/* Mostrar las fechas de las evaluaciones seleccionadas */}
+                              <div>
+                                <label>Fechas de Evaluación:</label>
+                                <ul>
+                                  {Object.keys(fechas).length > 0 ? (
+                                    Object.keys(fechas).map((tipo) => (
+                                      <li key={tipo}>
+                                        <strong>{tipo}</strong>:
+                                          {fechas[tipo].fecha_inicio && fechas[tipo].fecha_fin ?
+                                            `${fechas[tipo].fecha_inicio} - ${fechas[tipo].fecha_fin}` :
+                                            "Fecha no disponible"
+                                          }
+                                      </li>
+                                    ))
+                                  ) : (
+                                    <p>No se encontraron evaluaciones para mostrar.</p>
+                                  )}
+                                </ul>
+                              </div>
+                        </Form.Group>
+                      </Col>
+                    </Row>
+                      {/* Detalles de notificacion */}
+                      <div>
+                        <Form.Group className="mt-3">
+                          <Form.Label><strong>Detalles </strong></Form.Label>
+                          <Form.Control
+                            as="textarea"
+                            rows={6}
+                            value={notificacion}
+                            onChange={handleChange}
+                            placeholder="Ingrese los detalles de la notificación"
+                            style={{ width: "380px", height: "50px" }}
+                          />
+                        </Form.Group>
+                      </div>
 
+                    </Form.Group>
+                  </Form>
+                  {/* Toast para mostrar el mensaje de éxito o error */}
+                  <Toast
+                    show={showToast}
+                    onClose={() => setShowToast(false)}
+                    delay={3000}
+                    autohide
+                    bg={toastVariant}
+                    className="position-fixed bottom-0 end-0 m-3"
+                  >
+                    <Toast.Body>{toastMessage}</Toast.Body>
+                  </Toast>
+                </Modal.Body>
+                <Modal.Footer>
+                  <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>Cancelar</Button>
+                  <Button variant="primary" onClick={handleSaveChangesNotif}>Enviar</Button>
+                </Modal.Footer>
+               </Modal>
             </>
           )}
         </List>

@@ -94,4 +94,8 @@ class Docente extends Authenticatable
     {
         return $this->contrasenia;
     }
+   public function notas()
+    {
+        return $this->hasMany(Nota::class, 'id_docente');
+    }
 }

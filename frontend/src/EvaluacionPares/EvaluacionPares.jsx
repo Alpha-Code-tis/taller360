@@ -178,7 +178,7 @@ const EvaluacionPares = () => {
   };
 
   return (
-    <div className="lista-autoevaluacion-container">
+    <div className="container mt-2 pt-3">
       <div className="d-flex justify-content-between align-items-center gap-3 mb-2">
         <h1 className="title">Evaluación Entre Pares</h1>
         <Dropdown>
@@ -192,7 +192,7 @@ const EvaluacionPares = () => {
           </Dropdown.Menu>
         </Dropdown>
       </div>
-      <table className="autoevaluacion-table" >
+      <table className="table table-hover autoevaluacion-table">
       <thead>
           <tr>
             <th>Nombre del Estudiante</th>

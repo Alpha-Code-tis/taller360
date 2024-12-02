@@ -11,7 +11,6 @@ class CreateCriteriosTable extends Migration
         Schema::create('criterios', function (Blueprint $table) {
             $table->id('id_criterio'); // ID único del criterio
             $table->string('nombre'); // Nombre del criterio (e.g., "Trabajo en equipo")
-            $table->text('descripcion')->nullable(); // Descripción opcional del criterio
             $table->decimal('porcentaje', 5, 2); // Ponderación (peso) del criterio
             $table->timestamps(); // Timestamps para creación y actualización
         });

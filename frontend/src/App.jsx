@@ -4,9 +4,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // src/App.jsx
 import { useLocation } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import VistaDocentes from './Componentes/VistaDocente';
-import VistaEstudiantes from './Componentes/VistaEstudiante';
-import VistaAdministrador from './Componentes/VistaAdministrador';
 import PlanificacionEquipos from './Estudiantes/PlanificacionEquipos';
 import Login from './Componentes/Login';
 import { Toaster } from 'react-hot-toast';
@@ -19,7 +16,6 @@ import ListaAutoevaluacion from './Autoevaluacion/ListaAutoevaluacion';
 import EvaluacionPares from './EvaluacionPares/EvaluacionPares';
 import Footer from './Componentes/Footer';
 import Header from './Componentes/Header';
-import './App.css';
 import axios from 'axios';
 import PlanillasSemanales from './Planillas/GenerarPlanilla';
 import './App.css';
@@ -29,7 +25,7 @@ import GenerarPlanilla from './Administrador/GenerarPlanilla';
 import CriterioEvaluacion from './CriteriosEvaluacion/CriterioEvaluacion';
 import EvaluationForm from './EvaluationForm/EvaluationForm';
 import ReportePorEvaluaciones from './ReportePorEvaluciones/ReportePorEvaluaciones';
-
+import CualificarResultados from './CualificarResultados/CualificarResultados';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -55,7 +51,7 @@ function App() {
   };
 
   return (
-    <div>
+    <div >
 
       <Toaster position="bottom-center" />
       {/* Solo mostrar Header y Footer si está autenticado */}
@@ -72,12 +68,10 @@ function App() {
             {role === 'administrador' && (
               <>
                 <Route path="/Docentes" element={<Docentes />} />
-                <Route path="/VistaAdministrador" element={<VistaAdministrador />} />
               </>
             )}
             {role === 'estudiante' && (
               <>
-                <Route path="/VistaEstudiante" element={<VistaEstudiantes />} />
                 <Route path="/Planificacion" element={<Planificacion />} />
                 <Route path="/Equipos" element={<Equipos />} />
                 <Route path="/PlanillasSemanales" element={<PlanillasSemanales />} />
@@ -89,7 +83,6 @@ function App() {
             )}
             {role === 'docente' && (
               <>
-                <Route path="/VistaDocente" element={<VistaDocentes />} />
                 <Route path="/PlanificacionEquipos" element={<PlanificacionEquipos />} />
                 <Route path="/Estudiantes" element={<Estudiantes />} />
                 <Route path="/GenerarPlanilla" element={<GenerarPlanilla />} />
@@ -97,6 +90,7 @@ function App() {
                 <Route path="/CriterioEvaluacion" element={<CriterioEvaluacion />} />
                 <Route path="/EvaluationForm" element={<EvaluationForm />} />
                 <Route path="/ReportePorEvaluaciones" element={<ReportePorEvaluaciones />} />
+                <Route path="/CualificarResultados" element={<CualificarResultados/>}/>
               </>
             )}
             {/* <Route path="/Seguimiento" element={<Seguimiento />} />
