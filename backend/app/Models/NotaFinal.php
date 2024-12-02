@@ -31,6 +31,7 @@ class NotaFinal extends Model
     protected $casts = [
         'id_notas_sprint' => 'int',
         'nota_total_sprint' => 'int',
+        'id_estudiante' => 'int',
         'notas_cruzada' => 'int',
         'nota_valor_sprint' => 'int',
         'nota_valor_cruzada' => 'int',
@@ -39,6 +40,7 @@ class NotaFinal extends Model
 
     protected $fillable = [
         'nota_total_sprint',
+        'id_estudiante' => 'int',
         'notas_cruzada',
         'nota_fin',
         'id_notas_sprint',

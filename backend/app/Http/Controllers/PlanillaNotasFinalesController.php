@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Docente;
 use App\Models\NotaFinal;
 use App\Models\Empresa;
 use App\Models\Estudiante;
@@ -11,11 +10,13 @@ use App\Models\NotasSprint;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+
+
 class PlanillaNotasFinalesController extends Controller
 {
     public function getEquipos()
     {
-        // Obtener el docente autenticado o un docente de prueba
+        // Obtener el docente autenticado
         $docente = Auth::user();
 
         // Verificar si el docente está autenticado
@@ -43,10 +44,26 @@ class PlanillaNotasFinalesController extends Controller
             'empresas' => $detallesEmpresas
         ]);
     }
-
     // Obtener estudiantes de una empresa con sus notas finales
-    public function getEstudiantesConNotas($empresaId)
+    public function getEstudiantesConNotas(Request $request, $empresaId)
     {
+        // Obtener los valores de nota_valor_sprint y nota_valor_cruzada desde el request
+        $notaValorSprint = $request->input('nota_valor_sprint', 0); // Valor predeterminado 0
+        $notaValorCruzada = $request->input('nota_valor_cruzada', 0); // Valor predeterminado 0
+
+        // Validar que sean numéricos y que la suma no exceda 100
+        if (!is_numeric($notaValorSprint) || !is_numeric($notaValorCruzada)) {
+            return response()->json([
+                'error' => 'Los valores de Nota Sprint y Evaluación Cruzada deben ser numéricos.'
+            ], 400);
+        }
+
+        if (($notaValorSprint + $notaValorCruzada) > 100) {
+            return response()->json([
+                'error' => 'La suma de Nota Sprint y Evaluación Cruzada no debe superar 100.'
+            ], 400);
+        }
+
         // Obtener estudiantes asociados a la empresa seleccionada
         $estudiantes = Estudiante::where('id_empresa', $empresaId)->get();
 
@@ -57,17 +74,12 @@ class PlanillaNotasFinalesController extends Controller
             ]);
         }
 
-        // Crear una estructura para almacenar las notas por estudiante
         $notasEstudiantes = [];
         $maxNumSprints = 0;
 
         foreach ($estudiantes as $estudiante) {
-            // Obtener las notas del sprint del estudiante
-            $notasSprint = NotasSprint::whereHas('tarea', function ($query) use ($estudiante) {
-                $query->whereHas('estudiantes', function ($subQuery) use ($estudiante) {
-                    $subQuery->where('estudiante.id_estudiante', $estudiante->id_estudiante);
-                });
-            })->get();
+            // Obtener las notas de sprint del estudiante
+            $notasSprint = NotasSprint::where('id_estudiante', $estudiante->id_estudiante)->get();
 
             // Contar el número de sprints
             $numSprints = $notasSprint->count();
@@ -77,21 +89,26 @@ class PlanillaNotasFinalesController extends Controller
 
             // Obtener las notas de cada sprint
             $sprintsNotas = [];
-            foreach ($notasSprint as $index => $notaSprint) {
-                $sprintsNotas['sprint' . ($index + 1)] = $notaSprint->nota_tarea;
+            foreach ($notasSprint as $notaSprint) {
+                $sprintId = $notaSprint->id_sprint;
+                $sprintsNotas['sprint' . $sprintId] = $notaSprint->nota_total;
             }
 
             // Calcular la nota total del sprint
-            $notaTotalSprint = $notasSprint->sum('nota_tarea');
-            $notaPromedioSprint = $numSprints > 0 ? ($notaTotalSprint / $numSprints) : 0;
+            $notaTotalSprint = $notasSprint->sum('nota_total');
 
-            // Obtener la cruzada correspondiente al equipo de la empresa seleccionada
+            // Calcular nota_total_sprint ajustada
+            $notaTotalSprintAjustada = ($notaTotalSprint * $notaValorSprint) / 100;
+
+            // Obtener la nota cruzada correspondiente al equipo de la empresa seleccionada
             $cruzada = Cruzada::where('equipo_evaluado_id', $empresaId)->first();
             $notaCruzada = $cruzada ? $cruzada->nota_cruzada : 0;
 
-            // Obtener la nota final si existe
-            $notaFinal = NotaFinal::where('id_notas_sprint', $notasSprint->first()->id_notas_sprint ?? null)->first();
-            $notaFin = $notaFinal ? $notaFinal->nota_fin : 0;
+            // Calcular notas_cruzada ajustada
+            $notaCruzadaAjustada = ($notaCruzada * $notaValorCruzada) / 100;
+
+            // Calcular la nota final
+            $notaFin = $notaTotalSprintAjustada + $notaCruzadaAjustada;
 
             // Guardar los datos del estudiante con sus notas
             $notasEstudiantes[] = [
@@ -99,10 +116,27 @@ class PlanillaNotasFinalesController extends Controller
                 'apellidos' => $estudiante->ap_pat . ' ' . $estudiante->ap_mat,
                 'sprints' => $sprintsNotas,
                 'notaTotalSprint' => $notaTotalSprint,
-                'promedioSprint' => $notaPromedioSprint,
+                'notaTotalSprintAjustada' => $notaTotalSprintAjustada,
                 'notaCruzada' => $notaCruzada,
+                'notaCruzadaAjustada' => $notaCruzadaAjustada,
                 'notaFin' => $notaFin,
             ];
+
+            // Opcional: Actualizar o crear la nota final en la base de datos
+            NotaFinal::updateOrCreate(
+                [
+                    'id_estudiante' => $estudiante->id_estudiante,
+                ],
+                [
+                    'nota_total_sprint' => $notaTotalSprint,
+                    'nota_total_sprint_ajustada' => $notaTotalSprintAjustada,
+                    'notas_cruzada' => $notaCruzada,
+                    'notas_cruzada_ajustada' => $notaCruzadaAjustada,
+                    'nota_fin' => $notaFin,
+                    'nota_valor_sprint' => $notaValorSprint,
+                    'nota_valor_cruzada' => $notaValorCruzada,
+                ]
+            );
         }
 
         return response()->json([
@@ -138,25 +172,20 @@ class PlanillaNotasFinalesController extends Controller
 
         foreach ($estudiantes as $estudiante) {
             // Obtener las notas del sprint del estudiante
-            $notasSprint = NotasSprint::whereHas('tarea', function ($query) use ($estudiante) {
-                $query->whereHas('estudiantes', function ($subQuery) use ($estudiante) {
-                    $subQuery->where('estudiante.id_estudiante', $estudiante->id_estudiante);
-                });
-            })->get();
+            $notasSprint = NotasSprint::where('id_estudiante', $estudiante->id_estudiante)->get();
 
             $numSprints = $notasSprint->count();
 
-            // Calcular la nota total del sprint y aplicar el porcentaje
-            $notaTotalSprint = $notasSprint->sum('nota_tarea');
-            $notaPromedioSprint = $numSprints > 0 ? ($notaTotalSprint / $numSprints) : 0;
+            // Calcular la nota total del sprint
+            $notaTotalSprint = $notasSprint->sum('nota_total');
 
             // Calcular la nota valor sprint final aplicando el porcentaje
-            $notaValorSprintFinal = ($notaPromedioSprint * $notaValorSprint) / 100;
+            $notaValorSprintFinal = ($notaTotalSprint * $notaValorSprint) / 100;
 
             // Obtener la cruzada correspondiente al equipo de la empresa seleccionada
-            $cruzada = Cruzada::where('equipo_evaluado_id', $empresaId)->first(); 
-            $notaCruzada = $cruzada ? $cruzada->nota_cruzada : 0; dd($notaCruzada);
-            
+            $cruzada = Cruzada::where('equipo_evaluado_id', $empresaId)->first();
+            $notaCruzada = $cruzada ? $cruzada->nota_cruzada : 0;
+
             // Calcular la nota valor cruzada final aplicando el porcentaje
             $notaValorCruzadaFinal = ($notaCruzada * $notaValorCruzada) / 100;
 
@@ -166,11 +195,13 @@ class PlanillaNotasFinalesController extends Controller
             // Actualizar la nota final en la base de datos
             NotaFinal::updateOrCreate(
                 [
-                    'id_notas_sprint' => $notasSprint->first()->id_notas_sprint ?? null,
+                    'id_estudiante' => $estudiante->id_estudiante,
                 ],
                 [
                     'nota_total_sprint' => $notaTotalSprint,
+                    'nota_total_sprint_ajustada' => $notaValorSprintFinal,
                     'notas_cruzada' => $notaCruzada,
+                    'notas_cruzada_ajustada' => $notaValorCruzadaFinal,
                     'nota_fin' => $notaFinal,
                     'nota_valor_sprint' => $notaValorSprint,
                     'nota_valor_cruzada' => $notaValorCruzada,
@@ -180,4 +211,4 @@ class PlanillaNotasFinalesController extends Controller
 
         return response()->json(['message' => 'Notas finales actualizadas correctamente.'], 200);
     }
-}  
+}

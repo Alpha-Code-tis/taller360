@@ -131,10 +131,10 @@ const EvaluationTables = () => {
           <thead>
             <tr>
               <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Nombre</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Evaluación / {evaluacionDocente}</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Ev. Pares / {pares}</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Autoevaluación / {autoevaluacion}</th>
-              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center', color: '#fff', backgroundColor: '#1A3254' }}>Nota Total / {notaTotal}</th>
+              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Evaluación </th>
+              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Ev. Pares </th>
+              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'left', color: '#fff', backgroundColor: '#1A3254' }}>Autoevaluación </th>
+              <th style={{ padding: '10px', border: '1px solid #ddd', textAlign: 'center', color: '#fff', backgroundColor: '#1A3254' }}>Nota Total </th>
             </tr>
           </thead>
           <tbody>

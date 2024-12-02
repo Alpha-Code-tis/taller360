@@ -17,6 +17,7 @@ return new class extends Migration
             $table->integer('id_nota_final', true);
             $table->integer('id_notas_sprint')->nullable()->index('tarea_fk');
             $table->integer('notas_cruzada')->nullable();
+            $table->integer('id_estudiante')->nullable();
             $table->integer('nota_total_sprint')->nullable();
             $table->integer('nota_fin')->nullable();
             $table->integer('nota_valor_cruzada')->nullable();

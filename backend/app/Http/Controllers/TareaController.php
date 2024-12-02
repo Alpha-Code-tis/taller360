@@ -8,7 +8,6 @@ use App\Models\Planificacion;
 use App\Models\Sprint;
 use App\Models\Tarea;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
@@ -55,6 +54,7 @@ class TareaController extends Controller
 
         return response()->json($tareasDelEstudiante);
     }
+
 
     public function subirAvance(Request $request, $tareaId)
     {
@@ -139,17 +139,7 @@ class TareaController extends Controller
         return response()->json(['error' => 'Avance no encontrado'], 404);
     }
 
-    public function mostrarTarea($id)
-    {
-        // Obtener la tarea junto con los criterios asociados
-        $tarea = Tarea::with('criterios')->find($id);
 
-        if (!$tarea) {
-            return response()->json(['error' => 'Tarea no encontrada'], 404);
-        }
-
-        return response()->json($tarea, 200);
-    }
 
     public function mostrarTodasLasTareas($empresaId)
     {
@@ -189,30 +179,5 @@ class TareaController extends Controller
         }
 
         return response()->json($tareas, 200);
-    }
-    public function getSprintsConTareas($equipoId)
-    {
-        try {
-            // Obtener planificaciones asociadas al equipo
-            $planificacion = Planificacion::where('id_empresa', $equipoId)->first();
-
-            if (!$planificacion) {
-                return response()->json(['message' => 'No se encontró planificación para este equipo'], 404);
-            }
-
-            // Obtener sprints asociados
-            $sprints = Sprint::with('alcances.tareas.estudiantes')
-                ->where('id_planificacion', $planificacion->id_planificacion)
-                ->get();
-
-            if ($sprints->isEmpty()) {
-                return response()->json(['message' => 'No se encontraron sprints para este equipo'], 404);
-            }
-
-            return response()->json($sprints, 200);
-        } catch (\Exception $e) {
-            Log::error('Error al obtener sprints y tareas: ' . $e->getMessage());
-            return response()->json(['message' => 'Error al obtener los sprints'], 500);
-        }
     }
 }
