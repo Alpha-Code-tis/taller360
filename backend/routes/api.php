@@ -18,8 +18,11 @@ use App\Http\Controllers\EvaluacionFinalController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
+use App\Http\Controllers\Cualificar;
+use App\Http\Controllers\CualificarController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\NotaController;
+use App\Http\Controllers\NotificacionEstudiantesController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -175,4 +178,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/configNotas', [NotaController::class, 'update']);
     Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
 
+    //Notificaciones
+    Route::post('/notificacion', [NotificacionEstudiantesController::class, 'notificarEstudiantesPorGrupo']);
+    Route::get('listaFechasEvaluciones', [NotificacionEstudiantesController::class, 'listaFechasEval']);
+    Route::get('/cualificacion', [CualificarController::class, 'index']);
 });
