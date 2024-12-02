@@ -22,10 +22,12 @@ class EstudiantesImport implements ToModel, WithHeadingRow
             throw new \Exception("El código SIS debe tener exactamente 9 dígitos.");
         }
 
+        $docente = auth()->guard('sanctum')->user();
         $data = [
             'nombre_estudiante' => $row['nombre_estudiante'],
             'ap_pat' => $row['ap_pat'] ?? null,
             'ap_mat' => $row['ap_mat'] ?? null,
+            'id_grupo' => $docente->id_grupo,
             'codigo_sis' => $row['codigo_sis'],
         ];
 

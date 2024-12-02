@@ -103,6 +103,7 @@ class EstudianteController extends Controller
                 'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+        $docente = auth()->guard('sanctum')->user();
         $validatedData = $validator->validated();
         $validatedData['ap_mat'] = $validatedData['ap_mat'] ?? ' ';
         $representanteId = null;
@@ -120,6 +121,7 @@ class EstudianteController extends Controller
                 'ap_pat' => $request->ap_pat,
                 'ap_mat' => $validatedData['ap_mat'],
                 'codigo_sis' => $request->codigo_sis,
+                'id_grupo' => $docente->id_grupo,
                 'id_representante' => $representanteId, // Asignar el ID del representante
                 'correo' => $correo,
                 'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
@@ -133,6 +135,7 @@ class EstudianteController extends Controller
                 'ap_pat' => $request->ap_pat,
                 'ap_mat' => $validatedData['ap_mat'],
                 'codigo_sis' => $request->codigo_sis,
+                'id_grupo' => $docente->id_grupo,
                 'id_representante' => $representanteId, // Asignar el ID del representante
                 'correo' => $correo,
                 'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
