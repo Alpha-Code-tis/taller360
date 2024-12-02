@@ -1,13 +1,17 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Imports\EstudiantesImport;
 use App\Models\Estudiante;
 use App\Models\RepresentateLegal;
 use App\Notifications\EstudianteRegistered;
+use App\Models\Autoevaluacion;
+use App\Models\Pare;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Notification;
 
@@ -185,4 +189,103 @@ class EstudianteController extends Controller
             return response()->json(['error' => 'Error al importar estudiantes: ' . $e->getMessage()], 500);
         }
     }
+
+
+    public function getStudentReport($id_estudiante)
+    {
+        try {
+            // Cargar relaciones válidas
+            $estudiante = Estudiante::with([
+                'empresa',
+                'tareas',
+                'evaluadorEvaluacionesFinales',
+                'evaluadoEvaluacionesFinales',
+            ])->findOrFail($id_estudiante);
+
+            // Obtener detalles de autoevaluación
+            $autoevaluaciones = Autoevaluacion::with('detalle_autos')
+                ->whereHas('evaluacion', function ($query) use ($id_estudiante) {
+                    // Ajusta esta condición según cómo esté relacionada la evaluación con el estudiante
+                    $query->where('id_estudiante', $id_estudiante);
+                })->get();
+
+            // Obtener detalles de evaluación de pares
+            $evaluacionesPares = Pare::with('detalle_pars')
+                ->whereHas('evaluacion', function ($query) use ($id_estudiante) {
+                    // Ajusta esta condición según cómo esté relacionada la evaluación con el estudiante
+                    $query->where('id_estudiante', $id_estudiante);
+                })->get();
+
+            // Estructurar la respuesta
+            return response()->json([
+                'estudiante' => [
+                    'id_estudiante' => $estudiante->id_estudiante,
+                    'nombre' => $estudiante->nombre_estudiante,
+                    'ap_pat' => $estudiante->ap_pat,
+                    'ap_mat' => $estudiante->ap_mat,
+                    'codigo_sis' => $estudiante->codigo_sis,
+                    'correo' => $estudiante->correo,
+                    'empresa' => $estudiante->empresa ? [
+                        'id_empresa' => $estudiante->empresa->id_empresa,
+                        'nombre_empresa' => $estudiante->empresa->nombre_empresa,
+                    ] : null,
+                    'tareas' => $estudiante->tareas->map(function ($tarea) {
+                        return [
+                            'id_tarea' => $tarea->id_tarea,
+                            'nombre_tarea' => $tarea->nombre_tarea,
+                            'estimacion' => $tarea->estimacion,
+                            'estado' => $tarea->estado,
+                            'resultado_evaluacion' => $tarea->pivot->resultado_evaluacion ?? null,
+                            'descripcion_evaluacion' => $tarea->pivot->descripcion_evaluacion ?? null,
+                        ];
+                    }),
+                    'evaluaciones' => [
+                        'autoevaluaciones' => $autoevaluaciones->map(function ($autoevaluacion) {
+                            return [
+                                'id_autoe' => $autoevaluacion->id_autoe,
+                                'detalles' => $autoevaluacion->detalle_autos->map(function ($detalle) {
+                                    return [
+                                        'criterio' => $detalle->criterio,
+                                        'nota' => $detalle->nota,
+                                    ];
+                                }),
+                            ];
+                        }),
+                        'evaluaciones_pares' => $evaluacionesPares->map(function ($pares) {
+                            return [
+                                'id_pares' => $pares->id_pares,
+                                'detalles' => $pares->detalle_pars->map(function ($detalle) {
+                                    return [
+                                        'criterio' => $detalle->criterio,
+                                        'nota' => $detalle->nota,
+                                    ];
+                                }),
+                            ];
+                        }),
+                        'evaluaciones_docente' => $estudiante->evaluadoEvaluacionesFinales->map(function ($evaluacion) {
+                            return [
+                                'id_evaluacion' => $evaluacion->id_evaluacion,
+                                'nota' => $evaluacion->nota,
+                                'comentario' => $evaluacion->comentario,
+                            ];
+                        }),
+                    ],
+                ],
+            ], 200);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Estudiante no encontrado'], 404);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener el reporte del estudiante: ' . $e->getMessage());
+            return response()->json([
+                'error' => 'Error al obtener el reporte del estudiante',
+                'message' => $e->getMessage(), // Agrega el mensaje de error para depuración
+            ], 500);
+        }
+    }
+
 }
+
+
+
+
+

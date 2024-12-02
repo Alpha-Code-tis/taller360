@@ -84,10 +84,9 @@ class Empresa extends Model
     return $this->belongsToMany(Criterio::class, 'empresa_criterio', 'id_empresa', 'id_criterio');
 }
 
-
 	public function planificacions()
 	{
-		return $this->hasMany(Planificacion::class, 'id_empresa');
+		return $this->hasMany(Planificacion::class, 'id_empresa','id_empresa');
 	}
 
 	public function representate_legals()

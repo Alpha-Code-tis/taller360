@@ -1,45 +1,77 @@
-.container {
+/* src/components/reportes.css */
+
+.reporte-container {
     padding: 20px;
-}
-
-h1 {
+    font-family: Arial, sans-serif;
+    max-width: 900px;
+    margin: auto;
+  }
+  
+  .form-group {
     margin-bottom: 20px;
-}
-
-/* Sección del filtro */
-.filter-section {
-    margin-bottom: 20px;
-}
-
-.filter-section label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-.empresa-select {
-    width: 100%;
+  }
+  
+  .select-gestion {
     padding: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-    box-sizing: border-box;
-}
-
-/* Detalles */
-.detalles {
-    margin-top: 30px;
-}
-
-.detalles h2 {
-    margin-bottom: 15px;
-}
-
-ul {
-    list-style: none;
-    padding: 0;
-}
-
-li {
-    margin: 10px 0;
-}
+    font-size: 14px;
+    width: 100%;
+  }
+  
+  .reporte-content, .student-report {
+    margin-top: 20px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+  }
+  
+  .reporte-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .reporte-logo {
+    width: 100px;
+    height: auto;
+    margin-right: 20px;
+    border-radius: 10px;
+  }
+  
+  .reporte-details p, .student-report p {
+    margin: 5px 0;
+    line-height: 1.6;
+  }
+  
+  .btn-pdf {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  .btn-pdf:hover {
+    background-color: #0056b3;
+  }
+  
+  .student-report h3 {
+    margin-bottom: 10px;
+  }
+  
+  .student-report h4 {
+    margin-top: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .student-report ul {
+    list-style-type: disc;
+    padding-left: 40px;
+  }
+  
+  .student-report li {
+    margin-bottom: 5px;
+  }
+  

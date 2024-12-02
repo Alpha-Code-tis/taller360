@@ -197,6 +197,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/sprintsTareas/{equipoId}', [TareaController::class, 'getSprintsConTareas']);
     Route::get('empresa/{id_empresa}/reporte', [EmpresaController::class, 'getReporte']);
 
+    // Reportes por Estudiante
+    Route::get('/estudiante/{id_estudiante}/reporte', [EstudianteController::class, 'getStudentReport']);
+
+
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);
     Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);

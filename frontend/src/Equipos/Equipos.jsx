@@ -1,4 +1,4 @@
-import { API_URL } from '../config';              
+import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { FaTrash, FaEdit, FaEye } from 'react-icons/fa'; // FaEye para el botón de detalles
@@ -44,16 +44,21 @@ const Equipos = () => {
   const fetchEstudiantes = async () => {
     try {
       const response = await axios.get(`${API_URL}sin-empresa`);
-      const formattedEstudiantes = response.data.map((estudiante) => ({
-        value: estudiante.id_estudiante,
-        label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
-      }));
-      setEstudiantes(formattedEstudiantes);
+      
+      if (response.data.length > 0) {
+        const formattedEstudiantes = response.data.map((estudiante) => ({
+          value: estudiante.id_estudiante,
+          label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
+        }));
+        setEstudiantes(formattedEstudiantes);
+        toast.success('Aún hay estudiantes que no tienen empresa.');
+      } else {
+        toast.success('Todos los estudiantes ya tienen una empresa.');
+      }
     } catch (error) {
-      toast.error('Error al cargar los estudiantes');
     }
   };
-
+  
   useEffect(() => {
     fetchEquipos();
     fetchEstudiantes();
@@ -106,17 +111,19 @@ const Equipos = () => {
   const handleShowViewModal = async (equipo) => {
     try {
       const response = await axios.get(`${API_URL}empresa/${equipo.id_empresa}/estudiantes`);
-      const estudiantesDelEquipo = response.data;
+      const { empresa, estudiantes } = response.data;
 
       setCurrentEquipo({
         ...equipo,
-        estudiantesSeleccionados: estudiantesDelEquipo,
+        logo: empresa.logo, // Asegúrate de que el logo viene desde la API
+        estudiantesSeleccionados: estudiantes,
       });
       setShowViewModal(true); // Mostrar modal de detalles
     } catch (error) {
       toast.error('Error al cargar los estudiantes del equipo.');
     }
   };
+
 
   // Handle Delete Equipo con confirmación
   const handleDelete = async (id) => {
@@ -207,42 +214,33 @@ const Equipos = () => {
 
     setIsSaving(true); // Indicar que se está guardando
 
-    const Equipodata = new FormData();
-    Equipodata.append('nombre_empresa', formValues.nombre_empresa);
-    Equipodata.append('nombre_corto', formValues.nombre_corto);
-    Equipodata.append('correo_empresa', formValues.correo_empresa);
-    Equipodata.append('telefono', formValues.telefono);
-    Equipodata.append('direccion', formValues.direccion);
-    Equipodata.append('logo', formValues.logo);
-    formValues.estudiantesSeleccionados.forEach(est => {
-      Equipodata.append('estudiantesSeleccionados[]', est.value);
-    });
-
-    const promise = currentEquipo
-      ? axios.put(`${API_URL}equipos/${currentEquipo.id_empresa}`, Equipodata, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      : axios.post(`${API_URL}equipos`, Equipodata, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
-
-    toast.promise(
-      promise,
-      {
-        loading: 'Guardando...',
-        success: <b>{currentEquipo ? 'Equipo editado exitosamente' : 'Equipo registrado exitosamente'}</b>,
-        error: <b>Error al guardar el equipo</b>,
-      }
-    );
+    const Equipodata = {
+      nombre_empresa: formValues.nombre_empresa,
+      nombre_corto: formValues.nombre_corto,
+      correo_empresa: formValues.correo_empresa,
+      telefono: formValues.telefono,
+      direccion: formValues.direccion,
+      logo: formValues.logo, // Enviar la URL directamente
+      estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
+    };
 
     try {
-      await promise;
-      fetchEquipos();
-      handleCloseModal();
+      if (currentEquipo) {
+        await axios.put(`${API_URL}equipos/${currentEquipo.id_empresa}`, Equipodata);
+        toast.success('Equipo actualizado correctamente');
+      } else {
+        await axios.post(`${API_URL}equipos`, Equipodata);
+        toast.success('Equipo creado correctamente');
+      }
+      fetchEquipos(); // Refrescar la lista de equipos
+      setShowModal(false); // Cerrar el modal
     } catch (error) {
-      setIsSaving(false); // Si ocurre un error, permitir que se intente nuevamente
+      toast.error('Error al guardar el equipo');
+    } finally {
+      setIsSaving(false); // Finalizar el estado de guardado
     }
   };
+
 
   return (
     <div className="container mt-2 pt-3">
@@ -294,14 +292,14 @@ const Equipos = () => {
         </table>
       </div>
 
-      <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
+      <Modal className="modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header>
           <Modal.Title>{currentEquipo ? 'Editar Equipo' : 'Agregar Equipo'}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
             <Row>
-            <Col md={6}>
+              <Col md={6}>
                 <Form.Group controlId="formNombreEmpresa" className="mb-3">
                   <Form.Label>Nombre del Equipo</Form.Label>
                   <Form.Control
@@ -390,16 +388,18 @@ const Equipos = () => {
             <Row>
               <Col md={12}>
                 <Form.Group controlId="formLogo" className="mb-3">
-                  <Form.Label>Logo</Form.Label>
+                  <Form.Label>URL del Logo</Form.Label>
                   <Form.Control
-                    type="file"
+                    type="url"
                     name="logo"
-                    accept=".png"
-                    onChange={handleFileChange}
+                    value={formValues.logo}
+                    onChange={handleInputChange}
+                    placeholder="https://example.com/logo.png"
                   />
                 </Form.Group>
               </Col>
             </Row>
+
 
             <Row>
               <Col md={12}>
@@ -438,14 +438,22 @@ const Equipos = () => {
         <Modal.Body>
           {currentEquipo && (
             <div>
-              {currentEquipo.logo && (
+              {currentEquipo?.logo ? (
                 <div className="circular-logo">
                   <img
-                    src={`http://localhost:8000/storage/${currentEquipo.logo}`}
+                    src={
+                      currentEquipo.logo.startsWith('http')
+                        ? currentEquipo.logo // URL externa
+                        : `http://localhost:8000/storage/${currentEquipo.logo}` // Logo almacenado localmente
+                    }
                     alt="Logo de la Empresa"
+                    className="img-fluid"
                   />
                 </div>
+              ) : (
+                <p><strong>Logo:</strong> No disponible</p>
               )}
+
               <p><strong>Nombre del Equipo:</strong> {currentEquipo.nombre_empresa}</p>
               <p><strong>Nombre Corto:</strong> {currentEquipo.nombre_corto}</p>
               <p><strong>Correo de la Empresa:</strong> {currentEquipo.correo_empresa}</p>
