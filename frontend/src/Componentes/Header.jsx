@@ -26,6 +26,7 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
+import SummarizeIcon from '@mui/icons-material/Summarize';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
@@ -141,8 +142,8 @@ export default function PersistentDrawerLeft() {
   const [cruzadaStart, setCruzadaStart] = useState('');
   const [cruzadaEnd, setCruzadaEnd] = useState('');
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState(''); 
-  const [toastVariant, setToastVariant] = useState('success'); 
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastVariant, setToastVariant] = useState('success');
 
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
@@ -198,7 +199,7 @@ useEffect(() => {
     setNotificacion(e.target.value); // Actualiza el estado con el texto ingresado
   };
 
- 
+
   useEffect(() => {
     // Obtener el role del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
@@ -277,8 +278,8 @@ useEffect(() => {
       setFinalEvalEnd(data.fecha_fin_eva_final ?? '');
       setAutoEvalStart(data.fecha_inicio_autoevaluacion ?? '');
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
-      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? ''); 
-      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');    
+      setCruzadaStart(data.fecha_inicio_eva_cruzada ?? '');
+      setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');
 
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
@@ -286,7 +287,6 @@ useEffect(() => {
     }
   };
 
-  
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -338,8 +338,8 @@ useEffect(() => {
     const payload = {
       fecha_inicio_autoevaluacion: autoEvalStart,
       fecha_fin_autoevaluacion: autoEvalEnd,
-      fecha_inicio_eva_cruzada: cruzadaStart, 
-      fecha_fin_eva_cruzada: cruzadaEnd,    
+      fecha_inicio_eva_cruzada: cruzadaStart,
+      fecha_fin_eva_cruzada: cruzadaEnd,
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
       nota_pares: notaPares,
@@ -457,7 +457,7 @@ useEffect(() => {
 
   const [selectedButton, setSelectedButton] = useState(null);
 
-  
+
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   return (
     <Box sx={{ display: 'flex' }}>
@@ -838,6 +838,26 @@ useEffect(() => {
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
+                  to="/ReportePorEvaluaciones"
+                  onClick={() => handleButtonClick('ReportePorEvaluaciones')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <SummarizeIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
                   to="/CualificarResultados"
                   onClick={() => handleButtonClick('CualificarRes')}
                   sx={{
@@ -933,16 +953,16 @@ useEffect(() => {
                           Fecha Inicio
                           <Form.Control
                             type="date"
-                            value={cruzadaStart} 
-                            onChange={(e) => setCruzadaStart(e.target.value)} 
+                            value={cruzadaStart}
+                            onChange={(e) => setCruzadaStart(e.target.value)}
                           />
                         </Form.Label>
                         <Form.Label>
                           Fecha Fin
                           <Form.Control
                             type="date"
-                            value={cruzadaEnd} 
-                            onChange={(e) => setCruzadaEnd(e.target.value)} 
+                            value={cruzadaEnd}
+                            onChange={(e) => setCruzadaEnd(e.target.value)}
                           />
                         </Form.Label>
                       </div>
@@ -1093,9 +1113,9 @@ useEffect(() => {
                                   {Object.keys(fechas).length > 0 ? (
                                     Object.keys(fechas).map((tipo) => (
                                       <li key={tipo}>
-                                        <strong>{tipo}</strong>: 
-                                          {fechas[tipo].fecha_inicio && fechas[tipo].fecha_fin ? 
-                                            `${fechas[tipo].fecha_inicio} - ${fechas[tipo].fecha_fin}` : 
+                                        <strong>{tipo}</strong>:
+                                          {fechas[tipo].fecha_inicio && fechas[tipo].fecha_fin ?
+                                            `${fechas[tipo].fecha_inicio} - ${fechas[tipo].fecha_fin}` :
                                             "Fecha no disponible"
                                           }
                                       </li>
@@ -1122,7 +1142,7 @@ useEffect(() => {
                           />
                         </Form.Group>
                       </div>
-                      
+
                     </Form.Group>
                   </Form>
                   {/* Toast para mostrar el mensaje de éxito o error */}
@@ -1141,7 +1161,7 @@ useEffect(() => {
                   <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>Cancelar</Button>
                   <Button variant="primary" onClick={handleSaveChangesNotif}>Enviar</Button>
                 </Modal.Footer>
-               </Modal> 
+               </Modal>
             </>
           )}
         </List>

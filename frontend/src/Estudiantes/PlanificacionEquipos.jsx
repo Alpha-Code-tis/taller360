@@ -80,6 +80,8 @@ const MyCalendar = () => {
           console.error("Error al obtener las empresas:", error);
       }
 
+      setIsGestionOpen(false); // Cierra el dropdown
+
     };
 
     const handleOptionE = async (event) => {
@@ -93,6 +95,8 @@ const MyCalendar = () => {
       } catch (error) {
           console.error("Error al obtener los sprints:", error);
       }
+
+      setIsEmpresaOpen(false); // Cierra el dropdown
   };
   
 
@@ -167,6 +171,8 @@ const MyCalendar = () => {
     } catch (error) {
       console.error("Error al obtener los detalles del sprint:", error);
     }
+
+    setIsSprintOpen(false);
 };
 
 
@@ -201,138 +207,138 @@ const MyCalendar = () => {
     return (
       <div className="container custom-container pt-3">
            {/* Contenedor para los menús desplegables */}
-<div className="container">
-    <div className="row">
-        {/* Menú desplegable de Gestión */}
-        <div className="col-md-4" style={{ marginTop: '-150px' }}>
-            <div className="gestion-dropdown me-5">
-                <button className="btn btn-primary" onClick={toggleGestionDropdown}>
-                    Gestión <span className="arrow">{isGestionOpen ? '▲' : '▼'}</span>
-                </button>
-                {isGestionOpen && (
-                    <div className="dropdown-menu show">
-                        {gestiones.map((gestion) => (
-                            <label className="dropdown-item" key={gestion}>
-                                <input
-                                    type="radio"
-                                    value={gestion}
-                                    checked={selectedGestion === gestion}
-                                    onChange={handleOptionChangeG}
-                                />
-                                Gestión {gestion}
-                            </label>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
+          <div className="container">
+      <div className="row">
+          {/* Menú desplegable de Gestión */}
+          <div className="col-md-4" style={{ marginTop: '-150px' }}>
+              <div className="gestion-dropdown me-5">
+                  <button className="btn btn-primary" onClick={toggleGestionDropdown}>
+                      Gestión <span className="arrow">{isGestionOpen ? '▲' : '▼'}</span>
+                  </button>
+                  {isGestionOpen && (
+                      <div className="dropdown-menu show">
+                          {gestiones.map((gestion) => (
+                              <label className="dropdown-item" key={gestion}>
+                                  <input
+                                      type="radio"
+                                      value={gestion}
+                                      checked={selectedGestion === gestion}
+                                      onChange={handleOptionChangeG}
+                                  />
+                                  Gestión {gestion}
+                              </label>
+                          ))}
+                      </div>
+                  )}
+              </div>
+          </div>
 
-        {/* Menú desplegable de Empresa */}
-        <div className="col-md-4" style={{ marginTop: '-150px' }}>
-            <div className="empresa-dropdown me-5">
-                <button className="btn btn-primary" onClick={toggleEmpresaDropdown}>
-                    Empresa <span className="arrow">{isEmpresaOpen ? '▲' : '▼'}</span>
-                </button>
-                {isEmpresaOpen && (
-                    <div className="dropdown-menu show">
-                      {empresas.map((empresa)=>(
-                        <label className="dropdown-item"key={empresa.nombre_empresa}>
-                            <input
-                                type="radio"
-                                value={empresa.id_empresa}
-                                checked={selectedEmpresa == empresa.id_empresa}
-                                onChange={handleOptionE}
-                            />
-                            {empresa.nombre_empresa}
-                        </label>
-                      ))}
-                    </div>
-                )}
-            </div>
-        </div>
-        {/* Menú desplegable de Sprint */}
-        <div className="col-md-4" style={{ marginTop: '-150px' }}>
-            <div className="sprint-dropdown me-5">
-                <button className="btn btn-primary" onClick={toggleSprintDropdown}>
-                    Sprint <span className="arrow">{isSprintOpen ? '▲' : '▼'}</span>
-                </button>
-                {isSprintOpen && (
-                    <div className="dropdown-menu show">
-                        {sprints.map((sprint) => (
-                            <label className="dropdown-item" key={sprint}>
-                                <input
-                                    type="radio"
-                                    value={sprint}
-                                    checked={selectedSprint == sprint}
-                                    onChange={handleOptionChange}
-                                />
-                                Sprint {sprint}
-                            </label>
+          {/* Menú desplegable de Empresa */}
+          <div className="col-md-4" style={{ marginTop: '-150px' }}>
+              <div className="empresa-dropdown me-5">
+                  <button className="btn btn-primary" onClick={toggleEmpresaDropdown}>
+                      Empresa <span className="arrow">{isEmpresaOpen ? '▲' : '▼'}</span>
+                  </button>
+                  {isEmpresaOpen && (
+                      <div className="dropdown-menu show">
+                        {empresas.map((empresa)=>(
+                          <label className="dropdown-item"key={empresa.nombre_empresa}>
+                              <input
+                                  type="radio"
+                                  value={empresa.id_empresa}
+                                  checked={selectedEmpresa == empresa.id_empresa}
+                                  onChange={handleOptionE}
+                              />
+                              {empresa.nombre_empresa}
+                          </label>
                         ))}
-                    </div>
-                )}
-            </div>
-          
-        </div>
-        <div  className="col-md-9" style={{ marginLeft: '148px', marginTop: '-100px', height: '360px' }}>
-              <Calendar
-                  localizer={localizer}
-                  events={eventos}
-                  startAccessor="start"
-                  endAccessor="end"
-                  style={{ margin: '50px' }}
-                  eventPropGetter={(event) => ({
-                      style: {
-                          backgroundColor: event.style.backgroundColor,
-                          color: 'white',
-                          borderRadius: '5px',
-                          border: 'none',
-                      },
-                  })}
-                  onSelectEvent={handleSelectEvent}
-              />
-              {selectedEvent && (
-      <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
-        <Modal.Header>
-          <Modal.Title>Detalles del {selectedEvent.title}</Modal.Title>
-        </Modal.Header>
-      <Modal.Body>
-        <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
-        <p><strong>Fecha de fin:</strong> {fechaFinal ? fechaFinal.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
+                      </div>
+                  )}
+              </div>
+          </div>
+          {/* Menú desplegable de Sprint */}
+          <div className="col-md-4" style={{ marginTop: '-150px' }}>
+              <div className="sprint-dropdown me-5">
+                  <button className="btn btn-primary" onClick={toggleSprintDropdown}>
+                      Sprint <span className="arrow">{isSprintOpen ? '▲' : '▼'}</span>
+                  </button>
+                  {isSprintOpen && (
+                      <div className="dropdown-menu show">
+                          {sprints.map((sprint) => (
+                              <label className="dropdown-item" key={sprint}>
+                                  <input
+                                      type="radio"
+                                      value={sprint}
+                                      checked={selectedSprint == sprint}
+                                      onChange={handleOptionChange}
+                                  />
+                                  Sprint {sprint}
+                              </label>
+                          ))}
+                      </div>
+                  )}
+              </div>
+            
+          </div>
+          <div  className="col-md-9" style={{ marginLeft: '148px', marginTop: '-100px', height: '360px' }}>
+                <Calendar
+                    localizer={localizer}
+                    events={eventos}
+                    startAccessor="start"
+                    endAccessor="end"
+                    style={{ margin: '50px' }}
+                    eventPropGetter={(event) => ({
+                        style: {
+                            backgroundColor: event.style.backgroundColor,
+                            color: 'white',
+                            borderRadius: '5px',
+                            border: '2px solid white',      
+                        },
+                    })}
+                    onSelectEvent={handleSelectEvent}
+                />
+                {selectedEvent && (
+        <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
+          <Modal.Header>
+            <Modal.Title>Detalles del {selectedEvent.title}</Modal.Title>
+          </Modal.Header>
+        <Modal.Body>
+          <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
+          <p><strong>Fecha de fin:</strong> {fechaFinal ? fechaFinal.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
 
-        <h5>Requerimientos</h5>
-        {alcances.length > 0 ? (
-          alcances.map((alcance, index) => (
-            <div key={index}>
-              <p><strong>{index + 1}:</strong> {alcance.descripcion || 'No hay descripción disponible'}</p>
-              {alcance.tareas.length > 0 ? (
-                <ul>
-                  {alcance.tareas.map((tarea, tareaIndex) => (
-                    <li key={tareaIndex}>
-                      <strong>{tarea.nombre_tarea}:</strong> {tarea.estimacion} horas
-                    </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No hay tareas disponibles para este alcance.</p>
-              )}
-            </div>
-          ))
-        ) : (
-          <p>No hay alcances disponibles para este sprint.</p>
+          <h5>Requerimientos</h5>
+          {alcances.length > 0 ? (
+            alcances.map((alcance, index) => (
+              <div key={index}>
+                <p><strong>{index + 1}:</strong> {alcance.descripcion || 'No hay descripción disponible'}</p>
+                {alcance.tareas.length > 0 ? (
+                  <ul>
+                    {alcance.tareas.map((tarea, tareaIndex) => (
+                      <li key={tareaIndex}>
+                        <strong>{tarea.nombre_tarea}:</strong> {tarea.estimacion} horas
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>No hay tareas disponibles para este alcance.</p>
+                )}
+              </div>
+            ))
+          ) : (
+            <p>No hay alcances disponibles para este sprint.</p>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModalEvent}>
+            Cerrar
+          </Button>
+        </Modal.Footer>
+        </Modal>
         )}
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleCloseModalEvent}>
-          Cerrar
-        </Button>
-      </Modal.Footer>
-      </Modal>
-      )}
-     </div>
-    </div>
-</div>
-</div>
+      </div>
+      </div>
+        </div>
+      </div>
 
     );
 }

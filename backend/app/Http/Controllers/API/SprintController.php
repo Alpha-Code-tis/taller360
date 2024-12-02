@@ -25,7 +25,17 @@ class SprintController extends Controller
      */
     public function index()
     {
-        //
+        $empresaId = request('empresaId');
+        $sprints = Sprint::query()
+            ->when(
+                isset($empresaId),
+                fn ($q) => $q->whereHas(
+                    'planificacion',
+                    fn ($q) => $q->where('id_empresa', $empresaId)
+                )
+            )
+            ->get();
+        return $sprints;
     }
 
     /**

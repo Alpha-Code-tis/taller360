@@ -31,46 +31,48 @@ const ListaAutoevaluacion = () => {
   }, []);
 
   return (
-    <div className="lista-autoevaluacion-container">
+    <div className="container mt-2 pt-3">
       <h1 className="title">Lista de Autoevaluaciones</h1>
-      <table className="autoevaluacion-table">
-        <thead>
-          <tr>
-            <th>Nombre del Estudiante</th>
-            <th>Tareas Realizadas</th>
-            <th>Estado de las tareas</th>
-            <th>Detalles de la autoevaluacion</th>
-          </tr>
-        </thead>
-        <tbody>
-          {estudiantes.map((estudiante, index) => (
-            <tr key={index}>
-              <td>{`${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`}</td>
-              <td>
-                <ul>
-                  {estudiante.tareas.map((tarea, idx) => (
-                    <li key={idx}>{tarea.nombre_tarea}</li>
-                  ))}
-                </ul>
-              </td>
-              <td>
-                <ul>
-                  {estudiante.tareas.map((tarea, idx) => (
-                    <li key={idx}>{tarea.estado}</li>
-                  ))}
-                </ul>
-              </td>
-              <td>
-                <ul>
-                  {estudiante.tareas.map((tarea, idx) => (
-                    <li key={idx}>{tarea.pivot.resultado_evaluacion} { tarea.pivot.descripcion_evaluacion ? ' - ' + tarea.pivot.descripcion_evaluacion : '' }</li>
-                  ))}
-                </ul>
-              </td>
+      <div className="table-responsive">
+        <table className="table table-hover autoevaluacion-table">
+          <thead>
+            <tr>
+              <th>Nombre del Estudiante</th>
+              <th>Tareas Realizadas</th>
+              <th>Estado de las tareas</th>
+              <th>Detalles de la autoevaluacion</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {estudiantes.map((estudiante, index) => (
+              <tr key={index}>
+                <td>{`${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`}</td>
+                <td>
+                  <ul>
+                    {estudiante.tareas.map((tarea, idx) => (
+                      <li key={idx}>{tarea.nombre_tarea}</li>
+                    ))}
+                  </ul>
+                </td>
+                <td>
+                  <ul>
+                    {estudiante.tareas.map((tarea, idx) => (
+                      <li key={idx}>{tarea.estado}</li>
+                    ))}
+                  </ul>
+                </td>
+                <td>
+                  <ul>
+                    {estudiante.tareas.map((tarea, idx) => (
+                      <li key={idx}>{tarea.pivot.resultado_evaluacion} { tarea.pivot.descripcion_evaluacion ? ' - ' + tarea.pivot.descripcion_evaluacion : '' }</li>
+                    ))}
+                  </ul>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };

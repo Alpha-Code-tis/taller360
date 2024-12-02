@@ -172,6 +172,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
 
+    //sprints
+    Route::get('/listar-sprints', [SprintController::class, 'index']);
+
+    //reportes
+    Route::get('/reportes/autoevaluacion', [AutoevaluacionController::class, 'report']);
+    Route::get('/reportes/evaluacionPares', [EvaluacionParesController::class, 'report']);
+
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);
     Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);
