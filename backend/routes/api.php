@@ -18,7 +18,11 @@ use App\Http\Controllers\EvaluacionFinalController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
+use App\Http\Controllers\Cualificar;
+use App\Http\Controllers\CualificarController;
 use App\Http\Controllers\EvaluacionParesController;
+use App\Http\Controllers\NotaController;
+use App\Http\Controllers\NotificacionEstudiantesController;
 use App\Models\Planificacion;
 use Illuminate\Support\Facades\Auth;
 
@@ -168,4 +172,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
 
+    //sprints
+    Route::get('/listar-sprints', [SprintController::class, 'index']);
+
+    //reportes
+    Route::get('/reportes/autoevaluacion', [AutoevaluacionController::class, 'report']);
+    Route::get('/reportes/evaluacionPares', [EvaluacionParesController::class, 'report']);
+
+    //Configuración de notas
+    Route::get('/configNotas', [NotaController::class, 'index']);
+    Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);
+    Route::put('/configNotas', [NotaController::class, 'update']);
+    Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
+
+    //Notificaciones
+    Route::post('/notificacion', [NotificacionEstudiantesController::class, 'notificarEstudiantesPorGrupo']);
+    Route::get('listaFechasEvaluciones', [NotificacionEstudiantesController::class, 'listaFechasEval']);
+    Route::get('/cualificacion', [CualificarController::class, 'index']);
 });

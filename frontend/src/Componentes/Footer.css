@@ -3,6 +3,7 @@
   justify-content: space-between;
   align-items: center;
   width: 100%;
+  height: 10%;
   padding: 20px;
   background-color: #2D5981;
   position: fixed;
@@ -15,13 +16,15 @@
 }
 
 .company-logo {
-  height: 60px;
+  height: 50px;
   object-fit: contain; 
 }
 
 .social-icons {
   display: flex;
   gap: 20px;
+  margin-top: 15px;
+  height: 60px;
   margin-right: 20px;
 }
 

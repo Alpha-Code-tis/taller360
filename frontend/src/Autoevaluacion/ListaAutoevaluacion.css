@@ -2,6 +2,7 @@
     padding: 20px;
     font-family: Arial, sans-serif;
     max-width: 100%;
+    max-height: 250px; /* Ajusta la altura máxima según sea necesario */
   }
 
   .title {
@@ -14,6 +15,7 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    min-width: 60vw;
   }
 
   .autoevaluacion-table th,
@@ -36,5 +38,5 @@
   }
 
   .autoevaluacion-table tr:nth-child(even) {
-    background-color: #f9f9f9;
+    background-color: unset !important;
   }

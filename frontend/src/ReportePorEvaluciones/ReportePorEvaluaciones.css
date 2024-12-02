@@ -1,0 +1,29 @@
+
+.report-title {
+  text-align: left;
+  margin-left: 10px;
+  font-size: 1.8rem;
+  margin-bottom: 30px;
+}
+
+.select-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.select-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.select-item label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.select-item select {
+  width: 200px;
+}

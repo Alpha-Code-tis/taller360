@@ -54,6 +54,17 @@ button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
 
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+  background: rgb(255,255,255);
+  background: linear-gradient(146deg, rgba(255,255,255,1) 22%, #2d5981 80%, rgba(26,50,84,1) 100%) !important;
+
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
