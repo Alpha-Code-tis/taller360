@@ -29,6 +29,7 @@ const EvaluacionPares = () => {
   });
   const [formErrors, setFormErrors] = useState({});
   const [isEvaluationEnabled, setIsEvaluationEnabled] = useState(false);
+  const [sprints, setSprints] = useState([]);
 
 
   const [selectedRowsData, setSelectedRowsData] = useState([]);
@@ -73,7 +74,7 @@ const EvaluacionPares = () => {
 
   const fetchEvaluacionDetalles = async (idEstudiante) => {
     try {
-      const response = await axios.get(`${API_URL}evaluacionPares/${idEstudiante}`);
+      const response = await axios.get(`${API_URL}evaluacionPares/${idEstudiante}?sprintId=${selectedSprint.id_sprint}`);
       setEvaluationDetails(response.data);
       setShowDetailsModal(true);
     } catch (error) {
@@ -87,13 +88,14 @@ const EvaluacionPares = () => {
     }
     const data = {
       criterios_ids: selectedRowsData,
-      id_estudiante_evaludado: currentStudent.id_estudiante
+      id_estudiante_evaludado: currentStudent.id_estudiante,
+      id_sprint: selectedSprint.id_sprint
     }
     try {
       const response = await axios.post(`${API_URL}evaluacionPares`, data);
       if (response.status === 201) {
         toast.success('Evaluación realizada exitosamente');
-        fetchEstudiantes();
+        fetchEstudiantes(selectedSprint.id_sprint);
         fetchCriterios();
         handleCloseEvaluationModal();
       }
@@ -122,6 +124,11 @@ const EvaluacionPares = () => {
     setFormErrors({...formErrors, resultado_evaluacion: ''});
   };
 
+  const handleSelectSprint = (sprint) => {
+    setSelectedSprint(sprint);
+    fetchEstudiantes(sprint.id_sprint);
+  };
+
   const evaluationOptions = [
     { value: 1, label: 'Malo', color: '#a9cce3' }, //
     { value: 2, label: 'Regular', color: '#a9cce3' }, //
@@ -131,13 +138,14 @@ const EvaluacionPares = () => {
   ];
 
   useEffect(() => {
-    fetchEstudiantes();
+    // fetchEstudiantes();
     fetchCriterios();
+    fetchSprints();
   }, []);
 
-  const fetchEstudiantes = async() => {
+  const fetchEstudiantes = async(sprintId) => {
     try {
-      const response = await axios.get(`${API_URL}listaEstudiantes`);
+      const response = await axios.get(`${API_URL}listaEstudiantes?sprintId=${sprintId}`);
       const idEstudianteAuth = localStorage.getItem('id_estudiante');
       const estudiantes = response.data.filter(estudiante => estudiante.id_estudiante != idEstudianteAuth);
       setEstudiantes(estudiantes);
@@ -160,11 +168,31 @@ const EvaluacionPares = () => {
     }
 
   };
+  const fetchSprints = async () => {
+    try {
+      const response = await axios.get(`${API_URL}tareas/sprints`);
+      setSprints(response.data);
+    } catch (error) {
+      toast.error('Error al cargar los sprints.');
+    }
+  };
 
   return (
-    <div className="lista-autoevaluacion-container">
-      <h1 className="title">Evaluación Entre Pares</h1>
-      <table className="autoevaluacion-table" >
+    <div className="container mt-2 pt-3">
+      <div className="d-flex justify-content-between align-items-center gap-3 mb-2">
+        <h1 className="title">Evaluación Entre Pares</h1>
+        <Dropdown>
+          <Dropdown.Toggle>
+            Sprint {selectedSprint?.nro_sprint}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {sprints.map((sprint, index) => (
+              <Dropdown.Item key={index} onClick={() => handleSelectSprint(sprint)}>Sprint {sprint.nro_sprint}</Dropdown.Item>
+            ))}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+      <table className="table table-hover autoevaluacion-table">
       <thead>
           <tr>
             <th>Nombre del Estudiante</th>
