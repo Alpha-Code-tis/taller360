@@ -2,7 +2,9 @@
   background-color: #c2c9dc; 
   padding: 20px; 
   border-radius: 10px;
+  
 }
+
 
 .custom-width-modal .modal-dialog {
   max-width: 150%; /* Ajusta el ancho según tus necesidades */
@@ -11,7 +13,13 @@
   margin-left: 30%; /* Mueve el modal hacia la derecha */
 }
 
-
+@media (max-width: 768px) {
+  .custom-width-modal .modal-dialog {
+    margin-left: 12%; /* Resetea el margen izquierdo */
+    margin-right: auto; /* Centra horizontalmente */
+    max-width: 90%; /* Reduce el ancho del modal en pantallas pequeñas */
+  }
+}
 
 .custom-modal {
   padding: 10px;
@@ -137,7 +145,16 @@ table-container {
   position: relative;
   display: inline-block;
   margin-right: 5rem; /* Ajusta el valor según sea necesario */
-  margin-left: -160px; /* Ajusta este valor para mover más a la izquierda */
+  margin-left: -100px; /* Ajusta este valor para mover más a la izquierda */
+}
+
+@media (max-width: 768px) {
+  .sprint-dropdown {
+    margin-left: 0; /* Elimina el margen izquierdo */
+    margin-right: 0; /* Elimina el margen derecho */
+    width: 100%; /* Hace que el dropdown ocupe el 100% del ancho disponible */
+    text-align: right; /* Alinea el contenido a la derecha */
+  }
 }
 
 .dropdown-item:hover {

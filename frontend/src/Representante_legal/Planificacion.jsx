@@ -410,7 +410,7 @@ const Planificacion = () => {
               </div>
             )}
           </div>
-          <h1 className="m-0 ms-5">Planificación</h1>
+          <h1 className="m-0 ms-5 me-5">Planificación</h1>
         </div>
         <button className="btn btn-primary" onClick={() => handleShowModal()}>Registrar</button>
       </div>

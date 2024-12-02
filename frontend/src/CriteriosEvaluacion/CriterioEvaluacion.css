@@ -107,3 +107,36 @@
     word-wrap: break-word;
     white-space: normal; /* Permite que el texto se divida en varias líneas */
 }
+
+/* Media Query para pantallas pequeñas */
+@media (max-width: 768px) {
+
+    .criterios-table {
+        width: 100%; 
+        min-width: 100%; 
+    }
+  
+    .criterios-table th,
+    .criterios-table td {
+        padding: 8px; 
+        text-align: center; 
+    }
+  
+ 
+    .criterios-table td {
+        word-wrap: break-word; 
+        white-space: normal; 
+    }
+  
+    /* Para asegurar que la tabla pueda hacer scroll horizontal si es necesario */
+    .table-container1 {
+        margin-left: 0; 
+        overflow-x: auto; 
+    }
+  
+    .criterios-table td:last-child, .criterios-table th:last-child {
+        width: 120px; 
+        text-align: center; 
+    }
+  }
+  
