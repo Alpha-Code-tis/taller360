@@ -23,7 +23,7 @@ class NotaController extends Controller
             return response()->json(['message' => 'Empresa o Sprint no seleccionados'], Response::HTTP_BAD_REQUEST);
         }
         $docente = auth()->guard('sanctum')->user();
-    
+
         // Buscar las notas asociadas al docente autenticado
         $planificacion = Planificacion::where('id_empresa', $id_empresa)
             ->first();
@@ -42,7 +42,7 @@ class NotaController extends Controller
 
         return response()->json(['message' => 'Nota no encontrada'], Response::HTTP_NO_CONTENT);
     }
-    
+
     public function store(Request $request)
     {
         $docente = auth()->guard('sanctum')->user();
@@ -115,12 +115,34 @@ class NotaController extends Controller
                 'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+
+        $totalEvaluaciones = $request->autoevaluacion + $request->pares + $request->evaluaciondocente;
+
+        if ($totalEvaluaciones > 100) {
+            return response()->json([
+                'message' => 'La suma de autoevaluación, evaluación de pares y evaluación del docente no debe superar 100.' .' Suma Total es: '. $totalEvaluaciones,
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($totalEvaluaciones < 100) {
+            return response()->json([
+                'message' => 'La suma de autoevaluación, evaluación de pares y evaluación del docente debe sumar 100.' .' Suma Total es: '. $totalEvaluaciones,
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
         $planificacion = Planificacion::where('id_empresa', $request->empresa)
             ->first();
+
+        if (!$planificacion) {
+            return response()->json([
+                'message' => 'Planificación no encontrada para la empresa proporcionada.',
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         $sprint = Sprint::where('id_planificacion', $planificacion->id_planificacion)
             ->where('nro_sprint', $request->sprint)
             ->first();
+
         if (!$sprint) {
             return response()->json([
                 'message' => 'Sprint no encontrado para la empresa proporcionada.',

@@ -30,7 +30,7 @@ class NotificacionEstudiantesController extends Controller
         $ajuste = Ajuste::first();
 
         if (!$ajuste) {
-            return response()->json(['error' => 'No hay ajustes configurados'], Response::HTTP_NOT_FOUND);
+            return response()->json(['message' => 'No hay ajustes configurados'], Response::HTTP_NOT_FOUND);
         }
 
         $tipos = $request->input('tipos', []);
@@ -39,6 +39,9 @@ class NotificacionEstudiantesController extends Controller
         $fechas = [];
 
         if (in_array('autoevaluacion', $tipos)) {
+            if (!$ajuste->fecha_inicio_autoevaluacion || !$ajuste->fecha_fin_autoevaluacion) {
+                return response()->json(['message' => 'Las fechas para autoevaluación no están configuradas.'], Response::HTTP_BAD_REQUEST);
+            }
             $fechas['autoevaluacion'] = [
                 'fecha_inicio' => $ajuste->fecha_inicio_autoevaluacion,
                 'fecha_fin' => $ajuste->fecha_fin_autoevaluacion,
@@ -46,6 +49,9 @@ class NotificacionEstudiantesController extends Controller
         }
 
         if (in_array('pares', $tipos)) {
+            if (!$ajuste->fecha_inicio_eva_final || !$ajuste->fecha_fin_eva_final) {
+                return response()->json(['message' => 'Las fechas para evaluación de pares no están configuradas.'], Response::HTTP_BAD_REQUEST);
+            }
             $fechas['pares'] = [
                 'fecha_inicio' => $ajuste->fecha_inicio_eva_final,
                 'fecha_fin' => $ajuste->fecha_fin_eva_final,
@@ -53,6 +59,9 @@ class NotificacionEstudiantesController extends Controller
         }
 
         if (in_array('cruzada', $tipos)) {
+            if (!$ajuste->fecha_inicio_eva_cruzada || !$ajuste->fecha_fin_eva_cruzada) {
+                return response()->json(['message' => 'Las fechas para evaluación cruzada no están configuradas.'], Response::HTTP_BAD_REQUEST);
+            }
             $fechas['cruzada'] = [
                 'fecha_inicio' => $ajuste->fecha_inicio_eva_cruzada,
                 'fecha_fin' => $ajuste->fecha_fin_eva_cruzada,
