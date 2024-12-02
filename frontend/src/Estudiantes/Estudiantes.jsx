@@ -169,8 +169,29 @@ const Estudiantes = () => {
       await promise;
       await fetchEstudiantes(); // Refrescamos la lista de estudiantes
       handleCloseModal();
-    } catch (err) {
-      toast.error('Error al guardar el estudiante');
+    } catch (error) {
+      let errorMessage = 'Ocurrió un error.';
+
+      if (error.response) {
+        const responseData = error.response.data;
+
+        // Verificar si hay un mensaje de conflicto específico
+        if (responseData.message) {
+          errorMessage = responseData.message;
+        }
+
+        // Si hay errores de validación
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
+      }
+
+      // Mostrar el mensaje de error junto con los datos que se intentaron enviar
+      toast.error(errorMessage);
+    } finally {
+      // Reactivamos el botón de guardar, independientemente del resultado
+      setIsSaving(false);
     }
   };
 

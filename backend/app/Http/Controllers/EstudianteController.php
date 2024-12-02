@@ -8,9 +8,10 @@ use App\Models\RepresentateLegal;
 use App\Notifications\EstudianteRegistered;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Notification;
-
+use Illuminate\Support\Facades\Validator;
 
 class EstudianteController extends Controller
 {
@@ -70,16 +71,42 @@ class EstudianteController extends Controller
     public function store(Request $request)
     {
         // Validar los datos
-        $validatedData = $request->validate([
-            'nombre_estudiante' => 'required|string|max:255',
-            'ap_pat' => 'required|string|max:255',
-            'ap_mat' => 'nullable|string|max:255',
-            'codigo_sis' => 'required|digits:9|unique:estudiante,codigo_sis', // Asegúrate de usar el nombre correcto de la tabla
+        $validator = Validator::make($request->all(), [
+            'nombre_estudiante' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
+            'ap_pat' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
+            'ap_mat' => [
+                'nullable',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
+            'codigo_sis' => 'required|digits:9|unique:estudiante,codigo_sis',
             'es_representante' => 'boolean',
         ]);
-
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no validos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        $validatedData = $validator->validated();
+        $validatedData['ap_mat'] = $validatedData['ap_mat'] ?? ' ';
         $representanteId = null;
-        $correo = $validatedData['codigo_sis'] . '@est.umss.edu';
+        $correo = $request->codigo_sis . '@est.umss.edu';
         $contrasenia = Str::random(10);
         // Si se indica que el estudiante es un representante, crear un nuevo representante
         if ($request->es_representante) {
@@ -91,7 +118,7 @@ class EstudianteController extends Controller
             $estudiante = Estudiante::create([
                 'nombre_estudiante' => $request->nombre_estudiante,
                 'ap_pat' => $request->ap_pat,
-                'ap_mat' => $request->ap_mat,
+                'ap_mat' => $validatedData['ap_mat'],
                 'codigo_sis' => $request->codigo_sis,
                 'id_representante' => $representanteId, // Asignar el ID del representante
                 'correo' => $correo,
@@ -104,7 +131,7 @@ class EstudianteController extends Controller
             $estudiante = Estudiante::create([
                 'nombre_estudiante' => $request->nombre_estudiante,
                 'ap_pat' => $request->ap_pat,
-                'ap_mat' => $request->ap_mat,
+                'ap_mat' => $validatedData['ap_mat'],
                 'codigo_sis' => $request->codigo_sis,
                 'id_representante' => $representanteId, // Asignar el ID del representante
                 'correo' => $correo,
@@ -120,14 +147,40 @@ class EstudianteController extends Controller
     // Actualizar un estudiante existente
     public function update(Request $request, $id)
     {
-        $this->validate($request, [
-            'nombre_estudiante' => 'required|string|max:255',
-            'ap_pat' => 'required|string|max:255',
-            'ap_mat' => 'nullable|string|max:255',
+        $validator = Validator::make($request->all(), [
+            'nombre_estudiante' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
+            'ap_pat' => [
+                'required',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
+            'ap_mat' => [
+                'nullable',
+                'string',
+                'min:3',
+                'max:255',
+                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
+            ],
             'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id . ',id_estudiante',
-            'es_representante' => 'boolean', // Validación para es_representante
+            'es_representante' => 'boolean',
         ]);
-
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no validos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+        $validatedData = $validator->validated();
+        $validatedData['ap_mat'] = $validatedData['ap_mat'] ?? ' ';
         try {
             $estudiante = Estudiante::where('id_estudiante', $id)->first();
             $isRepresentante = $request->input('es_representante');
@@ -141,7 +194,7 @@ class EstudianteController extends Controller
             $estudiante->update([
                 'nombre_estudiante' => $request->input('nombre_estudiante'),
                 'ap_pat' => $request->input('ap_pat'),
-                'ap_mat' => $request->input('ap_mat'),
+                'ap_mat' => $validatedData['ap_mat'],
                 'codigo_sis' => $request->input('codigo_sis'),
                 'id_representante' => $isRepresentante ? 1 : null, // Asignar 1 o null según es_representante
             ]);
