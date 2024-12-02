@@ -33,6 +33,7 @@ const CriterioEvaluacion = () => {
   const fetchCriterios = async () => {
     try {
       const response = await axios.get(`${API_URL}criterios`);
+      console.log(response.data);
       const criteriosData = response.data;
       setCriterio(criteriosData);
       setFilteredCriterios(criteriosData);
@@ -209,15 +210,15 @@ const totalPorcentaje = filteredCriterios.reduce(
 );
   return (
     <div className="container"style={{ transform: 'translateY(-190px)', marginTop: '230px' }}>
-      <div className="d-flex justify-content-between align-items-center mb-3">
+      <div className="justify-content-between align-items-center mb-3">
         <h1 className="m-0">Criterios de Evaluación</h1>
-        <div>
+        <div className="d-flex justify-content-end">
           <button className="btn btn-primary" onClick={() => handleShowModal()}>+ Registrar Criterio</button>
         </div>
       </div>
 
       {error && <p className="text-danger">{error}</p>}
-      <div className="table-container">
+      <div className="table-container1">
         <table className="table table-hover criterios-table">
           <thead className="table-light">
             <tr>
@@ -261,7 +262,7 @@ const totalPorcentaje = filteredCriterios.reduce(
       </div>
 
             {/* Modal para agregar/editar criterio*/}
-        <Modal show={showModal} onHide={handleCloseModal}className="custom-width-modal">
+        <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
           <Modal.Body className='custom-modal'>
             <Form>
               <Row className="mb-3">
