@@ -10,6 +10,11 @@ use App\Models\Empresa;
 use App\Models\Estudiante;
 use App\Models\Grupo;
 use App\Models\Planificacion;
+use App\Models\Sprint;
+use Carbon\Carbon;
+use App\Models\Alcance;
+use App\Models\Tarea;
+use App\Models\EstudianteTarea;
 
 class UserSeeder extends Seeder
 {
@@ -933,7 +938,7 @@ class UserSeeder extends Seeder
             ["nombre_estudiante" => "María", "ap_pat"       => "Rodríguez", "ap_mat"    => "López", "correo"    => "maria1@gmail.com", "id_empresa"     => 1, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912130"],
             ["nombre_estudiante" => "Carlos", "ap_pat"      => "Hernández", "ap_mat"    => "González", "correo" => "carlos1@gmail.com", "id_empresa"    => 1, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912131"],
             ["nombre_estudiante" => "Lucía", "ap_pat"       => "Martínez", "ap_mat"     => "Vargas", "correo"   => "lucia1@gmail.com", "id_empresa"     => 1, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912132"],
-            ["nombre_estudiante" => "Javier", "ap_pat"      => "Jiménez", "ap_mat"      => "Fernández", "correo"=> "javier1@gmail.com", "id_empresa"    => 1, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912133"],
+            ["nombre_estudiante" => "Javier", "ap_pat"      => "Jiménez", "ap_mat"      => "Fernández", "correo" => "javier1@gmail.com", "id_empresa"    => 1, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912133"],
             ["nombre_estudiante" => "Sofía", "ap_pat"       => "Gómez", "ap_mat"        => "Castillo", "correo" => "sofia1@gmail.com", "id_empresa"     => 1, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912134"],
             ["nombre_estudiante" => "Diego", "ap_pat"       => "Ramos", "ap_mat"        => "Soto", "correo"     => "diego1@umss.edu", "id_empresa"      => 2, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912135"],
             ["nombre_estudiante" => "Valentina", "ap_pat"   => "Martínez", "ap_mat"     => "Cruz", "correo"     => "valentina1@umss.edu", "id_empresa"  => 2, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912136"],
@@ -943,7 +948,7 @@ class UserSeeder extends Seeder
             ["nombre_estudiante" => "Fernanda", "ap_pat"       => "Lopez", "ap_mat"    => "López", "correo"    => "fernanda@gmail.com", "id_empresa"    => 3, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912140"],
             ["nombre_estudiante" => "Sara", "ap_pat"        => "Fernandez", "ap_mat"    => "González", "correo" => "sara@gmail.com", "id_empresa"       => 3, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912141"],
             ["nombre_estudiante" => "Rocio", "ap_pat"       => "Ramirez", "ap_mat"     => "Vargas", "correo"   => "rocio@gmail.com", "id_empresa"       => 3, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912142"],
-            ["nombre_estudiante" => "Romane", "ap_pat"      => "Mamani", "ap_mat"      => "Fernández", "correo"=> "romane@gmail.com", "id_empresa"      => 3, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912143"],
+            ["nombre_estudiante" => "Romane", "ap_pat"      => "Mamani", "ap_mat"      => "Fernández", "correo" => "romane@gmail.com", "id_empresa"      => 3, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912143"],
             ["nombre_estudiante" => "Julio", "ap_pat"       => "Colque", "ap_mat"        => "Castillo", "correo" => "julio@gmail.com", "id_empresa"     => 3, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912144"],
             ["nombre_estudiante" => "Pedro", "ap_pat"       => "Soto", "ap_mat"        => "Soto", "correo"     => "pedro@umss.edu", "id_empresa"        => 4, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912145"],
             ["nombre_estudiante" => "Jose", "ap_pat"        => "Loza", "ap_mat"     => "Cruz", "correo"     => "jose@umss.edu", "id_empresa"            => 4, "contrasenia" => Hash::make("studentpass"), "id_grupo" => "1", "codigo_sis" => "201912146"],
@@ -965,5 +970,82 @@ class UserSeeder extends Seeder
         foreach ($planificaciones as $planificacion) {
             Planificacion::create($planificacion);
         }
+        // Sprint para planificacion 1, 2, and 3
+        $sprints = [
+            // Planificacion 1
+            ['id_planificacion' => 1, 'fecha_inicio' => Carbon::now()->addDays(7), 'fecha_fin' => Carbon::now()->addDays(12), 'color' => '#FF5733', 'nro_sprint' => 1, 'porcentaje' => 50],
+            ['id_planificacion' => 1, 'fecha_inicio' => Carbon::now()->addDays(14), 'fecha_fin' => Carbon::now()->addDays(19), 'color' => '#33FF57', 'nro_sprint' => 2, 'porcentaje' => 60],
+            ['id_planificacion' => 1, 'fecha_inicio' => Carbon::now()->addDays(21), 'fecha_fin' => Carbon::now()->addDays(26), 'color' => '#3357FF', 'nro_sprint' => 3, 'porcentaje' => 70],
+            ['id_planificacion' => 1, 'fecha_inicio' => Carbon::now()->addDays(28), 'fecha_fin' => Carbon::now()->addDays(33), 'color' => '#FF33A1', 'nro_sprint' => 4, 'porcentaje' => 80],
+
+            // Planificacion 2
+            ['id_planificacion' => 2, 'fecha_inicio' => Carbon::now()->addDays(7), 'fecha_fin' => Carbon::now()->addDays(12), 'color' => '#A133FF', 'nro_sprint' => 1, 'porcentaje' => 55],
+            ['id_planificacion' => 2, 'fecha_inicio' => Carbon::now()->addDays(14), 'fecha_fin' => Carbon::now()->addDays(19), 'color' => '#33FFF5', 'nro_sprint' => 2, 'porcentaje' => 65],
+            ['id_planificacion' => 2, 'fecha_inicio' => Carbon::now()->addDays(21), 'fecha_fin' => Carbon::now()->addDays(26), 'color' => '#F5FF33', 'nro_sprint' => 3, 'porcentaje' => 75],
+            ['id_planificacion' => 2, 'fecha_inicio' => Carbon::now()->addDays(28), 'fecha_fin' => Carbon::now()->addDays(33), 'color' => '#FF8C33', 'nro_sprint' => 4, 'porcentaje' => 85],
+
+            // Planificacion 3
+            ['id_planificacion' => 3, 'fecha_inicio' => Carbon::now()->addDays(7), 'fecha_fin' => Carbon::now()->addDays(12), 'color' => '#8C33FF', 'nro_sprint' => 1, 'porcentaje' => 60],
+            ['id_planificacion' => 3, 'fecha_inicio' => Carbon::now()->addDays(14), 'fecha_fin' => Carbon::now()->addDays(19), 'color' => '#33FFB8', 'nro_sprint' => 2, 'porcentaje' => 70],
+            ['id_planificacion' => 3, 'fecha_inicio' => Carbon::now()->addDays(21), 'fecha_fin' => Carbon::now()->addDays(26), 'color' => '#FF5733', 'nro_sprint' => 3, 'porcentaje' => 80],
+            ['id_planificacion' => 3, 'fecha_inicio' => Carbon::now()->addDays(28), 'fecha_fin' => Carbon::now()->addDays(33), 'color' => '#FF33A1', 'nro_sprint' => 4, 'porcentaje' => 90],
+        ];
+
+        // Insert each Sprint record into the database
+        foreach ($sprints as $sprint) {
+            Sprint::create($sprint);
+        }
+        $alcances = [
+            ['id_sprint' => 1, 'descripcion' => 'Primera fase del alcance'],
+            ['id_sprint' => 1, 'descripcion' => 'Segunda fase del alcance'],
+            ['id_sprint' => 1, 'descripcion' => 'Tercera fase del alcance'],
+            ['id_sprint' => 1, 'descripcion' => 'Cuarta fase del alcance'],
+            ['id_sprint' => 1, 'descripcion' => 'Quinta fase del alcance'],
+            ['id_sprint' => 2, 'descripcion' => 'Primera fase del alcance'],
+            ['id_sprint' => 2, 'descripcion' => 'Segunda fase del alcance'],
+            ['id_sprint' => 2, 'descripcion' => 'Tercera fase del alcance'],
+            ['id_sprint' => 2, 'descripcion' => 'Cuarta fase del alcance'],
+            ['id_sprint' => 2, 'descripcion' => 'Quinta fase del alcance'],
+        ];
+
+        foreach ($alcances as $alcanceData) {
+            Alcance::create($alcanceData);
+        }
+
+        // Crear 5 Tareas por Alcance
+        $tareas = [
+                                                                       
+            ['id_alcance' => 1, 'nombre_tarea' => 'Tarea 1 del alcance','estimacion'=> 3, 'estado'=> 'Pendieinte','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+            
+            ['id_alcance' => 1, 'nombre_tarea' => 'Tarea 2 del alcance','estimacion'=> 8, 'estado'=> 'Pendiente','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+
+            ['id_alcance' => 1, 'nombre_tarea' => 'Tarea 3 del alcance','estimacion'=> 1, 'estado'=> 'Pendiente','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+            
+            ['id_alcance' => 2, 'nombre_tarea' => 'Tarea 4 del alcance','estimacion'=> 1, 'estado'=> 'Pendiente','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+
+            ['id_alcance' => 2, 'nombre_tarea' => 'Tarea 5 del alcance','estimacion'=> 5, 'estado'=> 'Pendiente','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+
+            ['id_alcance' => 2, 'nombre_tarea' => 'Tarea 6 del alcance','estimacion'=> 3, 'estado'=> 'Pendiente','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+            
+            ['id_alcance' => 2, 'nombre_tarea' => 'Tarea 7 del alcance','estimacion'=> 3, 'estado'=> 'Pendiente','progreso'=> 0, 'calificacion'=> 0, 'revisado'=> '0'],
+        ];
+        
+
+        foreach ($tareas as $tareaData) {
+            Tarea::create($tareaData);
+        }
+
+        // Crear 20 registros de EstudianteTarea
+
+        $estudiantesTareas = [
+            ['id_estudiante' => 1, 'id_tarea' => 1],
+            ['id_estudiante' => 2, 'id_tarea' => 2],
+            ['id_estudiante' => 3, 'id_tarea' => 3],
+            ['id_estudiante' => 4, 'id_tarea' => 4],
+            ['id_estudiante' => 5, 'id_tarea' => 5],
+            ['id_estudiante' => 1, 'id_tarea' => 6],
+            ['id_estudiante' => 2, 'id_tarea' => 7],
+          
+        ];
     }
 }
