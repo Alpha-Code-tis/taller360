@@ -13,11 +13,13 @@ class NotificacionGrupoMail extends Mailable
 
     public $notificacion;
     public $estudiante;
+    public $docente;
 
-    public function __construct($notificacion, Estudiante $estudiante)
+    public function __construct($notificacion, Estudiante $estudiante, $docente)
     {
         $this->notificacion = $notificacion;
         $this->estudiante = $estudiante;
+        $this->docente = $docente;
     }
 
     public function build()
@@ -28,6 +30,7 @@ class NotificacionGrupoMail extends Mailable
                         'mensaje' => $this->notificacion['mensaje'],
                         'fechas' => $this->notificacion['fechas'],
                         'estudiante' => $this->estudiante,
+                        'docente' => $this->docente,
                     ]);
     }
 }

@@ -62,7 +62,7 @@ class NotificacionEstudiantesController extends Controller
         $notificacion['fechas'] = $fechas;
 
         foreach ($grupo->estudiantes as $estudiante) {
-            Mail::to($estudiante->correo)->send(new NotificacionGrupoMail($notificacion, $estudiante));
+            Mail::to($estudiante->correo)->send(new NotificacionGrupoMail($notificacion, $estudiante, $docente->nombre_docente));
         }
 
         return response()->json(['message' => 'Notificaciones enviadas con éxito'], Response::HTTP_OK);
