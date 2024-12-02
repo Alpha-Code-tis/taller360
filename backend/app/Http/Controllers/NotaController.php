@@ -127,6 +127,39 @@ class NotaController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
+        $totalEvaluaciones = $request->autoevaluacion + $request->pares + $request->evaluaciondocente;
+
+        if ($totalEvaluaciones > 100) {
+            return response()->json([
+                'message' => 'La suma de autoevaluación, evaluación de pares y evaluación del docente no debe superar 100.' .' Suma Total es: '. $totalEvaluaciones,
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($totalEvaluaciones < 100) {
+            return response()->json([
+                'message' => 'La suma de autoevaluación, evaluación de pares y evaluación del docente debe sumar 100.' .' Suma Total es: '. $totalEvaluaciones,
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $planificacion = Planificacion::where('id_empresa', $request->empresa)
+            ->first();
+
+        if (!$planificacion) {
+            return response()->json([
+                'message' => 'Planificación no encontrada para la empresa proporcionada.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $sprint = Sprint::where('id_planificacion', $planificacion->id_planificacion)
+            ->where('nro_sprint', $request->sprint)
+            ->first();
+
+        if (!$sprint) {
+            return response()->json([
+                'message' => 'Sprint no encontrado para la empresa proporcionada.',
+            ], Response::HTTP_NOT_FOUND);
+        }
+
         // Crear o actualizar la nota según el id_docente, id_sprint y id_empresa
         $nota = Nota::updateOrCreate(
             [

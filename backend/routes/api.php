@@ -18,10 +18,13 @@ use App\Http\Controllers\EvaluacionFinalController;
 use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
+use App\Http\Controllers\Cualificar;
+use App\Http\Controllers\CualificarController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\CruzadaController;
 use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\NotaController;
+use App\Http\Controllers\NotificacionEstudiantesController;
 use App\Http\Controllers\PlanillaNotasController;
 use App\Http\Controllers\PlanillaNotasFinalesController;
 use App\Models\Planificacion;
@@ -179,6 +182,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/evaluacionPares', [EvaluacionParesController::class, 'store']);
     Route::get('/evaluacionPares/{id_estudiante_evaluado}', [EvaluacionParesController::class, 'getEvaluacionPares']);
 
+    //sprints
+    Route::get('/listar-sprints', [SprintController::class, 'index']);
+
+    //reportes
+    Route::get('/reportes/autoevaluacion', [AutoevaluacionController::class, 'report']);
+    Route::get('/reportes/evaluacionPares', [EvaluacionParesController::class, 'report']);
+
     // Rutas de Evaluación Cruzada
     Route::get('/cruzada/planillas', [PlanillaController::class, 'obtenerPlanillasCruzada']);
     Route::get('/cruzada/empresas', [CruzadaController::class, 'getEmpresas']);
@@ -202,9 +212,14 @@ Route::middleware('auth:sanctum')->group(function () {
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);
     Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);
+    Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);
     Route::put('/configNotas', [NotaController::class, 'update']);
     Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
 
+    //Notificaciones
+    Route::post('/notificacion', [NotificacionEstudiantesController::class, 'notificarEstudiantesPorGrupo']);
+    Route::get('listaFechasEvaluciones', [NotificacionEstudiantesController::class, 'listaFechasEval']);
+    Route::get('/cualificacion', [CualificarController::class, 'index']);
     //Planilla Notas
     Route::get('/equipos', [PlanillaNotasController::class, 'getEquipos']);
     Route::get('/equipos/{empresaId}/sprints', [PlanillaNotasController::class, 'getSprints']);

@@ -94,6 +94,7 @@ class EmpresaController extends Controller
                     'direccion' => $empresa->direccion,
                     'telefono' => $empresa->telefono,
                     'correo_empresa' => $empresa->correo_empresa,
+                    'gestion' => $empresa->gestion,
                     'logo' => $empresa->logo, // Aquí está la URL completa del logo
                     'estudiantesSeleccionados' => $empresa->estudiantes->map(function ($estudiante) {
                         return [
@@ -147,6 +148,7 @@ class EmpresaController extends Controller
             'direccion' => 'required|string',
             'telefono' => 'required|string',
             'correo_empresa' => 'required|email',
+            'gestion' => 'required|string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validar el logo
             'estudiantesSeleccionados' => 'nullable|array', // Aceptar el JSON de IDs de estudiantes
         ]);
@@ -164,6 +166,7 @@ class EmpresaController extends Controller
             'nombre_corto' => $request->nombre_corto,
             'direccion' => $request->direccion,
             'telefono' => $request->telefono,
+            'gestion' => $request->gestion,
             'correo_empresa' => $request->correo_empresa,
             'logo' => $request->file('logo')
                 ? basename($request->file('logo')->store('public')) // Guardar solo el nombre del archivo
@@ -191,15 +194,22 @@ class EmpresaController extends Controller
     public function update(Request $request, $id)
     {
         // Validar los datos del request
-        $request->validate([
-            'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa,' . $id . ',id_empresa', // Asegura que el nombre sea único, excepto el actual
-            'nombre_corto' => 'required|string|max:100',
-            'correo_empresa' => 'required|email',
-            'telefono' => 'required|string',
-            'direccion' => 'required|string',
+        $validator = Validator::make($request->all(), [
+            'nombre_empresa' => 'string|unique:empresa,nombre_empresa,' . $id . ',id_empresa', // Asegura que el nombre sea único, excepto el actual
+            'nombre_corto' => 'string|max:100',
+            'correo_empresa' => 'email',
+            'telefono' => 'string',
+            'direccion' => 'string',
             'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Validación del logo
             'estudiantesSeleccionados' => 'nullable|array',  // Cambia para aceptar array
         ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no validos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
         try {
             // Buscar la empresa usando el ID
@@ -226,6 +236,7 @@ class EmpresaController extends Controller
                 'correo_empresa' => $request->correo_empresa,
                 'telefono' => $request->telefono,
                 'direccion' => $request->direccion,
+                'gestion' => $request->gestion,
                 'logo' => $logoPath,
             ]);
 

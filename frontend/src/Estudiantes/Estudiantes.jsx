@@ -169,8 +169,29 @@ const Estudiantes = () => {
       await promise;
       await fetchEstudiantes(); // Refrescamos la lista de estudiantes
       handleCloseModal();
-    } catch (err) {
-      toast.error('Error al guardar el estudiante');
+    } catch (error) {
+      let errorMessage = 'Ocurrió un error.';
+
+      if (error.response) {
+        const responseData = error.response.data;
+
+        // Verificar si hay un mensaje de conflicto específico
+        if (responseData.message) {
+          errorMessage = responseData.message;
+        }
+
+        // Si hay errores de validación
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
+      }
+
+      // Mostrar el mensaje de error junto con los datos que se intentaron enviar
+      toast.error(errorMessage);
+    } finally {
+      // Reactivamos el botón de guardar, independientemente del resultado
+      setIsSaving(false);
     }
   };
 
@@ -191,10 +212,14 @@ const Estudiantes = () => {
     console.log("Archivo arrastrado:", file);
   };
 
-  const handleFileUpload = async (event) => {
+  const handleFileChange = (event) => {
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+  };
 
+  const handleFileUpload = async () => {
     if (!file) {
-      setError('Por favor, selecciona un archivo.');
+      toast.error('Por favor selecciona un archivo antes de subir.');
       return;
     }
 
@@ -202,24 +227,26 @@ const Estudiantes = () => {
     formData.append('file', file);
 
     try {
+      setIsSaving(true);
+
       const response = await axios.post(`${API_URL}estudiantes/import`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
 
-      if (Array.isArray(response.data)) {
+      if (response.status === 200) {
         toast.success('Estudiantes importados exitosamente.');
-        fetchEstudiantes(); // Recargar después de importar
+        fetchEstudiantes(); // Recargar datos
+        handleCloseImportModal(); // Cerrar el modal
+      } else {
+        toast.error('Hubo un problema al importar los estudiantes.');
       }
-
-      handleCloseImportModal();
     } catch (error) {
       setError('Error al importar estudiantes: ' + error.message);
       console.error(error);
-      // El manejo de errores ya se realiza en toast.promise
     } finally {
-      setIsSaving(false); // Rehabilitamos el botón de guardar
+      setIsSaving(false);
     }
   };
 
@@ -229,6 +256,7 @@ const Estudiantes = () => {
         <h1 className="m-0">Estudiantes</h1>
         <div>
           <button className="btn btn-primary me-2" onClick={() => handleShowModal()}>+ Nuevo Estudiante</button>
+          <button className="btn btn-secondary" onClick={handleShowImportModal}>+ Importar Lista</button>
         </div>
       </div>
 
@@ -353,6 +381,46 @@ const Estudiantes = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      {/* Modal para importar archivo */}
+      <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>Importar Lista</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <div
+          className="drop-zone"
+          style={{
+            border: '2px dashed #cccccc',
+            padding: '20px',
+            textAlign: 'center',
+            borderRadius: '8px',
+            marginBottom: '20px',
+          }}
+        >
+          Arrastra el archivo aquí o{' '}
+          <input
+            type="file"
+            id="file-upload"
+            onChange={handleFileChange} // Capturar el archivo
+          />
+          <label htmlFor="file-upload" style={{ color: '#007bff', cursor: 'pointer' }}>
+            selecciona un archivo
+          </label>
+        </div>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCloseImportModal}>
+          Cancelar
+        </Button>
+        <Button
+          variant="primary"
+          onClick={handleFileUpload}
+          disabled={isSaving} // Deshabilitar botón mientras se sube
+        >
+          {isSaving ? 'Subiendo...' : 'Subir'}
+        </Button>
+      </Modal.Footer>
+    </Modal>
     </div>
   );
 };

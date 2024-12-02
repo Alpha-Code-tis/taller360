@@ -62,10 +62,6 @@ body {
   min-height: 100vh;
   background: rgb(255,255,255);
   background: linear-gradient(146deg, rgba(255,255,255,1) 22%, #2d5981 80%, rgba(26,50,84,1) 100%) !important;
-  
-  
-  background: rgb(255,255,255);
-background: linear-gradient(146deg, rgba(255,255,255,1) 0%, rgba(207,232,239,1) 66%, rgba(184,221,232,0.2638305322128851) 100%);
 
 }
 

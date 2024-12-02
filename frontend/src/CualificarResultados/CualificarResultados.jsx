@@ -1,40 +1,50 @@
-import React from 'react';
-import './CualificarResultados.css';
+import { API_URL } from '../config';   
+import React, { useEffect } from 'react';
 import { useState } from 'react';
+import './CualificarResultados.css';
+import axios from 'axios';
+
 const CualificarResultados = () => {
-    const [categorias, setCategorias] = useState([]);
-  const students = [
-    { name: 'Maria Johnson', selfEval: 85 , des: 'Fuerte'},
-    { name: 'Maria Vargas', selfEval: 50, des: 'Fuerte'},
-    { name: 'Laura Brown', selfEval: 70, des: 'Debil'},
-    { name: 'James Smith', selfEval: 65, des: 'Fuerte'},
-    { name: 'Sarah Miller', selfEval: 65,des: 'Fuerte'},
-    { name: 'Luis Salvatierra', selfEval: 50, des: 'Fuerte'},
-    { name: 'Gonzalo Brown', selfEval: 70, des: 'Fuerte'},
-    { name: 'Juan Smith', selfEval: 65,des: 'Fuerte'},
-    { name: 'Sofia Miller', selfEval: 65,des: 'Fuerte'},
-  ];
+    const [students, setStudents] = useState([]);
+
+    useEffect(() => {
+      axios.get(`${API_URL}cualificacion`)  
+        .then((response) => {
+         
+          setStudents(response.data); 
+        })
+        .catch((error) => {
+          console.log(error);
+          console.error('Error al obtener los datos:', error);
+        });
+    }, []); 
+
+
   return (
-    <div className="cualificar-container">
-      <h2>Cualificar Resultados</h2>
-      <table className="planilla-table">
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Puntaje de Evaluación</th>
-            <th>Categoría</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((student, index) => (
-            <tr key={index}>
-              <td>{student.name}</td>
-              <td>{student.selfEval}</td>
-              <td>{student.des} </td>
+    <div>
+      <div className="justify-content-between align-items-center mb-3">
+        <h1 className='m-0'>Cualificar Resultados</h1>
+      </div>
+      <div className="cualificar-container">
+        <table className="table table-hover cualificar-table">
+          <thead className="table-light">
+            <tr>
+              <th>Nombre</th>
+              <th>Puntaje de Evaluación</th>
+              <th>Categoría</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {students.map((student, index) => (
+              <tr key={index}>
+                <td>{student.nombre}</td>
+                <td>{student.nota}</td>
+                <td>{student.clasificacion} </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
