@@ -43,4 +43,18 @@ class AutoevaluacionController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
+    public function report()
+    {
+        $empresaId = request('empresaId');
+        $sprintId = request('sprintId');
+        $estudiantes = Estudiante::where('id_empresa', $empresaId)
+            ->with(['tareas' => function ($query) use ($sprintId) {
+                $query->whereHas('alcance', function ($subQuery) use ($sprintId) {
+                    $subQuery->where('id_sprint', $sprintId);
+                });
+            }])
+            ->get();
+        return response()->json($estudiantes);
+    }
 }

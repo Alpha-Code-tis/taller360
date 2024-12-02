@@ -626,6 +626,27 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+              <ListItem disablePadding>
+            <ListItemButton
+              component={Link}
+              to="/ReportePorEvaluaciones"
+              onClick={() => handleButtonClick('ReportePorEvaluaciones')}
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                '&:hover': {
+                  backgroundColor: '#1A3254',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: 'white' }}>
+                <AssignmentTurnedInIcon />
+              </ListItemIcon>
+              <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
+            </ListItemButton>
+          </ListItem>
+
               {/* Modal Conformación de Equipos */}
               <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
                 <Modal.Header closeButton>

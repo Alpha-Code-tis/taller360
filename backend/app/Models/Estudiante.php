@@ -101,7 +101,7 @@ class Estudiante extends Authenticatable
     public function evaluadoCriterios()
     {
         return $this->belongsToMany(Criterio::class, 'estudiante_criterio', 'id_estudiante_evaluado', 'id_criterio')
-            ->withPivot('id_estudiante_evaluador', 'id_estudiante_evaluado', 'id_criterio');
+            ->withPivot('id_estudiante_evaluador', 'id_estudiante_evaluado', 'id_criterio', 'id_sprint');
     }
 
     public function evaluadorCriterios()
