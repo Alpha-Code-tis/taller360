@@ -171,7 +171,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);
-    Route::get('/configNotasDocente', [NotaController::class, 'show']);
+    Route::get('/configNotasDocente/{id_empresa}/{sprint}', [NotaController::class, 'show']);
     Route::put('/configNotas', [NotaController::class, 'update']);
     Route::post('/configNotas', [NotaController::class, 'evaluacionConfig']);
 

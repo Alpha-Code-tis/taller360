@@ -10,21 +10,34 @@ class CreateNotasTable extends Migration
     {
         Schema::create('notas', function (Blueprint $table) {
             $table->id();  // ID auto-incremental
-            $table->integer('autoevaluacion');  // Campo para la autoevaluación
-            $table->integer('pares');  // Campo para la evaluación por pares
-            $table->integer('evaluaciondocente');  // Campo para la evaluación docente
-            $table->integer('paga');  // Campo para la evaluación final
-
-            // Define 'id_docente' as an integer to match the docente table
-            $table->integer('id_docente');  // This should match the type of id_docente in the 'docente' table
-
-            // Define the foreign key constraint
+            
+            // Campos de evaluación
+            $table->integer('autoevaluacion');  // Nota de autoevaluación
+            $table->integer('pares');          // Nota de evaluación por pares
+            $table->integer('evaluaciondocente'); // Nota de evaluación docente
+            
+            // Relación con Docente
+            $table->integer('id_docente');
             $table->foreign('id_docente')
-                ->references('id_docente')  // This should match the column name in the 'docente' table
+                ->references('id_docente') // Se asume que la tabla `docentes` tiene un campo `id`
                 ->on('docente')
-                ->onDelete('cascade');  // This ensures that related records are deleted if the referenced docente is deleted
+                ->onDelete('cascade');
 
-            $table->timestamps();  // Para almacenar created_at y updated_at
+            // Relación con Empresa
+            $table->integer('id_empresa'); // Llave foránea para empresa
+            $table->foreign('id_empresa')
+                ->references('id_empresa') // Se asume que la tabla `empresas` tiene un campo `id`
+                ->on('empresa')
+                ->onDelete('cascade');
+            
+            // Relación con Sprint
+            $table->integer('id_sprint'); // Llave foránea para sprint
+            $table->foreign('id_sprint')
+                ->references('id_sprint') // Se asume que la tabla `sprints` tiene un campo `id`
+                ->on('sprint')
+                ->onDelete('cascade');
+
+            $table->timestamps(); // Campos created_at y updated_at
         });
     }
 
@@ -33,4 +46,3 @@ class CreateNotasTable extends Migration
         Schema::dropIfExists('notas');
     }
 }
-
