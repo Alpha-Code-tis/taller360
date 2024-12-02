@@ -17,7 +17,7 @@ class CualificarController extends Controller
         $resultado = $estudiantes->map(function ($estudiante) {
             $notaFinal = rand(0, 100);
             return [
-                'nombre' => $estudiante->nombre_estudiante,
+                'nombre' => $estudiante->nombre_estudiante . ' ' . $estudiante->ap_pat . ' ' . $estudiante->ap_mat,
                 'nota' => $notaFinal,
                 'clasificacion' => $notaFinal > 50 ? 'fuerte' : 'débil',
             ];

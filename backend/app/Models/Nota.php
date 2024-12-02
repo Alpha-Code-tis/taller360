@@ -18,6 +18,8 @@ class Nota extends Model
         'evaluaciondocente',
         'paga',
         'id_docente', // Clave foránea
+        'id_sprint',
+        'id_empresa',
     ];
 
     // Relación inversa con la tabla Docente

@@ -132,6 +132,10 @@ export default function PersistentDrawerLeft() {
   const [autoEvalNota, setAutoEvalNota] = useState('');
   const [paresEvalNota, setParesEvalNota] = useState('');
   const [docenteEvalNota, setDocenteEvalNota] = useState('');
+  const [empresaSeleccionada, setEmpresaSeleccionada] = useState('');
+  const [sprintSeleccionado, setSprintSeleccionado] = useState('');
+  const [empresas, setEmpresas] = useState([]);
+  const [sprints, setSprints] = useState([]); 
   const [notaPares, setNotaPares] = useState('');
   const [notificacion, setNotificacion] = useState('');
   const [redirected, setRedirected] = useState(false);
@@ -205,9 +209,49 @@ useEffect(() => {
       setNombre(storedNombre);
     }
     fetchFechas();
-    fetchNotas();
-  }, []); // Se ejecuta solo una vez al montar el componente
-
+    fetchEmpresas();
+    if (empresaSeleccionada && sprintSeleccionado) {
+      fetchNotasPorEmpresaYSprint(empresaSeleccionada, sprintSeleccionado);
+    }
+  }, [empresaSeleccionada, sprintSeleccionado]);
+  
+  const fetchNotasPorEmpresaYSprint = async (empresaId, sprintId) => {
+    try {
+      const response = await axios.get(
+        `${API_URL}configNotasDocente/${empresaId}/${sprintId}`, 
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, // Requiere autenticación
+          },
+        }
+      );
+      
+      const data = response.data;
+  
+      // Actualiza los campos de evaluación con los datos obtenidos
+      setAutoEvalNota(data.autoevaluacion ?? '');
+      setParesEvalNota(data.pares ?? '');
+      setDocenteEvalNota(data.evaluaciondocente ?? '');
+    } catch (error) {
+      toast.error('No se pudieron cargar las notas para la empresa y sprint seleccionados.');
+    }
+  };
+  const fetchEmpresas = async () => {
+    try {
+      const response = await axios.get(`${API_URL}listarEmpresas/2-2024`);
+      setEmpresas(response.data || []); // Suponiendo que el array de empresas viene aquí
+    } catch (error) {
+      toast.error("No se pudieron cargar las empresas.");
+    }
+  };
+  const fetchSprints = async (empresaId) => {
+    try {
+      const response = await axios.get(`${API_URL}listarSprintsEmpresa/${empresaId}`);
+      setSprints(response.data || []); // Filtra los sprints según la empresa
+    } catch (error) {
+      toast.error("No se pudieron cargar los sprints.");
+    }
+  };
   useEffect(() => {
     // Verificar si el usuario no ha sido redirigido aún
     if (!redirected && role) {
@@ -240,34 +284,6 @@ useEffect(() => {
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
-    }
-  };
-
-  const fetchNotas = async () => {
-    try {
-      const response = await axios.get(`${API_URL}configNotasDocente`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Requiere autenticación
-        },
-      });
-
-      const data = response.data;
-      console.log(data);
-      // Asignar valores a los estados correspondientes
-      setAutoEvalNota(data.autoevaluacion ?? '');
-      setParesEvalNota(data.pares ?? '');
-      setDocenteEvalNota(data.evaluaciondocente ?? '');
-    } catch (error) {
-      toast.error('No se recuperaron las notas.');
-      console.error('Error al obtener las notas:', error);
-
-      if (error.response) {
-        console.error('Respuesta del servidor:', error.response.data);
-      } else if (error.request) {
-        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
-      } else {
-        console.error('Error de configuración:', error.message);
-      }
     }
   };
 
@@ -372,6 +388,8 @@ useEffect(() => {
 
   const handleSaveChangesEva = async () => {
     const payload = {
+      empresa: parseInt(empresaSeleccionada, 10),
+      sprint: parseInt(sprintSeleccionado, 10),
       autoevaluacion: parseInt(autoEvalNota, 10),
       pares: parseInt(paresEvalNota, 10),
       evaluaciondocente: parseInt(docenteEvalNota, 10),
@@ -390,16 +408,25 @@ useEffect(() => {
       );
       setEvaluacionModalShow(false);
     } catch (error) {
-      toast.error('Error al guardar la evaluación');
-      console.error('Error al guardar:', error);
+      let errorMessage = 'Ocurrió un error.';
 
       if (error.response) {
-        console.error('Respuesta del servidor:', error.response.data);
-      } else if (error.request) {
-        console.error('Sin respuesta del servidor. Solicitud realizada:', error.request);
-      } else {
-        console.error('Error de configuración:', error.message);
+        const responseData = error.response.data;
+
+        // Verificar si hay un mensaje de conflicto específico
+        if (responseData.message) {
+          errorMessage = responseData.message;
+        }
+
+        // Si hay errores de validación
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
       }
+
+      // Mostrar el mensaje de error junto con los datos que se intentaron enviar
+      toast.error(errorMessage);
     }
   };
 
@@ -972,39 +999,90 @@ useEffect(() => {
               </Modal>
               <Modal show={evaluacionModalShow} onHide={() => setEvaluacionModalShow(false)} centered>
                 <Modal.Header closeButton>
-                  <Modal.Title>Configuracion de Evaluaciones por Sprint</Modal.Title>
+                  <Modal.Title>Configuracion de Evaluaciones</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
+                    {/* Selección de Empresa */}
                     <Form.Group className="mb-3">
-                      <Form.Label><strong>Autoevaluación</strong></Form.Label>
-                      <div className="d-flex justify-content-between">
-                        <Form.Label>
-                          <Form.Control type="number" value={autoEvalNota} onChange={(e) => setAutoEvalNota(e.target.value)} />
-                        </Form.Label>
-                      </div>
+                      <Form.Label><strong>Seleccionar Empresa</strong></Form.Label>
+                      <Form.Select
+                        value={empresaSeleccionada}
+                        onChange={(e) => {
+                          setEmpresaSeleccionada(e.target.value);
+                          fetchSprints(e.target.value); // Llama a la función para obtener los sprints
+                        }}
+                      >
+                        <option value="">Selecciona una empresa</option>
+                        {empresas.map((empresa) => (
+                          <option key={empresa.id_empresa} value={empresa.id_empresa}>
+                            {empresa.nombre_empresa}
+                          </option>
+                        ))}
+                      </Form.Select>
                     </Form.Group>
+
+                    {/* Selección de Sprint */}
                     <Form.Group className="mb-3">
-                      <Form.Label><strong>Evaluación Pares</strong></Form.Label>
-                      <div className="d-flex justify-content-between">
-                        <Form.Label>
-                          <Form.Control type="number" value={paresEvalNota} onChange={(e) => setParesEvalNota(e.target.value)} />
-                        </Form.Label>
-                      </div>
+                      <Form.Label><strong>Seleccionar Sprint</strong></Form.Label>
+                      <Form.Select
+                        value={sprintSeleccionado}
+                        onChange={(e) => setSprintSeleccionado(e.target.value)}
+                      >
+                        <option value="">Selecciona un sprint</option>
+                        {sprints.map((sprint) => (
+                          <option key={sprint} value={sprint}>
+                            {sprint}
+                          </option>
+                        ))}
+                      </Form.Select>
                     </Form.Group>
-                    <Form.Group className="mb-3">
-                      <Form.Label><strong>Evaluación Docente</strong></Form.Label>
-                      <div className="d-flex justify-content-between">
-                        <Form.Label>
-                          <Form.Control type="number" value={docenteEvalNota} onChange={(e) => setDocenteEvalNota(e.target.value)} />
-                        </Form.Label>
+
+                    {/* Controles en dos columnas */}
+                    <div className="row">
+                      <div className="col-md-6">
+                        <Form.Group className="mb-3">
+                          <Form.Label><strong>Autoevaluación</strong></Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={autoEvalNota}
+                            onChange={(e) => setAutoEvalNota(e.target.value)}
+                          />
+                        </Form.Group>
                       </div>
-                    </Form.Group>
+                      <div className="col-md-6">
+                        <Form.Group className="mb-3">
+                          <Form.Label><strong>Evaluación Pares</strong></Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={paresEvalNota}
+                            onChange={(e) => setParesEvalNota(e.target.value)}
+                          />
+                        </Form.Group>
+                      </div>
+                    </div>
+
+                    <div className="row">
+                      <div className="col-md-6">
+                        <Form.Group className="mb-3">
+                          <Form.Label><strong>Evaluación Docente</strong></Form.Label>
+                          <Form.Control
+                            type="number"
+                            value={docenteEvalNota}
+                            onChange={(e) => setDocenteEvalNota(e.target.value)}
+                          />
+                        </Form.Group>
+                      </div>
+                    </div>
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
-                  <Button variant="primary" onClick={handleSaveChangesEva}>Guardar cambios</Button>
+                  <Button variant="secondary" onClick={() => setEvaluacionModalShow(false)}>
+                    Cerrar
+                  </Button>
+                  <Button variant="primary" onClick={handleSaveChangesEva}>
+                    Guardar cambios
+                  </Button>
                 </Modal.Footer>
               </Modal>
               <Modal show={notificarModalShow} onHide={() => setNotificarModalShow(false)} centered>

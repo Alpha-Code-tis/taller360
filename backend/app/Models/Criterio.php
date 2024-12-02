@@ -28,8 +28,4 @@ class Criterio extends Model
     {
         return $this->belongsToMany(Estudiante::class, 'estudiante_criterio', 'id_criterio', 'id_estudiante_evaluado');
     }
-    public function subcriterios()
-    {
-        return $this->hasMany(Subcriterio::class, 'id_criterio');
-    }
 }
