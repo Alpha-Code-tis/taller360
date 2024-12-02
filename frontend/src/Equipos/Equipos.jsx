@@ -212,18 +212,16 @@ const Equipos = () => {
     Equipodata.append('correo_empresa', formValues.correo_empresa);
     Equipodata.append('telefono', formValues.telefono);
     Equipodata.append('direccion', formValues.direccion);
+    Equipodata.append('gestion', formValues.gestion);
     Equipodata.append('logo', formValues.logo);
     formValues.estudiantesSeleccionados.forEach(est => {
       Equipodata.append('estudiantesSeleccionados[]', est.value);
     });
-
+    console.log(Equipodata);
     const promise = currentEquipo
-      ? axios.put(`${API_URL}equipos/${currentEquipo.id_empresa}`, Equipodata, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      })
-      : axios.post(`${API_URL}equipos`, Equipodata, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+    ? axios.put(`${API_URL}equipos/${currentEquipo.id_empresa}`, Equipodata)
+    : axios.post(`${API_URL}equipos`, Equipodata);
+  
 
     toast.promise(
       promise,
@@ -266,7 +264,7 @@ const Equipos = () => {
             <tr>
               <th>Nombre del Equipo</th>
               <th>Correo de la Empresa</th>
-              <th>Teléfono</th>
+              <th>Gestión</th>
               <th>Acciones</th>
             </tr>
           </thead>
