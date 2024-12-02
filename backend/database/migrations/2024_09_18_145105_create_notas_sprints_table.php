@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Ejecuta las migraciones.
      *
      * @return void
      */
@@ -20,13 +20,15 @@ return new class extends Migration
             $table->integer('nota_ev_pares')->nullable();
             $table->integer('nota_auto_ev')->nullable();
             $table->integer('nota_total')->nullable();
+            $table->Integer('id_estudiante');
+            $table->Integer('id_sprint');
 
             $table->unique(['id_notas_sprint'], 'notas_sprints_pk');
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte las migraciones.
      *
      * @return void
      */

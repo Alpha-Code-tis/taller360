@@ -207,10 +207,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Planilla Notas
     Route::get('/equipos', [PlanillaNotasController::class, 'getEquipos']);
-    Route::get('/sprints/{empresaId}', [PlanillaNotasController::class, 'getSprints']);
-    Route::get('/nota-evaluacion/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
-    Route::get('/evaluacion-pares/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'calcularEvaluacionPares']);
-    Route::get('/sumatoria-notas/{empresaId}/{sprintId}', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
+    Route::get('/equipos/{empresaId}/sprints', [PlanillaNotasController::class, 'getSprints']);
+    Route::get('/equipos/{empresaId}/sprints/{sprintId}/nota-evaluacion', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
+    Route::get('/equipos/{empresaId}/sprints/{sprintId}/sumatoria-notas', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
 
     //Planillas Notas Finales 
     Route::get('/get-equipos', [PlanillaNotasController::class, 'getEquipos']);
