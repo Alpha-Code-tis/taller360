@@ -1,49 +1,57 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import PersonIcon from '@mui/icons-material/Person';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import {
+  Box,
+  Drawer,
+  CssBaseline,
+  AppBar as MuiAppBar,
+  Toolbar,
+  List,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  Menu,
+  MenuItem,
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Assessment as AssessmentIcon,
+  Person as PersonIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  Group as GroupIcon,
+  NoteAlt as NoteAltIcon,
+  School as SchoolIcon,
+  Groups as GroupsIcon, // Nuevo icono para Equipos
+  FactCheck as FactCheckIcon,
+  CalendarMonth as CalendarMonthIcon,
+  Timeline as TimelineIcon,
+  AssignmentTurnedIn as AssignmentTurnedInIcon,
+  Checklist as ChecklistIcon,
+  Settings as SettingsIcon,
+  PictureAsPdf as PictureAsPdfIcon,
+  Summarize as SummarizeIcon,
+  Star as StarIcon,
+} from '@mui/icons-material';
 import { FaUserCircle } from 'react-icons/fa';
-import logo from '../img/logo.jpeg';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
-import FactCheckIcon from '@mui/icons-material/FactCheck';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import SummarizeIcon from '@mui/icons-material/Summarize';
-import ChecklistIcon from '@mui/icons-material/Checklist';
-import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Menu, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import logo from '../img/logo.jpeg';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
-import SettingsIcon from '@mui/icons-material/Settings';
 import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
-import StarIcon from '@mui/icons-material/Star';
+
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -51,7 +59,7 @@ dayjs.locale('es');
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme }) => ({
+  ({ theme, open }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -59,96 +67,90 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
-    variants: [
-      {
-        props: ({ open }) => open,
-        style: {
-          transition: theme.transitions.create('margin', {
-            easing: theme.transitions.easing.easeOut,
-            duration: theme.transitions.duration.enteringScreen,
-          }),
-          marginLeft: 0,
-        },
-      },
-    ],
-  }),
+    ...(open && {
+      marginLeft: 0,
+      transition: theme.transitions.create('margin', {
+        easing: theme.transitions.easing.easeOut,
+        duration: theme.transitions.duration.enteringScreen,
+      }),
+    }),
+  })
 );
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme }) => ({
+})(({ theme, open }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        width: `calc(100% - ${drawerWidth}px)`,
-        marginLeft: `${drawerWidth}px`,
-        transition: theme.transitions.create(['margin', 'width'], {
-          easing: theme.transitions.easing.easeOut,
-          duration: theme.transitions.duration.enteringScreen,
-        }),
-      },
-    },
-  ],
+  ...(open && {
+    width: `calc(100% - ${drawerWidth}px)`,
+    marginLeft: `${drawerWidth}px`,
+    transition: theme.transitions.create(['margin', 'width'], {
+      easing: theme.transitions.easing.easeOut,
+      duration: theme.transitions.duration.enteringScreen,
+    }),
+  }),
 }));
-
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
-const VistaAdministrador = () => {
-  const navigate = useNavigate(); // Hook para navegación
-}
-
-const handleButtonClick = (button) => {
-  // Maneja la lógica adicional que necesites al hacer clic
-  console.log(`Button clicked: ${button}`);
-};
-
-const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
 
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
   const [open, setOpen] = useState(false);
   const [role, setRole] = useState(''); // Estado para el rol
-  const [nombre, setNombre] = useState(''); // Estado para el rol
+  const [nombre, setNombre] = useState(''); // Estado para el nombre del usuario
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
+  const [redirected, setRedirected] = useState(false);
   const [finalEvalStart, setFinalEvalStart] = useState('');
   const [finalEvalEnd, setFinalEvalEnd] = useState('');
   const [autoEvalStart, setAutoEvalStart] = useState('');
   const [autoEvalEnd, setAutoEvalEnd] = useState('');
   const [modalShow, setModalShow] = useState(false);
   const [evaluacionModalShow, setEvaluacionModalShow] = useState(false);
-  const [notificarModalShow, setNotificarModalShow] = useState(false);
   const [autoEvalNota, setAutoEvalNota] = useState('');
   const [paresEvalNota, setParesEvalNota] = useState('');
   const [docenteEvalNota, setDocenteEvalNota] = useState('');
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState('');
   const [sprintSeleccionado, setSprintSeleccionado] = useState('');
   const [empresas, setEmpresas] = useState([]);
-  const [sprints, setSprints] = useState([]); 
+  const [sprints, setSprints] = useState([]);
   const [notaPares, setNotaPares] = useState('');
-  const [notificacion, setNotificacion] = useState('');
-  const [redirected, setRedirected] = useState(false);
+
+  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
+
+  const [formGroupName, setFormGroupName] = useState('');
+  const [formGroupStartDate, setFormGroupStartDate] = useState('');
+  const [formGroupEndDate, setFormGroupEndDate] = useState('');
+  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
+  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
+
+  // Estado para el botón seleccionado
+  const [selectedButton, setSelectedButton] = useState(null);
+
+  // Estados para controlar el submenú de Evaluaciones
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
   const [cruzadaStart, setCruzadaStart] = useState('');
   const [cruzadaEnd, setCruzadaEnd] = useState('');
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
-
+  const [notificarModalShow, setNotificarModalShow] = useState(false);
+  const [notificacion, setNotificacion] = useState('');
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
   const [selectedTipos, setSelectedTipos] = useState(["autoevaluacion"]); // Valor inicial por defecto
-
+  const handleButtonClick = (button) => {
+    console.log('Botón clickeado:', button);
+    console.log('Estado actual evaluacionesOpen:', evaluacionesOpen);
+  
+    if (button === 'evaluaciones') {
+      setEvaluacionesOpen((prev) => !prev);
+    }
+    setSelectedButton(button);
+  };
+  
   // Función para obtener las fechas de las evaluaciones basadas en los tipos seleccionados
   const obtenerFechasEvaluaciones = async (tipos) => {
     try {
@@ -201,11 +203,13 @@ useEffect(() => {
 
 
   useEffect(() => {
-    // Obtener el role del localStorage al montar el componente
+    // Obtener el rol y nombre del localStorage al montar el componente
     const storedRole = localStorage.getItem('role');
     const storedNombre = localStorage.getItem('nombre');
     if (storedRole) {
       setRole(storedRole);
+    }
+    if (storedNombre) {
       setNombre(storedNombre);
     }
     fetchFechas();
@@ -280,12 +284,12 @@ useEffect(() => {
       setAutoEvalEnd(data.fecha_fin_autoevaluacion ?? '');
       setCruzadaStart(data.fecha_inicio_eva_cruzada ?? '');
       setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');
-
       setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
   };
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -312,13 +316,6 @@ useEffect(() => {
     navigate('/login');
     window.location.reload();
   };
-  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
-  const handleTeamConfigSave = () => {
-    // Lógica para guardar los ajustes de conformación de equipos
-    setTeamConfigModalShow(false);
-    toast.success('Ajustes de conformación de equipos guardados');
-  };
-  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
 
   const handleSettingsMenuOpen = (event) => {
     setSettingsMenuAnchor(event.currentTarget);
@@ -327,12 +324,6 @@ useEffect(() => {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
-
-  const [formGroupName, setFormGroupName] = useState('');
-  const [formGroupStartDate, setformGroupStartDate] = useState('');
-  const [formGroupEndDate, setformGroupEndDate] = useState('');
-  const [formGroupMinStudents, setformGroupMinStudents] = useState('');
-  const [formGroupMaxStudents, setformGroupMaxStudents] = useState('');
 
   const handleSaveChanges = async () => {
     const payload = {
@@ -366,15 +357,10 @@ useEffect(() => {
     try {
       await axios.post(`${API_URL}gestion`, payload);
       toast.success('Fechas guardadas correctamente');
-      setModalShow(false);
+      setTeamConfigModalShow(false);
     } catch (error) {
-      // Mostrar el mensaje de error en la interfaz
       toast.error('Error al guardar las fechas');
-
-      // Mostrar el error completo en la consola para mayor detalle
       console.error('Error al guardar las fechas:', error);
-
-      // Si la respuesta del servidor contiene un mensaje específico, también puedes mostrarlo
       if (error.response) {
         console.error('Respuesta del servidor:', error.response.data);
       } else if (error.request) {
@@ -383,7 +369,6 @@ useEffect(() => {
         console.error('Error de configuración:', error.message);
       }
     }
-
   };
 
   const handleSaveChangesEva = async () => {
@@ -431,6 +416,7 @@ useEffect(() => {
   };
 
   /**Enviar notificaciones*/
+  
   const handleSaveChangesNotif = async () => {
       const data = {
         titulo:"Notificación de Evaluaciones",
@@ -455,10 +441,10 @@ useEffect(() => {
     }
   };
 
-  const [selectedButton, setSelectedButton] = useState(null);
 
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -469,20 +455,15 @@ useEffect(() => {
             color: 'black',
           }}
         >
-          {/* Mostrar solo en pantallas pequeñas */}
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="toggle drawer"
-              onClick={() => setOpen(!open)}
-              edge="start"
-              sx={{
-                mr: 2,
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            onClick={handleDrawerOpen}
+            edge="start"
+            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+          >
+            <MenuIcon />
+          </IconButton>
           <div className="ms-auto d-flex align-items-center">
             {role === 'docente' && (
               <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
@@ -494,11 +475,35 @@ useEffect(() => {
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
-              <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
-              <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
-              <MenuItem onClick={() => { setEvaluacionModalShow(true); handleSettingsMenuClose(); }}>Configuracion de Evaluaciones por Sprint</MenuItem>
-              <MenuItem onClick={() => { setNotificarModalShow(true); handleSettingsMenuClose(); }}>Notificar Evaluaciones</MenuItem>
+            <Menu
+              anchorEl={settingsMenuAnchor}
+              open={Boolean(settingsMenuAnchor)}
+              onClose={handleSettingsMenuClose}
+            >
+              <MenuItem
+                onClick={() => {
+                  setModalShow(true);
+                  handleSettingsMenuClose();
+                }}
+              >
+                Habilitar vistas
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setTeamConfigModalShow(true);
+                  handleSettingsMenuClose();
+                }}
+              >
+                Conformación de Equipos
+              </MenuItem>
+              <MenuItem
+                onClick={() => {
+                  setEvaluacionModalShow(true);
+                  handleSettingsMenuClose();
+                }}
+              >
+                Configuración de Evaluaciones
+              </MenuItem>
             </Menu>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
@@ -518,9 +523,9 @@ useEffect(() => {
             paddingTop: '30px',
           },
         }}
-        variant={isMobile ? 'temporary' : 'persistent'}
+        variant="persistent"
         anchor="left"
-        open={open || !isMobile}
+        open={open}
         onClose={handleDrawerClose}
       >
         <div className="d-flex flex-column align-items-center">
@@ -534,9 +539,10 @@ useEffect(() => {
         <Divider />
 
         <List sx={{ mt: 3 }}>
-          {/* Estudiante */}
+          {/* Menú para Estudiante */}
           {role === 'estudiante' && (
             <>
+              {/* Planificación */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -544,7 +550,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('planificacion')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'planificacion' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -572,14 +579,13 @@ useEffect(() => {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <GroupsIcon /> {/* Aquí cambiamos a GroupsIcon */}
+                    <GroupsIcon />
                   </ListItemIcon>
                   <ListItemText primary="Equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
-
-
+              {/* Tareas Estudiante */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -587,7 +593,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('tareasEstudiante')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'tareasEstudiante' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -599,6 +606,49 @@ useEffect(() => {
                   <ListItemText primary="Tareas Estudiante" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+              {/* Evaluaciones */}
+<ListItem disablePadding>
+  <ListItemButton
+    onClick={() => handleButtonClick('evaluaciones')}
+    sx={{
+      borderRadius: '8px',
+      backgroundColor:
+        selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+      '&:hover': {
+        backgroundColor: '#1A3254',
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: 'white' }}>
+      <SchoolIcon />
+    </ListItemIcon>
+    <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+    {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+  </ListItemButton>
+</ListItem>
+
+{/* Submenú Cruzada */}
+<Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+  <List component="div" disablePadding>
+    <ListItem disablePadding>
+      <ListItemButton
+        sx={{ pl: 4 }}
+        component={Link}
+        to="/Cruzada"
+        onClick={() => handleButtonClick('cruzada')}
+      >
+        <ListItemIcon sx={{ color: 'white' }}>
+          <PersonIcon />
+        </ListItemIcon>
+        <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+      </ListItemButton>
+    </ListItem>
+  </List>
+</Collapse>
+
+
+              {/* Seguimiento */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -606,7 +656,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('seguimiento')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'seguimiento' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -619,75 +670,59 @@ useEffect(() => {
                 </ListItemButton>
               </ListItem>
 
-              {/* Autoevaluacion */}
-              {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
-                <ListItem disablePadding>
-                  <ListItemButton
-                    component={Link}
-                    to="/Autoevaluacion"
-                    onClick={() => handleButtonClick('autoevaluacion')}
-                    sx={{
-                      borderRadius: '8px',
-                      backgroundColor: selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
-                      '&:hover': {
-                        backgroundColor: '#1A3254',
-                      },
-                    }}
-                  >
-                    <ListItemIcon sx={{ color: 'white' }}>
-                      <SchoolIcon />
-                    </ListItemIcon>
-                    <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
-                  </ListItemButton>
-                </ListItem>
-              )}
+              {/* Autoevaluación */}
+              {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') &&
+                dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/Autoevaluacion"
+                      onClick={() => handleButtonClick('autoevaluacion')}
+                      sx={{
+                        borderRadius: '8px',
+                        backgroundColor:
+                          selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <SchoolIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                )}
 
-              {/* EvaluacionPares */}
-              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') && dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
-                <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/EvaluacionPares"
-                  onClick={() => handleButtonClick('evaluacionPares')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <FactCheckIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-              )}
-
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/PlanillasSemanales" // Agregamos la ruta de las planillas
-                  onClick={() => handleButtonClick('planillas')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <CalendarMonthIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
+              {/* Evaluación Pares */}
+              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') &&
+                dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/EvaluacionPares"
+                      onClick={() => handleButtonClick('evaluacionPares')}
+                      sx={{
+                        borderRadius: '8px',
+                        backgroundColor:
+                          selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <FactCheckIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                )}
             </>
           )}
 
-          {/* Administrador */}
+          {/* Menú para Administrador */}
           {role === 'administrador' && (
             <>
               <ListItem disablePadding>
@@ -704,16 +739,15 @@ useEffect(() => {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <FactCheckIcon />
+                    <SchoolIcon />
                   </ListItemIcon>
                   <ListItemText primary="Docentes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
             </>
-
           )}
 
-          {/* docente */}
+          {/* Menú para Docente */}
           {role === 'docente' && (
             <>
               <ListItem disablePadding>
@@ -723,7 +757,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('planificacionEquipos')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planificacionEquipos' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'planificacionEquipos' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -732,7 +767,7 @@ useEffect(() => {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <NoteAltIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Planificacion de equipos" sx={{ color: 'white' }} />
+                  <ListItemText primary="Planificación de equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
@@ -743,7 +778,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('estudiantes')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'estudiantes' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -763,7 +799,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('listaAutoevaluacion')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -772,9 +809,10 @@ useEffect(() => {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <SchoolIcon />
                   </ListItemIcon>
-                  <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+                  <ListItemText primary="Lista Autoevaluación" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
@@ -782,7 +820,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('criterioEvaluacion')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -802,7 +841,8 @@ useEffect(() => {
                   onClick={() => handleButtonClick('EvaluationForm')}
                   sx={{
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
+                    backgroundColor:
+                      selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -811,7 +851,92 @@ useEffect(() => {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssignmentTurnedInIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+                  <ListItemText primary="Formulario de Evaluación" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              {/* Reportes */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Reportes"
+                  onClick={() => handleButtonClick('reportes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'reportes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssessmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Planilla Semanales */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillasSemanales"
+                  onClick={() => handleButtonClick('planillas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssessmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Evaluación Entre Equipos */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/EvaluacionEntreEquipos"
+                  onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor:
+                      selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <GroupIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Planilla de Notas */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillaNotas"
+                  onClick={() => handleButtonClick('planillaNotas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor:
+                      selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
@@ -855,17 +980,48 @@ useEffect(() => {
                 </ListItemButton>
               </ListItem>
 
+
+              {/* Planilla de Notas Final */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillaNotasFinal"
+                  onClick={() => handleButtonClick('planillaNotasFinal')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor:
+                      selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Modals */}
               {/* Modal Conformación de Equipos */}
-              <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
+              <Modal
+                show={teamConfigModalShow}
+                onHide={() => setTeamConfigModalShow(false)}
+                centered
+              >
                 <Modal.Header closeButton>
                   <Modal.Title>Conformación de Equipos</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
                     <Form.Group className="mb-3" controlId="formGroupName">
-                      <Form.Label>Gestion</Form.Label>
-                      <Form.Control type="text" placeholder="2-2024" value={formGroupName} // Vincula el valor con el estado
-                        onChange={(e) => setFormGroupName(e.target.value)} // Actualiza el estado al cambiar el texto
+                      <Form.Label>Gestión</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="2-2024"
+                        value={formGroupName}
+                        onChange={(e) => setFormGroupName(e.target.value)}
                       />
                     </Form.Group>
 
@@ -873,15 +1029,23 @@ useEffect(() => {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupStartDate">
                           <Form.Label>Fecha Inicio</Form.Label>
-                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupStartDate(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="dd/mm/aaaa"
+                            value={formGroupStartDate}
+                            onChange={(e) => setFormGroupStartDate(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupEndDate">
                           <Form.Label>Fecha Fin</Form.Label>
-                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupEndDate(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="dd/mm/aaaa"
+                            value={formGroupEndDate}
+                            onChange={(e) => setFormGroupEndDate(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                     </Row>
@@ -890,39 +1054,65 @@ useEffect(() => {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMinStudents">
                           <Form.Label>Cantidad Min. de estudiantes</Form.Label>
-                          <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupMinStudents(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="3"
+                            value={formGroupMinStudents}
+                            onChange={(e) => setFormGroupMinStudents(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMaxStudents">
                           <Form.Label>Cantidad Max. de estudiantes</Form.Label>
-                          <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupMaxStudents(e.target.value)} />
+                          <Form.Control
+                            type="text"
+                            placeholder="6"
+                            value={formGroupMaxStudents}
+                            onChange={(e) => setFormGroupMaxStudents(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                     </Row>
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
-                  <Button variant="primary" onClick={handleSaveChangesGrup}>Guardar cambios</Button>
+                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>
+                    Cerrar
+                  </Button>
+                  <Button variant="primary" onClick={handleSaveChangesGrup}>
+                    Guardar cambios
+                  </Button>
                 </Modal.Footer>
               </Modal>
+
+              {/* Modal Habilitar Vistas */}
               <Modal show={modalShow} onHide={() => setModalShow(false)} centered>
-                <Modal.Header>
+                <Modal.Header closeButton>
                   <Modal.Title>Habilitar vistas</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
                     <Form.Group className="mb-3">
-                      <Form.Label><strong>Autoevaluación</strong></Form.Label>
+                      <Form.Label>
+                        <strong>Autoevaluación</strong>
+                      </Form.Label>
                       <div className="d-flex justify-content-between">
-                        <Form.Label>Fecha Inicio
-                          <Form.Control type="date" value={autoEvalStart} onChange={(e) => setAutoEvalStart(e.target.value)} />
+                        <Form.Label>
+                          Fecha Inicio
+                          <Form.Control
+                            type="date"
+                            value={autoEvalStart}
+                            onChange={(e) => setAutoEvalStart(e.target.value)}
+                          />
                         </Form.Label>
-                        <Form.Label>Fecha Fin
-                          <Form.Control type="date" value={autoEvalEnd} onChange={(e) => setAutoEvalEnd(e.target.value)} />
+                        <Form.Label>
+                          Fecha Fin
+                          <Form.Control
+                            type="date"
+                            value={autoEvalEnd}
+                            onChange={(e) => setAutoEvalEnd(e.target.value)}
+                          />
                         </Form.Label>
                       </div>
                     </Form.Group>
@@ -950,8 +1140,13 @@ useEffect(() => {
                     <Form.Group className="mb-3">
                       <Form.Label><strong>Evaluación Pares</strong></Form.Label>
                       <div className="d-flex justify-content-between">
-                        <Form.Label>Fecha Inicio
-                          <Form.Control type="date" value={finalEvalStart} onChange={(e) => setFinalEvalStart(e.target.value)} />
+                        <Form.Label>
+                          Fecha Inicio
+                          <Form.Control
+                            type="date"
+                            value={cruzadaStart}
+                            onChange={(e) => setCruzadaStart(e.target.value)}
+                          />
                         </Form.Label>
                         <Form.Label>Fecha Fin
                           <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
@@ -973,11 +1168,21 @@ useEffect(() => {
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setModalShow(false)}>Cerrar</Button>
-                  <Button variant="primary" onClick={handleSaveChanges}>Guardar cambios</Button>
+                  <Button variant="secondary" onClick={() => setModalShow(false)}>
+                    Cerrar
+                  </Button>
+                  <Button variant="primary" onClick={handleSaveChanges}>
+                    Guardar cambios
+                  </Button>
                 </Modal.Footer>
               </Modal>
-              <Modal show={evaluacionModalShow} onHide={() => setEvaluacionModalShow(false)} centered>
+
+              {/* Modal Configuración de Evaluaciones */}
+              <Modal
+                show={evaluacionModalShow}
+                onHide={() => setEvaluacionModalShow(false)}
+                centered
+              >
                 <Modal.Header closeButton>
                   <Modal.Title>Configuracion de Evaluaciones</Modal.Title>
                 </Modal.Header>
@@ -1138,8 +1343,12 @@ useEffect(() => {
                   </Toast>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>Cancelar</Button>
-                  <Button variant="primary" onClick={handleSaveChangesNotif}>Enviar</Button>
+                  <Button variant="secondary" onClick={() => setEvaluacionModalShow(false)}>
+                    Cerrar
+                  </Button>
+                  <Button variant="primary" onClick={handleSaveChangesEva}>
+                    Guardar cambios
+                  </Button>
                 </Modal.Footer>
                </Modal>
             </>
@@ -1147,7 +1356,7 @@ useEffect(() => {
         </List>
         <Divider />
       </Drawer>
-      <Main open={open}></Main>
+      <Main open={open}>{/* Contenido principal */}</Main>
     </Box>
   );
 }

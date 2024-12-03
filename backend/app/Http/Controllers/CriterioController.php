@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Criterio;
+use App\Models\Tarea;
 use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
@@ -44,7 +45,7 @@ class CriterioController extends Controller
 
         if (!$criterio) {
             return response()->json([
-                'message' => 'Criterio no encontrado.'
+                'message' => 'Criterio no encontrado.',
             ], Response::HTTP_NOT_FOUND);
         }
 
@@ -58,6 +59,7 @@ class CriterioController extends Controller
             'nombre' => 'required|string|max:255',
             'descripcion' => 'nullable|string',
             'porcentaje' => 'required|integer|min:0|max:100',
+
         ]);
 
         $criterio = Criterio::where('id_criterio', $id_criterio)->first();
@@ -69,28 +71,48 @@ class CriterioController extends Controller
         }
 
         $criterio->update($request->all());
-
         return response()->json([
             'message' => 'Criterio actualizado con éxito.',
             'data' => $criterio
         ], Response::HTTP_OK);
     }
 
-    // Eliminar un criterio
-    public function destroy($id_criterio)
-    {
-        $criterio = Criterio::where('id_criterio', $id_criterio)->first();
+      // Eliminar un criterio
+      public function destroy($id_criterio)
+      {
+          $criterio = Criterio::where('id_criterio', $id_criterio)->first();
+  
+          if (!$criterio) {
+              return response()->json([
+                  'message' => 'Criterio no encontrado.'
+              ], Response::HTTP_NOT_FOUND);
+          }
+  
+          $criterio->delete();
+  
+          return response()->json([
+              'message' => 'Criterio eliminado con éxito.'
+          ], Response::HTTP_NO_CONTENT);
+      }
 
-        if (!$criterio) {
-            return response()->json([
-                'message' => 'Criterio no encontrado.'
-            ], Response::HTTP_NOT_FOUND);
+    public function criteriosPorTarea($tareaId)
+    {
+        // Verificar que la tarea existe (opcional, si tienes un modelo Tarea)
+        // Puedes omitir esto si no es necesario
+        
+        $tarea = Tarea::find($tareaId);
+        if (!$tarea) {
+            return response()->json(['message' => 'Tarea no encontrada'], Response::HTTP_NOT_FOUND);
+        }
+        
+
+        // Obtener los criterios asociados a la tarea
+        $criterios = Criterio::where('tarea_id', $tareaId)->get();
+
+        if ($criterios->isEmpty()) {
+            return response()->json(['message' => 'No hay criterios para esta tarea.'], Response::HTTP_OK);
         }
 
-        $criterio->delete();
-
-        return response()->json([
-            'message' => 'Criterio eliminado con éxito.'
-        ], Response::HTTP_NO_CONTENT);
+        return response()->json($criterios, Response::HTTP_OK);
     }
 }

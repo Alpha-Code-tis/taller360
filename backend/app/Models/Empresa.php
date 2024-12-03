@@ -55,6 +55,8 @@ class Empresa extends Model
 		'correo_empresa',
 		'logo',
 		'gestion',
+		'drive_link',
+		'especificaciones',
 	];
 
 	public function representate_legal()
@@ -77,21 +79,40 @@ class Empresa extends Model
 		return $this->hasMany(Cantidad::class, 'id_empresa');
 	}
 
-	public function evaluacions()
-	{
-		return $this->hasMany(Evaluacion::class, 'id_empresa');
-	}
+	public function criterios()
+{
+    return $this->belongsToMany(Criterio::class, 'empresa_criterio', 'id_empresa', 'id_criterio');
+}
 
 	public function planificacions()
 	{
-		return $this->hasMany(Planificacion::class, 'id_empresa');
+		return $this->hasMany(Planificacion::class, 'id_empresa','id_empresa');
 	}
 
 	public function representate_legals()
 	{
 		return $this->hasMany(RepresentateLegal::class, 'id_empresa');
 	}
-	public function estudiantes() // Nueva relación en Empresa
+	public function estudiantes() 
 	{
-		return $this->hasMany(Estudiante::class, 'id_empresa', 'id_empresa');	}
+		return $this->hasMany(Estudiante::class, 'id_empresa');
+	}
+	public function tareas()
+	{
+		return $this->hasMany(Tarea::class, 'id_empresa', 'id_empresa');
+	}
+	public function evaluador()
+	{
+		return $this->belongsTo(Empresa::class, 'equipo_evaluador_id');
+	}
+
+	public function evaluado()
+	{
+		return $this->belongsTo(Empresa::class, 'equipo_evaluado_id');
+	}
+	
+	public function evaluacionesCruzadas()
+	{
+		return $this->hasMany(Cruzada::class, 'equipo_evaluado_id');
+	}
 }

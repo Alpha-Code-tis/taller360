@@ -52,4 +52,8 @@ class Planificacion extends Model
 	{
 		return $this->hasMany(Sprint::class, 'id_planificacion');
 	}
+	public function tareas()
+    {
+        return $this->hasMany(Tarea::class);
+    }
 }

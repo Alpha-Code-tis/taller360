@@ -5,18 +5,29 @@ import './lightbox.css';
 import './TareasEstudiante.css';
 
 const TareasEstudiante = () => {
-  const [tareas, setTareas] = useState([]); // Estado para almacenar tareas
+  const [tareas, setTareas] = useState([]);
   const [lightboxVisible, setLightboxVisible] = useState(false);
-  const [selectedImages, setSelectedImages] = useState([]);
+  const [selectedLinks, setSelectedLinks] = useState([]);
   const [currentTareaId, setCurrentTareaId] = useState(null);
-  const [sprints, setSprints] = useState([]); // Estado para almacenar los sprints
-  const [selectedSprint, setSelectedSprint] = useState(1); // Sprint seleccionado
+  const [sprints, setSprints] = useState([]);
+  const [selectedSprint, setSelectedSprint] = useState(1);
+
+  // Obtener el token de autenticación (ajusta esto según cómo manejes la autenticación)
+  const token = localStorage.getItem('token');
+
+  // Configurar axios para incluir el token en los encabezados
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   // Obtener los sprints al montar el componente
   useEffect(() => {
     const fetchSprints = async () => {
       try {
-        const response = await axios.get(`${API_URL}sprints`);
+        const response = await axiosInstance.get('sprints');
         setSprints(response.data);
       } catch (error) {
         console.error('Error al obtener los sprints:', error);
@@ -30,58 +41,81 @@ const TareasEstudiante = () => {
   useEffect(() => {
     const fetchTareas = async () => {
       try {
-        console.log(selectedSprint);
-        const response = await axios.get(`${API_URL}tareas/${selectedSprint}`);
-        console.log(selectedSprint);
-        setTareas(response.data); // Guardar las tareas obtenidas de la API
-        console.log(tareas);
+        const response = await axiosInstance.get(`tareas/${selectedSprint}`);
+        const tareasConAvances = await Promise.all(
+          response.data.map(async (tarea) => {
+            // Fetch avances for each tarea
+            try {
+              const avancesResponse = await axiosInstance.get(`tareas/${tarea.id_tarea}/avances`);
+              return { ...tarea, enlaces: avancesResponse.data };
+            } catch (error) {
+              console.error(`Error al obtener los avances de la tarea ${tarea.id_tarea}:`, error);
+              return { ...tarea, enlaces: [] };
+            }
+          })
+        );
+        setTareas(tareasConAvances);
       } catch (error) {
         console.error('Error al obtener las tareas:', error);
       }
     };
 
     fetchTareas();
-  }, [selectedSprint]); // Ejecuta cuando cambia el sprint seleccionado
+  }, [selectedSprint]);
 
-  // Manejar la subida de archivos
-  const handleFileUpload = (event, id) => {
-    const files = Array.from(event.target.files);
-    setTareas((prevTareas) =>
-      prevTareas.map((tarea) =>
-        tarea.id_tarea === id
-          ? { ...tarea, imagenes: [...(tarea.imagenes || []), ...files] }
-          : tarea
-      )
-    );
-  };
-
-  // Manejar la vista de imágenes
-  const handleViewImages = (imagenes, id) => {
-    if (imagenes.length > 0) {
-      setSelectedImages(imagenes);
-      setCurrentTareaId(id);
-      setLightboxVisible(true);
-    } else {
-      alert('No hay imágenes subidas para esta tarea.');
+  // Manejar la subida de enlaces
+  const handleLinkUpload = async (event, id) => {
+    const link = event.target.value;
+    if (link) {
+      try {
+        await axiosInstance.post(`tareas/${id}/subir-avance`, { enlace: link });
+        // Actualizar los enlaces en el estado
+        setTareas((prevTareas) =>
+          prevTareas.map((tarea) =>
+            tarea.id_tarea === id
+              ? { ...tarea, enlaces: [...(tarea.enlaces || []), link] }
+              : tarea
+          )
+        );
+        event.target.value = '';
+      } catch (error) {
+        console.error('Error al subir el enlace:', error);
+      }
     }
   };
 
-  // Manejar la eliminación de imágenes
-  const handleDeleteImage = (index) => {
-    const updatedImages = selectedImages.filter((_, i) => i !== index);
+  // Manejar la vista de enlaces
+  const handleViewLinks = (enlaces, id) => {
+    if (enlaces.length > 0) {
+      setSelectedLinks(enlaces);
+      setCurrentTareaId(id);
+      setLightboxVisible(true);
+    } else {
+      alert('No hay enlaces subidos para esta tarea.');
+    }
+  };
 
-    setTareas((prevTareas) =>
-      prevTareas.map((tarea) =>
-        tarea.id_tarea === currentTareaId
-          ? { ...tarea, imagenes: updatedImages }
-          : tarea
-      )
-    );
+  // Manejar la eliminación de enlaces
+  const handleDeleteLink = async (index) => {
+    try {
+      await axiosInstance.delete(`tareas/${currentTareaId}/avances/${index}`);
+      const updatedLinks = selectedLinks.filter((_, i) => i !== index);
 
-    setSelectedImages(updatedImages);
+      setTareas((prevTareas) =>
+        prevTareas.map((tarea) =>
+          tarea.id_tarea === currentTareaId
+            ? { ...tarea, enlaces: updatedLinks }
+            : tarea
+        )
+      );
 
-    if (updatedImages.length === 0) {
-      setLightboxVisible(false);
+      setSelectedLinks(updatedLinks);
+
+      if (updatedLinks.length === 0) {
+        setLightboxVisible(false);
+      }
+    } catch (error) {
+      console.error('Error al eliminar el enlace:', error);
     }
   };
 
@@ -100,7 +134,6 @@ const TareasEstudiante = () => {
           value={selectedSprint}
           onChange={handleSprintChange}
         >
-
           {sprints.map((sprint) => (
             <option key={sprint.id_sprint} value={sprint.id_sprint}>
               {sprint.nro_sprint}
@@ -124,21 +157,17 @@ const TareasEstudiante = () => {
               <td>{tarea.estimacion}</td>
               <td>
                 <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, tarea.id_tarea)}
-                  multiple
+                  type="text"
+                  placeholder="Ingresa un enlace"
+                  onBlur={(e) => handleLinkUpload(e, tarea.id_tarea)}
                 />
-                <ul>
-                  {(tarea.imagenes || []).map((imagen, index) => (
-                    <li key={index}>{imagen.name}</li>
-                  ))}
-                </ul>
               </td>
               <td>
                 <span
                   className="icono-ojo"
-                  onClick={() => handleViewImages(tarea.imagenes || [], tarea.id_tarea)}
+                  onClick={() =>
+                    handleViewLinks(tarea.enlaces || [], tarea.id_tarea)
+                  }
                 >
                   👁️
                 </span>
@@ -154,17 +183,15 @@ const TareasEstudiante = () => {
             <span className="close" onClick={() => setLightboxVisible(false)}>
               &times;
             </span>
-            {selectedImages.length > 0 &&
-              selectedImages.map((imagen, index) => (
-                <div key={index} className="lightbox-image-container">
-                  <img
-                    src={URL.createObjectURL(imagen)}
-                    alt={`Imagen ${index + 1}`}
-                    className="lightbox-image"
-                  />
+            {selectedLinks.length > 0 &&
+              selectedLinks.map((enlace, index) => (
+                <div key={index} className="lightbox-link-container">
+                  <a href={enlace} target="_blank" rel="noopener noreferrer">
+                    {enlace}
+                  </a>
                   <button
                     className="delete-btn"
-                    onClick={() => handleDeleteImage(index)}
+                    onClick={() => handleDeleteLink(index)}
                   >
                     🗑️ Eliminar
                   </button>

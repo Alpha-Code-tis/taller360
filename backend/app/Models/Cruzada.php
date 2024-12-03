@@ -6,47 +6,40 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * Class Cruzada
- * 
- * @property int $id_cruzada
- * @property int|null $id_evaluacion
- * 
- * @property Evaluacion|null $evaluacion
- * @property Collection|DetalleReporte[] $detalle_reportes
- * @property Collection|Evaluacion[] $evaluacions
- *
- * @package App\Models
- */
 class Cruzada extends Model
 {
+	use HasFactory;
+
 	protected $table = 'cruzada';
-	protected $primaryKey = 'id_cruzada';
+	protected $primaryKey = 'id_cruzada'; // Define la clave primaria correcta
+	protected $casts = [
+		'detalle_notas' => 'array',
+	];
+	
 	public $timestamps = false;
 
-	protected $casts = [
-		'id_evaluacion' => 'int'
-	];
-
 	protected $fillable = [
-		'id_evaluacion'
+		'equipo_evaluador_id',
+		'equipo_evaluado_id',
+		'gestion',
+		'nota_cruzada', // Nueva columna
 	];
 
-	public function evaluacion()
+	public function evaluador()
 	{
-		return $this->belongsTo(Evaluacion::class, 'id_evaluacion');
+		return $this->belongsTo(Empresa::class, 'equipo_evaluador_id',  'id_empresa');
 	}
 
-	public function detalle_reportes()
+	public function evaluado()
 	{
-		return $this->hasMany(DetalleReporte::class, 'id_cruzada');
+		return $this->belongsTo(Empresa::class, 'equipo_evaluado_id',  'id_empresa');
 	}
+	public function criterios()
+{
+    return $this->belongsToMany(Criterio::class, 'evaluacion_criterio', 'id_cruzada', 'id_criterio');
+}
 
-	public function evaluacions()
-	{
-		return $this->hasMany(Evaluacion::class, 'id_cruzada');
-	}
 }

@@ -108,4 +108,10 @@ class Estudiante extends Authenticatable
     {
         return $this->belongsToMany(Criterio::class, 'estudiante_criterio', 'id_estudiante_evaluador', 'id_criterio');
     }
+
+    // Relación para notas
+    public function notas()
+    {
+        return $this->hasMany(Nota::class, 'id_estudiante');
+    }
 }

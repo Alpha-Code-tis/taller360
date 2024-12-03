@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
+class RemoveEmpresaIdFromCriteriosTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('cruzada', function (Blueprint $table) {
-            $table->integer('id_cruzada', true);
-            $table->integer('id_evaluacion')->nullable()->index('es_un2_fk');
-
-            $table->unique(['id_cruzada'], 'cruzada_pk');
+        Schema::table('criterios', function (Blueprint $table) {
+            //
         });
     }
 
@@ -28,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cruzada');
+        Schema::table('criterios', function (Blueprint $table) {
+            //
+        });
     }
-};
+}

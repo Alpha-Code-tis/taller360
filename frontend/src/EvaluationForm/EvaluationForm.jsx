@@ -78,6 +78,7 @@ const EvaluationForm = () => {
   // Obtener tareas de un equipo seleccionado
   useEffect(() => {
     if (sprint) {
+      console.log(sprint);
       const fetchTasks = async () => {
         try {
           const response = await axios.get(`${API_URL}/tareas/${team}/sprint/${sprint}`);

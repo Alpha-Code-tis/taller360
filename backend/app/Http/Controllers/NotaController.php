@@ -115,6 +115,17 @@ class NotaController extends Controller
                 'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
+        $planificacion = Planificacion::where('id_empresa', $request->empresa)
+            ->first();
+
+        $sprint = Sprint::where('id_planificacion', $planificacion->id_planificacion)
+            ->where('nro_sprint', $request->sprint)
+            ->first();
+        if (!$sprint) {
+            return response()->json([
+                'message' => 'Sprint no encontrado para la empresa proporcionada.',
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         $totalEvaluaciones = $request->autoevaluacion + $request->pares + $request->evaluaciondocente;
 
