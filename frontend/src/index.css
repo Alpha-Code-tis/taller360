@@ -67,7 +67,7 @@ body {
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: #213547;
+    color: #1470c1;
     background-color: #ffffff;
   }
   a:hover {

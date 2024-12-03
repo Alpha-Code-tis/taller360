@@ -76,6 +76,12 @@ class Evaluacion extends Model
 		return $this->belongsTo(Autoevaluacion::class, 'id_autoe');
 	}
 
+	public function estudianteEvaluado()
+    {
+        return $this->belongsTo(Estudiante::class, 'id_estudiante_evaluado');
+    }
+
+
 	public function empresa()
 	{
 		return $this->belongsTo(Empresa::class, 'id_empresa');

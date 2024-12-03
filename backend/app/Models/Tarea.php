@@ -30,9 +30,15 @@ class Tarea extends Model
     protected $fillable = ['nombre_tarea',
 		'estimacion', 'estado', 'progreso', 'avances', 'calificion', 'observaciones', 'revisado'];
 
-    public function estudiantes()
+    public function estudiante()
     {
         return $this->belongsToMany(Estudiante::class, 'estudiante_tarea', 'id_tarea', 'id_estudiante');
+    }
+
+    public function estudiantes()
+    {
+        return $this->belongsToMany(Estudiante::class, 'estudiante_tarea', 'id_tarea', 'id_estudiante')
+                    ->withPivot('resultado_evaluacion', 'descripcion_evaluacion'); // Incluye las columnas necesarias
     }
     public $timestamps = false;
 
@@ -52,4 +58,5 @@ class Tarea extends Model
     {
         return $this->hasMany(Evaluacion::class, 'tarea_id');
     }
+    
 }

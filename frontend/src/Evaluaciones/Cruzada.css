@@ -94,15 +94,4 @@
     }
 }
 
-/* Aplicar color personalizado a los botones */
-button, .btn-primary {
-    background-color: #1A3254 ;
-    border-color: #1A3254 ;
-    color: white;
-}   
-
-button:hover, .btn-primary:hover {
-    background-color: #14223D ;
-    border-color: #14223D ;
-}
 

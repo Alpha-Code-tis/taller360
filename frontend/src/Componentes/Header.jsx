@@ -34,6 +34,7 @@ import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
@@ -151,7 +152,16 @@ export default function PersistentDrawerLeft() {
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
   const [selectedTipos, setSelectedTipos] = useState(["autoevaluacion"]); // Valor inicial por defecto
-
+  const handleButtonClick = (button) => {
+    console.log('Botón clickeado:', button);
+    console.log('Estado actual evaluacionesOpen:', evaluacionesOpen);
+  
+    if (button === 'evaluaciones') {
+      setEvaluacionesOpen((prev) => !prev);
+    }
+    setSelectedButton(button);
+  };
+  
   // Función para obtener las fechas de las evaluaciones basadas en los tipos seleccionados
   const obtenerFechasEvaluaciones = async (tipos) => {
     try {
@@ -289,6 +299,7 @@ export default function PersistentDrawerLeft() {
       toast.error('No se recuperaron los datos.');
     }
   };
+
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -429,6 +440,7 @@ export default function PersistentDrawerLeft() {
   };
 
   /**Enviar notificaciones*/
+  
   const handleSaveChangesNotif = async () => {
     const data = {
       titulo: "Notificación de Evaluaciones",
@@ -595,42 +607,45 @@ export default function PersistentDrawerLeft() {
               </ListItem>
 
               {/* Evaluaciones */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => handleButtonClick('evaluaciones')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <SchoolIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
-                  {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </ListItemButton>
-              </ListItem>
-              <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      sx={{ pl: 4 }}
-                      component={Link}
-                      to="/Cruzada"
-                      onClick={() => handleButtonClick('cruzada')}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <PersonIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                </List>
-              </Collapse>
+<ListItem disablePadding>
+  <ListItemButton
+    onClick={() => handleButtonClick('evaluaciones')}
+    sx={{
+      borderRadius: '8px',
+      backgroundColor:
+        selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+      '&:hover': {
+        backgroundColor: '#1A3254',
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: 'white' }}>
+      <SchoolIcon />
+    </ListItemIcon>
+    <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+    {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+  </ListItemButton>
+</ListItem>
+
+{/* Submenú Cruzada */}
+<Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+  <List component="div" disablePadding>
+    <ListItem disablePadding>
+      <ListItemButton
+        sx={{ pl: 4 }}
+        component={Link}
+        to="/Cruzada"
+        onClick={() => handleButtonClick('cruzada')}
+      >
+        <ListItemIcon sx={{ color: 'white' }}>
+          <PersonIcon />
+        </ListItemIcon>
+        <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+      </ListItemButton>
+    </ListItem>
+  </List>
+</Collapse>
+
 
               {/* Seguimiento */}
               <ListItem disablePadding>
@@ -1049,6 +1064,8 @@ export default function PersistentDrawerLeft() {
                             onChange={(e) => setCruzadaStart(e.target.value)}
                           />
                         </Form.Label>
+                        <Form.Label>Fecha Fin
+                          <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
                         <Form.Label>Fecha Fin
                           <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
                         </Form.Label>

@@ -19,6 +19,7 @@ use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\Cualificar;
+use App\Http\Controllers\StudentReportController;
 use App\Http\Controllers\CualificarController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\CruzadaController;
@@ -207,7 +208,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/reporte', [ReporteController::class, 'generarReporte']);
     Route::get('/equiposGestion/{gestion}', [EmpresaController::class, 'getEquiposConEvaluaciones']);
     Route::get('/sprintsTareas/{equipoId}', [TareaController::class, 'getSprintsConTareas']);
-    Route::get('empresa/{id_empresa}/reporte', [EmpresaController::class, 'getReporteEmpresa']);
+    Route::get('empresa/{id_empresa}/reporte', [EmpresaController::class, 'getReporte']);
+
+    // Reportes por Estudiante
+    Route::get('/estudiante/{id_estudiante}/reporte', [EstudianteController::class, 'getStudentReport']);
+    Route::get('/estudiante/{id_estudiante}/reporte', [ReporteController::class, 'getStudentReport']);
+
 
     //Configuración de notas
     Route::get('/configNotas', [NotaController::class, 'index']);
@@ -220,18 +226,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notificacion', [NotificacionEstudiantesController::class, 'notificarEstudiantesPorGrupo']);
     Route::get('listaFechasEvaluciones', [NotificacionEstudiantesController::class, 'listaFechasEval']);
     Route::get('/cualificacion', [CualificarController::class, 'index']);
-    //Planilla Notas
-    Route::get('/equipos', [PlanillaNotasController::class, 'getEquipos']);
-    Route::get('/equipos/{empresaId}/sprints', [PlanillaNotasController::class, 'getSprints']);
-    Route::get('/equipos/{empresaId}/sprints/{sprintId}/nota-evaluacion', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
-    Route::get('/equipos/{empresaId}/sprints/{sprintId}/sumatoria-notas', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
-
-    //Planillas Notas Finales 
-    Route::get('/equipos', [PlanillaNotasFinalesController::class, 'getEquipos']);
-
-    // Ruta para obtener los estudiantes y sus notas finales de una empresa
-    Route::get('/estudiantes-con-notas/{empresaId}', [PlanillaNotasFinalesController::class, 'getEstudiantesConNotas']);
-
-    // Ruta para actualizar las notas finales de una empresa
-    Route::post('/actualizar-notas-finales/{empresaId}', [PlanillaNotasFinalesController::class, 'actualizarNotasFinales']);
-});
+}    
+);
+Route::get('/estudiante/{id_estudiante}/reporte', [ReporteController::class, 'getStudentReport']);
