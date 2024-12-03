@@ -34,7 +34,6 @@ import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
@@ -46,6 +45,7 @@ import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
 import StarIcon from '@mui/icons-material/Star';
 import { Collapse } from '@mui/material';
+
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -1064,10 +1064,13 @@ export default function PersistentDrawerLeft() {
                             onChange={(e) => setCruzadaStart(e.target.value)}
                           />
                         </Form.Label>
-                        <Form.Label>Fecha Fin
-                          <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
-                        <Form.Label>Fecha Fin
-                          <Form.Control type="date" value={finalEvalEnd} onChange={(e) => setFinalEvalEnd(e.target.value)} />
+                        <Form.Label>
+                          Fecha Fin
+                          <Form.Control
+                            type="date"
+                            value={cruzadaEnd}
+                            onChange={(e) => setCruzadaEnd(e.target.value)}
+                          />
                         </Form.Label>
                       </div>
                       {/* Nota Pares */}
