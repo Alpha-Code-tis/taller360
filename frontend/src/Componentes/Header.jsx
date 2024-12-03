@@ -45,6 +45,7 @@ import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
 import StarIcon from '@mui/icons-material/Star';
 import { Collapse } from '@mui/material';
+import AssessmentIcon from '@mui/icons-material/Assessment';
 
 
 dayjs.extend(isSameOrBefore);
@@ -929,6 +930,27 @@ export default function PersistentDrawerLeft() {
                     <SummarizeIcon />
                   </ListItemIcon>
                   <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Reportes */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/Reportes"
+                  onClick={() => handleButtonClick('reportes')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'reportes' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssessmentIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
