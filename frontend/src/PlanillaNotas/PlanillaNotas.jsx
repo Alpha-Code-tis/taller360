@@ -19,7 +19,7 @@ const EvaluationTables = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get(`${API_URL}/equipos`);
+        const response = await axios.get(`${API_URL}/equipos1`);
         console.log("Equipos:", response.data.empresas); // Verificar los datos recibidos
         setTeams(response.data.empresas);
       } catch (error) {
@@ -35,7 +35,7 @@ const EvaluationTables = () => {
     if (selectedTeam) {
       const fetchSprints = async () => {
         try {
-          const response = await axios.get(`${API_URL}/sprints/${selectedTeam}`);
+          const response = await axios.get(`${API_URL}/evaluation/sprints/${selectedTeam}`);
           console.log("Sprints:", response.data); // Verificar los datos recibidos
           setSprints(response.data);
         } catch (error) {
@@ -55,7 +55,7 @@ const EvaluationTables = () => {
     if (selectedTeam && selectedSprint) {
       const fetchGradesAndValues = async () => {
         try {
-          const response = await axios.get(`${API_URL}/sumatoria-notas/${selectedTeam}/${selectedSprint}`);
+          const response = await axios.get(`${API_URL}/equipos/${selectedTeam}/sprints/${selectedSprint}/sumatoria-notas`);
           console.log("Respuesta de API (sumatoria-notas):", response.data); // Verificar la respuesta de la API
 
           if (response.data) {
