@@ -1,41 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
 import { styled, useTheme } from '@mui/material/styles';
-import {
-  Box,
-  Drawer,
-  CssBaseline,
-  AppBar as MuiAppBar,
-  Toolbar,
-  List,
-  Divider,
-  IconButton,
-  ListItem,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Collapse,
-  Menu,
-  MenuItem,
-} from '@mui/material';
-import {
-  Menu as MenuIcon,
-  Assessment as AssessmentIcon,
-  Person as PersonIcon,
-  ExpandLess as ExpandLessIcon,
-  ExpandMore as ExpandMoreIcon,
-  Group as GroupIcon,
-  NoteAlt as NoteAltIcon,
-  School as SchoolIcon,
-  Groups as GroupsIcon,
-  FactCheck as FactCheckIcon,
-  CalendarMonth as CalendarMonthIcon,
-  Timeline as TimelineIcon,
-  AssignmentTurnedIn as AssignmentTurnedInIcon,
-  Checklist as ChecklistIcon,
-  Settings as SettingsIcon,
-} from '@mui/icons-material';
+import Box from '@mui/material/Box';
+import Drawer from '@mui/material/Drawer';
+import CssBaseline from '@mui/material/CssBaseline';
+import MuiAppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import List from '@mui/material/List';
+import PersonIcon from '@mui/icons-material/Person';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import MenuIcon from '@mui/icons-material/Menu';
+import ListItem from '@mui/material/ListItem';
+import ListItemButton from '@mui/material/ListItemButton';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 import { FaUserCircle } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
+import logo from '../img/logo.jpeg';
+import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import SchoolIcon from '@mui/icons-material/School';
@@ -63,6 +44,8 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
 import StarIcon from '@mui/icons-material/Star';
+import { Collapse } from '@mui/material';
+
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -70,7 +53,7 @@ dayjs.locale('es');
 const drawerWidth = 240;
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
-  ({ theme, open }) => ({
+  ({ theme }) => ({
     flexGrow: 1,
     padding: theme.spacing(3),
     transition: theme.transitions.create('margin', {
@@ -78,32 +61,61 @@ const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' })(
       duration: theme.transitions.duration.leavingScreen,
     }),
     marginLeft: `-${drawerWidth}px`,
-    ...(open && {
-      marginLeft: 0,
-      transition: theme.transitions.create('margin', {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-    }),
-  })
+    variants: [
+      {
+        props: ({ open }) => open,
+        style: {
+          transition: theme.transitions.create('margin', {
+            easing: theme.transitions.easing.easeOut,
+            duration: theme.transitions.duration.enteringScreen,
+          }),
+          marginLeft: 0,
+        },
+      },
+    ],
+  }),
 );
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
-})(({ theme, open }) => ({
+})(({ theme }) => ({
   transition: theme.transitions.create(['margin', 'width'], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,
   }),
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-    transition: theme.transitions.create(['margin', 'width'], {
-      easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  }),
+  variants: [
+    {
+      props: ({ open }) => open,
+      style: {
+        width: `calc(100% - ${drawerWidth}px)`,
+        marginLeft: `${drawerWidth}px`,
+        transition: theme.transitions.create(['margin', 'width'], {
+          easing: theme.transitions.easing.easeOut,
+          duration: theme.transitions.duration.enteringScreen,
+        }),
+      },
+    },
+  ],
 }));
+
+const DrawerHeader = styled('div')(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  padding: theme.spacing(0, 1),
+  ...theme.mixins.toolbar,
+  justifyContent: 'flex-end',
+}));
+
+const VistaAdministrador = () => {
+  const navigate = useNavigate(); // Hook para navegación
+}
+
+const handleButtonClick = (button) => {
+  // Maneja la lógica adicional que necesites al hacer clic
+  console.log(`Button clicked: ${button}`);
+};
+
+const selectedButton = 'docentes'; // Asegúrate de gestionar el estado seleccionado correctamente
 
 export default function PersistentDrawerLeft() {
   const theme = useTheme();
@@ -112,7 +124,7 @@ export default function PersistentDrawerLeft() {
   const [nombre, setNombre] = useState(''); // Estado para el nombre del usuario
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
-
+  const [evaluacionesOpen, setEvaluacionesOpen] = useState(false);
   const [finalEvalStart, setFinalEvalStart] = useState('');
   const [finalEvalEnd, setFinalEvalEnd] = useState('');
   const [autoEvalStart, setAutoEvalStart] = useState('');
@@ -125,7 +137,7 @@ export default function PersistentDrawerLeft() {
   const [empresaSeleccionada, setEmpresaSeleccionada] = useState('');
   const [sprintSeleccionado, setSprintSeleccionado] = useState('');
   const [empresas, setEmpresas] = useState([]);
-  const [sprints, setSprints] = useState([]); 
+  const [sprints, setSprints] = useState([]);
   const [notaPares, setNotaPares] = useState('');
   const [notificacion, setNotificacion] = useState('');
   const [redirected, setRedirected] = useState(false);
@@ -134,6 +146,7 @@ export default function PersistentDrawerLeft() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
+  const [notificarModalShow, setNotificarModalShow] = useState(false);
 
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
@@ -158,22 +171,22 @@ export default function PersistentDrawerLeft() {
       setFechas(response.data);
     } catch (error) {
       // Si hay un error, verificar la respuesta
-    if (error.response) {
-      // Respuesta de error del servidor (por ejemplo, 404)
-      console.error("Error del servidor:", error.response.status);
-      console.error("Respuesta del servidor:", error.response.data);
-    } else {
-      // Error en la solicitud
-      console.error("Error en la solicitud:", error.message);
-    }
+      if (error.response) {
+        // Respuesta de error del servidor (por ejemplo, 404)
+        console.error("Error del servidor:", error.response.status);
+        console.error("Respuesta del servidor:", error.response.data);
+      } else {
+        // Error en la solicitud
+        console.error("Error en la solicitud:", error.message);
+      }
 
     }
   };
 
-// useEffect para cargar las fechas cada vez que cambia la selección
-useEffect(() => {
-  obtenerFechasEvaluaciones(selectedTipos);
-}, [selectedTipos]); // Se ejecuta cada vez que `selectedTipos` cambie
+  // useEffect para cargar las fechas cada vez que cambia la selección
+  useEffect(() => {
+    obtenerFechasEvaluaciones(selectedTipos);
+  }, [selectedTipos]); // Se ejecuta cada vez que `selectedTipos` cambie
 
 
   // Manejar cambio en la selección del `select`
@@ -206,20 +219,20 @@ useEffect(() => {
       fetchNotasPorEmpresaYSprint(empresaSeleccionada, sprintSeleccionado);
     }
   }, [empresaSeleccionada, sprintSeleccionado]);
-  
+
   const fetchNotasPorEmpresaYSprint = async (empresaId, sprintId) => {
     try {
       const response = await axios.get(
-        `${API_URL}configNotasDocente/${empresaId}/${sprintId}`, 
+        `${API_URL}configNotasDocente/${empresaId}/${sprintId}`,
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`, // Requiere autenticación
           },
         }
       );
-      
+
       const data = response.data;
-  
+
       // Actualiza los campos de evaluación con los datos obtenidos
       setAutoEvalNota(data.autoevaluacion ?? '');
       setParesEvalNota(data.pares ?? '');
@@ -258,8 +271,6 @@ useEffect(() => {
       setRedirected(true); // Marcar que la redirección inicial ya ocurrió
     }
   }, [role, redirected, navigate]);
-
-
 
   const fetchFechas = async () => {
     try {
@@ -305,6 +316,14 @@ useEffect(() => {
     window.location.reload();
   };
 
+  const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+  const handleTeamConfigSave = () => {
+    // Lógica para guardar los ajustes de conformación de equipos
+    setTeamConfigModalShow(false);
+    toast.success('Ajustes de conformación de equipos guardados');
+  };
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
+
   const handleSettingsMenuOpen = (event) => {
     setSettingsMenuAnchor(event.currentTarget);
   };
@@ -312,6 +331,12 @@ useEffect(() => {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
+
+  const [formGroupName, setFormGroupName] = useState('');
+  const [formGroupStartDate, setFormGroupStartDate] = useState('');
+  const [formGroupEndDate, setFormGroupEndDate] = useState('');
+  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
+  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
 
   const handleSaveChanges = async () => {
     const payload = {
@@ -405,11 +430,11 @@ useEffect(() => {
 
   /**Enviar notificaciones*/
   const handleSaveChangesNotif = async () => {
-      const data = {
-        titulo:"Notificación de Evaluaciones",
-        mensaje: notificacion,
-        tipos: selectedTipos,
-      };
+    const data = {
+      titulo: "Notificación de Evaluaciones",
+      mensaje: notificacion,
+      tipos: selectedTipos,
+    };
 
     try {
       await axios.post(`${API_URL}notificacion`, data);
@@ -429,8 +454,6 @@ useEffect(() => {
   };
 
   const [selectedButton, setSelectedButton] = useState(null);
-
-
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   return (
@@ -463,35 +486,11 @@ useEffect(() => {
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
-            <Menu
-              anchorEl={settingsMenuAnchor}
-              open={Boolean(settingsMenuAnchor)}
-              onClose={handleSettingsMenuClose}
-            >
-              <MenuItem
-                onClick={() => {
-                  setModalShow(true);
-                  handleSettingsMenuClose();
-                }}
-              >
-                Habilitar vistas
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setTeamConfigModalShow(true);
-                  handleSettingsMenuClose();
-                }}
-              >
-                Conformación de Equipos
-              </MenuItem>
-              <MenuItem
-                onClick={() => {
-                  setEvaluacionModalShow(true);
-                  handleSettingsMenuClose();
-                }}
-              >
-                Configuración de Evaluaciones
-              </MenuItem>
+            <Menu anchorEl={settingsMenuAnchor} open={Boolean(settingsMenuAnchor)} onClose={handleSettingsMenuClose}>
+              <MenuItem onClick={() => { setModalShow(true); handleSettingsMenuClose(); }}>Habilitar vistas</MenuItem>
+              <MenuItem onClick={() => { setTeamConfigModalShow(true); handleSettingsMenuClose(); }}>Conformación de Equipos</MenuItem>
+              <MenuItem onClick={() => { setEvaluacionModalShow(true); handleSettingsMenuClose(); }}>Configuracion de Evaluaciones por Sprint</MenuItem>
+              <MenuItem onClick={() => { setNotificarModalShow(true); handleSettingsMenuClose(); }}>Notificar Evaluaciones</MenuItem>
             </Menu>
             <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose} keepMounted>
               <MenuItem onClick={handleLogout}>Cerrar Sesión</MenuItem>
@@ -511,9 +510,9 @@ useEffect(() => {
             paddingTop: '30px',
           },
         }}
-        variant="persistent"
+        variant={isMobile ? 'temporary' : 'persistent'}
         anchor="left"
-        open={open}
+        open={open || !isMobile}
         onClose={handleDrawerClose}
       >
         <div className="d-flex flex-column align-items-center">
@@ -781,6 +780,25 @@ useEffect(() => {
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
+                  to="/PlanillasSemanales"
+                  onClick={() => handleButtonClick('planillas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <CalendarMonthIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
                   to="/ListaAutoevaluacion"
                   onClick={() => handleButtonClick('listaAutoevaluacion')}
                   sx={{
@@ -833,7 +851,49 @@ useEffect(() => {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssignmentTurnedInIcon />
                   </ListItemIcon>
+                  <ListItemText primary="Formulario de Evaluación" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+
+              {/* Planilla de Notas */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillaNotas"
+                  onClick={() => handleButtonClick('planillaNotas')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
                   <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
+               
+              {/* Planilla de Notas Final */}
+              <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/PlanillaNotasFinal"
+                  onClick={() => handleButtonClick('planillaNotasFinal')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
@@ -871,30 +931,23 @@ useEffect(() => {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                  <StarIcon />
+                    <StarIcon />
                   </ListItemIcon>
                   <ListItemText primary="Cualificar Resultados" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
               {/* Modal Conformación de Equipos */}
-              <Modal
-                show={teamConfigModalShow}
-                onHide={() => setTeamConfigModalShow(false)}
-                centered
-              >
+              <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>
                 <Modal.Header closeButton>
                   <Modal.Title>Conformación de Equipos</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
                   <Form>
                     <Form.Group className="mb-3" controlId="formGroupName">
-                      <Form.Label>Gestión</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="2-2024"
-                        value={formGroupName}
-                        onChange={(e) => setFormGroupName(e.target.value)}
+                      <Form.Label>Gestion</Form.Label>
+                      <Form.Control type="text" placeholder="2-2024" value={formGroupName} // Vincula el valor con el estado
+                        onChange={(e) => setFormGroupName(e.target.value)} // Actualiza el estado al cambiar el texto
                       />
                     </Form.Group>
 
@@ -902,23 +955,15 @@ useEffect(() => {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupStartDate">
                           <Form.Label>Fecha Inicio</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="dd/mm/aaaa"
-                            value={formGroupStartDate}
-                            onChange={(e) => setFormGroupStartDate(e.target.value)}
-                          />
+                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupStartDate(e.target.value)} />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupEndDate">
                           <Form.Label>Fecha Fin</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="dd/mm/aaaa"
-                            value={formGroupEndDate}
-                            onChange={(e) => setFormGroupEndDate(e.target.value)}
-                          />
+                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupEndDate(e.target.value)} />
                         </Form.Group>
                       </Col>
                     </Row>
@@ -927,35 +972,23 @@ useEffect(() => {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMinStudents">
                           <Form.Label>Cantidad Min. de estudiantes</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="3"
-                            value={formGroupMinStudents}
-                            onChange={(e) => setFormGroupMinStudents(e.target.value)}
-                          />
+                          <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupMinStudents(e.target.value)} />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMaxStudents">
                           <Form.Label>Cantidad Max. de estudiantes</Form.Label>
-                          <Form.Control
-                            type="text"
-                            placeholder="6"
-                            value={formGroupMaxStudents}
-                            onChange={(e) => setFormGroupMaxStudents(e.target.value)}
-                          />
+                          <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
+                            onChange={(e) => setformGroupMaxStudents(e.target.value)} />
                         </Form.Group>
                       </Col>
                     </Row>
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>
-                    Cerrar
-                  </Button>
-                  <Button variant="primary" onClick={handleSaveChangesGrup}>
-                    Guardar cambios
-                  </Button>
+                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
+                  <Button variant="primary" onClick={handleSaveChangesGrup}>Guardar cambios</Button>
                 </Modal.Footer>
               </Modal>
 
@@ -1145,42 +1178,42 @@ useEffect(() => {
                 <Modal.Body>
                   <Form>
                     <Form.Group className="mb-3">
-                    <Row>
-                      <Col md={12}>
-                        <Form.Group controlId="formEvaluaciones" className="mb-3">
-                          <Form.Label>Seleccionar Tipos de Evaluaciones</Form.Label>
-                          {/* Lista desplegable con las opciones */}
-                          <select onChange={handleChangee} value={selectedTipos.join(',')}>
-                            <option value="autoevaluacion"> Autoevaluación</option>
-                            <option value="pares">EV Pares</option>
-                            <option value="cruzada"> EV Cruzada</option>
-                            <option value="autoevaluacion,pares"> Autoevaluación + EV Pares</option>
-                            <option value="autoevaluacion,cruzada"> Autoevaluación + EV Cruzada</option>
-                            <option value="pares,cruzada"> EV Pares + EV Cruzada</option>
-                            <option value="autoevaluacion,pares,cruzada"> Autoevaluación + EV Pares + EV Cruzada</option>
-                          </select>
-                          {/* Mostrar las fechas de las evaluaciones seleccionadas */}
-                              <div>
-                                <label>Fechas de Evaluación:</label>
-                                <ul>
-                                  {Object.keys(fechas).length > 0 ? (
-                                    Object.keys(fechas).map((tipo) => (
-                                      <li key={tipo}>
-                                        <strong>{tipo}</strong>:
-                                          {fechas[tipo].fecha_inicio && fechas[tipo].fecha_fin ?
-                                            `${fechas[tipo].fecha_inicio} - ${fechas[tipo].fecha_fin}` :
-                                            "Fecha no disponible"
-                                          }
-                                      </li>
-                                    ))
-                                  ) : (
-                                    <p>No se encontraron evaluaciones para mostrar.</p>
-                                  )}
-                                </ul>
-                              </div>
-                        </Form.Group>
-                      </Col>
-                    </Row>
+                      <Row>
+                        <Col md={12}>
+                          <Form.Group controlId="formEvaluaciones" className="mb-3">
+                            <Form.Label>Seleccionar Tipos de Evaluaciones</Form.Label>
+                            {/* Lista desplegable con las opciones */}
+                            <select onChange={handleChangee} value={selectedTipos.join(',')}>
+                              <option value="autoevaluacion"> Autoevaluación</option>
+                              <option value="pares">EV Pares</option>
+                              <option value="cruzada"> EV Cruzada</option>
+                              <option value="autoevaluacion,pares"> Autoevaluación + EV Pares</option>
+                              <option value="autoevaluacion,cruzada"> Autoevaluación + EV Cruzada</option>
+                              <option value="pares,cruzada"> EV Pares + EV Cruzada</option>
+                              <option value="autoevaluacion,pares,cruzada"> Autoevaluación + EV Pares + EV Cruzada</option>
+                            </select>
+                            {/* Mostrar las fechas de las evaluaciones seleccionadas */}
+                            <div>
+                              <label>Fechas de Evaluación:</label>
+                              <ul>
+                                {Object.keys(fechas).length > 0 ? (
+                                  Object.keys(fechas).map((tipo) => (
+                                    <li key={tipo}>
+                                      <strong>{tipo}</strong>:
+                                      {fechas[tipo].fecha_inicio && fechas[tipo].fecha_fin ?
+                                        `${fechas[tipo].fecha_inicio} - ${fechas[tipo].fecha_fin}` :
+                                        "Fecha no disponible"
+                                      }
+                                    </li>
+                                  ))
+                                ) : (
+                                  <p>No se encontraron evaluaciones para mostrar.</p>
+                                )}
+                              </ul>
+                            </div>
+                          </Form.Group>
+                        </Col>
+                      </Row>
                       {/* Detalles de notificacion */}
                       <div>
                         <Form.Group className="mt-3">
@@ -1212,19 +1245,19 @@ useEffect(() => {
                 </Modal.Body>
                 <Modal.Footer>
                   <Button variant="secondary" onClick={() => setEvaluacionModalShow(false)}>
-                    Cerrar
+                    Cancelar
                   </Button>
                   <Button variant="primary" onClick={handleSaveChangesEva}>
                     Guardar cambios
                   </Button>
                 </Modal.Footer>
-               </Modal>
+              </Modal>
             </>
           )}
         </List>
         <Divider />
       </Drawer>
-      <Main open={open}>{/* Contenido principal */}</Main>
+      <Main open={open}></Main>
     </Box>
   );
 }
