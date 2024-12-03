@@ -1,36 +1,46 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import {
+  Box,
+  Drawer,
+  CssBaseline,
+  AppBar as MuiAppBar,
+  Toolbar,
+  List,
+  Divider,
+  IconButton,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Collapse,
+  Menu,
+  MenuItem,
+} from '@mui/material';
+import {
+  Menu as MenuIcon,
+  Assessment as AssessmentIcon,
+  Person as PersonIcon,
+  ExpandLess as ExpandLessIcon,
+  ExpandMore as ExpandMoreIcon,
+  Group as GroupIcon,
+  NoteAlt as NoteAltIcon,
+  School as SchoolIcon,
+  Groups as GroupsIcon, // Nuevo icono para Equipos
+  FactCheck as FactCheckIcon,
+  CalendarMonth as CalendarMonthIcon,
+  Timeline as TimelineIcon,
+  AssignmentTurnedIn as AssignmentTurnedInIcon,
+  Checklist as ChecklistIcon,
+  Settings as SettingsIcon,
+  PictureAsPdf as PictureAsPdfIcon,
+  Summarize as SummarizeIcon,
+  Star as StarIcon,
+} from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import MuiAppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import PersonIcon from '@mui/icons-material/Person';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
 import { FaUserCircle } from 'react-icons/fa';
 import logo from '../img/logo.jpeg';
-import NoteAltIcon from '@mui/icons-material/NoteAlt';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
-import FactCheckIcon from '@mui/icons-material/FactCheck';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import SummarizeIcon from '@mui/icons-material/Summarize';
-import ChecklistIcon from '@mui/icons-material/Checklist';
 import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Menu, MenuItem } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -40,12 +50,8 @@ import 'dayjs/locale/es';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
-import SettingsIcon from '@mui/icons-material/Settings';
 import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
-import StarIcon from '@mui/icons-material/Star';
-import { Collapse } from '@mui/material';
-import AssessmentIcon from '@mui/icons-material/Assessment';
 
 
 dayjs.extend(isSameOrBefore);
@@ -1082,16 +1088,16 @@ export default function PersistentDrawerLeft() {
                           Fecha Inicio
                           <Form.Control
                             type="date"
-                            value={cruzadaStart}
-                            onChange={(e) => setCruzadaStart(e.target.value)}
+                            value={finalEvalStart}
+                            onChange={(e) => setFinalEvalStart(e.target.value)}
                           />
                         </Form.Label>
                         <Form.Label>
                           Fecha Fin
                           <Form.Control
                             type="date"
-                            value={cruzadaEnd}
-                            onChange={(e) => setCruzadaEnd(e.target.value)}
+                            value={finalEvalEnd}
+                            onChange={(e) => setFinalEvalEnd(e.target.value)}
                           />
                         </Form.Label>
                       </div>

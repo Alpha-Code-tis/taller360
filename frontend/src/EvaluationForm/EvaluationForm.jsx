@@ -82,15 +82,16 @@ const EvaluationForm = () => {
       const fetchTasks = async () => {
         try {
           const response = await axios.get(`${API_URL}/tareas/${team}/sprint/${sprint}`);
+          console.log(response.data)
           setTasks(response.data);
           setMembers(
             response.data.map(task => ({
               id_tarea: task.id_tarea,
               name: task.responsables,
               tasks: task.nombre_tarea,
-              score: '',
-              comments: '',
-              reviewed: false,
+              score: task.calificacion,
+              comments: task.observaciones,
+              reviewed: task.revisado,
             }))
           );
         } catch (error) {
