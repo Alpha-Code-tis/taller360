@@ -112,7 +112,7 @@ const FinalGradeTable = () => {
           min="0"
           max="100"
         />
-        <button onClick={handleUpdateFinalGrades}>Actualizar Notas Finales</button>
+        
       </div>
 
       <div className="table-container">
