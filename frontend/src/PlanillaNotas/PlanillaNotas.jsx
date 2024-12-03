@@ -19,7 +19,7 @@ const EvaluationTables = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get(`${API_URL}/equipos1`);
+        const response = await axios.get(`${API_URL}/equipos`);
         console.log("Equipos:", response.data.empresas); // Verificar los datos recibidos
         setTeams(response.data.empresas);
       } catch (error) {
@@ -35,7 +35,7 @@ const EvaluationTables = () => {
     if (selectedTeam) {
       const fetchSprints = async () => {
         try {
-          const response = await axios.get(`${API_URL}/evaluation/sprints/${selectedTeam}`);
+          const response = await axios.get(`${API_URL}/equipos/${selectedTeam}/sprints`);
           console.log("Sprints:", response.data); // Verificar los datos recibidos
           setSprints(response.data);
         } catch (error) {

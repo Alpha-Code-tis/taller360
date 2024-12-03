@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Log;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PlanillaNotasController extends Controller
 {
@@ -70,9 +71,6 @@ class PlanillaNotasController extends Controller
     {
         // Verificar que la empresa existe
         $planificacion = Planificacion::where('id_empresa', $empresaId)->first();
-        if (!$planificacion) {
-            return response()->json(['error' => 'No se encontró la planificación para la empresa especificada'], 404);
-        }
 
         // Obtener el sprint específico asociado a la planificación
         $sprint = Sprint::where('id_planificacion', $planificacion->id_planificacion)
@@ -100,12 +98,13 @@ class PlanillaNotasController extends Controller
         // Crear una estructura para almacenar las notas por estudiante
         $notasEstudiantes = $this->calcularNotaEvaluacion($tareas);
         $notasEstudiantes = $this->calcularNotaAutoEvaluacion($tareas, $notasEstudiantes);
-
         // Devolver la respuesta con las notas promedio por cada estudiante
         return response()->json([
             'notasEstudiantes' => array_values($notasEstudiantes)
         ], 200);
     }
+
+
 
     public function calcularSumatoriaNotas($empresaId, $sprintId)
     {
@@ -157,7 +156,6 @@ class PlanillaNotasController extends Controller
         $pares = $nota->pares; // Porcentaje para nota_ev_pares
 
         $notasEstudiantes = [];
-
         foreach ($estudiantes as $estudiante) {
             $notasEstudiantes[$estudiante->id_estudiante] = [
                 'nombre' => $estudiante->nombre_estudiante,
@@ -203,6 +201,12 @@ class PlanillaNotasController extends Controller
 
             foreach ($tareasEstudiante as $tarea) {
                 $resultadoTexto = $tarea->pivot->resultado_evaluacion;
+
+                if ($resultadoTexto === null) {
+                    Log::info('Sin resultado de autoevaluación para la tarea ID: ' . $tarea->id_tarea . ' y estudiante ID: ' . $estudiante->id_estudiante);
+                    continue;
+                }
+
                 $resultado = $resultadoEvaluacionMap[$resultadoTexto] ?? 0;
                 $totalResultadoEvaluacion += $resultado;
                 $contadorAutoEv++;
@@ -214,17 +218,25 @@ class PlanillaNotasController extends Controller
             $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'] = ($autoEvaluacion * $promedioNotaAutoEv) / 100;
 
             // 3. Calcular notaEvPares
-            $criteriosEvaluados = $estudiante->evaluadoCriterios()->get();
-            $totalPorcentajeCriterios = $criteriosEvaluados->sum('pivot.valor');
+            $totalPorcentajeCriterios = DB::table('estudiante_criterio')
+                ->join('criterios', 'estudiante_criterio.id_criterio', '=', 'criterios.id_criterio')
+                ->where('estudiante_criterio.id_estudiante_evaluado', $estudiante->id_estudiante)
+                ->where('estudiante_criterio.id_sprint', $sprint->id_sprint)
+                ->sum('criterios.porcentaje');
 
+            if ($totalPorcentajeCriterios == 0) {
+                Log::info('No se encontraron criterios evaluados para el estudiante ID: ' . $estudiante->id_estudiante);
+            }
             // Aplicar el porcentaje de pares
             $notasEstudiantes[$estudiante->id_estudiante]['notaEvPares'] = ($pares * $totalPorcentajeCriterios) / 100;
 
+            // Asegurarse de que las notas sean numéricas
+            $notaTarea = (float) $notasEstudiantes[$estudiante->id_estudiante]['notaTarea'];
+            $notaAutoEv = (float) $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'];
+            $notaEvPares = (float) $notasEstudiantes[$estudiante->id_estudiante]['notaEvPares'];
+
             // 4. Calcular notaTotal
-            $notasEstudiantes[$estudiante->id_estudiante]['notaTotal'] =
-                $notasEstudiantes[$estudiante->id_estudiante]['notaTarea'] +
-                $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'] +
-                $notasEstudiantes[$estudiante->id_estudiante]['notaEvPares'];
+            $notasEstudiantes[$estudiante->id_estudiante]['notaTotal'] = $notaTarea + $notaAutoEv + $notaEvPares;
 
             // Guardar las notas en NotasSprint
             NotasSprint::updateOrCreate(
@@ -233,9 +245,9 @@ class PlanillaNotasController extends Controller
                     'id_sprint' => $sprint->id_sprint,
                 ],
                 [
-                    'nota_tarea' => $notasEstudiantes[$estudiante->id_estudiante]['notaTarea'],
-                    'nota_auto_ev' => $notasEstudiantes[$estudiante->id_estudiante]['notaAutoEv'],
-                    'nota_ev_pares' => $notasEstudiantes[$estudiante->id_estudiante]['notaEvPares'],
+                    'nota_tarea' => $notaTarea,
+                    'nota_auto_ev' => $notaAutoEv,
+                    'nota_ev_pares' => $notaEvPares,
                     'nota_total' => $notasEstudiantes[$estudiante->id_estudiante]['notaTotal'],
                 ]
             );
@@ -246,8 +258,6 @@ class PlanillaNotasController extends Controller
             'notasEstudiantes' => array_values($notasEstudiantes),
         ], 200);
     }
-
-
 
     // Métodos privados para cálculos adicionales si es necesario
     private function calcularNotaEvaluacion($tareas)
