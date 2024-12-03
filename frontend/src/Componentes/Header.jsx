@@ -26,44 +26,32 @@ import {
   Group as GroupIcon,
   NoteAlt as NoteAltIcon,
   School as SchoolIcon,
-  Groups as GroupsIcon,
+  Groups as GroupsIcon, // Nuevo icono para Equipos
   FactCheck as FactCheckIcon,
   CalendarMonth as CalendarMonthIcon,
   Timeline as TimelineIcon,
   AssignmentTurnedIn as AssignmentTurnedInIcon,
   Checklist as ChecklistIcon,
   Settings as SettingsIcon,
+  PictureAsPdf as PictureAsPdfIcon,
+  Summarize as SummarizeIcon,
+  Star as StarIcon,
 } from '@mui/icons-material';
 import { FaUserCircle } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import logo from '../img/logo.jpeg';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import SchoolIcon from '@mui/icons-material/School';
-import GroupsIcon from '@mui/icons-material/Groups'; // Nuevo icono para Equipos
-import FactCheckIcon from '@mui/icons-material/FactCheck';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
-import SummarizeIcon from '@mui/icons-material/Summarize';
-import ChecklistIcon from '@mui/icons-material/Checklist';
-import { Link } from 'react-router-dom';
-import { useState, useEffect } from 'react';
-import { Menu, MenuItem } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { Link, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 import dayjs from 'dayjs';
 import 'dayjs/locale/es';
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
-
 import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
-import StarIcon from '@mui/icons-material/Star';
+
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
 dayjs.locale('es');
@@ -113,7 +101,7 @@ export default function PersistentDrawerLeft() {
   const [nombre, setNombre] = useState(''); // Estado para el nombre del usuario
   const [anchorEl, setAnchorEl] = useState(null); // Estado para el menú desplegable
   const navigate = useNavigate(); // Para redireccionar
-
+  const [redirected, setRedirected] = useState(false);
   const [finalEvalStart, setFinalEvalStart] = useState('');
   const [finalEvalEnd, setFinalEvalEnd] = useState('');
   const [autoEvalStart, setAutoEvalStart] = useState('');
@@ -128,8 +116,6 @@ export default function PersistentDrawerLeft() {
   const [empresas, setEmpresas] = useState([]);
   const [sprints, setSprints] = useState([]);
   const [notaPares, setNotaPares] = useState('');
-  const [cruzadaStart, setCruzadaStart] = useState('');
-  const [cruzadaEnd, setCruzadaEnd] = useState('');
 
   const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
   const [settingsMenuAnchor, setSettingsMenuAnchor] = useState(null);
@@ -150,11 +136,21 @@ export default function PersistentDrawerLeft() {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
-
+  const [notificarModalShow, setNotificarModalShow] = useState(false);
+  const [notificacion, setNotificacion] = useState('');
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
   const [selectedTipos, setSelectedTipos] = useState(["autoevaluacion"]); // Valor inicial por defecto
-
+  const handleButtonClick = (button) => {
+    console.log('Botón clickeado:', button);
+    console.log('Estado actual evaluacionesOpen:', evaluacionesOpen);
+  
+    if (button === 'evaluaciones') {
+      setEvaluacionesOpen((prev) => !prev);
+    }
+    setSelectedButton(button);
+  };
+  
   // Función para obtener las fechas de las evaluaciones basadas en los tipos seleccionados
   const obtenerFechasEvaluaciones = async (tipos) => {
     try {
@@ -420,6 +416,7 @@ useEffect(() => {
   };
 
   /**Enviar notificaciones*/
+  
   const handleSaveChangesNotif = async () => {
       const data = {
         titulo:"Notificación de Evaluaciones",
@@ -444,7 +441,6 @@ useEffect(() => {
     }
   };
 
-  const [selectedButton, setSelectedButton] = useState(null);
 
 
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
@@ -612,42 +608,45 @@ useEffect(() => {
               </ListItem>
 
               {/* Evaluaciones */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  onClick={() => handleButtonClick('evaluaciones')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor:
-                      selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <SchoolIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
-                  {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-                </ListItemButton>
-              </ListItem>
-              <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
-                <List component="div" disablePadding>
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      sx={{ pl: 4 }}
-                      component={Link}
-                      to="/Cruzada"
-                      onClick={() => handleButtonClick('cruzada')}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <PersonIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                </List>
-              </Collapse>
+<ListItem disablePadding>
+  <ListItemButton
+    onClick={() => handleButtonClick('evaluaciones')}
+    sx={{
+      borderRadius: '8px',
+      backgroundColor:
+        selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+      '&:hover': {
+        backgroundColor: '#1A3254',
+      },
+    }}
+  >
+    <ListItemIcon sx={{ color: 'white' }}>
+      <SchoolIcon />
+    </ListItemIcon>
+    <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+    {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+  </ListItemButton>
+</ListItem>
+
+{/* Submenú Cruzada */}
+<Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+  <List component="div" disablePadding>
+    <ListItem disablePadding>
+      <ListItemButton
+        sx={{ pl: 4 }}
+        component={Link}
+        to="/Cruzada"
+        onClick={() => handleButtonClick('cruzada')}
+      >
+        <ListItemIcon sx={{ color: 'white' }}>
+          <PersonIcon />
+        </ListItemIcon>
+        <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+      </ListItemButton>
+    </ListItem>
+  </List>
+</Collapse>
+
 
               {/* Seguimiento */}
               <ListItem disablePadding>

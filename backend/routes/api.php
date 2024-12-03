@@ -19,6 +19,7 @@ use App\Http\Controllers\AjustesController;
 use App\Http\Controllers\EvaluacionController;
 use App\Http\Controllers\CantidadGestionController;
 use App\Http\Controllers\Cualificar;
+use App\Http\Controllers\StudentReportController;
 use App\Http\Controllers\CualificarController;
 use App\Http\Controllers\EvaluacionParesController;
 use App\Http\Controllers\CruzadaController;
@@ -209,6 +210,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reportes por Estudiante
     Route::get('/estudiante/{id_estudiante}/reporte', [EstudianteController::class, 'getStudentReport']);
+    Route::get('/estudiante/{id_estudiante}/reporte', [ReporteController::class, 'getStudentReport']);
 
 
     //Configuración de notas
@@ -221,4 +223,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notificacion', [NotificacionEstudiantesController::class, 'notificarEstudiantesPorGrupo']);
     Route::get('listaFechasEvaluciones', [NotificacionEstudiantesController::class, 'listaFechasEval']);
     Route::get('/cualificacion', [CualificarController::class, 'index']);
-});
+}    
+);
+Route::get('/estudiante/{id_estudiante}/reporte', [ReporteController::class, 'getStudentReport']);
