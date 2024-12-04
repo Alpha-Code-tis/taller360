@@ -36,6 +36,7 @@ import {
   Summarize as SummarizeIcon,
   Star as StarIcon,
 } from '@mui/icons-material';
+import { Grading, Assignment} from '@mui/icons-material';
 import { styled, useTheme } from '@mui/material/styles';
 import { FaUserCircle } from 'react-icons/fa';
 import logo from '../img/logo.jpeg';
@@ -892,7 +893,7 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <AssignmentTurnedInIcon />
+                  <Grading />
                   </ListItemIcon>
                   <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
                 </ListItemButton>
@@ -913,7 +914,7 @@ export default function PersistentDrawerLeft() {
                   }}
                 >
                   <ListItemIcon sx={{ color: 'white' }}>
-                    <AssignmentTurnedInIcon />
+                  <Assignment />
                   </ListItemIcon>
                   <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
                 </ListItemButton>
@@ -1220,7 +1221,7 @@ export default function PersistentDrawerLeft() {
                 </Modal.Footer>
               </Modal>
               <Modal show={notificarModalShow} onHide={() => setNotificarModalShow(false)} centered>
-                <Modal.Header>
+                <Modal.Header closeButton>
                   <Modal.Title>Notificar Evaluaciones</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
@@ -1292,7 +1293,7 @@ export default function PersistentDrawerLeft() {
                   </Toast>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setEvaluacionModalShow(false)}>
+                  <Button variant="secondary" onClick={() => setNotificarModalShow(false)}>
                     Cancelar
                   </Button>
                   <Button variant="primary" onClick={handleSaveChangesEva}>
