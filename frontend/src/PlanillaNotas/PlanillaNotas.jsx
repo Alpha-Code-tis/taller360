@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from '../config';
 
 const EvaluationTables = () => {
   const [teams, setTeams] = useState([]);
@@ -13,13 +14,12 @@ const EvaluationTables = () => {
   const [notaTotal, setNotaTotal] = useState(0);
   const [error, setError] = useState("");
 
-  const API_URL = 'http://localhost:8000/api';
 
   // Obtener equipos al montar el componente
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get(`${API_URL}/equipos`);
+        const response = await axios.get(`${API_URL}equipos-planilla`);
         console.log("Equipos:", response.data.empresas); // Verificar los datos recibidos
         setTeams(response.data.empresas);
       } catch (error) {
@@ -35,7 +35,7 @@ const EvaluationTables = () => {
     if (selectedTeam) {
       const fetchSprints = async () => {
         try {
-          const response = await axios.get(`${API_URL}/equipos/${selectedTeam}/sprints`);
+          const response = await axios.get(`${API_URL}equipos-planilla/${selectedTeam}/sprints`);
           console.log("Sprints:", response.data); // Verificar los datos recibidos
           setSprints(response.data);
         } catch (error) {
@@ -55,7 +55,7 @@ const EvaluationTables = () => {
     if (selectedTeam && selectedSprint) {
       const fetchGradesAndValues = async () => {
         try {
-          const response = await axios.get(`${API_URL}/equipos/${selectedTeam}/sprints/${selectedSprint}/sumatoria-notas`);
+          const response = await axios.get(`${API_URL}equipos-planilla/${selectedTeam}/sprints/${selectedSprint}/sumatoria-notas`);
           console.log("Respuesta de API (sumatoria-notas):", response.data); // Verificar la respuesta de la API
 
           if (response.data) {

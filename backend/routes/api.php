@@ -226,14 +226,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notificacion', [NotificacionEstudiantesController::class, 'notificarEstudiantesPorGrupo']);
     Route::get('listaFechasEvaluciones', [NotificacionEstudiantesController::class, 'listaFechasEval']);
     Route::get('/cualificacion', [CualificarController::class, 'index']);
-    
-    //Planilla Notas
-    Route::get('/equipos', [PlanillaNotasController::class, 'getEquipos']);
-    Route::get('/equipos/{empresaId}/sprints', [PlanillaNotasController::class, 'getSprints']);
-    Route::get('/equipos/{empresaId}/sprints/{sprintId}/nota-evaluacion', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
-    Route::get('/equipos/{empresaId}/sprints/{sprintId}/sumatoria-notas', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
 
-    //Planillas Notas Finales 
+    //Planilla Notas
+    Route::get('/equipos-planilla', [PlanillaNotasController::class, 'getEquipos']);
+    Route::get('/equipos-planilla/{empresaId}/sprints', [PlanillaNotasController::class, 'getSprints']);
+    Route::get('/equipos-planilla/{empresaId}/sprints/{sprintId}/nota-evaluacion', [PlanillaNotasController::class, 'mostrarNotaEvaluacion']);
+    Route::get('/equipos-planilla/{empresaId}/sprints/{sprintId}/sumatoria-notas', [PlanillaNotasController::class, 'calcularSumatoriaNotas']);
+
+    //Planillas Notas Finales
     Route::get('/equipos1', [PlanillaNotasFinalesController::class, 'getEquipos']);
 
     // Ruta para obtener los estudiantes y sus notas finales de una empresa
@@ -241,6 +241,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Ruta para actualizar las notas finales de una empresa
     Route::post('/actualizar-notas-finales/{empresaId}', [PlanillaNotasFinalesController::class, 'actualizarNotasFinales']);
-}    
+}
 );
 Route::get('/estudiante/{id_estudiante}/reporte', [ReporteController::class, 'getStudentReport']);

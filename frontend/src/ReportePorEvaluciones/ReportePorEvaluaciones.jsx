@@ -9,6 +9,8 @@ import Report from "./Reporte";
 
 const ReportePorEvaluaciones = () => {
   const [empresas, setEmpresas] = useState([]);
+  const [gestiones, setGestiones] = useState([]);
+  const [selectedGestion, setSelectedGestion] = useState('');
   const [sprints, setSprints] = useState([]);
   const [selectedEvaluationId, setSelectedEvaluationId] = useState('');
   const [selectedEmpresaId, setSelectedEmpresaId] = useState('');
@@ -30,8 +32,14 @@ const ReportePorEvaluaciones = () => {
   ];
 
   useEffect(() => {
-    fetchEmpresas();
+    fetchGestiones();
   }, []);
+
+  useEffect(() => {
+    if (selectedGestion) {
+      fetchEmpresas();
+    }
+  }, [selectedGestion]);
 
   useEffect(() => {
     if (selectedEmpresaId) {
@@ -55,10 +63,22 @@ const ReportePorEvaluaciones = () => {
 
   const fetchEmpresas = async() => {
     try {
-      const response = await axios.get(`${API_URL}equipos`);
+      const response = await axios.get(`${API_URL}equipos`, {
+          params: { gestion: selectedGestion }
+      });
       setEmpresas(response.data);
     } catch (error) {
       toast.error('Error al cargar las empresas.');
+    }
+  };
+
+  const fetchGestiones = async() => {
+    try {
+      const response = await axios.get(`${API_URL}gestiones`);
+      setGestiones(response.data);
+      setSelectedGestion('2-2024');
+    } catch (error) {
+      toast.error('Error al cargar las gestiones.');
     }
   };
 
@@ -122,6 +142,10 @@ const ReportePorEvaluaciones = () => {
     setSelectedEvaluationId(event.target.value);
   };
 
+  const handleGestionChange = (event) => {
+    setSelectedGestion(event.target.value);
+  };
+
   const handleEmpresaChange = (event) => {
     setSelectedEmpresaId(event.target.value);
   };
@@ -141,6 +165,15 @@ const ReportePorEvaluaciones = () => {
             <option disabled value="">Seleccionar evaluación</option>
             {evaluations.map(evaluation => (
               <option value={evaluation.id} key={evaluation.id}>{evaluation.label}</option>
+            ))}
+          </Form.Select>
+        </div>
+        <div className="select-item">
+          <label>Gestión:</label>
+          <Form.Select aria-label="Seleccionar gestión" onChange={handleGestionChange} defaultValue="">
+            <option disabled value="">Seleccionar gestión</option>
+            {gestiones.map((gestion, index) => (
+              <option value={gestion} key={index}>{gestion}</option>
             ))}
           </Form.Select>
         </div>
@@ -165,7 +198,7 @@ const ReportePorEvaluaciones = () => {
       </div>
       {showPdf && (
         <div className='mt-3 pdf-container'>
-          <PDFViewer width="130%" height="800">
+          <PDFViewer width="100%" height="800">
             <Report data={pdfData}/>
           </PDFViewer>
         </div>

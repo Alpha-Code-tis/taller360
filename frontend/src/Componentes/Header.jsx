@@ -162,13 +162,13 @@ export default function PersistentDrawerLeft() {
   const handleButtonClick = (button) => {
     console.log('Botón clickeado:', button);
     console.log('Estado actual evaluacionesOpen:', evaluacionesOpen);
-  
+
     if (button === 'evaluaciones') {
       setEvaluacionesOpen((prev) => !prev);
     }
     setSelectedButton(button);
   };
-  
+
   // Función para obtener las fechas de las evaluaciones basadas en los tipos seleccionados
   const obtenerFechasEvaluaciones = async (tipos) => {
     try {
@@ -447,7 +447,7 @@ export default function PersistentDrawerLeft() {
   };
 
   /**Enviar notificaciones*/
-  
+
   const handleSaveChangesNotif = async () => {
     const data = {
       titulo: "Notificación de Evaluaciones",
@@ -614,44 +614,94 @@ export default function PersistentDrawerLeft() {
               </ListItem>
 
               {/* Evaluaciones */}
-<ListItem disablePadding>
-  <ListItemButton
-    onClick={() => handleButtonClick('evaluaciones')}
-    sx={{
-      borderRadius: '8px',
-      backgroundColor:
-        selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
-      '&:hover': {
-        backgroundColor: '#1A3254',
-      },
-    }}
-  >
-    <ListItemIcon sx={{ color: 'white' }}>
-      <SchoolIcon />
-    </ListItemIcon>
-    <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
-    {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
-  </ListItemButton>
-</ListItem>
+              <ListItem disablePadding>
+                <ListItemButton
+                  onClick={() => handleButtonClick('evaluaciones')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor:
+                      selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <SchoolIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Evaluaciones" sx={{ color: 'white' }} />
+                  {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                </ListItemButton>
+              </ListItem>
 
-{/* Submenú Cruzada */}
-<Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
-  <List component="div" disablePadding>
-    <ListItem disablePadding>
-      <ListItemButton
-        sx={{ pl: 4 }}
-        component={Link}
-        to="/Cruzada"
-        onClick={() => handleButtonClick('cruzada')}
-      >
-        <ListItemIcon sx={{ color: 'white' }}>
-          <PersonIcon />
-        </ListItemIcon>
-        <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
-      </ListItemButton>
-    </ListItem>
-  </List>
-</Collapse>
+              {/* Submenú Cruzada */}
+              <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      sx={{ pl: 4 }}
+                      component={Link}
+                      to="/Cruzada"
+                      onClick={() => handleButtonClick('cruzada')}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <PersonIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Cruzada" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                  {/* Autoevaluación */}
+                  {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') &&
+                    dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          component={Link}
+                          to="/Autoevaluacion"
+                          onClick={() => handleButtonClick('autoevaluacion')}
+                          sx={{
+                            pl: 4,
+                            borderRadius: '8px',
+                            backgroundColor:
+                              selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
+                            '&:hover': {
+                              backgroundColor: '#1A3254',
+                            },
+                          }}
+                        >
+                          <ListItemIcon sx={{ color: 'white' }}>
+                            <SchoolIcon />
+                          </ListItemIcon>
+                          <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
+                        </ListItemButton>
+                      </ListItem>
+                    )}
+                  {/* Evaluación Pares */}
+                  {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') &&
+                    dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
+                      <ListItem disablePadding>
+                        <ListItemButton
+                          component={Link}
+                          to="/EvaluacionPares"
+                          onClick={() => handleButtonClick('evaluacionPares')}
+                          sx={{
+                            pl: 4,
+                            borderRadius: '8px',
+                            backgroundColor:
+                              selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
+                            '&:hover': {
+                              backgroundColor: '#1A3254',
+                            },
+                          }}
+                        >
+                          <ListItemIcon sx={{ color: 'white' }}>
+                            <FactCheckIcon />
+                          </ListItemIcon>
+                          <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
+                        </ListItemButton>
+                      </ListItem>
+                    )}
+                </List>
+              </Collapse>
 
 
               {/* Seguimiento */}
@@ -675,56 +725,6 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Seguimiento" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-
-              {/* Autoevaluación */}
-              {dayjs().isSameOrAfter(dayjs(autoEvalStart), 'day') &&
-                dayjs().isSameOrBefore(dayjs(autoEvalEnd), 'day') && (
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      component={Link}
-                      to="/Autoevaluacion"
-                      onClick={() => handleButtonClick('autoevaluacion')}
-                      sx={{
-                        borderRadius: '8px',
-                        backgroundColor:
-                          selectedButton === 'autoevaluacion' ? '#1A3254' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: '#1A3254',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <SchoolIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Autoevaluación" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                )}
-
-              {/* Evaluación Pares */}
-              {dayjs().isSameOrAfter(dayjs(finalEvalStart), 'day') &&
-                dayjs().isSameOrBefore(dayjs(finalEvalEnd), 'day') && (
-                  <ListItem disablePadding>
-                    <ListItemButton
-                      component={Link}
-                      to="/EvaluacionPares"
-                      onClick={() => handleButtonClick('evaluacionPares')}
-                      sx={{
-                        borderRadius: '8px',
-                        backgroundColor:
-                          selectedButton === 'evaluacionPares' ? '#1A3254' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: '#1A3254',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <FactCheckIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Evaluación Pares" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
-                )}
             </>
           )}
 
@@ -897,7 +897,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-               
+
               {/* Planilla de Notas Final */}
               <ListItem disablePadding>
                 <ListItemButton

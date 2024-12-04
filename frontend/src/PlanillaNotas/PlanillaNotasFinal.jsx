@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./PlanillaNotasFinal.css";
-
-axios.defaults.baseURL = 'http://localhost:8000/api';
+import { API_URL } from '../config';
 
 const FinalGradeTable = () => {
   const [selectedTeam, setSelectedTeam] = useState("");
@@ -17,7 +16,7 @@ const FinalGradeTable = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get('/equipos');
+        const response = await axios.get(`${API_URL}equipos-planilla`);
         setTeams(response.data.empresas || []);
       } catch (error) {
         console.error('Error al obtener equipos:', error);
@@ -30,7 +29,7 @@ const FinalGradeTable = () => {
   useEffect(() => {
     if (selectedTeam) {
       axios
-        .get(`/estudiantes-con-notas/${selectedTeam}`, {
+        .get(`${API_URL}estudiantes-con-notas/${selectedTeam}`, {
           params: {
             nota_valor_sprint: maxSprintScore,
             nota_valor_cruzada: maxCrossEval,
@@ -62,13 +61,13 @@ const FinalGradeTable = () => {
     }
 
     axios
-      .post(`/actualizar-notas-finales/${selectedTeam}`, {
+      .post(`${API_URL}actualizar-notas-finales/${selectedTeam}`, {
         nota_valor_sprint: parseFloat(maxSprintScore),
         nota_valor_cruzada: parseFloat(maxCrossEval),
       })
       .then((response) => {
         setSuccessMessage(response.data.message);
-        axios.get(`/estudiantes-con-notas/${selectedTeam}`).then((response) => {
+        axios.get(`${API_URL}estudiantes-con-notas/${selectedTeam}`).then((response) => {
           setDataTable(response.data.estudiantes || []);
           setNumSprints(response.data.numSprints || 0);
         });
@@ -112,7 +111,7 @@ const FinalGradeTable = () => {
           min="0"
           max="100"
         />
-        
+
       </div>
 
       <div className="table-container">
