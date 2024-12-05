@@ -203,9 +203,19 @@ const Equipos = () => {
       isValid = false;
     }
 
+    // Validar el campo gestion
+    if (!formValues.gestion || !formValues.gestion.trim()) {
+      errors.gestion = 'La gestión es requerida';
+      isValid = false;
+    } else if (!/^[1-2]-20(2[4-6])$/.test(formValues.gestion)) {
+      errors.gestion = 'El formato de la gestión es inválido (ej: 1-2024 o 2-2024)';
+      isValid = false;
+    }
+
     setFormErrors(errors);
     return isValid;
-  };
+};
+
 
   const handleSave = async () => {
     if (!validateForm()) {
@@ -222,6 +232,7 @@ const Equipos = () => {
       direccion: formValues.direccion,
       logo: formValues.logo, // Enviar la URL directamente
       estudiantesSeleccionados: formValues.estudiantesSeleccionados.map(est => est.value),
+      gestion: formValues.gestion, // Agregar la gestión
     };
 
     try {
@@ -239,7 +250,7 @@ const Equipos = () => {
     } finally {
       setIsSaving(false); // Finalizar el estado de guardado
     }
-  };
+};
 
 
   return (
