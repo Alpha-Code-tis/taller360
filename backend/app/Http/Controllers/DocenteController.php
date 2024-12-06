@@ -35,9 +35,9 @@ class DocenteController extends Controller
     {
         $validatedData = $request->validate([
             'id_grupo' => 'required|integer',
-            'nombre_docente' => 'required|string|max:35',
-            'ap_pat' => 'required|string|max:35',
-            'ap_mat' => 'required|string|max:35',
+            'nombre_docente' => 'required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/|min:3|max:35',
+            'ap_pat' => 'required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/|min:3|max:35',
+            'ap_mat' => 'required|regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/|min:3|max:35',
             'contrasenia' => 'required|string|max:64',
             'correo' => 'required|string|email|max:50',
         ],
