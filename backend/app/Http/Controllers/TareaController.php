@@ -27,29 +27,32 @@ class TareaController extends Controller
     }
 
     public function mostrarTareas($sprintId)
-{
-    // Obtener el estudiante autenticado
-    $estudiante = auth()->guard('sanctum')->user();
+    {
+        // Obtener el estudiante autenticado
+        $estudiante = auth()->guard('sanctum')->user();
 
-    if (!$estudiante) {
-        return response()->json(['error' => 'No autenticado'], 401);
-    }
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
 
-    // Verificar que el sprint pertenece a la empresa del estudiante
-    $planificacion = Planificacion::where('id_empresa', $estudiante->id_empresa)->first();
-    $sprint = Sprint::where('id_sprint', $sprintId)
-        ->where('id_planificacion', $planificacion->id_planificacion)
-        ->first();
+        // Verificar que el sprint pertenece a la empresa del estudiante
+        $planificacion = Planificacion::where('id_empresa', $estudiante->id_empresa)->first();
+        $sprint = Sprint::where('id_sprint', $sprintId)
+            ->where('id_planificacion', $planificacion->id_planificacion)
+            ->first();
+        if (!$sprint) {
+            return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
+        }
+        $alcances = $sprint->alcances()->pluck('id_alcance');
+        // Obtener las tareas asignadas al estudiante autenticado que pertenecen al alcance del sprint seleccionado
+        $idTareasDelEstudiante = EstudianteTarea::where('id_estudiante', $estudiante->id_estudiante)
+            ->pluck('id_tarea');
+        $tareasDelEstudiante = Tarea::whereIn('id_tarea', $idTareasDelEstudiante) // Filtrar por tareas del estudiante
+            ->whereIn('id_alcance', $alcances) // Filtrar por tareas que pertenecen al alcance del sprint
+            ->get();
 
-    if (!$sprint) {
-        return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
-    }
 
-    $tareas = $estudiante->tareas()
-                       ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-                       ->get();
-
-        return response()->json($tareas);
+        return response()->json($tareasDelEstudiante);
     }
 
 
@@ -62,30 +65,25 @@ class TareaController extends Controller
             return response()->json(['error' => 'No autenticado'], 401);
         }
 
-         // Validate the file
-         $request->validate([
-            'archivo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
+        // Validar el enlace
+        $request->validate([
+            'enlace' => ['required', 'url']
         ]);
 
-        // Verify that the task belongs to the student
+        // Verificar que la tarea pertenece al estudiante
         $tarea = Tarea::where('id_tarea', $tareaId)
-            ->whereHas('estudiantes', function ($query) use ($estudiante) {
-                $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
-            })
             ->firstOrFail();
 
-        // Upload the file
-        $path = $request->file('archivo')->store('public/avances');
-
-        // Update the 'avances' attribute of the task
+        // Obtener los avances actuales y agregar el nuevo enlace
         $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
-        $avances[] = $path;
+        $avances[] = $request->enlace;
+
+        // Actualizar los avances en la base de datos
         $tarea->avances = implode(",", $avances);
         $tarea->save();
 
-        return response()->json(['message' => 'Avance subido correctamente', 'path' => $path]);
+        return response()->json(['message' => 'Avance subido correctamente']);
     }
-
 
     public function verAvances($tareaId)
     {
@@ -96,57 +94,50 @@ class TareaController extends Controller
             return response()->json(['error' => 'No autenticado'], 401);
         }
 
-          // Verify that the task belongs to the student
-          $tarea = Tarea::where('id_tarea', $tareaId)
-          ->whereHas('estudiantes', function ($query) use ($estudiante) {
-              $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
-          })
-          ->firstOrFail();
+        // Obtener la tarea si pertenece al estudiante
+        $tarea = $estudiante->tareas()->where('tarea.id_tarea', $tareaId)->first();
 
-      // Get the list of avances
-      $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
+        if (!$tarea) {
+            return response()->json(['error' => 'Tarea no encontrada o no pertenece al estudiante'], 404);
+        }
 
-      return response()->json($avances);
-  }
+        // Obtener la lista de avances
+        $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
+
+        return response()->json($avances);
+    }
 
 
+    public function eliminarAvance($tareaId, $avanceIndex)
+    {
+        // Obtener el estudiante autenticado
+        $estudiante = auth()->guard('sanctum')->user();
 
-  public function eliminarAvance($tareaId, $avanceIndex)
-  {
-      // Get the authenticated student
-      $estudiante = auth()->guard('sanctum')->user();
+        if (!$estudiante) {
+            return response()->json(['error' => 'No autenticado'], 401);
+        }
 
-      if (!$estudiante) {
-          return response()->json(['error' => 'No autenticado'], 401);
-      }
+        // Obtener la tarea si pertenece al estudiante
+        $tarea = $estudiante->tareas()->where('tarea.id_tarea', $tareaId)->first();
 
-      // Verify that the task belongs to the student
-      $tarea = Tarea::where('id_tarea', $tareaId)
-          ->whereHas('estudiantes', function ($query) use ($estudiante) {
-              $query->where('estudiantes.id_estudiante', $estudiante->id_estudiante);
-          })
-          ->firstOrFail();
+        if (!$tarea) {
+            return response()->json(['error' => 'Tarea no encontrada o no pertenece al estudiante'], 404);
+        }
 
-      // Get the list of avances
-      $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
+        // Obtener y modificar los avances
+        $avances = $tarea->avances ? explode(",", $tarea->avances) : [];
 
-      if (isset($avances[$avanceIndex])) {
-          // Delete the file from storage
-          Storage::delete($avances[$avanceIndex]);
+        if (isset($avances[$avanceIndex])) {
+            unset($avances[$avanceIndex]);
+            $avances = array_values($avances);
+            $tarea->avances = implode(",", $avances);
+            $tarea->save();
 
-          // Remove the avance from the array
-          unset($avances[$avanceIndex]);
+            return response()->json(['message' => 'Avance eliminado correctamente']);
+        }
 
-          // Reindex the array and update the database
-          $avances = array_values($avances);
-          $tarea->avances = implode(",", $avances);
-          $tarea->save();
-
-          return response()->json(['message' => 'Avance eliminado correctamente']);
-      }
-
-      return response()->json(['error' => 'Avance no encontrado'], 404);
-  }
+        return response()->json(['error' => 'Avance no encontrado'], 404);
+    }
 
 
 
