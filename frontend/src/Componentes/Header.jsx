@@ -980,6 +980,26 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Cualificar Resultados" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+                {/* Botón de Evaluación Entre Equipos */}
+                <ListItem disablePadding>
+                <ListItemButton
+                  component={Link}
+                  to="/EvaluacionEntreEquipos"
+                  onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <GroupIcon /> {/* Puedes reemplazar este ícono por uno relacionado con equipos */}
+                  </ListItemIcon>
+                  <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
 
               {/* Modal Conformación de Equipos */}
               <Modal show={teamConfigModalShow} onHide={() => setTeamConfigModalShow(false)} centered>

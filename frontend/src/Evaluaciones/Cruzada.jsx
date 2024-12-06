@@ -220,7 +220,7 @@ const Cruzada = () => {
 
 
   return (
-    <div className="container mt-0">
+    <div className="container mt-0 ms-5">
     {!puedeEvaluar ? (
       <div className="alert alert-warning text-center">
         Aún no es posible evaluar a otros equipos.
@@ -261,8 +261,8 @@ const Cruzada = () => {
         </div>
       ) : ( 
         <Row>
-          <Col md={8}>
-            <Table bordered hover className="text-center">
+  <Col md={{ span: 5, offset: 2 }}>
+  <Table bordered hover className="text-center">
               <thead className="table-light">
                 <tr>
                   <th>#</th>

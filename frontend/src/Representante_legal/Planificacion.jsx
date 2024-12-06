@@ -53,7 +53,7 @@ const Planificacion = () => {
   const [requerimiento,setRequerimiento] = useState('');
   const [tareas, setTareas]=useState([]);
   const [alcances, setAlcances] = useState([]);
-
+  const [porcentaje, setPorcentaje] = useState([]);
   const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
   const [showModalEvent, setShowModalEvent] = useState();
   const [selectedEvent, setSelectedEvent] = useState(null);

@@ -47,7 +47,7 @@ class SprintController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'nro_sprint' => 'required|integer',
+            'nro_sprint' => 'required|integer|min:1',
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'fecha_inicio' => 'required|date_format:d/m/Y',
             'fecha_fin' => 'required|date_format:d/m/Y|after_or_equal:fecha_inicio',
@@ -55,7 +55,7 @@ class SprintController extends Controller
             'porcentaje' => 'required|integer',
             'tareas' => 'required|array',
             'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
-            'tareas.*.estimacion' => 'required|integer',
+            'tareas.*.estimacion' => 'required|integer|min:1',
         ]);
 
         if ($validator->fails()) {
