@@ -100,7 +100,7 @@ const Autoevaluacion = () => {
 
   const fetchTasks = async(sprintId) => {
     try {
-      const response = await axios.get(`${API_URL}tareas/${sprintId}`);
+      const response = await axios.get(`${API_URL}tareas/sprint/${sprintId}`);
       setTasks(response.data);
     } catch (error) {
       toast.error('Error al cargar las tareas.');

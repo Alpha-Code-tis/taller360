@@ -151,7 +151,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tareas/sprints', [TareaController::class, 'mostrarSprints']);
     Route::get('/tareas/tareasEmpresa/{empresaId}', [TareaController::class, 'mostrarTodasLasTareas']);
     Route::get('/tareas/{sprintId}', [TareaController::class, 'mostrarTareas']);
-    Route::get('/tareas', [TareaController::class, 'mostrarTarea']);
+    Route::get('/tareas/sprint/{sprintId}', [TareaController::class, 'mostrarTarea']);
     Route::post('/tareas/{tareaId}/subir-avance', [TareaController::class, 'subirAvance']);
     Route::get('/tareas/{tareaId}/avances', [TareaController::class, 'verAvances']);
     Route::delete('/tareas/{tareaId}/avances/{avanceIndex}', [TareaController::class, 'eliminarAvance']);

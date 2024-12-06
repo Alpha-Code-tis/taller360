@@ -15,7 +15,7 @@ const EvaluationForm = () => {
   const [percentage, setPercentage] = useState(null);
   const [error, setError] = useState('');
 
-  const API_URL = 'http://localhost:8000/api/evaluation';
+  const API_URL = 'http://44.212.24.249/api/evaluation';
 
   // Obtener equipos (empresas) al montar el componente
   useEffect(() => {
