@@ -49,7 +49,7 @@ const Estudiantes = () => {
     console.log(estudiantes);
     const filtered = estudiantes.filter((estudiante) => {
       const fullName = `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`.toLowerCase();
-      const codigoSis = estudiante.codigo_sis;
+      const codigoSis = estudiante.codigo_sis ? estudiante.codigo_sis.toString().toLowerCase() : '';
       const searchValue = searchTerm.toLowerCase();
       return fullName.includes(searchValue) || codigoSis.includes(searchValue);
     });
@@ -125,9 +125,11 @@ const Estudiantes = () => {
 
   const validateForm = () => {
     const errors = {};
+    // Validar nombre sin números
     if (/\d/.test(formValues.nombre)) {
       errors.nombre = 'El nombre no debe contener números.';
     }
+    // Validar codigoSis: 9 dígitos
     if (!/^\d{9}$/.test(formValues.codigoSis)) {
       errors.codigoSis = 'El Código SIS debe contener 9 dígitos.';
     }
@@ -303,7 +305,7 @@ const Estudiantes = () => {
       </div>
 
       {/* Modal para agregar/editar estudiante */}
-      <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
+      <Modal className="modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header>
           <Modal.Title>{currentEstudiante ? 'Editar Estudiante' : 'Agregar Estudiante'}</Modal.Title>
         </Modal.Header>
@@ -381,46 +383,50 @@ const Estudiantes = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      
       {/* Modal para importar archivo */}
       <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Importar Lista</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <div
-          className="drop-zone"
-          style={{
-            border: '2px dashed #cccccc',
-            padding: '20px',
-            textAlign: 'center',
-            borderRadius: '8px',
-            marginBottom: '20px',
-          }}
-        >
-          Arrastra el archivo aquí o{' '}
-          <input
-            type="file"
-            id="file-upload"
-            onChange={handleFileChange} // Capturar el archivo
-          />
-          <label htmlFor="file-upload" style={{ color: '#007bff', cursor: 'pointer' }}>
-            selecciona un archivo
-          </label>
-        </div>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={handleCloseImportModal}>
-          Cancelar
-        </Button>
-        <Button
-          variant="primary"
-          onClick={handleFileUpload}
-          disabled={isSaving} // Deshabilitar botón mientras se sube
-        >
-          {isSaving ? 'Subiendo...' : 'Subir'}
-        </Button>
-      </Modal.Footer>
-    </Modal>
+        <Modal.Header closeButton>
+          <Modal.Title>Importar Lista</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div
+            className="drop-zone"
+            style={{
+              border: '2px dashed #cccccc',
+              padding: '20px',
+              textAlign: 'center',
+              borderRadius: '8px',
+              marginBottom: '20px',
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleFileDrop}
+          >
+            Arrastra el archivo aquí o{' '}
+            <input
+              type="file"
+              id="file-upload"
+              onChange={handleFileChange} // Capturar el archivo
+              style={{ display: 'none' }}
+            />
+            <label htmlFor="file-upload" style={{ color: '#007bff', cursor: 'pointer' }}>
+              selecciona un archivo
+            </label>
+          </div>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseImportModal}>
+            Cancelar
+          </Button>
+          <Button
+            variant="primary"
+            onClick={handleFileUpload}
+            disabled={isSaving} // Deshabilitar botón mientras se sube
+          >
+            {isSaving ? 'Subiendo...' : 'Subir'}
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
