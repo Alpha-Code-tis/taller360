@@ -14,7 +14,7 @@ function GenerarPlanilla() {
   // Estados para el modal
   const [imagenes, setImagenes] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const API_URL = 'http://44.212.24.249/api/evaluation';
+  const API_URL = 'http://localhost:8000/api/evaluation';
 
   // Obtener equipos al montar el componente
   useEffect(() => {
@@ -81,7 +81,7 @@ function GenerarPlanilla() {
 
   // Función para actualizar el progreso de una tarea
   const actualizarProgreso = (index, idTarea, nuevoProgreso) => {
-    axios.put(`http://44.212.24.249/api/planilla/tareas/${idTarea}/actualizar-progreso`, { progreso: nuevoProgreso })
+    axios.put(`http://localhost:8000/api/planilla/tareas/${idTarea}/actualizar-progreso`, { progreso: nuevoProgreso })
       .then(response => {
         // Update the tasks state after successful update
         const updatedTasks = [...tasks];
@@ -106,7 +106,7 @@ function GenerarPlanilla() {
 
   // Función para ver enlaces de un documento relacionado a una tarea
   const verImagenes = (idTarea) => {
-    axios.get(`http://44.212.24.249/api/planilla/tareas/${idTarea}/ver-avances`)
+    axios.get(`http://localhost:8000/api/planilla/tareas/${idTarea}/ver-avances`)
       .then(response => {
         setImagenes(response.data); // Assuming response.data contains an array of document URLs
         setMostrarModal(true);

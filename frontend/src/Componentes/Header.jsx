@@ -53,7 +53,7 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
-
+import Typography from "@mui/material/Typography";
 
 dayjs.extend(isSameOrBefore);
 dayjs.extend(isSameOrAfter);
@@ -495,6 +495,14 @@ export default function PersistentDrawerLeft() {
           >
             <MenuIcon />
           </IconButton>
+          <Typography
+            variant="h6"
+            noWrap
+            component="div"
+            sx={{ flexGrow: 1, fontWeight: 'bold', fontSize: '1.5rem', color: '#2D5981', }}
+          >
+          {`Bienvenido, ${nombre}`}
+          </Typography>
           <div className="ms-auto d-flex align-items-center">
             {role === 'docente' && (
               <IconButton color="primary" onClick={handleSettingsMenuOpen} className="me-3">
@@ -502,7 +510,9 @@ export default function PersistentDrawerLeft() {
               </IconButton>
             )}
             <FaUserCircle size={30} className="me-2" />
-            <span className="m-0">{nombre}</span>
+            <span className="m-0" style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#007BFF' }}>
+              {role.toUpperCase()}
+            </span>
             <IconButton onClick={handleMenuOpen}>
               <ExpandMoreIcon />
             </IconButton>
