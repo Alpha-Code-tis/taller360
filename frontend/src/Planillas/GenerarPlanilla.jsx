@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import './GenerarPlanilla.css';
+import { API_URL } from '../config'; 
 
 function GenerarPlanilla() {
   // Estados para la planilla
@@ -14,13 +15,12 @@ function GenerarPlanilla() {
   // Estados para el modal
   const [imagenes, setImagenes] = useState([]);
   const [mostrarModal, setMostrarModal] = useState(false);
-  const API_URL = 'http://localhost:8000/api/evaluation';
 
   // Obtener equipos al montar el componente
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get(`${API_URL}/form`);
+        const response = await axios.get(`${API_URL}evaluation/form`);
         setTeams(response.data.empresas);
         console.log('Equipos:', response.data.empresas);
       } catch (error) {
@@ -35,7 +35,7 @@ function GenerarPlanilla() {
     if (team) {
       const fetchSprints = async () => {
         try {
-          const response = await axios.get(`${API_URL}/sprints/${team}`);
+          const response = await axios.get(`${API_URL}evaluation/sprints/${team}`);
           setSprints(response.data);
           console.log('Sprints:', response.data);
         } catch (error) {
@@ -54,7 +54,7 @@ function GenerarPlanilla() {
     if (sprint) {
       const fetchTasks = async () => {
         try {
-          const response = await axios.get(`${API_URL}/tareas/${team}/sprint/${sprint}`);
+          const response = await axios.get(`${API_URL}evaluation/tareas/${team}/sprint/${sprint}`);
           setTasks(response.data);
           console.log('Tareas:', response.data);
 
@@ -81,7 +81,7 @@ function GenerarPlanilla() {
 
   // Función para actualizar el progreso de una tarea
   const actualizarProgreso = (index, idTarea, nuevoProgreso) => {
-    axios.put(`http://localhost:8000/api/planilla/tareas/${idTarea}/actualizar-progreso`, { progreso: nuevoProgreso })
+    axios.put(`${API_URL}evaluation/planilla/tareas/${idTarea}/actualizar-progreso`, { progreso: nuevoProgreso })
       .then(response => {
         // Update the tasks state after successful update
         const updatedTasks = [...tasks];
@@ -106,7 +106,7 @@ function GenerarPlanilla() {
 
   // Función para ver enlaces de un documento relacionado a una tarea
   const verImagenes = (idTarea) => {
-    axios.get(`http://localhost:8000/api/planilla/tareas/${idTarea}/ver-avances`)
+    axios.get(`${API_URL}evaluation/planilla/tareas/${idTarea}/ver-avances`)
       .then(response => {
         setImagenes(response.data); // Assuming response.data contains an array of document URLs
         setMostrarModal(true);
