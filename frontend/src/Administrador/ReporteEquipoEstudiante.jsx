@@ -7,7 +7,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import { API_URL } from '../config';    
 import { Modal, Button } from 'react-bootstrap'; // Importar componentes de React Bootstrap
-import './Reportes.css'; // Importar estilos
+import './ReporteEquipoEstudiante.css'; // Importar estilos
 
 const Reportes = () => {
     const [gestion, setGestion] = useState('2-2024');

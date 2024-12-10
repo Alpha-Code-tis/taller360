@@ -53,6 +53,9 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import Modal from 'react-bootstrap/Modal';
 import Select from 'react-select';
 import { Form, Row, Col, Toast, Button } from 'react-bootstrap';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import FolderIcon from '@mui/icons-material/Folder';
+import TableChartIcon from '@mui/icons-material/TableChart';
 import Typography from "@mui/material/Typography";
 
 dayjs.extend(isSameOrBefore);
@@ -156,6 +159,8 @@ export default function PersistentDrawerLeft() {
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
   const [notificarModalShow, setNotificarModalShow] = useState(false);
+  const [planillasOpen, setPlanillasOpen] = useState(false);
+  const [reportesOpen, setReportesOpen] = useState(false);
 
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
@@ -167,6 +172,15 @@ export default function PersistentDrawerLeft() {
     if (button === 'evaluaciones') {
       setEvaluacionesOpen((prev) => !prev);
     }
+
+    if (button === 'planillas') {
+      setPlanillasOpen((prev) => !prev);
+    }
+
+    if (button === 'reportes') {
+      setReportesOpen((prev) => !prev);
+    }
+    
     setSelectedButton(button);
   };
 
@@ -808,65 +822,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-
-              {/* Planilla Semanales */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/PlanillasSemanales"
-                  onClick={() => handleButtonClick('planillas')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <CalendarMonthIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/ListaAutoevaluacion"
-                  onClick={() => handleButtonClick('listaAutoevaluacion')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <SchoolIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/CriterioEvaluacion"
-                  onClick={() => handleButtonClick('criterioEvaluacion')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <ChecklistIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
+              
 
               <ListItem disablePadding>
                 <ListItemButton
@@ -888,77 +844,239 @@ export default function PersistentDrawerLeft() {
                 </ListItemButton>
               </ListItem>
 
-              {/* Planilla de Notas */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/PlanillaNotas"
-                  onClick={() => handleButtonClick('planillaNotas')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
+                {/* Evaluación */}
+                <ListItem disablePadding>
+                    <ListItemButton
+                      onClick={() => handleButtonClick('evaluaciones')}
+                      sx={{
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'evaluaciones' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                    <BarChartIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Evaluacion" sx={{ color: 'white' }} />
+                    {evaluacionesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                  </ListItemButton>
+                </ListItem>
+              {/* Submenú evaluaciones */}
+              <Collapse in={evaluacionesOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem disablePadding>
+                        <ListItemButton
+                          component={Link}
+                          to="/ListaAutoevaluacion"
+                          onClick={() => handleButtonClick('listaAutoevaluacion')}
+                          sx={{
+                            pl: 4,
+                            borderRadius: '8px',
+                            backgroundColor: selectedButton === 'listaAutoevaluacion' ? '#1A3254' : 'transparent',
+                            '&:hover': {
+                              backgroundColor: '#1A3254',
+                            },
+                          }}
+                        >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <SchoolIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+
+                  {/* Botón de Evaluación Entre Equipos */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/EvaluacionEntreEquipos"
+                      onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <GroupIcon /> {/* Puedes reemplazar este ícono por uno relacionado con equipos */}
+                      </ListItemIcon>
+                      <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/CriterioEvaluacion"
+                      onClick={() => handleButtonClick('criterioEvaluacion')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'criterioEvaluacion' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <ChecklistIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Criterios de Evaluación" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+
+                </List>
+              </Collapse>
+
+                {/* Planillas */}
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => handleButtonClick('planillas')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'planillas' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
                   <ListItemIcon sx={{ color: 'white' }}>
-                  <Grading />
+                  <FolderIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
+                  <ListItemText primary="Planillas" sx={{ color: 'white' }} />
+                  {planillasOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
 
-              {/* Planilla de Notas Final */}
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/PlanillaNotasFinal"
-                  onClick={() => handleButtonClick('planillaNotasFinal')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
+              {/* Submenú planillas */}
+              <Collapse in={planillasOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  {/* Planilla Semanales */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/PlanillasSemanales"
+                      onClick={() => handleButtonClick('planillasSemanales')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'planillasSemanales' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <CalendarMonthIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/PlanillaNotas"
+                      onClick={() => handleButtonClick('planillaNotas')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'planillaNotas' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <Grading />
+                      </ListItemIcon>
+                      <ListItemText primary="Planilla de Notas" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+
+                  {/* Planilla de Notas Final */}
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/PlanillaNotasFinal"
+                      onClick={() => handleButtonClick('planillaNotasFinal')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'planillaNotasFinal' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <Assignment />
+                      </ListItemIcon>
+                      <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
+
+                </List>
+              </Collapse>
+
+                {/* Reportes */}
+                <ListItem disablePadding>
+                  <ListItemButton
+                    onClick={() => handleButtonClick('reportes')}
+                    sx={{
+                      borderRadius: '8px',
+                      backgroundColor: selectedButton === 'reportes' ? '#1A3254' : 'transparent',
+                      '&:hover': {
+                        backgroundColor: '#1A3254',
+                      },
+                    }}
+                  >
                   <ListItemIcon sx={{ color: 'white' }}>
-                  <Assignment />
+                  <TableChartIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Planilla de Notas Final" sx={{ color: 'white' }} />
+                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+                  {reportesOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </ListItemButton>
               </ListItem>
 
-              <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/ReportePorEvaluaciones"
-                  onClick={() => handleButtonClick('ReportePorEvaluaciones')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <SummarizeIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
+              {/* Submenú reportes */}
+              <Collapse in={reportesOpen} timeout="auto" unmountOnExit>
+                <List component="div" disablePadding>
+                  <ListItem disablePadding>
+                    <ListItemButton
+                      component={Link}
+                      to="/ReportePorEvaluaciones"
+                      onClick={() => handleButtonClick('ReportePorEvaluaciones')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'evaluationForm' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                    <ListItemIcon sx={{ color: 'white' }}>
+                      <SummarizeIcon />
+                    </ListItemIcon>
+                    <ListItemText primary="Reporte por Evaluaciones" sx={{ color: 'white' }} />
+                  </ListItemButton>
+                </ListItem>
 
               {/* Reportes */}
               <ListItem disablePadding>
                 <ListItemButton
                   component={Link}
-                  to="/Reportes"
-                  onClick={() => handleButtonClick('reportes')}
+                  to="/ReporteEquipoEstudiante"
+                  onClick={() => handleButtonClick('reporteequipoestudiante')}
                   sx={{
+                    pl: 4,
                     borderRadius: '8px',
-                    backgroundColor: selectedButton === 'reportes' ? '#1A3254' : 'transparent',
+                    backgroundColor: selectedButton === 'reporteequipoestudiante' ? '#1A3254' : 'transparent',
                     '&:hover': {
                       backgroundColor: '#1A3254',
                     },
@@ -967,9 +1085,18 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssessmentIcon />
                   </ListItemIcon>
-                  <ListItemText primary="Reportes" sx={{ color: 'white' }} />
+                  <ListItemText primary="ReporteEquipoEstudiante" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
+
+                  
+
+
+                </List>
+              </Collapse>
+
+
+
 
               <ListItem disablePadding>
                 <ListItemButton
@@ -988,26 +1115,6 @@ export default function PersistentDrawerLeft() {
                     <StarIcon />
                   </ListItemIcon>
                   <ListItemText primary="Cualificar Resultados" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
-                {/* Botón de Evaluación Entre Equipos */}
-                <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/EvaluacionEntreEquipos"
-                  onClick={() => handleButtonClick('EvaluacionEntreEquipos')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'EvaluacionEntreEquipos' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <GroupIcon /> {/* Puedes reemplazar este ícono por uno relacionado con equipos */}
-                  </ListItemIcon>
-                  <ListItemText primary="Evaluación Entre Equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
