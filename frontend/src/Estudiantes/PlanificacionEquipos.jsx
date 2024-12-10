@@ -2,19 +2,46 @@ import { API_URL } from '../config';
 import React, { useState, useEffect } from 'react';
 
 // Importamos los componentes y estilos necesarios
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import './PlanificacionEquipos.css';
-import dayjs from 'dayjs';
-import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { useDateFormatter } from "@react-aria/i18n";
-import axios from 'axios';
 
-const localizer = momentLocalizer(moment); // or globalizeLocalizer
+import './PlanificacionEquipos.css';
+import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
+import axios from 'axios';
+import dayjs from 'dayjs';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import es from 'date-fns/locale/es';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
+
+const locales = { es };
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+const messages = {
+  allDay: 'Todo el día',
+  previous: 'Anterior',
+  next: 'Siguiente',
+  today: 'Hoy',
+  month: 'Mes',
+  week: 'Semana',
+  day: 'Día',
+  agenda: 'Agenda',
+  date: 'Fecha',
+  time: 'Hora',
+  event: 'Evento',
+  noEventsInRange: 'No hay eventos en este rango.',
+};
+
+ // Función para mostrar los días y meses en español usando dayjs
+ const obtenerDiaMesEnEspañol = (fecha) => {
+  const formatoDia = dayjs(fecha).locale('es').format('dddd'); // Día completo en español
+  const formatoMes = dayjs(fecha).locale('es').format('MMMM'); // Mes completo en español
+  return { dia: formatoDia, mes: formatoMes };
+};
 // Función para filtrar sábados y domingos
 const filtrarDiasHabiles = (fechaInicio, fechaFin) => {
   const fechas = [];
@@ -87,26 +114,81 @@ const MyCalendar = () => {
     const handleOptionE = async (event) => {
       const selectedEmpresa = event.target.value;
       setSelectedEmpresa(selectedEmpresa);
+
+        // Reiniciar estados relacionados al sprint y calendario
+        setSelectedSprint(null);
+        setEventos([]);
+        setFechaInicio(null);
+        setFechaFinal(null);
+        setAlcances([]);
   
       try {
           // Llama a la API usando el valor de la empresa seleccionada
           const response = await axios.get(`${API_URL}listarSprintsEmpresa/${selectedEmpresa}`);
-          setSprints(response.data); // Almacena los sprints obtenidos
-      } catch (error) {
+          const sprintData = response.data;
+          setSprints(sprintData); // Almacena los sprints obtenidos
+           // Si hay sprints, selecciona automáticamente el primero y carga sus datos
+          if (sprintData.length > 0) {
+            const primerSprint = sprintData[0].id_sprint;
+            setSelectedSprint(primerSprint);
+            await cargarDatosSprint(primerSprint, selectedEmpresa);
+          }
+        } catch (error) {
           console.error("Error al obtener los sprints:", error);
       }
 
       setIsEmpresaOpen(false); // Cierra el dropdown
   };
   
+  const cargarDatosSprint = async (sprintId, empresaId) => {
+    try {
+        const response = await axios.get(`${API_URL}planificacion/${empresaId}/${selectedGestion}/${sprintId}`);
+        const sprintData = response.data[0][0].sprints;
+
+        const sprintSeleccionado = sprintData.find((sprint) => sprint.id_sprint === sprintId);
+        if (sprintSeleccionado) {
+            const inicio = dayjs(sprintSeleccionado.fecha_inicio);
+            const fin = dayjs(sprintSeleccionado.fecha_fin);
+            const color = sprintSeleccionado.color || '#ff0000';
+
+            setFechaInicio(inicio);
+            setFechaFinal(fin);
+
+            const diasHabiles = filtrarDiasHabiles(inicio, fin);
+            setEventos(
+                diasHabiles.map((fecha) => ({
+                    title: `Sprint ${sprintSeleccionado.nro_sprint}`,
+                    start: fecha,
+                    end: fecha,
+                    style: { backgroundColor: color },
+                }))
+            );
+        }
+    } catch (error) {
+        console.error("Error al cargar los datos del sprint:", error);
+    }
+};
+
+  useEffect(() => {
+    if (selectedEmpresa && sprints.length > 0) {
+        const primerSprint = sprints[0].id_sprint;
+        setSelectedSprint(primerSprint);
+        cargarDatosSprint(primerSprint, selectedEmpresa);
+    }
+}, [sprints]);
 
 
 
   // Función para manejar el cambio de opción seleccionada
   const handleOptionChange = async (event) => {
     const selectedId = event.target.value;
+    if (!selectedEmpresa || !selectedGestion) {
+      console.error("No se ha seleccionado una empresa o gestión válida.");
+      return;
+    }
     setSelectedSprint(selectedId);
     console.log("Sprint seleccionado:", selectedId); // Asegúrate de que esto se imprima
+    await cargarDatosSprint(selectedId, selectedEmpresa);
     // Aquí haces la llamada a la API de planificacion para obtener las fechas de inicio, fin y color del sprint
     try {
       const response = await axios.get(`${API_URL}planificacion/${selectedEmpresa}/${selectedGestion}/${selectedId}`);
@@ -206,6 +288,18 @@ const MyCalendar = () => {
 
     return (
       <div className="container custom-container pt-3">
+    {/* Contenedor para el título */}
+    <div className="row justify-content-center mb-4">
+      <div className="col-md-8 text-center">
+        <h1
+          className="m-0 ms-5 me-5"
+          style={{ position: 'relative', top: '-110px' }} // Mueve el título hacia arriba
+        >
+          Planificación de Equipos
+        </h1>
+      </div>
+    </div>
+
            {/* Contenedor para los menús desplegables */}
           <div className="container">
       <div className="row">
@@ -286,7 +380,9 @@ const MyCalendar = () => {
                     events={eventos}
                     startAccessor="start"
                     endAccessor="end"
-                    style={{ margin: '50px' }}
+                    culture='es'
+                    messages={messages}
+                    style={{ marginTop: '3%', height: '110%' }}
                     eventPropGetter={(event) => ({
                         style: {
                             backgroundColor: event.style.backgroundColor,

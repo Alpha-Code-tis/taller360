@@ -2,22 +2,51 @@ import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import { DemoContainer, DemoItem } from '@mui/x-date-pickers/internals/demo';
-import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
-import { parseDate } from "@internationalized/date";
 import './Planificacion.css';
 import { useDateFormatter } from "@react-aria/i18n";
 import { FaEdit, FaTrash } from 'react-icons/fa';
-import 'react-big-calendar/lib/css/react-big-calendar.css';
-import { Calendar, momentLocalizer } from 'react-big-calendar';
-import moment from 'moment'
 import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
+import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
+import { format, parse, startOfWeek, getDay } from 'date-fns';
+import es from 'date-fns/locale/es';
+import 'react-big-calendar/lib/css/react-big-calendar.css';
 
-const localizer = momentLocalizer(moment); // or globalizeLocalizer
+const locales = { es };
+const localizer = dateFnsLocalizer({
+  format,
+  parse,
+  startOfWeek,
+  getDay,
+  locales,
+});
+
+const messages = {
+  allDay: 'Todo el día',
+  previous: 'Anterior',
+  next: 'Siguiente',
+  today: 'Hoy',
+  month: 'Mes',
+  week: 'Semana',
+  day: 'Día',
+  agenda: 'Agenda',
+  date: 'Fecha',
+  time: 'Hora',
+  event: 'Evento',
+  noEventsInRange: 'No hay eventos en este rango.',
+};
+
+
+// Función para mostrar los días y meses en español usando dayjs
+const obtenerDiaMesEnEspañol = (fecha) => {
+  const formatoDia = dayjs(fecha).locale('es').format('dddd'); // Día completo en español
+  const formatoMes = dayjs(fecha).locale('es').format('MMMM'); // Mes completo en español
+  return { dia: formatoDia, mes: formatoMes };
+};
+
 
 // Función para filtrar sábados y domingos
 const filtrarDiasHabiles = (fechaInicio, fechaFin) => {
@@ -53,7 +82,7 @@ const Planificacion = () => {
   const [requerimiento,setRequerimiento] = useState('');
   const [tareas, setTareas]=useState([]);
   const [alcances, setAlcances] = useState([]);
-  const [porcentaje, setPorcentaje] = useState([]);
+
   const [eventos, setEventos] = useState([]); // Almacenará los eventos que se mostrarán en el calendario
   const [showModalEvent, setShowModalEvent] = useState();
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -382,7 +411,7 @@ const Planificacion = () => {
     <div className="container custom-container pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex align-items-center">
-          <div className="sprint-dropdown me-5"> {/* Añadido 'me-2' para margen a la derecha */}
+          <div className="sprint-dropdown me-5" style={{ position: 'absolute', right: '1080px' }}> {/* Añadido 'me-2' para margen a la derecha */}
             <button className="btn btn-primary" onClick={toggleDropdown}>
               Sprint <span className="arrow">{isOpen ? '▲' : '▼'}</span>
             </button>
@@ -411,28 +440,42 @@ const Planificacion = () => {
               </div>
             )}
           </div>
-          <h1 className="m-0 ms-5 me-5">Planificación</h1>
+          <div className="row justify-content-center mb-4">
+      <div className="col-md-1 text-center">
+        <h1
+          className="m-0 ms-5 me-5"
+          style={{ position: 'relative', top: '-110px' }} // Mueve el título hacia arriba
+        >
+          Planificación
+        </h1>
+      </div>
+    </div>
         </div>
-        <button className="btn btn-primary" onClick={() => handleShowModal()}>Registrar</button>
+        <button className="btn btn-primary" onClick={() => handleShowModal()}style={{ position: 'absolute', right: '210px' }}>Registrar</button>
       </div>
       {error && <p className="text-danger">{error}</p>}
-      <div style={{ height: '350px' }}>
-        <Calendar
-          localizer={localizer}
-          events={eventos}
-          startAccessor="start"
-          endAccessor="end"
-          style={{ margin: "50px" }}
-          eventPropGetter={(event) => ({
-            style: {
-              backgroundColor: event.style.backgroundColor, // Aplicar el color del evento
-              color: 'white', // Color del texto
-              borderRadius: '5px',
-              border: 'none',
-            },
-          })}
-          onSelectEvent={handleSelectEvent}
-        />
+
+      <div style= {{ marginLeft: '148px', marginTop: '-100px', height: '360px' }}>
+          <Calendar
+            localizer={localizer}
+            events={eventos}
+            startAccessor="start"
+            endAccessor="end"
+            culture='es'
+            messages={messages}
+            style={{ margin: "50px" }}
+            eventPropGetter={(event) => ({
+              style: {
+                backgroundColor: event.style.backgroundColor, // Aplicar el color del evento
+                color: 'white', // Color del texto
+                borderRadius: '5px',
+                border: 'none',
+              },
+            })}
+            onSelectEvent={handleSelectEvent}
+          />
+
+
         {selectedEvent && (
       <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
         <Modal.Header>
