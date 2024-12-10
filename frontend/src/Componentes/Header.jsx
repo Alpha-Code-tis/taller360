@@ -1075,7 +1075,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssessmentIcon />
                   </ListItemIcon>
-                  <ListItemText primary="ReporteEquipoEstudiante" sx={{ color: 'white' }} />
+                  <ListItemText primary="ReporteEquipoEst" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
