@@ -68,8 +68,13 @@ const Autoevaluacion = () => {
     if (!selectedEvaluation) {
       errors.resultado_evaluacion = 'Debe seleccionar una opción de la escala.';
     }
+    if (formValues.descripcion_evaluacion.length < 5 || formValues.descripcion_evaluacion.length > 255) {
+      errors.descripcion_evaluacion = 'La explicación debe tener entre 5 y 255 caracteres.';
+    }
     if (!formValues.descripcion_evaluacion.trim()) {
       errors.descripcion_evaluacion = 'La explicación es requerida';
+    } else if (!/^[a-zA-Z\s]+$/.test(formValues.descripcion_evaluacion)) {
+      errors.descripcion_evaluacion = 'Solo se permiten letras (a-z, A-Z).';
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
