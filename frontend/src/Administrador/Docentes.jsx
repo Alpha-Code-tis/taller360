@@ -126,27 +126,45 @@ const Docentes = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (/\d/.test(formValues.nombre)) {
-      errors.nombre = 'El nombre no debe contener números.';
+    if (!formValues.nombre) {
+      errors.nombre = 'El nombre es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,30}$/.test(formValues.nombre)) {
+      errors.nombre = 'El nombre debe contener entre 3 y 30 caracteres y solo puede contener letras.';
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.correo)) {
+
+    if (!formValues.apellidoPaterno) {
+      errors.apellidoPaterno = 'El apellido paterno es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoPaterno)) {
+      errors.apellidoPaterno = 'El apellido paterno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }
+
+    if (formValues.apellidoMaterno && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoMaterno)) {
+      errors.apellidoMaterno = 'El apellido materno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }    
+
+    if (!formValues.correo) {
+      errors.correo = 'El correo electrónico es obligatorio.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.correo)) {
       errors.correo = 'Por favor, introduce un correo electrónico válido.';
     }
-    if (!/^\d+$/.test(formValues.grupo)) {
+
+    if (!formValues.grupo) {
+      errors.grupo = 'El grupo es obligatorio.';
+    } else if (!/^\d+$/.test(formValues.grupo)) {
       errors.grupo = 'El grupo debe contener solo números.';
     }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Handle Save (Create or Update Docente)
   const handleSave = async () => {
     if (!validateForm()) {
       toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
 
-    setIsSaving(true); // Deshabilitamos el botón de guardar
+    setIsSaving(true); 
 
     const docenteData = {
       id_grupo: parseInt(formValues.grupo),
@@ -182,11 +200,17 @@ const Docentes = () => {
   };
 
   const handleSaveNewGroup = async () => {
+    const groupNumber = parseInt(newGroupName, 10);
+    if (groupNumber <= 0 || groupNumber > 20) {
+      toast.error('El número del grupo debe estar entre 1 y 20.');
+      return;
+    }
+  
     if (newGroupName.trim() === '') {
       toast.error('El nombre del grupo no puede estar vacío.');
       return;
     }
-
+  
     try {
       const response = await axios.post(`${API_URL}grupos`, { nro_grupo: newGroupName });
       setGrupos([...grupos, response.data]);
@@ -197,6 +221,8 @@ const Docentes = () => {
       toast.error('Error al agregar el grupo');
     }
   };
+  
+  
 
   return (
     <div className="container mt-2 pt-3" >
@@ -294,7 +320,11 @@ const Docentes = () => {
                     value={formValues.apellidoPaterno}
                     onChange={handleInputChange}
                     placeholder="Apellido Paterno"
+                    isInvalid={!!formErrors.apellidoPaterno}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.apellidoPaterno}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
 
@@ -307,7 +337,11 @@ const Docentes = () => {
                     value={formValues.apellidoMaterno}
                     onChange={handleInputChange}
                     placeholder="Apellido Materno"
+                    isInvalid={!!formErrors.apellidoMaterno}
                   />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.apellidoMaterno}
+                  </Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -373,12 +407,13 @@ const Docentes = () => {
         <Modal.Body>
           <Form>
             <Form.Group controlId="formNewGroup" className="mb-3">
-              <Form.Label>Nombre del Nuevo Grupo</Form.Label>
+              <Form.Label>Ingrese un número</Form.Label>
               <Form.Control
-                type="text"
+                type="number"
                 value={newGroupName}
                 onChange={(e) => setNewGroupName(e.target.value)}
-                placeholder="Ingrese el nombre del nuevo grupo"
+                placeholder="Ingrese el número del nuevo grupo"
+                min="0"
               />
             </Form.Group>
           </Form>
