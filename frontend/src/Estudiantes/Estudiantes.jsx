@@ -125,13 +125,26 @@ const Estudiantes = () => {
 
   const validateForm = () => {
     const errors = {};
-    // Validar nombre sin números
-    if (/\d/.test(formValues.nombre)) {
-      errors.nombre = 'El nombre no debe contener números.';
+    if (!formValues.nombre) {
+      errors.nombre = 'El nombre es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,30}$/.test(formValues.nombre)) {
+      errors.nombre = 'El nombre debe contener entre 3 y 30 caracteres y solo puede contener letras.';
     }
-    // Validar codigoSis: 9 dígitos
-    if (!/^\d{9}$/.test(formValues.codigoSis)) {
-      errors.codigoSis = 'El Código SIS debe contener 9 dígitos.';
+
+    if (!formValues.apellidoPaterno) {
+      errors.apellidoPaterno = 'El apellido paterno es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoPaterno)) {
+      errors.apellidoPaterno = 'El apellido paterno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }
+
+    if (formValues.apellidoMaterno && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoMaterno)) {
+      errors.apellidoMaterno = 'El apellido materno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }    
+
+    if(!formValues.codigoSis){
+      errors.codigoSis = 'El código sis es obligatorio';
+    }else if(!/^\d{9}$/.test(formValues.codigoSis)) {
+      errors.codigoSis = 'El Código SIS debe contener 9 dígitos ';
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -333,7 +346,9 @@ const Estudiantes = () => {
                     name="apellidoPaterno"
                     value={formValues.apellidoPaterno}
                     onChange={handleInputChange}
+                    isInvalid={!!formErrors.apellidoPaterno}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.apellidoPaterno}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -346,7 +361,9 @@ const Estudiantes = () => {
                     name="apellidoMaterno"
                     value={formValues.apellidoMaterno}
                     onChange={handleInputChange}
+                    isInvalid={!!formErrors.apellidoMaterno}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.apellidoMaterno}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
               <Col>
