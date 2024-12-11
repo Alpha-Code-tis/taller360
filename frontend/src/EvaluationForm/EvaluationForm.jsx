@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { API_URL } from '../config'; 
 
 const EvaluationForm = () => {
   const [teams, setTeams] = useState([]);
@@ -15,13 +16,11 @@ const EvaluationForm = () => {
   const [percentage, setPercentage] = useState(null);
   const [error, setError] = useState('');
 
-  const API_URL = 'http://44.212.24.249/api/evaluation';
-
   // Obtener equipos (empresas) al montar el componente
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get(`${API_URL}/form`);
+        const response = await axios.get(`${API_URL}evaluation/form`);
         setTeams(response.data.empresas); // Asegúrate de obtener el objeto correcto según la respuesta del controlador
       } catch (error) {
         console.error('Error al obtener equipos:', error);
@@ -35,7 +34,7 @@ const EvaluationForm = () => {
     if (team) {
       const fetchSprints = async () => {
         try {
-          const response = await axios.get(`${API_URL}/sprints/${team}`);
+          const response = await axios.get(`${API_URL}evaluation/sprints/${team}`);
           setSprints(response.data);
         } catch (error) {
           console.error('Error al obtener sprints:', error);
@@ -50,7 +49,7 @@ const EvaluationForm = () => {
     if (sprint) {
       const fetchSprintPercentage = async () => {
         try {
-          const response = await axios.get(`${API_URL}/sprint/${sprint}`);
+          const response = await axios.get(`${API_URL}evaluation/sprint/${sprint}`);
           setPercentage(response.data.porcentaje); // Asigna el porcentaje obtenido al estado
         } catch (error) {
           console.error('Error al obtener el porcentaje del sprint:', error);
@@ -65,7 +64,7 @@ const EvaluationForm = () => {
     if (sprint) {
       const fetchWeeks = async () => {
         try {
-          const response = await axios.get(`${API_URL}/weeks/${sprint}`);
+          const response = await axios.get(`${API_URL}evaluation/weeks/${sprint}`);
           setWeeks(response.data);
         } catch (error) {
           console.error('Error al obtener semanas:', error);
@@ -81,7 +80,7 @@ const EvaluationForm = () => {
       console.log(sprint);
       const fetchTasks = async () => {
         try {
-          const response = await axios.get(`${API_URL}/tareas/${team}/sprint/${sprint}`);
+          const response = await axios.get(`${API_URL}evaluation/tareas/${team}/sprint/${sprint}`);
           console.log(response.data)
           setTasks(response.data);
           setMembers(
@@ -131,7 +130,7 @@ const EvaluationForm = () => {
     console.log(members);
 
     try {
-      const response = await axios.post(`${API_URL}/save`, {
+      const response = await axios.post(`${API_URL}evaluation/save`, {
         tareas: members.map(member => ({
           id_tarea: member.id_tarea,
           name: member.name,
