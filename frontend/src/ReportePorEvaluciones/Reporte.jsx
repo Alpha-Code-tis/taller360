@@ -73,7 +73,7 @@ const Reporte = ({ data  }) => {
           <Text style={styles.textRight}>Fecha de generación: {obtenerFechaActual()}</Text>
           <Text style={styles.label}>Evaluación: {data.evaluation}</Text>
           <Text style={styles.label}>Empresa: {data.empresa}</Text>
-          <Text style={styles.label}>Sprint: {data.sprint}</Text>
+          {data.sprint && (<Text style={styles.label}>Sprint: {data.sprint}</Text>)}
         </View>
 
         <View style={styles.table}>
