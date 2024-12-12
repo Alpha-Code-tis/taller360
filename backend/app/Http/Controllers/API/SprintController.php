@@ -23,6 +23,67 @@ class SprintController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    private function validarCampoNumerico($valor, $nombreCampo) {
+        if (!trim($valor)) {
+            return "El campo \"$nombreCampo\" no puede estar vacío.";
+        }
+        if (!preg_match('/^\d+$/', $valor)) {
+            return "El campo \"$nombreCampo\" debe contener solo números.";
+        }
+        return null;
+    }
+
+    private function validarCampoTexto($valor, $nombreCampo) {
+        if (!trim($valor)) {
+            return "El campo \"$nombreCampo\" no puede estar vacío.";
+        }
+
+        if (!preg_match('/^[A-Za-zÁÉÍÓÚáéíóúñÑ]+$/u', $valor)) {
+            return "El campo \"$nombreCampo\" debe contener solo letras, sin números ni caracteres especiales.";
+        }
+
+        $vocales = 'aeiouáéíóúAEIOUÁÉÍÓÚ';
+        $contadorVocales = 0;
+        $contadorConsonantes = 0;
+        $ultimaLetra = '';
+        $repetidas = 1;
+
+        for ($i = 0; $i < mb_strlen($valor); $i++) {
+            $char = mb_substr($valor, $i, 1);
+
+            // Letras idénticas consecutivas
+            if ($char === $ultimaLetra) {
+                $repetidas++;
+                if ($repetidas >= 3) {
+                    return "El campo \"$nombreCampo\" no puede tener 3 letras idénticas consecutivas.";
+                }
+            } else {
+                $repetidas = 1;
+            }
+
+            if (mb_strpos($vocales, $char) !== false) {
+                // Es vocal
+                $contadorVocales++;
+                $contadorConsonantes = 0;
+                if ($contadorVocales >= 3) {
+                    return "El campo \"$nombreCampo\" no puede tener 3 vocales consecutivas.";
+                }
+            } else {
+                // Es consonante
+                $contadorConsonantes++;
+                $contadorVocales = 0;
+                if ($contadorConsonantes >= 3) {
+                    return "El campo \"$nombreCampo\" no puede tener 3 consonantes consecutivas.";
+                }
+            }
+
+            $ultimaLetra = $char;
+        }
+
+        return null;
+    }
+
+
     public function index()
     {
         $empresaId = request('empresaId');
@@ -57,6 +118,39 @@ class SprintController extends Controller
             'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas.*.estimacion' => 'required|integer|min:1',
         ]);
+
+        $validator->after(function ($validator) use ($request) {
+            
+            // Validar porcentaje (si se le quiere aplicar las mismas reglas que a cobro)
+            $error = $this->validarCampoNumerico($request->porcentaje, 'Porcentaje');
+            if ($error) {
+                $validator->errors()->add('porcentaje', $error);
+            }
+
+            // Validar requerimiento
+            $error = $this->validarCampoTexto($request->requerimiento, 'Requerimiento');
+            if ($error) {
+                $validator->errors()->add('requerimiento', $error);
+            }
+
+            // Validar tareas (nombre)
+            if (is_array($request->tareas)) {
+                foreach ($request->tareas as $index => $tarea) {
+                    if (isset($tarea['nombre'])) {
+                        $error = $this->validarCampoTexto($tarea['nombre'], "Nombre de la tarea");
+                        if ($error) {
+                            $validator->errors()->add("tareas.$index.nombre", $error);
+                        }
+                    }
+                    if (isset($tarea['estimacion'])) {
+                        $error = $this->validarCampoNumerico($tarea['estimacion'], "Estimación de la tarea");
+                        if ($error) {
+                            $validator->errors()->add("tareas.$index.estimacion", $error);
+                        }
+                    }
+                }
+            }
+        });
 
         if ($validator->fails()) {
             return response()->json([

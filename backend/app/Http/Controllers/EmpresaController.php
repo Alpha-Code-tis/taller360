@@ -18,16 +18,16 @@ class EmpresaController extends Controller
     {
         $gestionActual = '2-2024'; // Gestión predeterminada
         $gestion = $request->input('gestion', $gestionActual); // Filtro de gestión
-    
+
         // Filtrar equipos por gestión
         $equipos = Empresa::with(['cantidad', 'representate_legal', 'planificacion'])
             ->where('gestion', $gestion)
             ->get();
-    
+
         if ($equipos->isEmpty()) {
             return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
         }
-    
+
         return response()->json($equipos, 200);
     }
 
@@ -59,11 +59,11 @@ class EmpresaController extends Controller
     {
         try {
             $empresa = Empresa::with('estudiantes')->find($id);
-    
+
             if (!$empresa) {
                 return response()->json(['message' => 'Empresa no encontrada'], 404);
             }
-    
+
             return response()->json([
                 'empresa' => $empresa, // Incluye la información completa de la empresa
                 'estudiantes' => $empresa->estudiantes,
@@ -73,7 +73,7 @@ class EmpresaController extends Controller
             return response()->json(['message' => 'Error al obtener los estudiantes'], 500);
         }
     }
-    
+
 
 
     public function show($id_empresa)
@@ -138,6 +138,10 @@ class EmpresaController extends Controller
 
     public function store(Request $request)
     {
+        $estudianteLogueado = Estudiante::findOrFail(auth()->id());
+        if (!is_null($estudianteLogueado->id_empresa)) {
+            return response()->json(['error' => 'Ya perteneces a una empresa. No puedes crear otra.'], 403);
+        }
         // Validar los datos recibidos
         $validator = Validator::make($request->all(), [
             'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa', // Asegura que el nombre sea único
@@ -173,7 +177,8 @@ class EmpresaController extends Controller
             'cant_sprints' => 6,
         ]);
 
-        // Actualizar estudiantes
+        $estudianteLogueado->update(['id_empresa' => $empresa->id_empresa]);
+
         $estudiantesIds = $request->estudiantesSeleccionados;  // Recibir directamente el array
         if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
             Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
@@ -197,15 +202,15 @@ class EmpresaController extends Controller
             'logo' => 'nullable|url',
             'estudiantesSeleccionados' => 'nullable|array',
         ]);
-    
+
         try {
             $empresa = Empresa::findOrFail($id);
-    
+
             Log::info('Datos originales de la empresa', [
                 'id_empresa' => $empresa->id_empresa,
                 'nombre_empresa' => $empresa->nombre_empresa,
             ]);
-    
+
             // Manejar el logo
             $logoPath = $empresa->logo;
             if ($request->hasFile('logo')) {
@@ -216,7 +221,7 @@ class EmpresaController extends Controller
             } elseif ($request->filled('logo')) {
                 $logoPath = $request->logo;
             }
-    
+
             // Actualizar empresa
             $empresa->update([
                 'nombre_empresa' => $request->nombre_empresa,
@@ -227,7 +232,7 @@ class EmpresaController extends Controller
                 'gestion' => $request->gestion,
                 'logo' => $logoPath,
             ]);
-    
+
             // Actualizar estudiantes asignados
             $estudiantesIds = $request->estudiantesSeleccionados;
             Estudiante::where('id_empresa', $empresa->id_empresa)
@@ -236,112 +241,110 @@ class EmpresaController extends Controller
             if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
                 Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
             }
-    
+
             return response()->json($empresa->fresh(), 200);
         } catch (\Exception $e) {
             Log::error('Error al actualizar la empresa: ' . $e->getMessage());
             return response()->json(['error' => 'Error al actualizar la empresa'], 500);
         }
     }
-    
+
     public function getEquiposConEvaluaciones($gestion)
-{
-    try {
-        // Obtener equipos de la gestión con evaluaciones cruzadas
-        $equipos = Empresa::with(['planificacion.sprints.alcances.tareas', 'evaluacionesCruzadas'])
-            ->where('gestion', $gestion)
-            ->get();
+    {
+        try {
+            // Obtener equipos de la gestión con evaluaciones cruzadas
+            $equipos = Empresa::with(['planificacion.sprints.alcances.tareas', 'evaluacionesCruzadas'])
+                ->where('gestion', $gestion)
+                ->get();
 
-        if ($equipos->isEmpty()) {
-            return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
+            if ($equipos->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron equipos para esta gestión'], 404);
+            }
+
+            return response()->json($equipos, 200);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener equipos y evaluaciones cruzadas: ' . $e->getMessage());
+            return response()->json(['message' => 'Error al obtener los equipos'], 500);
         }
-
-        return response()->json($equipos, 200);
-    } catch (\Exception $e) {
-        Log::error('Error al obtener equipos y evaluaciones cruzadas: ' . $e->getMessage());
-        return response()->json(['message' => 'Error al obtener los equipos'], 500);
     }
-}
-public function getReporte($id_empresa, Request $request)
-{
-    try {
-        // Obtener el parámetro de gestión desde la solicitud
-        $gestion = $request->input('gestion');
+    public function getReporte($id_empresa, Request $request)
+    {
+        try {
+            // Obtener el parámetro de gestión desde la solicitud
+            $gestion = $request->input('gestion');
 
-        // Consultar la empresa con sus relaciones
-        $empresa = Empresa::with([
-            'estudiantes',
-            'planificacions.sprints.alcances.tareas',
-            'evaluacionesCruzadas.evaluador',
-            // Elimina 'criterios' si no hay relación
-        ])->findOrFail($id_empresa);
+            // Consultar la empresa con sus relaciones
+            $empresa = Empresa::with([
+                'estudiantes',
+                'planificacions.sprints.alcances.tareas',
+                'evaluacionesCruzadas.evaluador',
+                // Elimina 'criterios' si no hay relación
+            ])->findOrFail($id_empresa);
 
-        // Mapeo de datos
-        return response()->json([
-            'empresa' => [
-                'id_empresa' => $empresa->id_empresa,
-                'nombre_empresa' => $empresa->nombre_empresa,
-                'nombre_corto' => $empresa->nombre_corto,
-                'direccion' => $empresa->direccion,
-                'telefono' => $empresa->telefono,
-                'correo_empresa' => $empresa->correo_empresa,
-                'logo' => $empresa->logo,
-                'estudiantesSeleccionados' => $empresa->estudiantes->map(function ($estudiante) {
-                    return [
-                        'id_estudiante' => $estudiante->id_estudiante,
-                        'nombre' => $estudiante->nombre_estudiante . ' ' . $estudiante->ap_pat . ' ' . $estudiante->ap_mat,
-                    ];
-                }),
-                'planificaciones' => $empresa->planificacions->map(function ($planificacion) {
-                    return [
-                        'id_planificacion' => $planificacion->id_planificacion,
-                        'sprints' => $planificacion->sprints->map(function ($sprint) {
-                            return [
-                                'id_sprint' => $sprint->id_sprint,
-                                'nro_sprint' => $sprint->nro_sprint,
-                                'fecha_inicio' => $sprint->fecha_inicio,
-                                'fecha_fin' => $sprint->fecha_fin,
-                                'alcances' => $sprint->alcances->map(function ($alcance) {
-                                    return [
-                                        'id_alcance' => $alcance->id_alcance,
-                                        'descripcion' => $alcance->descripcion,
-                                        'tareas' => $alcance->tareas->map(function ($tarea) {
-                                            return [
-                                                'id_tarea' => $tarea->id_tarea,
-                                                'nombre_tarea' => $tarea->nombre_tarea,
-                                                'estimacion' => $tarea->estimacion,
-                                            ];
-                                        }),
-                                    ];
-                                }),
-                            ];
-                        }),
-                    ];
-                }),
-                'evaluacionesCruzadas' => $empresa->evaluacionesCruzadas->map(function ($evaluacion) {
-                    return [
-                        'id_cruzada' => $evaluacion->id_cruzada,
-                        'evaluator' => $evaluacion->evaluador->nombre_empresa ?? null,
-                        'nota_cruzada' => $evaluacion->nota_cruzada,
-                        'detalle_notas' => $evaluacion->detalle_notas,
-                    ];
-                }),
-                // Si 'criterios' no está definido, elimínalo
-                // 'criterios' => $empresa->criterios->map(function ($criterio) {
-                //     return [
-                //         'id_criterio' => $criterio->id_criterio,
-                //         'nombre' => $criterio->nombre,
-                //     ];
-                // }),
-            ],
-        ]);
-    } catch (ModelNotFoundException $e) {
-        return response()->json(['error' => 'Empresa no encontrada'], 404);
-    } catch (\Exception $e) {
-        Log::error('Error al obtener el reporte de la empresa: ' . $e->getMessage());
-        return response()->json(['error' => 'Error al obtener el reporte'], 500);
+            // Mapeo de datos
+            return response()->json([
+                'empresa' => [
+                    'id_empresa' => $empresa->id_empresa,
+                    'nombre_empresa' => $empresa->nombre_empresa,
+                    'nombre_corto' => $empresa->nombre_corto,
+                    'direccion' => $empresa->direccion,
+                    'telefono' => $empresa->telefono,
+                    'correo_empresa' => $empresa->correo_empresa,
+                    'logo' => $empresa->logo,
+                    'estudiantesSeleccionados' => $empresa->estudiantes->map(function ($estudiante) {
+                        return [
+                            'id_estudiante' => $estudiante->id_estudiante,
+                            'nombre' => $estudiante->nombre_estudiante . ' ' . $estudiante->ap_pat . ' ' . $estudiante->ap_mat,
+                        ];
+                    }),
+                    'planificaciones' => $empresa->planificacions->map(function ($planificacion) {
+                        return [
+                            'id_planificacion' => $planificacion->id_planificacion,
+                            'sprints' => $planificacion->sprints->map(function ($sprint) {
+                                return [
+                                    'id_sprint' => $sprint->id_sprint,
+                                    'nro_sprint' => $sprint->nro_sprint,
+                                    'fecha_inicio' => $sprint->fecha_inicio,
+                                    'fecha_fin' => $sprint->fecha_fin,
+                                    'alcances' => $sprint->alcances->map(function ($alcance) {
+                                        return [
+                                            'id_alcance' => $alcance->id_alcance,
+                                            'descripcion' => $alcance->descripcion,
+                                            'tareas' => $alcance->tareas->map(function ($tarea) {
+                                                return [
+                                                    'id_tarea' => $tarea->id_tarea,
+                                                    'nombre_tarea' => $tarea->nombre_tarea,
+                                                    'estimacion' => $tarea->estimacion,
+                                                ];
+                                            }),
+                                        ];
+                                    }),
+                                ];
+                            }),
+                        ];
+                    }),
+                    'evaluacionesCruzadas' => $empresa->evaluacionesCruzadas->map(function ($evaluacion) {
+                        return [
+                            'id_cruzada' => $evaluacion->id_cruzada,
+                            'evaluator' => $evaluacion->evaluador->nombre_empresa ?? null,
+                            'nota_cruzada' => $evaluacion->nota_cruzada,
+                            'detalle_notas' => $evaluacion->detalle_notas,
+                        ];
+                    }),
+                    // Si 'criterios' no está definido, elimínalo
+                    // 'criterios' => $empresa->criterios->map(function ($criterio) {
+                    //     return [
+                    //         'id_criterio' => $criterio->id_criterio,
+                    //         'nombre' => $criterio->nombre,
+                    //     ];
+                    // }),
+                ],
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json(['error' => 'Empresa no encontrada'], 404);
+        } catch (\Exception $e) {
+            Log::error('Error al obtener el reporte de la empresa: ' . $e->getMessage());
+            return response()->json(['error' => 'Error al obtener el reporte'], 500);
+        }
     }
-}
-
-
 }
