@@ -180,7 +180,7 @@ export default function PersistentDrawerLeft() {
     if (button === 'reportes') {
       setReportesOpen((prev) => !prev);
     }
-    
+
     setSelectedButton(button);
   };
 
@@ -822,7 +822,7 @@ export default function PersistentDrawerLeft() {
                   <ListItemText primary="Estudiantes" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
-              
+
 
               <ListItem disablePadding>
                 <ListItemButton
@@ -883,7 +883,7 @@ export default function PersistentDrawerLeft() {
                       <ListItemIcon sx={{ color: 'white' }}>
                         <SchoolIcon />
                       </ListItemIcon>
-                      <ListItemText primary="ListaAutoevaluacion" sx={{ color: 'white' }} />
+                      <ListItemText primary="Lista Autoevaluacion" sx={{ color: 'white' }} />
                     </ListItemButton>
                   </ListItem>
 
@@ -1085,11 +1085,11 @@ export default function PersistentDrawerLeft() {
                   <ListItemIcon sx={{ color: 'white' }}>
                     <AssessmentIcon />
                   </ListItemIcon>
-                  <ListItemText primary="ReporteEquipoEstudiante" sx={{ color: 'white' }} />
+                  <ListItemText primary="Reporte por Equipos" sx={{ color: 'white' }} />
                 </ListItemButton>
               </ListItem>
 
-                  
+
 
 
                 </List>

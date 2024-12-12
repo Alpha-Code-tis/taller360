@@ -317,7 +317,23 @@ public function obtenerMisNotas()
     }
 }
 
-
+    public function report()
+    {
+        $empresaId = request('empresaId');
+        $gestion = request('gestion');
+        $evaluations = Cruzada::where('equipo_evaluado_id', $empresaId)
+            ->where('gestion', $gestion)
+            ->with(['evaluador'])
+            ->get();
+        $evaluations = $evaluations->map(function ($e) {
+            $e->detalle_notas = collect($e->detalle_notas)->map(fn ($d) => [
+                'criterio' => Criterio::find($d['id_criterio']),
+                'nota' => $d['nota']
+            ]);
+            return $e;
+        });
+        return response()->json($evaluations);
+    }
 }
 
 

@@ -71,6 +71,8 @@ const Equipos = () => {
       console.log(response); // Diagnóstico: verifica el contenido del response
   
       if (Array.isArray(response.data) && response.data.length > 0) {
+
+      if (response.data.length > 0) {
         const formattedEstudiantes = response.data.map((estudiante) => ({
           value: estudiante.id_estudiante,
           label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
@@ -81,12 +83,15 @@ const Equipos = () => {
         toast.success('Todos los estudiantes ya tienen una empresa.');
       } else {
         toast.error('Respuesta inesperada al cargar estudiantes.');
+        toast.error('No hay estudiantes disponibles para crear una empresa');
       }
     } catch (error) {
+      console.error('Error al cargar estudiantes sin empresa:', error);
+      toast.error('No existen estudiantes sin empresa disponibles');
+      setEstudiantes([]);
     }
   };
-  
-  
+    
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -244,6 +249,16 @@ const Equipos = () => {
       isValid = false;
     }
 
+    if (!formValues.nombre_corto.trim()) {
+      errors.direccion = 'El nombre corto es requerido';
+      isValid = false;
+    }
+
+    // if (!formValues.logo.trim()) {
+    //   errors.direccion = 'La URL del logo es requerida';
+    //   isValid = false;
+    // }
+
     // Validar el campo gestion
     if (!formValues.gestion || !formValues.gestion.trim()) {
       errors.gestion = 'La gestión es requerida';
@@ -283,8 +298,12 @@ const Equipos = () => {
       } else {
         await axios.post(`${API_URL}equipos`, Equipodata);
         toast.success('Equipo creado correctamente');
+
       }
+
+
       fetchEquipos(); // Refrescar la lista de equipos
+      fetchEstudiantes();
       setShowModal(false); // Cerrar el modal
     } catch (error) {
       toast.error('Error al guardar el equipo');
@@ -374,7 +393,9 @@ const Equipos = () => {
                     value={formValues.gestion}
                     onChange={handleInputChange}
                     placeholder="#-#####"
+                    isInvalid={!!formErrors.gestion}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.gestion}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -389,7 +410,9 @@ const Equipos = () => {
                     value={formValues.nombre_corto}
                     onChange={handleInputChange}
                     placeholder="Nombre Corto"
+                    isInvalid={!!formErrors.nombre_corto}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.nombre_corto}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
 
@@ -419,7 +442,9 @@ const Equipos = () => {
                     value={formValues.telefono}
                     onChange={handleInputChange}
                     placeholder="Teléfono"
+                    isInvalid={!!formErrors.telefono}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.telefono}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
 
@@ -432,7 +457,9 @@ const Equipos = () => {
                     value={formValues.direccion}
                     onChange={handleInputChange}
                     placeholder="Dirección"
-                  />
+                    isInvalid={!!formErrors.direccion}
+                    />
+                    <Form.Control.Feedback type="invalid">{formErrors.direccion}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -447,7 +474,9 @@ const Equipos = () => {
                     value={formValues.logo}
                     onChange={handleInputChange}
                     placeholder="https://example.com/logo.png"
-                  />
+                    isInvalid={!!formErrors.logo}
+                    />
+                    <Form.Control.Feedback type="invalid">{formErrors.logo}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -466,7 +495,9 @@ const Equipos = () => {
                       setFormValues({ ...formValues, estudiantesSeleccionados: selectedOptions })
                     }
                     placeholder="Selecciona estudiantes"
-                  />
+                    isInvalid={!!formErrors.estudiantesSeleccionados}
+                    />
+                    <Form.Control.Feedback type="invalid">{formErrors.estudiantesSeleccionados}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
