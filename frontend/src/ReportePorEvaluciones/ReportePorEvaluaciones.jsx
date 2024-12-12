@@ -28,7 +28,7 @@ const ReportePorEvaluaciones = () => {
   const evaluations = [
     { id: 1, label: 'Autoevaluación' },
     { id: 2, label: 'Evaluación entre pares' },
-    // { id: 3, label: 'Evaluación cruzada' }
+    { id: 3, label: 'Evaluación cruzada' }
   ];
 
   useEffect(() => {
@@ -37,29 +37,44 @@ const ReportePorEvaluaciones = () => {
 
   useEffect(() => {
     if (selectedGestion) {
+      setSelectedEmpresaId('');
+      setSelectedSprintId('');
       fetchEmpresas();
     }
   }, [selectedGestion]);
 
   useEffect(() => {
-    if (selectedEmpresaId) {
+    if (Number(selectedEvaluationId) === evaluations[2].id) {
+      setSelectedSprintId('');
+    }
+  }, [selectedEvaluationId]);
+
+  useEffect(() => {
+    if (selectedEmpresaId && Number(selectedEvaluationId) !== evaluations[2].id) {
       setSelectedSprintId('');
       fetchSprintByEmpresa();
     }
   }, [selectedEmpresaId]);
 
   useEffect(() => {
-    if (selectedEvaluationId && selectedEmpresaId && selectedSprintId) {
-      if (Number(selectedEvaluationId) === evaluations[0].id) {
-        fetchReportAutoevaluacion();
-      } else if (Number(selectedEvaluationId) === evaluations[1].id) {
-        fetchReportEvaPares();
+    if (selectedEvaluationId && selectedEmpresaId) {
+      if (selectedSprintId) {
+        if (Number(selectedEvaluationId) === evaluations[0].id) {
+          fetchReportAutoevaluacion();
+        } else if (Number(selectedEvaluationId) === evaluations[1].id) {
+          fetchReportEvaPares();
+        }
+        setShowPdf(true);
+      } else if (Number(selectedEvaluationId) === evaluations[2].id) {
+        fetchReportCruzada();
+        setShowPdf(true);
+      } else {
+        setShowPdf(false);
       }
-      setShowPdf(true);
     } else {
       setShowPdf(false);
     }
-  }, [selectedEvaluationId, selectedSprintId]);
+  }, [selectedEvaluationId, selectedSprintId, selectedEmpresaId]);
 
   const fetchEmpresas = async() => {
     try {
@@ -138,6 +153,29 @@ const ReportePorEvaluaciones = () => {
     }
   };
 
+  const fetchReportCruzada = async() => {
+    try {
+      const response = await axios.get(`${API_URL}reportes/cruzada?empresaId=${selectedEmpresaId}&gestion=${selectedGestion}`);
+      const rows = response.data.map(item => ([
+        item.evaluador.nombre_empresa,
+        item.detalle_notas.reduce((acc, item) => `${acc}• ${item.criterio.nombre}\n`, ''),
+        item.detalle_notas.reduce((acc, item) => `${acc}• ${item.nota}\n`, ''),
+        item.nota_cruzada,
+      ]));
+      const pdfData = {
+        title: `Reporte ${evaluations[1].label}`,
+        evaluation: evaluations.find(e => e.id === Number(selectedEvaluationId)).label,
+        empresa: empresas.find(e => e.id_empresa === Number(selectedEmpresaId)).nombre_empresa,
+        sprint: '',
+        headers: ['Empresa Evaluador', 'Nombre criterio', 'Nota Criterio', 'Total'],
+        rows
+      };
+      setPdfData(pdfData);
+    } catch (error) {
+      toast.error('Error al cargar los datos para reporte Evaluación Cruzada.');
+    }
+  };
+
   const handleEvaluationChange = (event) => {
     setSelectedEvaluationId(event.target.value);
   };
@@ -179,22 +217,24 @@ const ReportePorEvaluaciones = () => {
         </div>
         <div className="select-item">
           <label>Empresa:</label>
-          <Form.Select aria-label="Seleccionar empresa" onChange={handleEmpresaChange} defaultValue="">
+          <Form.Select aria-label="Seleccionar empresa" onChange={handleEmpresaChange} value={selectedEmpresaId}>
             <option disabled value="">Seleccionar empresa</option>
             {empresas.map(empresa => (
               <option value={empresa.id_empresa} key={empresa.id_empresa}>{empresa.nombre_empresa}</option>
             ))}
           </Form.Select>
         </div>
-        <div className="select-item">
-          <label>Sprint:</label>
-          <Form.Select aria-label="Seleccionar sprint" onChange={handleSprintChange} value={selectedSprintId}>
-            <option disabled value="">Seleccionar sprint</option>
-            {sprints.map(sprint => (
-              <option value={sprint.id_sprint} key={sprint.id_sprint}>Sprint {sprint.nro_sprint}</option>
-            ))}
-          </Form.Select>
-        </div>
+        {selectedEvaluationId != 3 && (
+          <div className="select-item">
+            <label>Sprint:</label>
+            <Form.Select aria-label="Seleccionar sprint" onChange={handleSprintChange} value={selectedSprintId}>
+              <option disabled value="">Seleccionar sprint</option>
+              {sprints.map(sprint => (
+                <option value={sprint.id_sprint} key={sprint.id_sprint}>Sprint {sprint.nro_sprint}</option>
+              ))}
+            </Form.Select>
+          </div>
+        )}
       </div>
       {showPdf && (
         <div className='mt-3 pdf-container'>

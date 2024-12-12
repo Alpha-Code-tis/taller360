@@ -189,6 +189,7 @@ Route::middleware('auth:sanctum')->group(function () {
     //reportes
     Route::get('/reportes/autoevaluacion', [AutoevaluacionController::class, 'report']);
     Route::get('/reportes/evaluacionPares', [EvaluacionParesController::class, 'report']);
+    Route::get('/reportes/cruzada', [CruzadaController::class, 'report']);
 
     // Rutas de Evaluación Cruzada
     Route::get('/cruzada/planillas', [PlanillaController::class, 'obtenerPlanillasCruzada']);

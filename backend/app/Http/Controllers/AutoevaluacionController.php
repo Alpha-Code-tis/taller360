@@ -19,7 +19,7 @@ class AutoevaluacionController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'resultado_evaluacion' => ['required', 'string', 'max:20'],
-            'descripcion_evaluacion' => ['required', 'string', 'max:255']
+            'descripcion_evaluacion' => ['required', 'string','min:5', 'max:255', 'regex:/^[a-zA-Z\s]+$/']
         ]);
 
         if ($validator->fails()) {

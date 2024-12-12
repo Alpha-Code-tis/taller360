@@ -18,7 +18,6 @@ const EvaluationForm = () => {
   // Obtener el token de autenticación (ajusta esto según cómo manejes la autenticación)
   const token = localStorage.getItem('token');
 
-
   // Obtener equipos (empresas) al montar el componente
   useEffect(() => {
     const fetchTeams = async () => {
