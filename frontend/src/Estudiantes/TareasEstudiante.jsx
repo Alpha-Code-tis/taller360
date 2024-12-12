@@ -15,19 +15,12 @@ const TareasEstudiante = () => {
   // Obtener el token de autenticación (ajusta esto según cómo manejes la autenticación)
   const token = localStorage.getItem('token');
 
-  // Configurar axios para incluir el token en los encabezados
-  const axiosInstance = axios.create({
-    baseURL: API_URL,
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
 
   // Obtener los sprints al montar el componente
   useEffect(() => {
     const fetchSprints = async () => {
       try {
-        const response = await axiosInstance.get('sprints');
+        const response = await axios.get(`${API_URL}sprints`);
         setSprints(response.data);
       } catch (error) {
         console.error('Error al obtener los sprints:', error);
@@ -41,12 +34,12 @@ const TareasEstudiante = () => {
   useEffect(() => {
     const fetchTareas = async () => {
       try {
-        const response = await axiosInstance.get(`tareas/${selectedSprint}`);
+        const response = await axios.get(`${API_URL}tareas/${selectedSprint}`);
         const tareasConAvances = await Promise.all(
           response.data.map(async (tarea) => {
             // Fetch avances for each tarea
             try {
-              const avancesResponse = await axiosInstance.get(`tareas/${tarea.id_tarea}/avances`);
+              const avancesResponse = await axios.get(`${API_URL}tareas/${tarea.id_tarea}/avances`);
               return { ...tarea, enlaces: avancesResponse.data };
             } catch (error) {
               console.error(`Error al obtener los avances de la tarea ${tarea.id_tarea}:`, error);
@@ -68,7 +61,7 @@ const TareasEstudiante = () => {
     const link = event.target.value;
     if (link) {
       try {
-        await axiosInstance.post(`tareas/${id}/subir-avance`, { enlace: link });
+        const avancesResponse = await axios.post(`${API_URL}tareas/${id}/subir-avance`, { enlace: link });
         // Actualizar los enlaces en el estado
         setTareas((prevTareas) =>
           prevTareas.map((tarea) =>
@@ -98,7 +91,7 @@ const TareasEstudiante = () => {
   // Manejar la eliminación de enlaces
   const handleDeleteLink = async (index) => {
     try {
-      await axiosInstance.delete(`tareas/${currentTareaId}/avances/${index}`);
+      const avancesResponse = await axios.get(`${API_URL}tareas/${currentTareaId}/avances/${index}`);
       const updatedLinks = selectedLinks.filter((_, i) => i !== index);
 
       setTareas((prevTareas) =>
@@ -146,6 +139,7 @@ const TareasEstudiante = () => {
           <tr>
             <th>Tarea</th>
             <th>Estimación</th>
+            <th>Progreso</th>
             <th>Subir Avances</th>
             <th>Vista</th>
           </tr>
@@ -155,6 +149,7 @@ const TareasEstudiante = () => {
             <tr key={tarea.id_tarea}>
               <td>{tarea.nombre_tarea}</td>
               <td>{tarea.estimacion}</td>
+              <td>{tarea.progreso}</td>
               <td>
                 <input
                   type="text"

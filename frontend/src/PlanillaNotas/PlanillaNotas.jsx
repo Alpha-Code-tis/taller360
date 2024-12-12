@@ -36,7 +36,6 @@ const EvaluationTables = () => {
       const fetchSprints = async () => {
         try {
           const response = await axios.get(`${API_URL}equipos-planilla/${selectedTeam}/sprints`);
-          console.log("Sprints:", response.data); // Verificar los datos recibidos
           setSprints(response.data);
         } catch (error) {
           console.error("Error al obtener sprints:", error);

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { API_URL } from '../config'; 
-
+import { API_URL } from '../config';              
 const EvaluationForm = () => {
   const [teams, setTeams] = useState([]);
   const [sprints, setSprints] = useState([]);
@@ -15,6 +14,9 @@ const EvaluationForm = () => {
   const [members, setMembers] = useState([]);
   const [percentage, setPercentage] = useState(null);
   const [error, setError] = useState('');
+
+  // Obtener el token de autenticación (ajusta esto según cómo manejes la autenticación)
+  const token = localStorage.getItem('token');
 
   // Obtener equipos (empresas) al montar el componente
   useEffect(() => {
