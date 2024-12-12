@@ -1,4 +1,4 @@
-import { API_URL } from '../config'; 
+import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import Slider from '@mui/material/Slider';
@@ -128,6 +128,7 @@ const CriterioEvaluacion = () => {
   };
 
   const handleInputChange = (event) => {
+
       const { name, value, type } = event.target;
       const newValue = type === 'number' ? Number(value) : value;
     
@@ -137,7 +138,6 @@ const CriterioEvaluacion = () => {
       }));
     };
 
-  
    const [step, setStep] = useState(1);
    const handleStepChange = (event) => {
     const value = event.target.value;
@@ -186,8 +186,8 @@ const CriterioEvaluacion = () => {
     if (!isValid) {
       return;
     }
-    setIsSaving(true);
-    
+    setIsSaving(false);
+
     const criteriosData={
       nombre: formValues.nombre,
       descripcion: formValues.descripción,
@@ -198,7 +198,7 @@ const CriterioEvaluacion = () => {
     const promise = currentCriterio
     ? axios.put(`${API_URL}criterios/${currentCriterio.id_criterio}`, criteriosData)
     : axios.post(`${API_URL}criterios`, criteriosData);
-    
+
     toast.promise(
       promise,
       {
@@ -222,7 +222,7 @@ const CriterioEvaluacion = () => {
         toast.error('Error al guardar el criterio');
       }
     }
-  
+
   };
 
   // Calcular el total de porcentajes
@@ -272,7 +272,7 @@ const totalPorcentaje = filteredCriterios.reduce(
                 {/* Fila del total */}
             <tr>
               <td colSpan="3" className="text-end fw-bold">Total</td>
-              <td 
+              <td
                 style={{ color: totalPorcentaje == 100 ? 'green' : 'inherit', fontWeight: 'bold' }}
               >
                 {totalPorcentaje}%
