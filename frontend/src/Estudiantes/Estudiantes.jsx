@@ -245,8 +245,18 @@ const Estudiantes = () => {
         toast.error('Hubo un problema al importar los estudiantes.');
       }
     } catch (error) {
-      setError('Error al importar estudiantes: ' + error.message);
-      console.error(error);
+      let errorMessage = 'Ocurrió un error.';
+      if (error.response) {
+        const responseData = error.response.data;
+        if (responseData.error) {
+          errorMessage = responseData.error;
+        }
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -385,45 +395,23 @@ const Estudiantes = () => {
       </Modal>
       
       {/* Modal para importar archivo */}
-      <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
+      <Modal show={showImportModal} onHide={handleCloseImportModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Importar Lista</Modal.Title>
+          <Modal.Title>Importar Lista de Estudiantes</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div
-            className="drop-zone"
-            style={{
-              border: '2px dashed #cccccc',
-              padding: '20px',
-              textAlign: 'center',
-              borderRadius: '8px',
-              marginBottom: '20px',
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleFileDrop}
-          >
-            Arrastra el archivo aquí o{' '}
-            <input
-              type="file"
-              id="file-upload"
-              onChange={handleFileChange} // Capturar el archivo
-              style={{ display: 'none' }}
-            />
-            <label htmlFor="file-upload" style={{ color: '#007bff', cursor: 'pointer' }}>
-              selecciona un archivo
-            </label>
-          </div>
+          <Form.Group controlId="formFile">
+            <Form.Label>Seleccionar archivo:</Form.Label>
+            <Form.Control type="file" onChange={handleFileChange} />
+            {file && <p>Archivo seleccionado: {file.name}</p>}
+          </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseImportModal}>
             Cancelar
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleFileUpload}
-            disabled={isSaving} // Deshabilitar botón mientras se sube
-          >
-            {isSaving ? 'Subiendo...' : 'Subir'}
+          <Button variant="primary" onClick={handleFileUpload} disabled={!file}>
+            Subir Archivo
           </Button>
         </Modal.Footer>
       </Modal>

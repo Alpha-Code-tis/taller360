@@ -140,12 +140,12 @@ class EmpresaController extends Controller
     {
         // Validar los datos recibidos
         $validator = Validator::make($request->all(), [
-            'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa', // Asegura que el nombre sea único
-            'nombre_corto' => 'required|string',
-            'direccion' => 'required|string',
-            'telefono' => 'required|string',
+            'nombre_empresa' => ['required','string','unique:empresa,nombre_empresa','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u',], // Asegura que el nombre sea único
+            'nombre_corto' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'direccion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,.-]+$/u',],
+            'telefono' => ['required','regex:/^\+?[0-9\s\-]+$/',],
             'correo_empresa' => 'required|email',
-            'gestion' => 'required|string',
+            'gestion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'logo' => 'nullable|url', // Validar el logo
             'estudiantesSeleccionados' => 'nullable|array', // Aceptar el JSON de IDs de estudiantes
         ]);
@@ -189,11 +189,11 @@ class EmpresaController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'nombre_empresa' => 'required|string|unique:empresa,nombre_empresa,' . $id . ',id_empresa',
-            'nombre_corto' => 'required|string|max:100',
+            'nombre_empresa' => ['required','string','unique:empresa,nombre_empresa,' . $id . ',id_empresa','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u',],
+            'nombre_corto' => ['required','string','max:100','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u',],
             'correo_empresa' => 'required|email',
-            'telefono' => 'required|string',
-            'direccion' => 'required|string',
+            'telefono' => ['required','regex:/^\+?[0-9\s\-]+$/',],
+            'direccion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,.-]+$/u',],
             'logo' => 'nullable|url',
             'estudiantesSeleccionados' => 'nullable|array',
         ]);
