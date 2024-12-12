@@ -1,6 +1,7 @@
 import { API_URL } from '../config';              
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { toast } from 'react-hot-toast';
 import './lightbox.css';
 import './TareasEstudiante.css';
 
@@ -23,66 +24,61 @@ const TareasEstudiante = () => {
     },
   });
 
-  // Obtener los sprints al montar el componente
   useEffect(() => {
-    const fetchSprints = async () => {
+    const fetchData = async () => {
+      toast.loading('Cargando información...', { id: 'loading-info' });
       try {
-        const response = await axiosInstance.get('sprints');
-        setSprints(response.data);
-      } catch (error) {
-        console.error('Error al obtener los sprints:', error);
-      }
-    };
-
-    fetchSprints();
-  }, []);
-
-  // Obtener las tareas cuando cambia el sprint seleccionado
-  useEffect(() => {
-    const fetchTareas = async () => {
-      try {
-        const response = await axiosInstance.get(`tareas/${selectedSprint}`);
+        const sprintsResponse = await axiosInstance.get('sprints');
+        setSprints(sprintsResponse.data);
+  
+        const tareasResponse = await axiosInstance.get(`tareas/${selectedSprint}`);
         const tareasConAvances = await Promise.all(
-          response.data.map(async (tarea) => {
-            // Fetch avances for each tarea
+          tareasResponse.data.map(async (tarea) => {
             try {
-              const avancesResponse = await axiosInstance.get(`tareas/${tarea.id_tarea}/avances`);
+              const avancesResponse = await axiosInstance.get(
+                `tareas/${tarea.id_tarea}/avances`
+              );
               return { ...tarea, enlaces: avancesResponse.data };
-            } catch (error) {
-              console.error(`Error al obtener los avances de la tarea ${tarea.id_tarea}:`, error);
+            } catch {
               return { ...tarea, enlaces: [] };
             }
           })
         );
         setTareas(tareasConAvances);
+        toast.success('Información cargada correctamente', { id: 'loading-info' });
       } catch (error) {
-        console.error('Error al obtener las tareas:', error);
+        toast.error('Error al cargar la información', { id: 'loading-info' });
       }
     };
-
-    fetchTareas();
+    fetchData();
   }, [selectedSprint]);
-
+  
   // Manejar la subida de enlaces
   const handleLinkUpload = async (event, id) => {
     const link = event.target.value;
     if (link) {
-      try {
-        await axiosInstance.post(`tareas/${id}/subir-avance`, { enlace: link });
-        // Actualizar los enlaces en el estado
-        setTareas((prevTareas) =>
-          prevTareas.map((tarea) =>
-            tarea.id_tarea === id
-              ? { ...tarea, enlaces: [...(tarea.enlaces || []), link] }
-              : tarea
-          )
-        );
-        event.target.value = '';
-      } catch (error) {
-        console.error('Error al subir el enlace:', error);
-      }
+      await toast.promise(
+        axiosInstance
+          .post(`tareas/${id}/subir-avance`, { enlace: link })
+          .then(() => {
+            setTareas((prevTareas) =>
+              prevTareas.map((tarea) =>
+                tarea.id_tarea === id
+                  ? { ...tarea, enlaces: [...(tarea.enlaces || []), link] }
+                  : tarea
+              )
+            );
+            event.target.value = '';
+          }),
+        {
+          loading: 'Subiendo enlace...',
+          success: 'Enlace subido correctamente',
+          error: 'Error al subir el enlace',
+        }
+      );
     }
   };
+  
 
   // Manejar la vista de enlaces
   const handleViewLinks = (enlaces, id) => {
@@ -97,27 +93,32 @@ const TareasEstudiante = () => {
 
   // Manejar la eliminación de enlaces
   const handleDeleteLink = async (index) => {
-    try {
-      await axiosInstance.delete(`tareas/${currentTareaId}/avances/${index}`);
-      const updatedLinks = selectedLinks.filter((_, i) => i !== index);
-
-      setTareas((prevTareas) =>
-        prevTareas.map((tarea) =>
-          tarea.id_tarea === currentTareaId
-            ? { ...tarea, enlaces: updatedLinks }
-            : tarea
-        )
-      );
-
-      setSelectedLinks(updatedLinks);
-
-      if (updatedLinks.length === 0) {
-        setLightboxVisible(false);
+    await toast.promise(
+      axiosInstance
+        .delete(`tareas/${currentTareaId}/avances/${index}`)
+        .then(() => {
+          const updatedLinks = selectedLinks.filter((_, i) => i !== index);
+  
+          setTareas((prevTareas) =>
+            prevTareas.map((tarea) =>
+              tarea.id_tarea === currentTareaId
+                ? { ...tarea, enlaces: updatedLinks }
+                : tarea
+            )
+          );
+  
+          setSelectedLinks(updatedLinks);
+          if (updatedLinks.length === 0) {
+            setLightboxVisible(false);
+          }
+        }),
+      {
+        loading: 'Eliminando enlace...',
+        success: 'Enlace eliminado correctamente',
+        error: 'Error al eliminar el enlace',
       }
-    } catch (error) {
-      console.error('Error al eliminar el enlace:', error);
-    }
-  };
+    );
+  };  
 
   // Manejar el cambio de sprint seleccionado
   const handleSprintChange = (event) => {
