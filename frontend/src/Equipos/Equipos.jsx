@@ -29,21 +29,48 @@ const Equipos = () => {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // Fetch equipos and estudiantes from backend
+  const [equiposCargados, setEquiposCargados] = useState(false); // Nueva bandera
+
   const fetchEquipos = async () => {
     try {
+      console.log('Cargando equipos...');
       const response = await axios.get(`${API_URL}equipos`);
-      console.log(response.data); // Verifica aquí si `gestion` está incluido
-      setEquipos(response.data);
-      setFilteredEquipos(response.data);
+      console.log(response);
+  
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        setEquipos(response.data);
+        setFilteredEquipos(response.data);
+  
+        if (!equiposCargados) {
+          toast.success('Información de equipos cargada correctamente', { id: 'equipos-toast' });
+          setEquiposCargados(true);
+        }
+      } else if (Array.isArray(response.data) && response.data.length === 0) {
+        if (!equiposCargados) {
+          toast.error('No se encontraron equipos.', { id: 'equipos-toast' });
+          setEquiposCargados(true);
+        }
+      } else {
+        toast.error('Respuesta inesperada al cargar equipos.');
+      }
+  
+      // Asegúrate de que el mensaje de carga desaparezca
+      toast.dismiss('loading-info');
     } catch (error) {
-      toast.error('Error al cargar los equipos');
+      console.error('Error al cargar los equipos:', error);
+      toast.error(`Error al cargar los equipos: ${error.message}`);
+      // Asegúrate de que el mensaje de carga desaparezca incluso en caso de error
+      toast.dismiss('loading-info');
     }
   };
-
+    
   const fetchEstudiantes = async () => {
     try {
+      console.log('Cargando estudiantes...');
       const response = await axios.get(`${API_URL}sin-empresa`);
+      console.log(response); // Diagnóstico: verifica el contenido del response
+  
+      if (Array.isArray(response.data) && response.data.length > 0) {
 
       if (response.data.length > 0) {
         const formattedEstudiantes = response.data.map((estudiante) => ({
@@ -52,8 +79,10 @@ const Equipos = () => {
         }));
         setEstudiantes(formattedEstudiantes);
         toast.success('Aún hay estudiantes que no tienen empresa.');
-      } else {
+      } else if (Array.isArray(response.data) && response.data.length === 0) {
         toast.success('Todos los estudiantes ya tienen una empresa.');
+      } else {
+        toast.error('Respuesta inesperada al cargar estudiantes.');
         toast.error('No hay estudiantes disponibles para crear una empresa');
       }
     } catch (error) {
@@ -62,12 +91,25 @@ const Equipos = () => {
       setEstudiantes([]);
     }
   };
+    
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchEquipos();
-    fetchEstudiantes();
+    const loadData = async () => {
+      try {
+        toast.loading('Cargando información...', { id: 'loading-info' });
+        await fetchEquipos();
+        await fetchEstudiantes();
+      } catch (error) {
+        console.error('Error al cargar datos iniciales:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    loadData();
   }, []);
-
+  
   const handleSearchChange = (e) => {
     const searchValue = e.target.value.toLowerCase();
     setSearchTerm(searchValue);
