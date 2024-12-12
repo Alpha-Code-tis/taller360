@@ -20,9 +20,9 @@ class CriterioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'porcentaje' => 'required|integer|min:0|max:100',
+            'nombre' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'descripcion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'porcentaje' => 'required|integer|min:1|max:100',
         ]);
         $porcentaje = Criterio::sum("porcentaje");
         if ($porcentaje + $request->porcentaje > 100) {
@@ -56,9 +56,9 @@ class CriterioController extends Controller
     public function update(Request $request, $id_criterio)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'descripcion' => 'nullable|string',
-            'porcentaje' => 'required|integer|min:0|max:100',
+            'nombre' =>['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'descripcion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'porcentaje' => 'required|integer|min:1|max:100',
 
         ]);
 

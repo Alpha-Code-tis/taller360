@@ -46,17 +46,21 @@ class SprintController extends Controller
      */
     public function store(Request $request)
     {
+        $messages = [
+            'requerimiento.regex' => 'El campo requerimiento no debe contener tres caracteres consecutivos idénticos.',
+            'tareas.*.nombre.regex' => 'El nombre de una tarea no debe contener tres caracteres consecutivos idénticos.',
+        ];        
         $validator = Validator::make($request->all(), [
             'nro_sprint' => 'required|integer|min:1',
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'fecha_inicio' => 'required|date_format:d/m/Y',
             'fecha_fin' => 'required|date_format:d/m/Y|after_or_equal:fecha_inicio',
-            'requerimiento' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'requerimiento' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'porcentaje' => 'required|integer',
             'tareas' => 'required|array',
-            'tareas.*.nombre' => ['required', 'string', 'regex:/^[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'tareas.*.nombre' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas.*.estimacion' => 'required|integer|min:1',
-        ]);
+        ], $messages);
 
         if ($validator->fails()) {
             return response()->json([
