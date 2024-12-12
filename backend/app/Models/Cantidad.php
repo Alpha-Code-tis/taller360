@@ -30,30 +30,26 @@ class Cantidad extends Model
 	public $timestamps = false;
 
 	protected $casts = [
-		'id_empresa' => 'int',
-		'cantidad' => 'int',
+		'id_docente' => 'int',
+		'gestion' => 'string',
 		'cant_min' => 'int',
 		'cant_max' => 'int',
-		'fecha_ini' => 'date',
-		'fecha_final' => 'date'
+		'fecha_ini',
+		'fecha_final'
 	];
 
 	protected $fillable = [
-		'id_empresa',
-		'cantidad',
+		'id_docente' => 'int',
+		'gestion' => 'string',
 		'cant_min',
 		'cant_max',
 		'fecha_ini',
 		'fecha_final'
 	];
 
-	public function empresa()
+	public function docente()
 	{
-		return $this->belongsTo(Empresa::class, 'id_empresa');
+		return $this->belongsTo(Docente::class, 'id_docente');
 	}
 
-	public function empresas()
-	{
-		return $this->hasMany(Empresa::class, 'id_cantidad');
-	}
 }

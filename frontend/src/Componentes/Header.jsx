@@ -161,7 +161,11 @@ export default function PersistentDrawerLeft() {
   const [notificarModalShow, setNotificarModalShow] = useState(false);
   const [planillasOpen, setPlanillasOpen] = useState(false);
   const [reportesOpen, setReportesOpen] = useState(false);
-
+  const [formGroupName, setFormGroupName] = useState('');
+  const [formGroupStartDate, setFormGroupStartDate] = useState('');
+  const [formGroupEndDate, setFormGroupEndDate] = useState('');
+  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
+  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
   // Estados para almacenar las opciones de evaluaciones y las fechas
   const [fechas, setFechas] = useState([]);
   const [selectedTipos, setSelectedTipos] = useState(["autoevaluacion"]); // Valor inicial por defecto
@@ -350,6 +354,26 @@ export default function PersistentDrawerLeft() {
   };
 
   const [teamConfigModalShow, setTeamConfigModalShow] = useState(false);
+  useEffect(() => {
+    if (teamConfigModalShow) {
+      const fetchConfig = async () => {
+        try {
+          const response = await axios.get(`${API_URL}gestion`);
+          const data = response.data;
+          setFormGroupName(data.gestion || ''); 
+          setFormGroupStartDate(data.fecha_ini || ''); 
+          setFormGroupEndDate(data.fecha_final || ''); 
+          setFormGroupMinStudents(data.cant_min || ''); 
+          setFormGroupMaxStudents(data.cant_max || ''); 
+        } catch (error) {
+          toast.error('Error al cargar las configuraciones');
+          console.error('Error al cargar las configuraciones:', error);
+        }
+      };
+      fetchConfig();
+    }
+  }, [teamConfigModalShow]);  
+  
   const handleTeamConfigSave = () => {
     // Lógica para guardar los ajustes de conformación de equipos
     setTeamConfigModalShow(false);
@@ -364,12 +388,6 @@ export default function PersistentDrawerLeft() {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
-
-  const [formGroupName, setFormGroupName] = useState('');
-  const [formGroupStartDate, setFormGroupStartDate] = useState('');
-  const [formGroupEndDate, setFormGroupEndDate] = useState('');
-  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
-  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
 
   const handleSaveChanges = async () => {
     const payload = {
@@ -1126,8 +1144,11 @@ export default function PersistentDrawerLeft() {
                 <Modal.Body>
                   <Form>
                     <Form.Group className="mb-3" controlId="formGroupName">
-                      <Form.Label>Gestion</Form.Label>
-                      <Form.Control type="text" placeholder="2-2024" value={formGroupName} // Vincula el valor con el estado
+                      <Form.Label>Gestión</Form.Label>
+                      <Form.Control
+                        type="text"
+                        placeholder="2-2024"
+                        value={formGroupName} // Vincula el valor con el estado
                         onChange={(e) => setFormGroupName(e.target.value)} // Actualiza el estado al cambiar el texto
                       />
                     </Form.Group>
@@ -1136,15 +1157,23 @@ export default function PersistentDrawerLeft() {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupStartDate">
                           <Form.Label>Fecha Inicio</Form.Label>
-                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupStartDate} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupStartDate(e.target.value)} />
+                          <Form.Control
+                            type="date"
+                            placeholder="dd/mm/aaaa"
+                            value={formGroupStartDate}
+                            onChange={(e) => setFormGroupStartDate(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupEndDate">
                           <Form.Label>Fecha Fin</Form.Label>
-                          <Form.Control type="text" placeholder="dd/mm/aaaa" value={formGroupEndDate} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupEndDate(e.target.value)} />
+                          <Form.Control
+                            type="date" 
+                            placeholder="dd/mm/aaaa"
+                            value={formGroupEndDate} 
+                            onChange={(e) => setFormGroupEndDate(e.target.value)} 
+                          />
                         </Form.Group>
                       </Col>
                     </Row>
@@ -1153,23 +1182,37 @@ export default function PersistentDrawerLeft() {
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMinStudents">
                           <Form.Label>Cantidad Min. de estudiantes</Form.Label>
-                          <Form.Control type="text" placeholder="3" value={formGroupMinStudents} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupMinStudents(e.target.value)} />
+                          <Form.Control
+                            type="number"
+                            placeholder="3"
+                            min="0"
+                            value={formGroupMinStudents}
+                            onChange={(e) => setFormGroupMinStudents(e.target.value)}
+                          />
                         </Form.Group>
                       </Col>
                       <Col>
                         <Form.Group className="mb-3" controlId="formGroupMaxStudents">
                           <Form.Label>Cantidad Max. de estudiantes</Form.Label>
-                          <Form.Control type="text" placeholder="6" value={formGroupMaxStudents} // Vincula el valor con el estado
-                            onChange={(e) => setformGroupMaxStudents(e.target.value)} />
+                          <Form.Control
+                            type="number" 
+                            placeholder="6"
+                            min="0"
+                            value={formGroupMaxStudents} 
+                            onChange={(e) => setFormGroupMaxStudents(e.target.value)} 
+                          />
                         </Form.Group>
                       </Col>
                     </Row>
                   </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>Cerrar</Button>
-                  <Button variant="primary" onClick={handleSaveChangesGrup}>Guardar cambios</Button>
+                  <Button variant="secondary" onClick={() => setTeamConfigModalShow(false)}>
+                    Cerrar
+                  </Button>
+                  <Button variant="primary" onClick={handleSaveChangesGrup}>
+                    Guardar cambios
+                  </Button>
                 </Modal.Footer>
               </Modal>
 

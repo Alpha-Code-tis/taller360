@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('cantidad', function (Blueprint $table) {
             $table->integer('id_cantidad', true);
-            $table->integer('id_empresa')->nullable()->index('relationship_20_fk');
-            $table->integer('cantidad')->nullable();
+            $table->integer('id_docente')->nullable()->index('relationship_20_fk');
+            $table->string('gestion')->nullable();
             $table->integer('cant_min')->nullable();
             $table->integer('cant_max')->nullable();
             $table->date('fecha_ini')->nullable();
