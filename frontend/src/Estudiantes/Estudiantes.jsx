@@ -125,13 +125,26 @@ const Estudiantes = () => {
 
   const validateForm = () => {
     const errors = {};
-    // Validar nombre sin números
-    if (/\d/.test(formValues.nombre)) {
-      errors.nombre = 'El nombre no debe contener números.';
+    if (!formValues.nombre) {
+      errors.nombre = 'El nombre es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,30}$/.test(formValues.nombre)) {
+      errors.nombre = 'El nombre debe contener entre 3 y 30 caracteres y solo puede contener letras.';
     }
-    // Validar codigoSis: 9 dígitos
-    if (!/^\d{9}$/.test(formValues.codigoSis)) {
-      errors.codigoSis = 'El Código SIS debe contener 9 dígitos.';
+
+    if (!formValues.apellidoPaterno) {
+      errors.apellidoPaterno = 'El apellido paterno es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoPaterno)) {
+      errors.apellidoPaterno = 'El apellido paterno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }
+
+    if (formValues.apellidoMaterno && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoMaterno)) {
+      errors.apellidoMaterno = 'El apellido materno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }    
+
+    if(!formValues.codigoSis){
+      errors.codigoSis = 'El código sis es obligatorio';
+    }else if(!/^\d{9}$/.test(formValues.codigoSis)) {
+      errors.codigoSis = 'El Código SIS debe contener 9 dígitos ';
     }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -245,8 +258,18 @@ const Estudiantes = () => {
         toast.error('Hubo un problema al importar los estudiantes.');
       }
     } catch (error) {
-      setError('Error al importar estudiantes: ' + error.message);
-      console.error(error);
+      let errorMessage = 'Ocurrió un error.';
+      if (error.response) {
+        const responseData = error.response.data;
+        if (responseData.error) {
+          errorMessage = responseData.error;
+        }
+        if (responseData.errors) {
+          const backendErrors = responseData.errors;
+          errorMessage += ' Errores: ' + Object.values(backendErrors).join(', '); // Mostrar errores específicos
+        }
+      }
+      toast.error(errorMessage);
     } finally {
       setIsSaving(false);
     }
@@ -333,7 +356,9 @@ const Estudiantes = () => {
                     name="apellidoPaterno"
                     value={formValues.apellidoPaterno}
                     onChange={handleInputChange}
+                    isInvalid={!!formErrors.apellidoPaterno}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.apellidoPaterno}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
             </Row>
@@ -346,7 +371,9 @@ const Estudiantes = () => {
                     name="apellidoMaterno"
                     value={formValues.apellidoMaterno}
                     onChange={handleInputChange}
+                    isInvalid={!!formErrors.apellidoMaterno}
                   />
+                  <Form.Control.Feedback type="invalid">{formErrors.apellidoMaterno}</Form.Control.Feedback>
                 </Form.Group>
               </Col>
               <Col>
@@ -385,45 +412,23 @@ const Estudiantes = () => {
       </Modal>
       
       {/* Modal para importar archivo */}
-      <Modal show={showImportModal} onHide={handleCloseImportModal} centered>
+      <Modal show={showImportModal} onHide={handleCloseImportModal}>
         <Modal.Header closeButton>
-          <Modal.Title>Importar Lista</Modal.Title>
+          <Modal.Title>Importar Lista de Estudiantes</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div
-            className="drop-zone"
-            style={{
-              border: '2px dashed #cccccc',
-              padding: '20px',
-              textAlign: 'center',
-              borderRadius: '8px',
-              marginBottom: '20px',
-            }}
-            onDragOver={(e) => e.preventDefault()}
-            onDrop={handleFileDrop}
-          >
-            Arrastra el archivo aquí o{' '}
-            <input
-              type="file"
-              id="file-upload"
-              onChange={handleFileChange} // Capturar el archivo
-              style={{ display: 'none' }}
-            />
-            <label htmlFor="file-upload" style={{ color: '#007bff', cursor: 'pointer' }}>
-              selecciona un archivo
-            </label>
-          </div>
+          <Form.Group controlId="formFile">
+            <Form.Label>Seleccionar archivo:</Form.Label>
+            <Form.Control type="file" onChange={handleFileChange} />
+            {file && <p>Archivo seleccionado: {file.name}</p>}
+          </Form.Group>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={handleCloseImportModal}>
             Cancelar
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleFileUpload}
-            disabled={isSaving} // Deshabilitar botón mientras se sube
-          >
-            {isSaving ? 'Subiendo...' : 'Subir'}
+          <Button variant="primary" onClick={handleFileUpload} disabled={!file}>
+            Subir Archivo
           </Button>
         </Modal.Footer>
       </Modal>
