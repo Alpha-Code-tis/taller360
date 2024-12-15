@@ -133,6 +133,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/empresa/{id_empresa}/estudiantes', [EmpresaController::class, 'getEstudiantesPorEmpresa']);
     Route::get('/gestiones', [EmpresaController::class, 'gestiones']);
     Route::get('/listarEmpresas/{gestion}', [PlanificacionController::class, 'listaEmpresasGestion']);
+    Route::get('/equiposEstudiantes', [EmpresaController::class, 'indexEstudiante']);
 
     //Planilla-Docente
     Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
@@ -166,6 +167,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     //Gestion-Cantidad
     Route::post('/gestion', [CantidadGestionController::class, 'store']);
+    Route::get('/gestion', [CantidadGestionController::class, 'index']);
 
 
     //Evaluacion
