@@ -19,6 +19,8 @@ class EmpresaController extends Controller
 {
     public function index(Request $request)
     {
+        $gestionActual = '2-2024'; // Gestión predeterminada
+        $gestion = $request->input('gestion', $gestionActual); // Filtro de gestión
         $user = auth()->guard('sanctum')->user();
         $docente = Docente::where('id_grupo', $user->id_grupo)
                 ->first();
@@ -169,6 +171,10 @@ class EmpresaController extends Controller
 
     public function store(Request $request)
     {
+        $estudianteLogueado = Estudiante::findOrFail(auth()->id());
+        if (!is_null($estudianteLogueado->id_empresa)) {
+            return response()->json(['error' => 'Ya perteneces a una empresa. No puedes crear otra.'], 403);
+        }
         // Validar los datos recibidos
         $validator = Validator::make($request->all(), [
             'nombre_empresa' => ['required', 'string', 'unique:empresa,nombre_empresa', 'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u',],
@@ -240,7 +246,11 @@ class EmpresaController extends Controller
             'id_empresa' => $empresa->id_empresa,
         ]);
 
-        $estudiantesIds = $request->estudiantesSeleccionados;
+
+        $estudianteLogueado->update(['id_empresa' => $empresa->id_empresa]);
+
+        $estudiantesIds = $request->estudiantesSeleccionados;  // Recibir directamente el array
+      
         if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
             Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
         }
@@ -268,6 +278,19 @@ class EmpresaController extends Controller
 
         try {
             $empresa = Empresa::findOrFail($id);
+
+
+            Log::info('Datos originales de la empresa', [
+                'id_empresa' => $empresa->id_empresa,
+                'nombre_empresa' => $empresa->nombre_empresa,
+            ]);
+
+            // Manejar el logo
+            $logoPath = $empresa->logo;
+            if ($request->hasFile('logo')) {
+                if ($logoPath) {
+                    Storage::disk('public')->delete($logoPath);
+
             $cantidad = Cantidad::where('gestion', $request->gestion)->first();
             if (!$cantidad) {
                 return response()->json([
@@ -300,7 +323,7 @@ class EmpresaController extends Controller
                     ], 422);
                 }
             }
-        
+                  
             $empresa->update([
                 'nombre_empresa' => $request->nombre_empresa,
                 'nombre_corto' => $request->nombre_corto,
@@ -310,6 +333,10 @@ class EmpresaController extends Controller
                 'gestion' => $request->gestion,
                 'logo' => $request->logo,
             ]);
+
+            // Actualizar estudiantes asignados
+            $estudiantesIds = $request->estudiantesSeleccionados;
+
             Estudiante::where('id_empresa', $empresa->id_empresa)
                 ->whereNotIn('id_estudiante', $estudiantesIds ?? [])
                 ->update(['id_empresa' => null]);

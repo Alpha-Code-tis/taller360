@@ -10,10 +10,61 @@ use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
 use App\Models\Administrador;
 use App\Models\Estudiante;
-
+use Illuminate\Support\Facades\Validator;
 
 class DocenteController extends Controller
 {
+    private function validarCampoTexto($valor, $nombreCampo) {
+        if (!trim($valor)) {
+            return "El campo \"$nombreCampo\" no puede estar vacío.";
+        }
+
+        if (!preg_match('/^[A-Za-zÁÉÍÓÚáéíóúñÑ]+$/u', $valor)) {
+            return "El campo \"$nombreCampo\" debe contener solo letras, sin números ni caracteres especiales.";
+        }
+
+        $vocales = 'aeiouáéíóúAEIOUÁÉÍÓÚ';
+        $contadorVocales = 0;
+        $contadorConsonantes = 0;
+        $ultimaLetra = '';
+        $repetidas = 1;
+
+        for ($i = 0; $i < mb_strlen($valor); $i++) {
+            $char = mb_substr($valor, $i, 1);
+
+            // Letras idénticas consecutivas
+            if ($char === $ultimaLetra) {
+                $repetidas++;
+                if ($repetidas >= 3) {
+                    return "El campo \"$nombreCampo\" no puede tener 3 letras idénticas consecutivas.";
+                }
+            } else {
+                $repetidas = 1;
+            }
+
+            if (mb_strpos($vocales, $char) !== false) {
+                // Es vocal
+                $contadorVocales++;
+                $contadorConsonantes = 0;
+                if ($contadorVocales >= 3) {
+                    return "El campo \"$nombreCampo\" no puede tener 3 vocales consecutivas.";
+                }
+            } else {
+                // Es consonante
+                $contadorConsonantes++;
+                $contadorVocales = 0;
+                if ($contadorConsonantes >= 3) {
+                    return "El campo \"$nombreCampo\" no puede tener 3 consonantes consecutivas.";
+                }
+            }
+
+            $ultimaLetra = $char;
+        }
+
+        return null;
+    }
+
+
     // Mostrar todos los docentes
     public function index()
     {
@@ -32,75 +83,83 @@ class DocenteController extends Controller
     }
 
     public function store(Request $request)
-    {
-        // Validar los datos de entrada
-        $validatedData = $request->validate([
-            'id_grupo' => 'required|integer',
-            'nombre_docente' => [
-                'required',
-                'string',
-                'min:3',
-                'max:35',
-                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-            ],
-            'ap_pat' => [
-                'required',
-                'string',
-                'min:3',
-                'max:35',
-                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-            ],
-            'ap_mat' => [
-                'required',
-                'string',
-                'min:3',
-                'max:35',
-                'regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',
-            ],
-            'correo' => 'required|string|email|max:50|unique:docente,correo',
-        ], [
-            'id_grupo.required' => 'El grupo es obligatorio.',
-            'nombre_docente.required' => 'El nombre del docente es obligatorio.',
-            'ap_pat.required' => 'El apellido paterno es obligatorio.',
-            'ap_mat.required' => 'El apellido materno es obligatorio.',
-            'correo.required' => 'El correo electrónico es obligatorio.',
-            'correo.email' => 'El correo electrónico debe ser válido.',
-            'correo.unique' => 'El correo electrónico ya está en uso.',
+{
+    // Validar los datos de entrada
+    $validator = Validator::make($request->all(), [
+        'id_grupo' => 'required|integer',
+        'nombre_docente' => ['required','string','min:3','max:35','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',],
+        'ap_pat' => ['required','string','min:3','max:35','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',],
+        'ap_mat' => ['required','string','min:3','max:35','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',],
+        'correo' => 'required|string|email|max:50|unique:docente,correo',
+    ], [
+        'id_grupo.required' => 'El grupo es obligatorio.',
+        'nombre_docente.required' => 'El nombre del docente es obligatorio.',
+        'ap_pat.required' => 'El apellido paterno es obligatorio.',
+        'ap_mat.required' => 'El apellido materno es obligatorio.',
+        'correo.required' => 'El correo electrónico es obligatorio.',
+        'correo.email' => 'El correo electrónico debe ser válido.',
+        'correo.unique' => 'El correo electrónico ya está en uso.',
+    ]);
+
+    $validator->after(function ($validator) use ($request) {
+        // Validar requerimiento
+        $error = $this->validarCampoTexto($request->nombre_docente, 'Nombre');
+        if ($error) {
+            $validator->errors()->add('nombre_docente', $error);
+        }
+        $error = $this->validarCampoTexto($request->ap_pat, 'Apellido paterno');
+        if ($error) {
+            $validator->errors()->add('ap_pat', $error);
+        }
+        $error = $this->validarCampoTexto($request->ap_mat, 'Apelliso materno');
+        if ($error) {
+            $validator->errors()->add('ap_mat', $error);
+        }
+    });
+
+    if ($validator->fails()) {
+        return response()->json([
+            'errors' => $validator->errors(),
+            'message' => 'Hay errores en los datos proporcionados.'
+        ], 400);
+    }
+    
+
+    // Generar una contraseña aleatoria
+    $contrasenia = Str::random(10);
+
+    try {
+        // Obtener datos validados
+        $validatedData = $validator->validated();
+
+        // Crear el docente con los datos validados y la contraseña hasheada
+        $docente = Docente::create([
+            'id_grupo' => $validator['id_grupo'],
+            'nombre_docente' => $validator['nombre_docente'],
+            'ap_pat' => $validator['ap_pat'],
+            'ap_mat' => $validator['ap_mat'],
+            'correo' => $validator['correo'],
+            'contrasenia' => bcrypt($contrasenia),
         ]);
 
-        // Generar una contraseña aleatoria
-        $contrasenia = Str::random(10);
-
+        // Enviar notificación de registro
         try {
-            // Crear el docente con los datos validados y la contraseña hasheada
-            $docente = Docente::create([
-                'id_grupo' => $validatedData['id_grupo'],
-                'nombre_docente' => $validatedData['nombre_docente'],
-                'ap_pat' => $validatedData['ap_pat'],
-                'ap_mat' => $validatedData['ap_mat'],
-                'correo' => $validatedData['correo'],
-                'contrasenia' => bcrypt($contrasenia),
-            ]);
-
-            // Enviar notificación de registro
-            try {
-                $docente->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia));
-            } catch (\Exception $e) {
-                // Loguear el error pero continuar con la creación del docente
-                
-            }
-
-            // Retornar la respuesta exitosa
-            return response()->json([
-                'message' => 'Docente agregado correctamente',
-                'docente' => $docente
-            ], 201);
+            $docente->notify(new DocenteRegistered($docente->correo, $docente->nombre_docente, $contrasenia));
         } catch (\Exception $e) {
-            // Loguear el error y retornar una respuesta de error
-           
-            return response()->json(['error' => 'Error al crear el docente'], 500);
+            // Loguear el error pero continuar con la creación del docente
         }
+
+        // Retornar la respuesta exitosa
+        return response()->json([
+            'message' => 'Docente agregado correctamente',
+            'docente' => $docente
+        ], 201);
+    } catch (\Exception $e) {
+        // Loguear el error y retornar una respuesta de error
+        return response()->json(['error' => 'Error al crear el docente'], 500);
     }
+}
+
 
     public function loginWithToken(Request $request)
     {
@@ -164,23 +223,45 @@ class DocenteController extends Controller
             return response()->json(['error' => 'Docente no encontrado'], 404);
         }
 
-        $validatedData = $request->validate([
+        $validator =Validator::make($request->all(), [
             'id_grupo' => 'required|integer',
-            'nombre_docente' => 'required|string|max:35',
-            'ap_pat' => 'required|string|max:35',
-            'ap_mat' => 'required|string|max:35',
-            'contrasenia' => 'required|string|max:64',
-            'correo' => 'required|string|email|max:50',
+            'nombre_docente' => ['required','string','min:3','max:35','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',],
+            'ap_pat' => ['required','string','min:3','max:35','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',],
+            'ap_mat' => ['required','string','min:3','max:35','regex:/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/',],
+            'correo' => 'required|string|email|max:50|unique:docente,correo',
+        ], [
+            'id_grupo.required' => 'El grupo es obligatorio.',
+            'nombre_docente.required' => 'El nombre del docente es obligatorio.',
+            'ap_pat.required' => 'El apellido paterno es obligatorio.',
+            'ap_mat.required' => 'El apellido materno es obligatorio.',
+            'correo.required' => 'El correo electrónico es obligatorio.',
+            'correo.email' => 'El correo electrónico debe ser válido.',
+            'correo.unique' => 'El correo electrónico ya está en uso.',
         ]);
+        $validator->after(function ($validator) use ($request) {
+            // Validar requerimiento
+            $error = $this->validarCampoTexto($request->nombre_docente, 'Nombre');
+            if ($error) {
+                $validator->errors()->add('nombre_docente', $error);
+            }
+            $error = $this->validarCampoTexto($request->ap_mat, 'Apellido paterno');
+            if ($error) {
+                $validator->errors()->add('ap_pat', $error);
+            }
+            $error = $this->validarCampoTexto($request->ap_mat, 'Apellido materno');
+            if ($error) {
+                $validator->errors()->add('ap_mat', $error);
+            }
+        });
 
         try {
             $docente->update([
-                'id_grupo' => $validatedData['id_grupo'],
-                'nombre_docente' => $validatedData['nombre_docente'],
-                'ap_pat' => $validatedData['ap_pat'],
-                'ap_mat' => $validatedData['ap_mat'],
-                'correo' => $validatedData['correo'],
-                'contrasenia' => bcrypt($validatedData['contrasenia']),
+                'id_grupo' => $validator['id_grupo'],
+                'nombre_docente' => $validator['nombre_docente'],
+                'ap_pat' => $validator['ap_pat'],
+                'ap_mat' => $validator['ap_mat'],
+                'correo' => $validator['correo'],
+                'contrasenia' => bcrypt($validator['contrasenia']),
             ]);
 
             return response()->json($docente);
