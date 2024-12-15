@@ -69,14 +69,19 @@ class CriterioController extends Controller
                 'message' => 'Criterio no encontrado.'
             ], Response::HTTP_NOT_FOUND);
         }
-
+        $porcentaje = Criterio::where('id_criterio', '!=', $id_criterio)->sum('porcentaje');
+        if ($porcentaje + $request->porcentaje > 100) {
+            return response()->json([
+                'message' => 'La suma de los porcentajes no puede superar 100.'
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
         $criterio->update($request->all());
         return response()->json([
             'message' => 'Criterio actualizado con éxito.',
             'data' => $criterio
         ], Response::HTTP_OK);
     }
-
+    
       // Eliminar un criterio
       public function destroy($id_criterio)
       {
