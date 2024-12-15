@@ -126,27 +126,45 @@ const Docentes = () => {
 
   const validateForm = () => {
     const errors = {};
-    if (/\d/.test(formValues.nombre)) {
-      errors.nombre = 'El nombre no debe contener números.';
+    if (!formValues.nombre) {
+      errors.nombre = 'El nombre es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{3,30}$/.test(formValues.nombre)) {
+      errors.nombre = 'El nombre debe contener entre 3 y 30 caracteres y solo puede contener letras.';
     }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.correo)) {
+
+    if (!formValues.apellidoPaterno) {
+      errors.apellidoPaterno = 'El apellido paterno es obligatorio.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoPaterno)) {
+      errors.apellidoPaterno = 'El apellido paterno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }
+
+    if (formValues.apellidoMaterno && !/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]{2,30}$/.test(formValues.apellidoMaterno)) {
+      errors.apellidoMaterno = 'El apellido materno debe contener entre 2 y 30 caracteres y solo puede contener letras.';
+    }    
+
+    if (!formValues.correo) {
+      errors.correo = 'El correo electrónico es obligatorio.';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formValues.correo)) {
       errors.correo = 'Por favor, introduce un correo electrónico válido.';
     }
-    if (!/^\d+$/.test(formValues.grupo)) {
+
+    if (!formValues.grupo) {
+      errors.grupo = 'El grupo es obligatorio.';
+    } else if (!/^\d+$/.test(formValues.grupo)) {
       errors.grupo = 'El grupo debe contener solo números.';
     }
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  // Handle Save (Create or Update Docente)
   const handleSave = async () => {
     if (!validateForm()) {
       toast.error('Por favor, revisa los errores en el formulario.');
       return;
     }
 
-    setIsSaving(true); // Deshabilitamos el botón de guardar
+    setIsSaving(true); 
 
     const docenteData = {
       id_grupo: parseInt(formValues.grupo),
@@ -182,22 +200,17 @@ const Docentes = () => {
   };
 
   const handleSaveNewGroup = async () => {
-    const trimmedGroupName = newGroupName.trim();
-    
-    if (trimmedGroupName === '') {
+    const groupNumber = parseInt(newGroupName, 10);
+    if (groupNumber <= 0 || groupNumber > 20) {
+      toast.error('El número del grupo debe estar entre 1 y 20.');
+      return;
+    }
+  
+    if (newGroupName.trim() === '') {
       toast.error('El nombre del grupo no puede estar vacío.');
       return;
     }
-    if (!/^\d+$/.test(trimmedGroupName)) { // Validar que solo contenga números
-      toast.error('El nombre del grupo solo puede contener números.');
-      return;
-    }
-    const grupoExiste = grupos.some((grupo) => Number(grupo.nro_grupo) === Number(trimmedGroupName));
-    if (grupoExiste) {
-      toast.error('El número del grupo ya existe.');
-      return;
-    }
-
+  
     try {
       const response = await axios.post(`${API_URL}grupos`, { nro_grupo: newGroupName });
       setGrupos([...grupos, response.data]);
@@ -208,6 +221,8 @@ const Docentes = () => {
       toast.error('Error al agregar el grupo');
     }
   };
+  
+  
 
 
 return (
@@ -271,59 +286,66 @@ return (
       </table>
     </div>
 
-    {/* Modal */}
-    <Modal className="modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
-      <Modal.Header>
-        <Modal.Title>{currentDocente ? 'Editar Docente' : 'Agregar Docente'}</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Row>
-            <Col md={12}>
-              <Form.Group controlId="formNombre" className="mb-3">
-                <Form.Label>Nombres</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="nombre"
-                  value={formValues.nombre}
-                  onChange={handleInputChange}
-                  placeholder="Nombres"
-                  isInvalid={!!formErrors.nombre}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {formErrors.nombre}
-                </Form.Control.Feedback>
-              </Form.Group>
-            </Col>
-          </Row>
-          <Row>
-            <Col md={6}>
-              <Form.Group controlId="formApellidoPaterno" className="mb-3">
-                <Form.Label>Apellido Paterno</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="apellidoPaterno"
-                  value={formValues.apellidoPaterno}
-                  onChange={handleInputChange}
-                  placeholder="Apellido Paterno"
-                />
-              </Form.Group>
-            </Col>
+      {/* Modal */}
+      <Modal className = "modal modal-custom" show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header>
+          <Modal.Title>{currentDocente ? 'Editar Docente' : 'Agregar Docente'}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Row>
+              <Col md={12}>
+                <Form.Group controlId="formNombre" className="mb-3">
+                  <Form.Label>Nombres</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="nombre"
+                    value={formValues.nombre}
+                    onChange={handleInputChange}
+                    placeholder="Nombres"
+                    isInvalid={!!formErrors.nombre}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.nombre}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+                <Form.Group controlId="formApellidoPaterno" className="mb-3">
+                  <Form.Label>Apellido Paterno</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="apellidoPaterno"
+                    value={formValues.apellidoPaterno}
+                    onChange={handleInputChange}
+                    placeholder="Apellido Paterno"
+                    isInvalid={!!formErrors.apellidoPaterno}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.apellidoPaterno}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
 
-            <Col md={6}>
-              <Form.Group controlId="formApellidoMaterno" className="mb-3">
-                <Form.Label>Apellido Materno</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="apellidoMaterno"
-                  value={formValues.apellidoMaterno}
-                  onChange={handleInputChange}
-                  placeholder="Apellido Materno"
-                />
-              </Form.Group>
-            </Col>
-          </Row>
-
+              <Col md={6}>
+                <Form.Group controlId="formApellidoMaterno" className="mb-3">
+                  <Form.Label>Apellido Materno</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="apellidoMaterno"
+                    value={formValues.apellidoMaterno}
+                    onChange={handleInputChange}
+                    placeholder="Apellido Materno"
+                    isInvalid={!!formErrors.apellidoMaterno}
+                  />
+                  <Form.Control.Feedback type="invalid">
+                    {formErrors.apellidoMaterno}
+                  </Form.Control.Feedback>
+                </Form.Group>
+              </Col>
+            </Row>
           <Row>
             <Col md={6}>
               <Form.Group controlId="formCorreo" className="mb-3">
@@ -376,54 +398,37 @@ return (
         </Button>
       </Modal.Footer>
     </Modal>
+      {/* Modal para añadir nuevo grupo */}
+      <Modal show={showNewGroupModal} onHide={() => setShowNewGroupModal(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Nuevo Grupo</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            <Form.Group controlId="formNewGroup" className="mb-3">
+              <Form.Label>Ingrese un número</Form.Label>
+              <Form.Control
+                type="number"
+                value={newGroupName}
+                onChange={(e) => setNewGroupName(e.target.value)}
+                placeholder="Ingrese el número del nuevo grupo"
+                min="0"
+              />
+            </Form.Group>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowNewGroupModal(false)}>
+            Cancelar
+          </Button>
+          <Button variant="primary" onClick={handleSaveNewGroup}>
+            Guardar Grupo
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </div>
+  );
 
-    {/* Modal para añadir nuevo grupo */}
-    <Modal show={showNewGroupModal} onHide={() => setShowNewGroupModal(false)} centered>
-      <Modal.Header closeButton>
-        <Modal.Title>Nuevo Grupo</Modal.Title>
-      </Modal.Header>
-      <Modal.Body>
-        <Form>
-          <Form.Group controlId="formNewGroup" className="mb-3">
-            <Form.Label>Nombre del Nuevo Grupo</Form.Label>
-            <Form.Control
-              type="text"
-              value={newGroupName}
-              onChange={(e) => {
-                const value = e.target.value;
-                const grupoExiste = grupos.some(
-                  (grupo) => String(grupo.nro_grupo) === value.trim()
-                );
-
-                setNewGroupName(value);
-
-                // Mostrar mensaje de error si ya existe
-                if (grupoExiste) {
-                  toast.error('El número del grupo ya existe.');
-                }
-              }}
-
-              placeholder="Ingrese el nombre del nuevo grupo"
-              isInvalid={newGroupName.trim() !== '' && grupos.some((grupo) => 
-                String(grupo.nro_grupo) === newGroupName.trim())}
-            />
-            <Form.Control.Feedback type="invalid">
-                El número del grupo ya existe.
-              </Form.Control.Feedback>
-          </Form.Group>
-        </Form>
-      </Modal.Body>
-      <Modal.Footer>
-        <Button variant="secondary" onClick={() => setShowNewGroupModal(false)}>
-          Cancelar
-        </Button>
-        <Button variant="primary" onClick={handleSaveNewGroup}>
-          Guardar Grupo
-        </Button>
-      </Modal.Footer>
-    </Modal>
-  </div>
-);
 };
 
 export default Docentes;

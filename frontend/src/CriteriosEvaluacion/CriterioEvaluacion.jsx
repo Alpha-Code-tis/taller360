@@ -23,11 +23,13 @@ const CriterioEvaluacion = () => {
   const [formValues, setFormValues] = useState({
     nombre: '',
     descripción: '',
-    porcentaje: '',
+    porcentaje: 0,
   });
   const [formErrors, setFormErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const[nextId, setNextId] = useState(1);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
 
   const fetchCriterios = async () => {
@@ -126,14 +128,15 @@ const CriterioEvaluacion = () => {
   };
 
   const handleInputChange = (event) => {
-    const { name, value, type } = event.target;
-    const newValue = type === 'number' ? Number(value) : value;
 
-    setFormValues((prevValues) => ({
-      ...prevValues,
-      [name]: newValue,
-    }));
-  };
+      const { name, value, type } = event.target;
+      const newValue = type === 'number' ? Number(value) : value;
+    
+      setFormValues((prevValues) => ({
+        ...prevValues,
+        [name]: newValue,
+      }));
+    };
 
    const [step, setStep] = useState(1);
    const handleStepChange = (event) => {
@@ -141,28 +144,47 @@ const CriterioEvaluacion = () => {
     setStep(Number(value)); // Cambia el paso basado en la entrada del usuario
   };
 
+
   const handleChange = (event, newValue) => {
     setValue(newValue);
+    // Guardar el valor final del porcentaje en el formulario
+    setFormValues((prevValues) => ({
+      ...prevValues,
+      porcentaje: newValue[1] - newValue[0],  // Calcular la diferencia como porcentaje final
+    }));
   };
+  
+  
   const validateForm = () => {
     const errors = {};
-    if (/\d/.test(formValues.nombre)) {
-      errors.nombre = 'El nombre no debe contener números.';
+    const regexNombreDescripcion = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,]{5,50}$/;
+    console.log('Validando formulario con valores:', formValues);
+  
+    if (!formValues.nombre) {
+      errors.nombre = 'El nombre es obligatorio.';
+    } else if (!regexNombreDescripcion.test(formValues.nombre)) {
+      errors.nombre = 'El nombre debe contener entre 5 y 50 letras, sin números ni caracteres especiales.';
     }
-    if (/\d/.test(formValues.descripción)) {
-      errors.descripcion = 'La descripción no debe contener números.';
+  
+    if (!formValues.descripción) {
+      errors.descripción = 'La descripción es obligatoria.';
+    } else if(!regexNombreDescripcion.test(formValues.descripción)) {
+      errors.descripción = 'La descripción debe contener entre 5 y 50 letras, sin números ni caracteres especiales.';
     }
-    if (!/^\d+$/.test(formValues.porcentaje)) {
-      errors.porcentaje = 'El porcentaje debe contener solo números.';
-    } else if (parseInt(formValues.porcentaje, 10) < 0 || parseInt(formValues.porcentaje, 10) > 100) {
+
+    if (formValues.porcentaje < 0 || formValues.porcentaje > 100) {
       errors.porcentaje = 'El porcentaje debe estar entre 0 y 100.';
     }
+    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   }
 
   const handleSave = async ()=>{
-    if (validateForm()) {
+    const isValid = validateForm();
+    console.log("¿Es válido?", isValid);
+    if (!isValid) {
+      return;
     }
     setIsSaving(false);
 
