@@ -290,7 +290,11 @@ class EmpresaController extends Controller
             if ($request->hasFile('logo')) {
                 if ($logoPath) {
                     Storage::disk('public')->delete($logoPath);
-
+                }
+                $logoPath = $request->file('logo')->store('logos', 'public');
+            } elseif ($request->filled('logo')) {
+                $logoPath = $request->logo;
+            }
             $cantidad = Cantidad::where('gestion', $request->gestion)->first();
             if (!$cantidad) {
                 return response()->json([
@@ -345,9 +349,11 @@ class EmpresaController extends Controller
                     ->update(['id_empresa' => $empresa->id_empresa]);
             }
             return response()->json($empresa->fresh(), 200);
+        
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al actualizar la empresa'], 500);
         }
+          
     }
     public function getEquiposConEvaluaciones($gestion)
     {
@@ -448,3 +454,4 @@ class EmpresaController extends Controller
         }
     }
 }
+    
