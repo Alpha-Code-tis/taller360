@@ -389,11 +389,6 @@ export default function PersistentDrawerLeft() {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
-  const [formGroupName, setFormGroupName] = useState('');
-  const [formGroupStartDate, setFormGroupStartDate] = useState('');
-  const [formGroupEndDate, setFormGroupEndDate] = useState('');
-  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
-  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
 
   const validateForm = () => {
     const newErrors = {};
