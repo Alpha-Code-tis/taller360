@@ -389,12 +389,6 @@ export default function PersistentDrawerLeft() {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
-  const [formGroupName, setFormGroupName] = useState('');
-  const [formGroupStartDate, setFormGroupStartDate] = useState('');
-  const [formGroupEndDate, setFormGroupEndDate] = useState('');
-  const [formGroupMinStudents, setFormGroupMinStudents] = useState('');
-  const [formGroupMaxStudents, setFormGroupMaxStudents] = useState('');
-
   const validateForm = () => {
     const newErrors = {};
   
@@ -406,21 +400,16 @@ export default function PersistentDrawerLeft() {
     }
   
 
-    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; 
     if (!formGroupStartDate.trim()) {
       newErrors.formGroupStartDate = "La fecha de inicio es obligatoria.";
-    } else if (!dateRegex.test(formGroupStartDate.trim())) {
-      newErrors.formGroupStartDate = "El formato de la fecha de inicio debe ser dd/mm/aaaa.";
     }
 
     if (!formGroupEndDate.trim()) {
       newErrors.formGroupEndDate = "La fecha de fin es obligatoria.";
-    } else if (!dateRegex.test(formGroupEndDate.trim())) {
-      newErrors.formGroupEndDate = "El formato de la fecha de fin debe ser dd/mm/aaaa.";
     }
 
     const minStudents = parseInt(formGroupMinStudents, 10);
-    if (!formGroupMinStudents.trim() || isNaN(minStudents)) {
+    if (!formGroupMinStudents || isNaN(minStudents)) {
       newErrors.formGroupMinStudents = "La cantidad mínima de estudiantes debe ser un número.";
     } else if (minStudents < 0) {
       newErrors.formGroupMinStudents = "La cantidad mínima de estudiantes no puede ser un número negativo.";
@@ -429,7 +418,7 @@ export default function PersistentDrawerLeft() {
     }
   
     const maxStudents = parseInt(formGroupMaxStudents, 10);
-    if (!formGroupMaxStudents.trim() || isNaN(maxStudents)) {
+    if (!formGroupMaxStudents  || isNaN(maxStudents)) {
       newErrors.formGroupMaxStudents = "La cantidad máxima de estudiantes debe ser un número.";
     } else if (maxStudents < 0) {
       newErrors.formGroupMaxStudents = "La cantidad máxima de estudiantes no puede ser un número negativo.";
