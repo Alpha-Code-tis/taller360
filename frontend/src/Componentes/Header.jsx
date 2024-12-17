@@ -401,21 +401,16 @@ export default function PersistentDrawerLeft() {
     }
   
 
-    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; 
     if (!formGroupStartDate.trim()) {
       newErrors.formGroupStartDate = "La fecha de inicio es obligatoria.";
-    } else if (!dateRegex.test(formGroupStartDate.trim())) {
-      newErrors.formGroupStartDate = "El formato de la fecha de inicio debe ser dd/mm/aaaa.";
     }
 
     if (!formGroupEndDate.trim()) {
       newErrors.formGroupEndDate = "La fecha de fin es obligatoria.";
-    } else if (!dateRegex.test(formGroupEndDate.trim())) {
-      newErrors.formGroupEndDate = "El formato de la fecha de fin debe ser dd/mm/aaaa.";
     }
 
     const minStudents = parseInt(formGroupMinStudents, 10);
-    if (!formGroupMinStudents.trim() || isNaN(minStudents)) {
+    if (!formGroupMinStudents || isNaN(minStudents)) {
       newErrors.formGroupMinStudents = "La cantidad mínima de estudiantes debe ser un número.";
     } else if (minStudents < 0) {
       newErrors.formGroupMinStudents = "La cantidad mínima de estudiantes no puede ser un número negativo.";
@@ -424,7 +419,7 @@ export default function PersistentDrawerLeft() {
     }
   
     const maxStudents = parseInt(formGroupMaxStudents, 10);
-    if (!formGroupMaxStudents.trim() || isNaN(maxStudents)) {
+    if (!formGroupMaxStudents  || isNaN(maxStudents)) {
       newErrors.formGroupMaxStudents = "La cantidad máxima de estudiantes debe ser un número.";
     } else if (maxStudents < 0) {
       newErrors.formGroupMaxStudents = "La cantidad máxima de estudiantes no puede ser un número negativo.";
@@ -538,8 +533,8 @@ export default function PersistentDrawerLeft() {
     if (!notificacion.trim()) {
       errorMessage.notificacion = 'El campo de detalles es obligatorio.';
     } 
-    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,]{10,50}$/.test(notificacion)) {
-      errorMessage.notificacion = 'El campo debe contener entre 10 y 50 caracteres, y solo puede incluir letras,comas y acentos.';
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,\.]{10,120}$/.test(notificacion)) {
+      errorMessage.notificacion = 'El campo debe contener entre 10 y 120 caracteres, y solo puede incluir letras,comas y acentos.';
     }
   
     setErrors(errorMessage);

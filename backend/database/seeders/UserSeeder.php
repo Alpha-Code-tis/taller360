@@ -13,6 +13,7 @@ use App\Models\Planificacion;
 use App\Models\Sprint;
 use Carbon\Carbon;
 use App\Models\Alcance;
+use App\Models\Cantidad;
 use App\Models\Tarea;
 use App\Models\EstudianteTarea;
 
@@ -1047,5 +1048,29 @@ class UserSeeder extends Seeder
             ['id_estudiante' => 2, 'id_tarea' => 7],
           
         ];
+        $cantidad = Cantidad::create([
+            "id_docente" => 1,
+            "gestion" => "2-2024",
+            "cant_min" => 3,
+            "cant_max" => 6,
+        ]);
+        $cantidad = Cantidad::create([
+            "id_docente" => 2,
+            "gestion" => "2-2024",
+            "cant_min" => 3,
+            "cant_max" => 6,
+        ]);
+        $cantidad = Cantidad::create([
+            "id_docente" => 3,
+            "gestion" => "2-2024",
+            "cant_min" => 3,
+            "cant_max" => 6,
+        ]);
+        $cantidad = Cantidad::create([
+            "id_docente" => 4,
+            "gestion" => "2-2024",
+            "cant_min" => 3,
+            "cant_max" => 6,
+        ]);
     }
 }
