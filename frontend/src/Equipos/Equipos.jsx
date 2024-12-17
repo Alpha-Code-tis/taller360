@@ -71,8 +71,6 @@ const Equipos = () => {
       console.log(response); // Diagnóstico: verifica el contenido del response
   
       if (Array.isArray(response.data) && response.data.length > 0) {
-
-      if (response.data.length > 0) {
         const formattedEstudiantes = response.data.map((estudiante) => ({
           value: estudiante.id_estudiante,
           label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
@@ -91,7 +89,7 @@ const Equipos = () => {
       setEstudiantes([]);
     }
   };
-    
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

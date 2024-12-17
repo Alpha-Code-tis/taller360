@@ -78,6 +78,7 @@ const MyCalendar = () => {
     const [tareas, setTareas]=useState([]);
     const [alcances, setAlcances] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
+    const [porcentaje, setPorcentaje] = useState([]);
 
     const handleSelectEvent = (event) => {
       setSelectedEvent(event);  // Guardar el evento seleccionado
@@ -224,6 +225,8 @@ const MyCalendar = () => {
           const inicio = dayjs(sprintData.fecha_inicio);
           const fin = dayjs(sprintData.fecha_fin);
           const color = sprintData.color || '#ff0000'; // Valor por defecto si no hay color
+          const porcentaje = sprintData.porcentaje;
+          setPorcentaje(porcentaje);
           setFechaInicio(inicio);
           setFechaFinal(fin);
 
@@ -396,7 +399,7 @@ const MyCalendar = () => {
                 {selectedEvent && (
         <Modal show={showModalEvent} onHide={handleCloseModalEvent}>
           <Modal.Header>
-            <Modal.Title>Detalles del {selectedEvent.title}</Modal.Title>
+            <Modal.Title>Detalles del {selectedEvent.title} &nbsp; % Cobro: {porcentaje ? `${porcentaje}%` : 'Porcentaje no disponible'}</Modal.Title>
           </Modal.Header>
         <Modal.Body>
           <p><strong>Fecha de inicio:</strong> {fechaInicio ? fechaInicio.format('DD/MM/YYYY') : 'Fecha no disponible'}</p>
