@@ -15,7 +15,7 @@ class NotificacionEstudiantesController extends Controller
     {
         $request->validate([
             'titulo' => 'string|max:255',
-            'mensaje' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'mensaje' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,\.]+$/u'],
             'tipos' => 'required|array',
         ]);
 
