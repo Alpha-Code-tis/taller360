@@ -562,13 +562,6 @@ export default function PersistentDrawerLeft() {
       await axios.patch(`${API_URL}ajustes`, payload);
       toast.success('Fechas guardadas correctamente');
       setModalShow(false);
-      setAutoEvalStart('');
-      setAutoEvalEnd('');
-      setCruzadaStart('');
-      setCruzadaEnd('');
-      setFinalEvalStart('');
-      setFinalEvalEnd('');
-      setNotaPares('');
     } catch (error) {
       toast.error('Error al guardar las fechas');
     }
