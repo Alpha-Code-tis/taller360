@@ -442,15 +442,6 @@ const Planificacion = () => {
                     Sprint {sprint}
                   </label>
                 ))}
-                <label className="dropdown-item">
-                  <input
-                    type="radio"
-                    value="Todos"
-                    checked={selectedSprint === 'Todos'}
-                    onChange={handleOptionChange}
-                  />
-                  Todos
-                </label>
               </div>
             )}
           </div>

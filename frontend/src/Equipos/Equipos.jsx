@@ -89,7 +89,7 @@ const Equipos = () => {
       setEstudiantes([]);
     }
   };
-    
+  
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
