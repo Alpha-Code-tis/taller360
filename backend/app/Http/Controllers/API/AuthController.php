@@ -65,6 +65,8 @@ class AuthController extends Controller
                 'nombre' => $estudiante->nombre_estudiante . ' ' . $estudiante->ap_pat . ' ' . $estudiante->ap_mat,
                 'correo' => $estudiante->correo,
                 'id_estudiante' => $estudiante->id_estudiante,
+                'id_representante' => $estudiante->id_representante,
+                'id_empresa' => $estudiante->id_empresa,
                 'token' => $token,
                 'token_type' => 'Bearer',
             ]);

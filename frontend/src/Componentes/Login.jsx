@@ -48,12 +48,14 @@ export default function Login({ onLogin }) {
 
       // Suponiendo que la API devuelve 'success', 'token' y 'role'
       if (response.data.success) {
-        const { token, role, nombre, id_estudiante } = response.data;
+        const { token, role, nombre, id_estudiante, id_representante, id_empresa } = response.data;
 
         localStorage.setItem('token', token);
         localStorage.setItem('role', role);
         localStorage.setItem('nombre', nombre);
         localStorage.setItem('id_estudiante', id_estudiante ?? '');
+        localStorage.setItem('id_representante', id_representante ?? '');
+        localStorage.setItem('id_empresa', id_empresa ?? '');
         onLogin(role);
 
         if (role === 'estudiante') {
