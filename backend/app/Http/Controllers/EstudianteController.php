@@ -100,53 +100,39 @@ class EstudianteController extends Controller
             'codigo_sis' => 'required|digits:9|unique:estudiante,codigo_sis',
             'es_representante' => 'boolean',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Datos no validos',
                 'errors' => $validator->errors(),
             ], Response::HTTP_UNPROCESSABLE_ENTITY);
         }
-        $docente = auth()->guard('sanctum')->user();
-        $validatedData = $validator->validated();
-        $validatedData['ap_mat'] = $validatedData['ap_mat'] ?? ' ';
-        $representanteId = null;
-        $correo = $request->codigo_sis . '@est.umss.edu';
-        $contrasenia = Str::random(10);
-        // Si se indica que el estudiante es un representante, crear un nuevo representante
-        if ($request->es_representante) {
-            $representante = RepresentateLegal::create([
-                'estado' => 1, // Puedes ajustar el estado según sea necesario
-            ]);
-            $representanteId = $representante->id_representante; // Obtener el ID del representante recién creado
-            // Crear el estudiante, asignando el ID del representante si existe
-            $estudiante = Estudiante::create([
-                'nombre_estudiante' => $request->nombre_estudiante,
-                'ap_pat' => $request->ap_pat,
-                'ap_mat' => $validatedData['ap_mat'],
-                'codigo_sis' => $request->codigo_sis,
-                'id_grupo' => $docente->id_grupo,
-                'id_representante' => $representanteId, // Asignar el ID del representante
-                'correo' => $correo,
-                'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
-            ]);
-            Notification::route('mail', $correo)
-                ->notify(new EstudianteRegistered($request->nombre_estudiante, $correo, $contrasenia));
-        } else {
-            // Crear el estudiante, asignando el ID del representante si existe
-            $estudiante = Estudiante::create([
-                'nombre_estudiante' => $request->nombre_estudiante,
-                'ap_pat' => $request->ap_pat,
-                'ap_mat' => $validatedData['ap_mat'],
-                'codigo_sis' => $request->codigo_sis,
-                'id_grupo' => $docente->id_grupo,
-                'id_representante' => $representanteId, // Asignar el ID del representante
-                'correo' => $correo,
-                'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
-            ]);
-        }
 
-        return response()->json($estudiante, 201); // Retornar el estudiante creado
+        try {
+            $docente = auth()->guard('sanctum')->user();
+            $validatedData = $validator->validated();
+            $validatedData['ap_mat'] = $validatedData['ap_mat'] ?? ' ';
+            $correo = $request->codigo_sis . '@est.umss.edu';
+            $contrasenia = Str::random(10);
+            // Si se indica que el estudiante es un representante, crear un nuevo representante
+            $estudiante = Estudiante::create([
+                'nombre_estudiante' => $request->nombre_estudiante,
+                'ap_pat' => $request->ap_pat,
+                'ap_mat' => $validatedData['ap_mat'],
+                'codigo_sis' => $request->codigo_sis,
+                'id_grupo' => $docente->id_grupo,
+                'id_representante' => $request->es_representante ? 1 : null, // Asignar el ID del representante
+                'correo' => $correo,
+                'contrasenia' => bcrypt($contrasenia), // Hashear la contraseña antes de almacenarla en la base de datos
+            ]);
+            if ($request->es_representante) {
+                Notification::route('mail', $correo)
+                    ->notify(new EstudianteRegistered($request->nombre_estudiante, $correo, $contrasenia));
+            }
+            return response()->json($estudiante, 201);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al crear el estudiante: ' . $e->getMessage()], 500);
+        }
     }
 
 
@@ -179,7 +165,7 @@ class EstudianteController extends Controller
             'codigo_sis' => 'required|integer|unique:estudiante,codigo_sis,' . $id . ',id_estudiante',
             'es_representante' => 'boolean',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json([
                 'message' => 'Datos no validos',
@@ -191,12 +177,12 @@ class EstudianteController extends Controller
         try {
             $estudiante = Estudiante::where('id_estudiante', $id)->first();
             $isRepresentante = $request->input('es_representante');
-            if ($isRepresentante) {
-                $contrasenia = Str::random(10);
-                $estudiante->contrasenia = bcrypt($contrasenia);
-            } else {
-                $contrasenia = $estudiante->contrasenia;
-            }
+            // if ($isRepresentante) {
+            //     $contrasenia = Str::random(10);
+            //     $estudiante->contrasenia = bcrypt($contrasenia);
+            // } else {
+            //     $contrasenia = $estudiante->contrasenia;
+            // }
 
             $estudiante->update([
                 'nombre_estudiante' => $request->input('nombre_estudiante'),
@@ -205,10 +191,10 @@ class EstudianteController extends Controller
                 'codigo_sis' => $request->input('codigo_sis'),
                 'id_representante' => $isRepresentante ? 1 : null, // Asignar 1 o null según es_representante
             ]);
-            if ($isRepresentante) {
-                Notification::route('mail', $estudiante->correo)
-                    ->notify(new EstudianteRegistered($estudiante->nombre_estudiante, $estudiante->correo, $contrasenia));
-            }
+            // if ($isRepresentante) {
+            //     Notification::route('mail', $estudiante->correo)
+            //         ->notify(new EstudianteRegistered($estudiante->nombre_estudiante, $estudiante->correo, $contrasenia));
+            // }
 
             return response()->json($estudiante, 200);
         } catch (\Exception $e) {

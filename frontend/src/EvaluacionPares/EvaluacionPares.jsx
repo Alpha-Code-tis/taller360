@@ -158,7 +158,7 @@ const EvaluacionPares = () => {
       const response = await axios.get(`${API_URL}criterios`);
       const criteriosData = response.data;
       if (criteriosData.length === 0) {
-        toast.error('No hay criterios registrados.');
+        toast.error('No hay criterios registrados.'), {id: 'fetchCriterios'};
       }else{
         setCriterios(criteriosData);
         console.log('çriterios', criteriosData);

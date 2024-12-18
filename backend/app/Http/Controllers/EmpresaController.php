@@ -27,8 +27,12 @@ class EmpresaController extends Controller
         $cantidad = Cantidad::where('id_docente', $docente->id_docente)
             ->first();
 
+        if (is_null($cantidad)) {
+            return response()->json(['message' => 'No se encontró una conformación de equipos'], 404);
+        }
+
         // Filtrar equipos por gestión
-        $equipos = Empresa::with(['cantidad', 'representate_legal', 'planificacion'])
+        $equipos = Empresa::with(['cantidad', 'representate_legal', 'planificacion', 'estudiantes'])
             ->where('gestion', $cantidad->gestion)
             ->get();
 
@@ -74,7 +78,7 @@ class EmpresaController extends Controller
     public function getEstudiantesSinEmpresa()
     {
         try {
-            $estudiantes = Estudiante::whereNull('id_empresa')->get();
+            $estudiantes = Estudiante::whereNull('id_empresa')->whereNull('id_representante')->get();
 
             if ($estudiantes->isEmpty()) {
                 return response()->json(['message' => 'No se encontraron estudiantes sin empresa'], 404);
@@ -250,7 +254,7 @@ class EmpresaController extends Controller
         $estudianteLogueado->update(['id_empresa' => $empresa->id_empresa]);
 
         $estudiantesIds = $request->estudiantesSeleccionados;  // Recibir directamente el array
-      
+
         if (is_array($estudiantesIds) && !empty($estudiantesIds)) {
             Estudiante::whereIn('id_estudiante', $estudiantesIds)->update(['id_empresa' => $empresa->id_empresa]);
         }
@@ -327,7 +331,7 @@ class EmpresaController extends Controller
                     ], 422);
                 }
             }
-                  
+
             $empresa->update([
                 'nombre_empresa' => $request->nombre_empresa,
                 'nombre_corto' => $request->nombre_corto,
@@ -349,11 +353,11 @@ class EmpresaController extends Controller
                     ->update(['id_empresa' => $empresa->id_empresa]);
             }
             return response()->json($empresa->fresh(), 200);
-        
+
         } catch (\Exception $e) {
             return response()->json(['error' => 'Error al actualizar la empresa'], 500);
         }
-          
+
     }
     public function getEquiposConEvaluaciones($gestion)
     {
@@ -454,4 +458,3 @@ class EmpresaController extends Controller
         }
     }
 }
-    

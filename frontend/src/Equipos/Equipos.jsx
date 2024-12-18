@@ -27,6 +27,12 @@ const Equipos = () => {
     logo: null,
     estudiantesSeleccionados: [],
   });
+  const isRepresentante = Boolean(localStorage.getItem('id_representante'));
+  const idEstudiante = localStorage.getItem('id_estudiante');
+  const nombreEstudiante = localStorage.getItem('nombre');
+  let idEmpresa = localStorage.getItem('id_empresa');
+
+
   const [formErrors, setFormErrors] = useState({});
 
   const [equiposCargados, setEquiposCargados] = useState(false); // Nueva bandera
@@ -36,11 +42,12 @@ const Equipos = () => {
       console.log('Cargando equipos...');
       const response = await axios.get(`${API_URL}equipos`);
       console.log(response);
-  
+
       if (Array.isArray(response.data) && response.data.length > 0) {
-        setEquipos(response.data);
-        setFilteredEquipos(response.data);
-  
+        const equipos = response.data.filter((equipo) => equipo.id_empresa == idEmpresa);
+        setEquipos(equipos);
+        setFilteredEquipos(equipos);
+
         if (!equiposCargados) {
           toast.success('Información de equipos cargada correctamente', { id: 'equipos-toast' });
           setEquiposCargados(true);
@@ -53,43 +60,38 @@ const Equipos = () => {
       } else {
         toast.error('Respuesta inesperada al cargar equipos.');
       }
-  
+
       // Asegúrate de que el mensaje de carga desaparezca
       toast.dismiss('loading-info');
     } catch (error) {
-      console.error('Error al cargar los equipos:', error);
-      toast.error(`Error al cargar los equipos: ${error.message}`);
+      toast.error(`Error al cargar los equipos: ${error.response.data.message ?? ''}`, {id: 'fetchEquipos'});
       // Asegúrate de que el mensaje de carga desaparezca incluso en caso de error
       toast.dismiss('loading-info');
     }
   };
-    
+
   const fetchEstudiantes = async () => {
     try {
-      console.log('Cargando estudiantes...');
       const response = await axios.get(`${API_URL}sin-empresa`);
       console.log(response); // Diagnóstico: verifica el contenido del response
-  
+
       if (Array.isArray(response.data) && response.data.length > 0) {
         const formattedEstudiantes = response.data.map((estudiante) => ({
           value: estudiante.id_estudiante,
           label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
         }));
         setEstudiantes(formattedEstudiantes);
-        toast.success('Aún hay estudiantes que no tienen empresa.');
+        toast.success('Aún hay estudiantes que no tienen equipo.', {id: 'fetchEstudiantes'});
       } else if (Array.isArray(response.data) && response.data.length === 0) {
-        toast.success('Todos los estudiantes ya tienen una empresa.');
-      } else {
-        toast.error('Respuesta inesperada al cargar estudiantes.');
-        toast.error('No hay estudiantes disponibles para crear una empresa');
+        toast.success('Todos los estudiantes ya tienen un equipo.', {id: 'fetchEstudiantes'});
       }
     } catch (error) {
-      console.error('Error al cargar estudiantes sin empresa:', error);
-      toast.error('No existen estudiantes sin empresa disponibles');
+      toast.error('No existen estudiantes disponibles para crear un Nuevo equipo', {id: 'fetchEstudiantes'});
       setEstudiantes([]);
     }
   };
-  
+
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -104,10 +106,10 @@ const Equipos = () => {
         setLoading(false);
       }
     };
-  
+
     loadData();
   }, []);
-  
+
   const handleSearchChange = (e) => {
     const searchValue = e.target.value.toLowerCase();
     setSearchTerm(searchValue);
@@ -124,6 +126,12 @@ const Equipos = () => {
   // Mostrar el modal para agregar o editar equipo
   const handleShowModal = (equipo = null) => {
     if (equipo) {
+      const formattedEstudiantes = equipo.estudiantes
+        ? equipo.estudiantes.map((estudiante) => ({
+          value: estudiante.id_estudiante,
+          label: `${estudiante.ap_pat} ${estudiante.ap_mat} ${estudiante.nombre_estudiante}`,
+        }))
+        : [];
       setFormValues({
         nombre_empresa: equipo.nombre_empresa || '',
         nombre_corto: equipo.nombre_corto || '',
@@ -132,10 +140,21 @@ const Equipos = () => {
         telefono: equipo.telefono || '',
         direccion: equipo.direccion || '',
         logo: equipo.logo || null,
-        estudiantesSeleccionados: equipo.estudiantes || [],
+        estudiantesSeleccionados: formattedEstudiantes || [],
       });
       setCurrentEquipo(equipo);
     } else {
+      if (idEmpresa) {
+        toast.error('Ya perteneces a una equipo. No puedes crear otro.');
+        return;
+      }
+      const estudiantesSeleccionados = isRepresentante && !idEmpresa
+        ? [{
+            value: idEstudiante,
+            label: nombreEstudiante
+        }]
+        : []
+      console.log('chec', estudiantesSeleccionados)
       setFormValues({
         nombre_empresa: '',
         nombre_corto: '',
@@ -144,7 +163,7 @@ const Equipos = () => {
         telefono: '',
         direccion: '',
         logo: null,
-        estudiantesSeleccionados: [],
+        estudiantesSeleccionados,
       });
       setCurrentEquipo(null);
     }
@@ -220,6 +239,22 @@ const Equipos = () => {
     setFormValues({ ...formValues, logo: e.target.files[0] });
   };
 
+  const handleChangeEstudiantesSeleccionados = (selectedOptions) => {
+    let selectedNew = selectedOptions;
+    if (isRepresentante) {
+      const representanteInSelected = formValues.estudiantesSeleccionados.find(item => item.value == idEstudiante);
+      const representanteInNewSelected = selectedNew.find(item => item.value == idEstudiante);
+      if (representanteInSelected && !representanteInNewSelected) {
+        selectedNew = formValues.estudiantesSeleccionados;
+        if (selectedOptions.length == 0) {
+          selectedNew = selectedNew.filter(item => item.value == idEstudiante);
+        }
+        toast.error('No se puede quitar el estudiante representante.', { id: 'select-estudiantes' });
+      }
+    }
+    setFormValues({ ...formValues, estudiantesSeleccionados: selectedNew })
+  };
+
   const validateForm = () => {
     const errors = {};
     let isValid = true;
@@ -248,12 +283,19 @@ const Equipos = () => {
     }
 
     if (!formValues.nombre_corto.trim()) {
-      errors.direccion = 'El nombre corto es requerido';
+      errors.nombre_corto = 'El nombre corto es requerido';
       isValid = false;
     }
 
-    // if (!formValues.logo.trim()) {
-    //   errors.direccion = 'La URL del logo es requerida';
+    if (!formValues.logo || !formValues.logo.trim()) {
+      errors.logo = 'La URL del logo es requerida';
+      isValid = false;
+    }else if (!/^https?:\/\//.test(formValues.logo)) {
+      errors.logo = 'La URL del logo debe ser válida';
+      isValid = false;
+    }
+    // if (formValues.estudiantesSeleccionados.length <= 3) {
+    //   errors.estudiantesSeleccionados = 'Debes seleccionar al menos 3 estudiante';
     //   isValid = false;
     // }
 
@@ -265,7 +307,6 @@ const Equipos = () => {
       errors.gestion = 'El formato de la gestión es inválido (ej: 1-2024 o 2-2024)';
       isValid = false;
     }
-
     setFormErrors(errors);
     return isValid;
 };
@@ -294,9 +335,10 @@ const Equipos = () => {
         await axios.put(`${API_URL}equipos/${currentEquipo.id_empresa}`, Equipodata);
         toast.success('Equipo actualizado correctamente');
       } else {
-        await axios.post(`${API_URL}equipos`, Equipodata);
+        const response = await axios.post(`${API_URL}equipos`, Equipodata);
+        localStorage.setItem('id_empresa', response.data.empresa.id_empresa ?? '');
+        idEmpresa = response.data.empresa.id_empresa;
         toast.success('Equipo creado correctamente');
-
       }
 
 
@@ -304,7 +346,7 @@ const Equipos = () => {
       fetchEstudiantes();
       setShowModal(false); // Cerrar el modal
     } catch (error) {
-      toast.error('Error al guardar el equipo');
+      toast.error(`Error al guardar el equipo: ${error.response.data.message ?? ''}`, {id: 'saveEquipo'});
     } finally {
       setIsSaving(false); // Finalizar el estado de guardado
     }
@@ -315,7 +357,9 @@ const Equipos = () => {
     <div className="container mt-2 pt-3">
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h1 className="m-0">Equipos</h1>
-        <button className="btn btn-primary me-2" onClick={() => handleShowModal()}>+ Nuevo Equipo</button>
+        {isRepresentante && (
+          <button className="btn btn-primary me-2" onClick={() => handleShowModal()}>+ Nuevo Equipo</button>
+        )}
       </div>
 
       <div className="mb-3">
@@ -348,12 +392,15 @@ const Equipos = () => {
                   <button className="icon-button" title="Ver" onClick={() => handleShowViewModal(equipo)}>
                     <FaEye />
                   </button>
-                  <button className="icon-button" title="Editar" onClick={() => handleShowModal(equipo)}>
-                    <FaEdit />
-                  </button>
-                  <button className="icon-button" title="Eliminar" onClick={() => handleDelete(equipo.id_empresa)}>
-                    <FaTrash />
-                  </button>
+                  {isRepresentante && (
+                    <>
+                      <button className="icon-button" title="Editar" onClick={() => handleShowModal(equipo)}>
+                        <FaEdit />
+                      </button><button className="icon-button" title="Eliminar" onClick={() => handleDelete(equipo.id_empresa)}>
+                        <FaTrash />
+                      </button>
+                    </>
+                  )}
                 </td>
               </tr>
             ))}
@@ -489,9 +536,7 @@ const Equipos = () => {
                     name="estudiantesSeleccionados"
                     value={formValues.estudiantesSeleccionados}
                     options={estudiantes}
-                    onChange={(selectedOptions) =>
-                      setFormValues({ ...formValues, estudiantesSeleccionados: selectedOptions })
-                    }
+                    onChange={handleChangeEstudiantesSeleccionados}
                     placeholder="Selecciona estudiantes"
                     isInvalid={!!formErrors.estudiantesSeleccionados}
                     />

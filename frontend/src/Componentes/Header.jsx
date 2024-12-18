@@ -150,7 +150,7 @@ export default function PersistentDrawerLeft() {
   const [sprintSeleccionado, setSprintSeleccionado] = useState('');
   const [empresas, setEmpresas] = useState([]);
   const [sprints, setSprints] = useState([]);
-  const [notaPares, setNotaPares] = useState('');
+  // const [notaPares, setNotaPares] = useState('');
   const [notificacion, setNotificacion] = useState('');
   const [redirected, setRedirected] = useState(false);
   const [cruzadaStart, setCruzadaStart] = useState('');
@@ -321,7 +321,7 @@ export default function PersistentDrawerLeft() {
       setCruzadaStart(data.fecha_inicio_eva_cruzada ?? '');
       setCruzadaEnd(data.fecha_fin_eva_cruzada ?? '');
 
-      setNotaPares(data.nota_pares ?? '');
+      // setNotaPares(data.nota_pares ?? '');
     } catch (error) {
       toast.error('No se recuperaron los datos.');
     }
@@ -361,11 +361,11 @@ export default function PersistentDrawerLeft() {
         try {
           const response = await axios.get(`${API_URL}gestion`);
           const data = response.data;
-          setFormGroupName(data.gestion || ''); 
-          setFormGroupStartDate(data.fecha_ini || ''); 
-          setFormGroupEndDate(data.fecha_final || ''); 
-          setFormGroupMinStudents(data.cant_min || ''); 
-          setFormGroupMaxStudents(data.cant_max || ''); 
+          setFormGroupName(data.gestion || '');
+          setFormGroupStartDate(data.fecha_ini || '');
+          setFormGroupEndDate(data.fecha_final || '');
+          setFormGroupMinStudents(data.cant_min || '');
+          setFormGroupMaxStudents(data.cant_max || '');
         } catch (error) {
           toast.error('Error al cargar las configuraciones');
           console.error('Error al cargar las configuraciones:', error);
@@ -373,8 +373,8 @@ export default function PersistentDrawerLeft() {
       };
       fetchConfig();
     }
-  }, [teamConfigModalShow]);  
-  
+  }, [teamConfigModalShow]);
+
   const handleTeamConfigSave = () => {
     // Lógica para guardar los ajustes de conformación de equipos
     setTeamConfigModalShow(false);
@@ -392,14 +392,14 @@ export default function PersistentDrawerLeft() {
 
   const validateForm = () => {
     const newErrors = {};
-  
-    const gestionRegex = /^[0-9]+-[0-9]{4}$/; 
+
+    const gestionRegex = /^[0-9]+-[0-9]{4}$/;
     if (!formGroupName.trim()) {
       newErrors.formGroupName = "La gestión es obligatoria.";
     } else if (!gestionRegex.test(formGroupName.trim())) {
       newErrors.formGroupName = "El formato de gestión debe ser número-mes-año (e.g., 2-2024).";
     }
-  
+
 
     if (!formGroupStartDate.trim()) {
       newErrors.formGroupStartDate = "La fecha de inicio es obligatoria.";
@@ -417,7 +417,7 @@ export default function PersistentDrawerLeft() {
     } else if (minStudents < 3) {
       newErrors.formGroupMinStudents = "La cantidad mínima de estudiantes no puede ser menor a 3.";
     }
-  
+
     const maxStudents = parseInt(formGroupMaxStudents, 10);
     if (!formGroupMaxStudents  || isNaN(maxStudents)) {
       newErrors.formGroupMaxStudents = "La cantidad máxima de estudiantes debe ser un número.";
@@ -426,38 +426,38 @@ export default function PersistentDrawerLeft() {
     } else if (maxStudents > 6) {
       newErrors.formGroupMaxStudents = "La cantidad máxima de estudiantes no puede ser mayor a 6.";
     }
-  
+
 
     if (minStudents > maxStudents) {
       newErrors.formGroupMinStudents = "La cantidad mínima no puede ser mayor a la cantidad máxima.";
       newErrors.formGroupMaxStudents = "La cantidad máxima no puede ser menor a la cantidad mínima.";
     }
-  
+
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; 
+    return Object.keys(newErrors).length === 0;
   };
-  
+
   const formatToDDMMYYYY = (date) => {
     const [year, month, day] = date.split("-");
     return `${day}/${month}/${year}`;
-  }; 
+  };
   const validateForma = () => {
     const merrores = {};
-  
-    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/; 
-  
+
+    const dateRegex = /^\d{2}\/\d{2}\/\d{4}$/;
+
     const compareDatesStrict = (start, end) => {
       const startDate = new Date(start);
       const endDate = new Date(end);
-      return startDate < endDate; 
+      return startDate < endDate;
     };
-  
+
     if (!autoEvalStart.trim()) {
       merrores.autoEvalStart = "La fecha de inicio es obligatoria.";
     } else if (!dateRegex.test(formatToDDMMYYYY(autoEvalStart))) {
       merrores.autoEvalStart = "El formato de la fecha debe ser dd/mm/aaaa.";
     }
-  
+
     if (!autoEvalEnd.trim()) {
       merrores.autoEvalEnd = "La fecha fin es obligatoria.";
     } else if (!dateRegex.test(formatToDDMMYYYY(autoEvalEnd))) {
@@ -465,13 +465,13 @@ export default function PersistentDrawerLeft() {
     } else if (!compareDatesStrict(autoEvalStart, autoEvalEnd)) {
       merrores.autoEvalEnd = "La fecha fin debe ser mayor que la fecha de inicio.";
     }
-  
+
     if (!cruzadaStart.trim()) {
       merrores.cruzadaStart = "La fecha de inicio es obligatoria.";
     } else if (!dateRegex.test(formatToDDMMYYYY(cruzadaStart))) {
       merrores.cruzadaStart = "El formato de la fecha debe ser dd/mm/aaaa.";
     }
-  
+
     if (!cruzadaEnd.trim()) {
       merrores.cruzadaEnd = "La fecha fin es obligatoria.";
     } else if (!dateRegex.test(formatToDDMMYYYY(cruzadaEnd))) {
@@ -479,13 +479,13 @@ export default function PersistentDrawerLeft() {
     } else if (!compareDatesStrict(cruzadaStart, cruzadaEnd)) {
       merrores.cruzadaEnd = "La fecha fin debe ser mayor que la fecha de inicio.";
     }
-  
+
     if (!finalEvalStart.trim()) {
       merrores.finalEvalStart = "La fecha de inicio es obligatoria.";
     } else if (!dateRegex.test(formatToDDMMYYYY(finalEvalStart))) {
       merrores.finalEvalStart = "El formato de la fecha debe ser dd/mm/aaaa.";
     }
-  
+
     if (!finalEvalEnd.trim()) {
       merrores.finalEvalEnd = "La fecha fin es obligatoria.";
     } else if (!dateRegex.test(formatToDDMMYYYY(finalEvalEnd))) {
@@ -494,49 +494,49 @@ export default function PersistentDrawerLeft() {
       merrores.finalEvalEnd = "La fecha fin debe ser mayor que la fecha de inicio.";
     }
 
-    if (!notaPares || isNaN(notaPares) || notaPares < 1 || notaPares > 100) {
-      merrores.notaPares = "El campo Nota Pares debe ser un número entre 1 y 100.";
-    }
-  
+    // if (!notaPares || isNaN(notaPares) || notaPares < 1 || notaPares > 100) {
+    //   merrores.notaPares = "El campo Nota Pares debe ser un número entre 1 y 100.";
+    // }
+
     setErrors(merrores);
     return Object.keys(merrores).length === 0;
   };
-  
+
 
   const validateFor = () => {
     const error = {};
-  
+
     if (!paresEvalNota || paresEvalNota === "") {
       error.paresEvalNota = "El campo Evaluación Pares es obligatorio.";
     } else if (isNaN(paresEvalNota) || paresEvalNota < 1 || paresEvalNota > 100) {
       error.paresEvalNota = "El campo Evaluación Pares debe ser un número entre 1 y 100.";
     }
-  
+
     if (!autoEvalNota || autoEvalNota === "") {
       error.autoEvalNota = "El campo Autoevaluación es obligatorio.";
     } else if (isNaN(autoEvalNota) || autoEvalNota < 1 || autoEvalNota > 100) {
       error.autoEvalNota = "El campo Autoevaluación debe ser un número entre 1 y 100.";
     }
-  
+
     if (!docenteEvalNota || docenteEvalNota === "") {
       error.docenteEvalNota = "El campo Evaluación Docente es obligatorio.";
     } else if (isNaN(docenteEvalNota) || docenteEvalNota < 1 || docenteEvalNota > 100) {
       error.docenteEvalNota = "El campo Evaluación Docente debe ser un número entre 1 y 100.";
     }
-  
+
     setErrors(error);
     return Object.keys(error).length === 0;
   };
-  
+
   const validateNotif = () => {
     const errorMessage = {};
     if (!notificacion.trim()) {
       errorMessage.notificacion = 'El campo de detalles es obligatorio.';
-    } 
+    }
     else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,\.]{10,120}$/.test(notificacion)) {
       errorMessage.notificacion = 'El campo debe contener entre 10 y 120 caracteres, y solo puede incluir letras,comas y acentos.';
     }
-  
+
     setErrors(errorMessage);
     return Object.keys(errorMessage).length === 0;
   };
@@ -555,13 +555,20 @@ export default function PersistentDrawerLeft() {
       fecha_fin_eva_cruzada: cruzadaEnd,
       fecha_inicio_eva_final: finalEvalStart,
       fecha_fin_eva_final: finalEvalEnd,
-      nota_pares: notaPares,
+      // nota_pares: notaPares,
     };
 
     try {
       await axios.patch(`${API_URL}ajustes`, payload);
       toast.success('Fechas guardadas correctamente');
       setModalShow(false);
+      setAutoEvalStart('');
+      setAutoEvalEnd('');
+      setCruzadaStart('');
+      setCruzadaEnd('');
+      setFinalEvalStart('');
+      setFinalEvalEnd('');
+      // setNotaPares('');
     } catch (error) {
       toast.error('Error al guardar las fechas');
     }
@@ -633,7 +640,7 @@ export default function PersistentDrawerLeft() {
       setCruzadaEnd('');
       setFinalEvalStart('');
       setFinalEvalEnd('');
-      setNotaPares('');
+      // setNotaPares('');
       setEvaluacionModalShow(false);
     } catch (error) {
       let errorMessage = 'Ocurrió un error.';
@@ -1351,10 +1358,10 @@ export default function PersistentDrawerLeft() {
                         <Form.Group className="mb-3" controlId="formGroupEndDate">
                           <Form.Label>Fecha Fin</Form.Label>
                           <Form.Control
-                            type="date" 
+                            type="date"
                             placeholder="dd/mm/aaaa"
-                            value={formGroupEndDate} 
-                            onChange={(e) => setFormGroupEndDate(e.target.value)} 
+                            value={formGroupEndDate}
+                            onChange={(e) => setFormGroupEndDate(e.target.value)}
                           />
                         </Form.Group>
                       </Col>
@@ -1377,11 +1384,11 @@ export default function PersistentDrawerLeft() {
                         <Form.Group className="mb-3" controlId="formGroupMaxStudents">
                           <Form.Label>Cantidad Max. de estudiantes</Form.Label>
                           <Form.Control
-                            type="number" 
+                            type="number"
                             placeholder="6"
                             min="0"
-                            value={formGroupMaxStudents} 
-                            onChange={(e) => setFormGroupMaxStudents(e.target.value)} 
+                            value={formGroupMaxStudents}
+                            onChange={(e) => setFormGroupMaxStudents(e.target.value)}
                           />
                         </Form.Group>
                       </Col>
@@ -1420,8 +1427,8 @@ export default function PersistentDrawerLeft() {
                             <Form.Control.Feedback type="invalid">{errors.autoEvalStart}</Form.Control.Feedback>
                         </Form.Label>
                         <Form.Label>Fecha Fin
-                          <Form.Control type="date" value={autoEvalEnd} 
-                          onChange={(e) => setAutoEvalEnd(e.target.value)} 
+                          <Form.Control type="date" value={autoEvalEnd}
+                          onChange={(e) => setAutoEvalEnd(e.target.value)}
                           isInvalid={!!errors.autoEvalEnd}/>
                             <Form.Control.Feedback type="invalid">{errors.autoEvalEnd}</Form.Control.Feedback>
                         </Form.Label>
@@ -1473,7 +1480,7 @@ export default function PersistentDrawerLeft() {
                         </Form.Label>
                       </div>
                       {/* Nota Pares */}
-                      <div>
+                      {/* <div>
                         <Form.Label>Nota Pares</Form.Label>
                         <Form.Control
                           type="number"
@@ -1484,7 +1491,7 @@ export default function PersistentDrawerLeft() {
                           max={100}
                           isInvalid={!!errors.notaPares}/>
                           <Form.Control.Feedback type="invalid">{errors.notaPares}</Form.Control.Feedback>
-                      </div>
+                      </div> */}
                     </Form.Group>
                   </Form>
                 </Modal.Body>

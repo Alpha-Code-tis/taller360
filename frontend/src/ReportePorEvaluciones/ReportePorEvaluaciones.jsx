@@ -163,7 +163,7 @@ const ReportePorEvaluaciones = () => {
         item.nota_cruzada,
       ]));
       const pdfData = {
-        title: `Reporte ${evaluations[1].label}`,
+        title: `Reporte ${evaluations[2].label}`,
         evaluation: evaluations.find(e => e.id === Number(selectedEvaluationId)).label,
         empresa: empresas.find(e => e.id_empresa === Number(selectedEmpresaId)).nombre_empresa,
         sprint: '',
