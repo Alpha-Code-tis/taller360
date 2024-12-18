@@ -58,7 +58,7 @@ class PlanillaNotasFinalesController extends Controller
             ], 400);
         }
 
-        if (($notaValorSprint + $notaValorCruzada) == 100) {
+        if (($notaValorSprint + $notaValorCruzada) == 101) {
             return response()->json([
                 'error' => 'La suma de Nota Sprint y Evaluación Cruzada no debe superar 100.'
             ], 400);
@@ -122,12 +122,9 @@ class PlanillaNotasFinalesController extends Controller
                 'notaFin' => $notaFin,
             ];
 
-            // Opcional: Actualizar o crear la nota final en la base de datos
-            NotaFinal::updateOrCreate(
-                [
-                    'id_estudiante' => $estudiante->id_estudiante,
-                ],
-                [
+            $notaFinal = NotaFinal::where('id_estudiante', $estudiante->id_estudiante)->first();
+            if ($notaFinal) {
+                $notaFinal->update([
                     'nota_total_sprint' => $notaTotalSprint,
                     'nota_total_sprint_ajustada' => $notaTotalSprintAjustada,
                     'notas_cruzada' => $notaCruzada,
@@ -135,8 +132,19 @@ class PlanillaNotasFinalesController extends Controller
                     'nota_fin' => $notaFin,
                     'nota_valor_sprint' => $notaValorSprint,
                     'nota_valor_cruzada' => $notaValorCruzada,
-                ]
-            );
+                ]);
+            } else {
+                $notaFinal = NotaFinal::create([
+                    'id_estudiante' => $estudiante->id_estudiante,
+                    'nota_total_sprint' => $notaTotalSprint,
+                    'nota_total_sprint_ajustada' => $notaTotalSprintAjustada,
+                    'notas_cruzada' => $notaCruzada,
+                    'notas_cruzada_ajustada' => $notaCruzadaAjustada,
+                    'nota_fin' => $notaFin,
+                    'nota_valor_sprint' => $notaValorSprint,
+                    'nota_valor_cruzada' => $notaValorCruzada,
+                ]);
+            }
         }
 
         return response()->json([

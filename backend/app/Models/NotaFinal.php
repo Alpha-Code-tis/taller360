@@ -40,7 +40,7 @@ class NotaFinal extends Model
 
     protected $fillable = [
         'nota_total_sprint',
-        'id_estudiante' => 'int',
+        'id_estudiante',
         'notas_cruzada',
         'nota_fin',
         'id_notas_sprint',
