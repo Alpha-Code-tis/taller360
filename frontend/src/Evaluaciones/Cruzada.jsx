@@ -1,7 +1,7 @@
 import { API_URL } from '../config';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { Dropdown, Spinner, Table, Button, Form, Row, Col, Modal } from 'react-bootstrap';
+import { Dropdown, Container, Spinner, Table, Button, Form, Row, Col, Modal } from 'react-bootstrap';
 import toast from 'react-hot-toast';
 import './Cruzada.css';
 
@@ -77,15 +77,15 @@ const Cruzada = () => {
     try {
       const response = await axios.get(`${API_URL}ajustes`);
       const data = response.data;
-  
+
       setFechaInicioCruzada(data.fecha_inicio_eva_cruzada);
       setFechaFinCruzada(data.fecha_fin_eva_cruzada);
-  
+
       // Verificar si la fecha actual está dentro del rango
       const fechaActual = new Date();
       const fechaInicio = new Date(data.fecha_inicio_eva_cruzada);
       const fechaFin = new Date(data.fecha_fin_eva_cruzada);
-  
+
       if (fechaActual >= fechaInicio && fechaActual <= fechaFin) {
         setPuedeEvaluar(true);
       } else {
@@ -96,7 +96,7 @@ const Cruzada = () => {
       toast.error('Error al obtener las fechas de evaluación cruzada.');
     }
   };
-  
+
   const guardarEvaluacion = async () => {
     if (totalNota > 100) {
       toast.error('La nota total no puede exceder el 100%');
@@ -162,7 +162,7 @@ const Cruzada = () => {
       setModalNotasVisible(true); // Mostrar modal
     } catch (error) {
       console.error('Error al cargar detalles de las notas:', error.response?.data || error.message);
-      toast.error('Error al cargar los detalles de las notas');
+      toast.error( error.response?.data.message);
     }
   };
 
@@ -184,7 +184,7 @@ const Cruzada = () => {
       setCriterios(response.data.criterios || []);
     } catch (error) {
       console.error('Error al cargar detalles del equipo:', error.response?.data || error.message);
-      toast.error('Error al cargar los detalles del equipo');
+      toast.error(error.response?.data);
       setDriveLink('');
       setEspecificaciones('');
       setCriterios([]);
@@ -220,92 +220,154 @@ const Cruzada = () => {
 
 
   return (
-    <div className="container mt-0 ms-5">
-    {!puedeEvaluar ? (
-      <div className="alert alert-warning text-center">
-        Aún no es posible evaluar a otros equipos.
-      </div>
-    ) : (
-     <>
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <h1>Evaluación Cruzada de Equipos</h1>
-        <div className="d-flex align-items-center">
-          <Dropdown>
-            <Dropdown.Toggle variant="primary" id="dropdown-basic">
-              {currentEquipo ? currentEquipo.nombre_empresa : 'Selecciona un equipo'}
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {equipos.map((equipo) => (
-                <Dropdown.Item
-                  key={equipo.id_empresa}
-                  onClick={() => handleSelectEquipo(equipo)}
-                >
-                  {equipo.nombre_empresa}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-          <Button className="ms-3" onClick={() => setModalVisible(true)}>
-            Subir Enlace y Especificaciones
-          </Button>
-          <Button className="ms-3" onClick={fetchNotasDetalle}>
-            Detalles de Notas
-          </Button>
-        </div>
-      </div>
+    <div className="container-fluid">
+      <div className="container">
+        {!puedeEvaluar ? (
+          <div className="alert alert-warning text-center">
+            Aún no es posible evaluar a otros equipos.
+          </div>
+        ) : (
+          <>
+            {/* Título Centralizado */}
+            <div className="row">
+              <div className="col text-center">
+                <h1>Evaluación Cruzada de Equipos</h1>
+              </div>
+            </div>
+            {/* Espacio Oculto */}
+            <div className="row">
+              <div className="col text-center">
+                <h2 className="invisible">Espacio Oculto</h2>
+              </div>
+            </div>
+            {/* Contenido Responsivo */}
+            <div className="row justify-content-center align-items-start">
+              <div className="col">
+                <div className="d-flex align-items-center text-center">
+                  <Dropdown>
+                    <Dropdown.Toggle variant="primary" id="dropdown-basic">
+                      {currentEquipo ? currentEquipo.nombre_empresa : 'Selecciona un equipo'}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      {equipos.map((equipo) => (
+                        <Dropdown.Item
+                          key={equipo.id_empresa}
+                          onClick={() => handleSelectEquipo(equipo)}
+                        >
+                          {equipo.nombre_empresa}
+                        </Dropdown.Item>
+                      ))}
+                    </Dropdown.Menu>
+                  </Dropdown>
+                  <Button className="ms-3" onClick={() => setModalVisible(true)}>
+                    Subir Enlace y Especificaciones
+                  </Button>
+                  <Button className="ms-3" onClick={fetchNotasDetalle}>
+                    Detalles de Notas
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {/* Espacio Oculto */}
+            <div className="row">
+              <div className="col text-center">
+                <h2 className="invisible">Espacio Oculto</h2>
+              </div>
+            </div>
+            {loading ? (
+              <div className="text-center">
+                <Spinner animation="border" variant="primary" />
+                <p className="mt-3">Cargando equipos...</p>
+              </div>
+            ) : (
+              <div className="row justify-content-center align-items-start">
+                <div className="col">
 
-      {loading ? (
-        <div className="text-center">
-          <Spinner animation="border" variant="primary" />
-          <p className="mt-3">Cargando equipos...</p>
-        </div>
-      ) : ( 
-        <Row>
-  <Col md={{ span: 5, offset: 2 }}>
-  <Table bordered hover className="text-center">
-              <thead className="table-light">
-                <tr>
-                  <th>#</th>
-                  <th>Criterio</th>
-                  <th>Porcentaje Máximo</th>
-                  <th>Evaluación</th>
-                </tr>
-              </thead>
-              <tbody>
-                {criterios.map((criterio, index) => (
-                  <tr key={criterio.id_criterio}>
-                    <td>{index + 1}</td>
-                    <td>{criterio.nombre}</td>
-                    <td>{criterio.porcentaje}%</td>
-                    <td>
-                      <Form.Control
-                        type="number"
-                        min="0"
-                        max={criterio.porcentaje}
-                        value={evaluaciones[criterio.id_criterio] || ''}
-                        onChange={(e) =>
-                          handleEvaluationChange(criterio.id_criterio, parseInt(e.target.value, 10) || 0)
-                        }
-                      />
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+                  <div style={{ maxHeight: '300px', overflowY: 'auto' }} className="table-responsive">
+                    <Table bordered hover className="text-center">
+                      <thead className="table-light" style={{ position: 'sticky', top: 0, zIndex: 1 }}>
+                        <tr>
+                          <th>#</th>
+                          <th>Criterio</th>
+                          <th>Porcentaje Máximo</th>
+                          <th>Evaluación</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {criterios.map((criterio, index) => (
+                          <tr key={criterio.id_criterio}>
+                            <td>{index + 1}</td>
+                            <td>{criterio.nombre}</td>
+                            <td>{criterio.porcentaje}%</td>
+                            <td>
+                              <Form.Control
+                                type="number"
+                                min="0"
+                                max={criterio.porcentaje}
+                                value={evaluaciones[criterio.id_criterio] || ''}
+                                onChange={(e) =>
+                                  handleEvaluationChange(
+                                    criterio.id_criterio,
+                                    parseInt(e.target.value, 10) || 0
+                                  )
+                                }
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </Table>
+                  </div>
 
-            </Table>
-          </Col>
+                </div>
+                <div className="col">
+                  <Form.Group>
+                    <Form.Label>Enlace de Google Drive</Form.Label>
+                    <div className="d-flex align-items-center">
+                      <Form.Control type="text" readOnly value={driveLink} placeholder="No disponible" />
+                      {driveLink && (
+                        <Button variant="link" href={driveLink} target="_blank" className="ms-2">
+                          Ver
+                        </Button>
+                      )}
+                    </div>
+                  </Form.Group>
 
-          <Col md={4}>
+                  <Form.Group className="mt-3">
+                    <Form.Label>Especificaciones</Form.Label>
+                    <Form.Control
+                      as="textarea"
+                      readOnly
+                      value={especificaciones}
+                      placeholder="No disponible"
+                    />
+                  </Form.Group>
+                  <div className="text-center mt-4">
+                    <h3>Total Evaluación: {totalNota}%</h3>
+                    <Button variant="primary" onClick={guardarEvaluacion} disabled={totalNota === 0 || !puedeEvaluar}>
+                      Guardar Evaluación
+                    </Button>
+                  </div>
+                </div>
+
+              </div>
+            )}
+          </>
+        )}
+        {/* Modal para subir datos */}
+        <Modal show={modalVisible} onHide={() => setModalVisible(false)}>
+          <Modal.Header closeButton>
+            <Modal.Title>Subir Enlace y Especificaciones</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
             <Form.Group>
               <Form.Label>Enlace de Google Drive</Form.Label>
-              <div className="d-flex align-items-center">
-                <Form.Control type="text" readOnly value={driveLink} placeholder="No disponible" />
-                {driveLink && (
-                  <Button variant="link" href={driveLink} target="_blank" className="ms-2">
-                    Ver
-                  </Button>
-                )}
-              </div>
+              <Form.Control
+                type="text"
+                placeholder="Ingresa el enlace de Google Drive"
+                value={newDriveLink}
+                onChange={(e) => setNewDriveLink(e.target.value)}
+              />
             </Form.Group>
 
             <Form.Group className="mt-3">
@@ -313,108 +375,71 @@ const Cruzada = () => {
               <Form.Control
                 as="textarea"
                 rows={6}
-                readOnly
-                value={especificaciones}
-                placeholder="No disponible"
+                placeholder="Ingresa las especificaciones adicionales"
+                value={newEspecificaciones}
+                onChange={(e) => setNewEspecificaciones(e.target.value)}
               />
             </Form.Group>
-            <div className="text-center mt-4">
-              <h3>Total Evaluación: {totalNota}%</h3>
-              <Button variant="primary" onClick={guardarEvaluacion} disabled={totalNota === 0 || !puedeEvaluar}>
-                Guardar Evaluación
-              </Button>
-            </div>
-          </Col>
-        </Row>
-      )}
- </>
- )}
-      {/* Modal para subir datos */}
-      <Modal show={modalVisible} onHide={() => setModalVisible(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Subir Enlace y Especificaciones</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <Form.Group>
-            <Form.Label>Enlace de Google Drive</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Ingresa el enlace de Google Drive"
-              value={newDriveLink}
-              onChange={(e) => setNewDriveLink(e.target.value)}
-            />
-          </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setModalVisible(false)}>
+              Cancelar
+            </Button>
+            <Button variant="primary" onClick={guardarDriveYEspecificaciones}>
+              Guardar
+            </Button>
+          </Modal.Footer>
+        </Modal>
 
-          <Form.Group className="mt-3">
-            <Form.Label>Especificaciones</Form.Label>
-            <Form.Control
-              as="textarea"
-              rows={6}
-              placeholder="Ingresa las especificaciones adicionales"
-              value={newEspecificaciones}
-              onChange={(e) => setNewEspecificaciones(e.target.value)}
-            />
-          </Form.Group>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setModalVisible(false)}>
-            Cancelar
-          </Button>
-          <Button variant="primary" onClick={guardarDriveYEspecificaciones}>
-            Guardar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
-      {/* Modal para detalles de notas */}
-      <Modal show={modalNotasVisible} onHide={() => setModalNotasVisible(false)} size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Detalles de Notas Asignadas a Tu Equipo</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {notasDetalle.length === 0 ? (
-            <p>No hay notas disponibles para tu equipo.</p>
-          ) : (
-            notasDetalle.map((evaluacion, index) => (
-              <div key={index} className="mb-4">
-                <h5>Evaluador: {evaluacion.evaluador}</h5>
-                <Table bordered hover className="text-center">
-                  <thead>
-                    <tr>
-                      <th>#</th>
-                      <th>Criterio</th>
-                      <th>Nota</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {evaluacion.detalles.map((nota, idx) => (
-                      <tr key={idx}>
-                        <td>{idx + 1}</td>
-                        <td>{nota.criterio_nombre}</td>
-                        <td>{nota.nota}</td>
+        {/* Modal para detalles de notas */}
+        <Modal show={modalNotasVisible} onHide={() => setModalNotasVisible(false)} size="lg">
+          <Modal.Header closeButton>
+            <Modal.Title>Detalles de Notas Asignadas a Tu Equipo</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            {notasDetalle.length === 0 ? (
+              <p>No hay notas disponibles para tu equipo.</p>
+            ) : (
+              notasDetalle.map((evaluacion, index) => (
+                <div key={index} className="mb-4">
+                  <h5>Evaluador: {evaluacion.evaluador}</h5>
+                  <Table bordered hover className="text-center">
+                    <thead>
+                      <tr>
+                        <th>#</th>
+                        <th>Criterio</th>
+                        <th>Nota</th>
                       </tr>
-                    ))}
-                    <tr>
-                      <td colSpan="2">
-                        <strong>Total</strong>
-                      </td>
-                      <td>
-                        <strong>{evaluacion.nota_total}</strong>
-                      </td>
-                    </tr>
-                  </tbody>
-                </Table>
-              </div>
-            ))
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setModalNotasVisible(false)}>
-            Cerrar
-          </Button>
-        </Modal.Footer>
-      </Modal>
-
+                    </thead>
+                    <tbody>
+                      {evaluacion.detalles.map((nota, idx) => (
+                        <tr key={idx}>
+                          <td>{idx + 1}</td>
+                          <td>{nota.criterio_nombre}</td>
+                          <td>{nota.nota}</td>
+                        </tr>
+                      ))}
+                      <tr>
+                        <td colSpan="2">
+                          <strong>Total</strong>
+                        </td>
+                        <td>
+                          <strong>{evaluacion.nota_total}</strong>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </Table>
+                </div>
+              ))
+            )}
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={() => setModalNotasVisible(false)}>
+              Cerrar
+            </Button>
+          </Modal.Footer>
+        </Modal>
+      </div>
     </div>
   );
 };

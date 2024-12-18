@@ -91,6 +91,7 @@ const Equipos = () => {
     }
   };
 
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

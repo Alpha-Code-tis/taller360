@@ -1,3 +1,6 @@
+.main-content {
+  flex: 1; /* Esto asegura que el contenido principal ocupe el espacio disponible */
+}
 .footer {
   display: flex;
   justify-content: space-between;

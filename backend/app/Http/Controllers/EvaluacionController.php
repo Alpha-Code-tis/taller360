@@ -116,58 +116,53 @@ class EvaluacionController extends Controller
     // Guardar la evaluación de las tareas
     public function saveEvaluation(Request $request)
     {
+        $request->validate([
+            'sprint_id' => 'required|exists:sprint,id_sprint'
+        ]);
+    
+        $sprint = Sprint::findOrFail($request->sprint_id);
+        $porcentajeMaximo = $sprint->porcentaje;
+    
         // Validación de datos de entrada
         $request->validate([
             'tareas' => 'required|array',
             'tareas.*.id_tarea' => 'required|exists:tarea,id_tarea',
-            'tareas.*.calificacion' => ['required', 'regex:/^\d+ \/ \d+$/'],
+            'tareas.*.calificacion' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:' . $porcentajeMaximo
+            ],
             'tareas.*.comments' => 'nullable|string',
             'tareas.*.revisado' => 'required|boolean',
             'sprint_id' => 'required|exists:sprint,id_sprint',
             'week' => 'required|integer|min:1',
             'week_revisado' => 'required|boolean'
         ]);
-        // Obtener el sprint para verificar el porcentaje máximo permitido
+    
+        // Obtenemos de nuevo el sprint (opcional, ya lo tenemos arriba)
         $sprint = Sprint::findOrFail($request->sprint_id);
         $porcentajeMaximo = $sprint->porcentaje;
-     
-
+    
         try {
-            // Iniciar una transacción para asegurar la integridad de los datos
             DB::beginTransaction();
-
-            // Iterar sobre cada tarea proporcionada
+    
             foreach ($request->tareas as $tareaData) {
-                // Obtener el valor de la calificación en formato 'numero / porcentaje'
-                list($calificacion, $porcentaje) = explode(' / ', $tareaData['calificacion']);
-
-                // Convertir calificación y porcentaje a enteros para la validación
-                $calificacion = (int) $calificacion;
-                $porcentaje = (int) $porcentaje;
-
-                // Validar que el porcentaje ingresado coincida con el del sprint
-                if ($porcentaje !== $porcentajeMaximo) {
-                    return response()->json([
-                        'error' => "El porcentaje especificado debe coincidir con el porcentaje del sprint: $porcentajeMaximo"
-                    ], 422);
-                }
-
+                $calificacion = (int) $tareaData['calificacion'];
+    
                 // Validar que la calificación no exceda el porcentaje máximo
                 if ($calificacion > $porcentajeMaximo) {
                     return response()->json([
                         'error' => "La calificación no puede exceder el valor máximo permitido del sprint: $porcentajeMaximo"
                     ], 422);
                 }
-
-                // Encontrar la tarea y actualizar los datos
+    
                 $tarea = Tarea::findOrFail($tareaData['id_tarea']);
-                $tarea->calificacion = $calificacion; // Asignar la calificación
+                $tarea->calificacion = $calificacion;
                 $tarea->observaciones = $tareaData['comments'] ?? null;
                 $tarea->revisado = $tareaData['revisado'];
                 $tarea->save();
-
-
-                // Guardar en detalle tarea con nombre del estudiante responsable
+    
                 $estudiantes = EstudianteTarea::where('id_tarea', $tarea->id_tarea)->with('estudiante')->get();
                 foreach ($estudiantes as $estudianteTarea) {
                     DetalleTarea::updateOrCreate(
@@ -175,7 +170,7 @@ class EvaluacionController extends Controller
                         [
                             'nom_estudiante' => $estudianteTarea->estudiante->nombre_estudiante,
                             'nom_tarea' => $tarea->nombre_tarea,
-                            'calificacion_tarea' => "{$calificacion} / {$porcentajeMaximo}", // Guardar el formato completo
+                            'calificacion_tarea' => "{$calificacion} / {$porcentajeMaximo}",
                             'observaciones_tarea' => $tareaData['comments'] ?? '',
                             'revisado_tarea' => $tareaData['revisado'],
                             'revisado_semanas' => $request->week_revisado
@@ -183,36 +178,58 @@ class EvaluacionController extends Controller
                     );
                 }
             }
-
     
-
+            // Después de guardar todas las tareas, actualizar las semanas revisadas del sprint
+            $sprintWeeks = json_decode($sprint->revisado_semanas, true) ?? [];
+            if ($request->week_revisado && !in_array((int)$request->week, $sprintWeeks)) {
+                $sprintWeeks[] = (int)$request->week;
+                $sprint->revisado_semanas = json_encode($sprintWeeks);
+                $sprint->save();
+            }
+    
             DB::commit();
         } catch (\Exception $e) {
-            // Rollback en caso de cualquier error
             DB::rollBack();
             return response()->json(['error' => 'Error al guardar la evaluación: ' . $e->getMessage()], 500);
         }
-
-        // Responder con un mensaje de éxito
+    
         return response()->json(['message' => 'Evaluación guardada con éxito.']);
     }
+    
 
 
     // Obtener la evaluación de una semana que ya fue revisada
     public function getReviewedWeek($sprintId, $week)
     {
         $sprint = Sprint::findOrFail($sprintId);
+
+        // Obtener las semanas revisadas del sprint
         $sprintWeeks = json_decode($sprint->revisado_semanas, true) ?? [];
 
-        if (!in_array($week, $sprintWeeks)) {
+        // Verificar si la semana está revisada
+        if (!in_array((int)$week, $sprintWeeks)) {
             return response()->json(['message' => 'La semana no ha sido revisada aún.'], 404);
         }
 
-        // Obtener las tareas de esa semana desde la tabla detalle tarea
+        // Obtener las tareas de esa semana desde la tabla detalle_tarea
         $detalleTareas = DetalleTarea::where('semana_sprint', $week)
             ->whereHas('tarea.alcance.sprint', function ($query) use ($sprintId) {
                 $query->where('id_sprint', $sprintId);
-            })->distinct()->get();
-        return response()->json($detalleTareas);
+            })
+            ->distinct()
+            ->get();
+
+        $responseData = $detalleTareas->map(function ($detalle) {
+            return [
+                'id_tarea' => $detalle->id_tarea,
+                'nom_estudiante' => $detalle->nom_estudiante,
+                'nom_tarea' => $detalle->nom_tarea,
+                'calificacion_tarea' => $detalle->calificacion_tarea,
+                'observaciones_tarea' => $detalle->observaciones_tarea,
+                'revisado_tarea' => $detalle->revisado_tarea,
+            ];
+        });
+
+        return response()->json($responseData);
     }
 }

@@ -389,6 +389,7 @@ export default function PersistentDrawerLeft() {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
+
   const validateForm = () => {
     const newErrors = {};
 
@@ -532,8 +533,8 @@ export default function PersistentDrawerLeft() {
     if (!notificacion.trim()) {
       errorMessage.notificacion = 'El campo de detalles es obligatorio.';
     }
-    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,]{10,50}$/.test(notificacion)) {
-      errorMessage.notificacion = 'El campo debe contener entre 10 y 50 caracteres, y solo puede incluir letras,comas y acentos.';
+    else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,\.]{10,120}$/.test(notificacion)) {
+      errorMessage.notificacion = 'El campo debe contener entre 10 y 120 caracteres, y solo puede incluir letras,comas y acentos.';
     }
 
     setErrors(errorMessage);

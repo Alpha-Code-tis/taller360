@@ -219,29 +219,42 @@ const Planificacion = () => {
     if (!formValues.fechaFinal) {
       errors.fechaFinal = 'La fecha de fin es obligatoria.';
     }
-
+    // Validación de las fechas (si ambas existen)
     if (formValues.fechaInicio && formValues.fechaFinal) {
       const startDate = dayjs(formValues.fechaInicio).startOf('day');
       const endDate = dayjs(formValues.fechaFinal).startOf('day');
-
+  
+      if (endDate.isBefore(startDate)) {
+        errors.fechaFinal = 'La fecha de fin no puede ser anterior a la fecha de inicio.';
+      }
     }
-
-    if (/\d/.test(formValues.requerimiento)) {
+    if(!formValues.color || formValues.color.trim() === ''){
+      errors.color = 'El color es obligatoriore';
+    }
+  
+    // Validación del campo "requerimiento"
+    if (!formValues.requerimiento || formValues.requerimiento.trim() === '') {
+      errors.requerimiento = 'El requerimiento es obligatorio.';
+    } else if (/\d/.test(formValues.requerimiento)) {
       errors.requerimiento = 'El requerimiento no debe contener números.';
+    } else if (!/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(formValues.requerimiento)) {
+      errors.requerimiento = 'El requerimiento no debe contener caracteres especiales.';
+    } else if (formValues.requerimiento.length < 3 || formValues.requerimiento.length > 30) {
+      errors.requerimiento = 'El requerimiento debe tener entre 3 y 30 caracteres.';
     }
+  
+    // Validación del campo "nSprint"
     if (!/^\d+$/.test(formValues.nSprint)) {
       errors.nSprint = 'El número de sprint debe contener solo números.';
     }
+  
+    // Validación del campo "porcentaje"
     if (!/^\d+$/.test(formValues.porcentaje)) {
-      errors.porcentaje = 'El número de porcentaje debe contener solo números.';
+      errors.porcentaje = 'El porcentaje debe contener solo números.';
     }
-
-    if (/\d/.test(formValues.tarea)) {
-      errors.tarea = 'La tarea no debe contener números.';
-    }
-    setFormErrors(errors);
+      setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  };
+  };  
 
   const handleAddTarea = () => {
     console.log(formValues);
@@ -429,15 +442,6 @@ const Planificacion = () => {
                     Sprint {sprint}
                   </label>
                 ))}
-                <label className="dropdown-item">
-                  <input
-                    type="radio"
-                    value="Todos"
-                    checked={selectedSprint === 'Todos'}
-                    onChange={handleOptionChange}
-                  />
-                  Todos
-                </label>
               </div>
             )}
           </div>
@@ -665,7 +669,7 @@ const Planificacion = () => {
                 </Form.Group>
               </Col>
 
-              <Col md={3} style={{ display: 'flex', justifyContent: 'flex-start', marginTop: '10px' }}>
+              <Col md={3} style={{ display: 'flex', justifyContent: 'flex', marginTop: '31px' }}>
                 <Form.Group>
                   <Button className="btn btn-primary" onClick={handleAddTarea}>+</Button>
                 </Form.Group>

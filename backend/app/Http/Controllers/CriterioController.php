@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Criterio;
 use App\Models\Tarea;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 
 class CriterioController extends Controller
@@ -19,11 +20,36 @@ class CriterioController extends Controller
     // Almacenar un nuevo criterio
     public function store(Request $request)
     {
-        $request->validate([
-            'nombre' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
-            'descripcion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+        $rules = [
+            'nombre' => [
+                'required',
+                'string',
+                'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,\.]+$/u'
+            ],
+            'descripcion' => [
+                'required',
+                'string',
+                'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,\.]+$/u'
+            ],
             'porcentaje' => 'required|integer|min:1|max:100',
-        ]);
+        ];
+            $messages = [
+            'nombre.required' => 'El nombre es obligatorio.',
+            'descripcion.required' => 'La descripción es obligatoria.',
+            'porcentaje.required' => 'El porcentaje es obligatorio.',
+            'porcentaje.integer' => 'El porcentaje debe ser un número entero.',
+            'porcentaje.min' => 'El porcentaje debe ser al menos 1.',
+            'porcentaje.max' => 'El porcentaje no puede ser mayor a 100.',
+            'regex' => 'El campo :attribute tiene un formato inválido.',
+        ];
+            $validator = Validator::make($request->all(), $rules, $messages);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no válidos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }   
         $porcentaje = Criterio::sum("porcentaje");
         if ($porcentaje + $request->porcentaje > 100) {
             return response()->json([
@@ -55,12 +81,36 @@ class CriterioController extends Controller
     // Actualizar un criterio existente
     public function update(Request $request, $id_criterio)
     {
-        $request->validate([
-            'nombre' =>['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
-            'descripcion' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+        $rules = [
+            'nombre' => [
+                'required',
+                'string',
+                'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,\.]+$/u'
+            ],
+            'descripcion' => [
+                'required',
+                'string',
+                'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ,\.]+$/u'
+            ],
             'porcentaje' => 'required|integer|min:1|max:100',
-
-        ]);
+        ];
+            $messages = [
+            'nombre.required' => 'El nombre es obligatorio.',
+            'descripcion.required' => 'La descripción es obligatoria.',
+            'porcentaje.required' => 'El porcentaje es obligatorio.',
+            'porcentaje.integer' => 'El porcentaje debe ser un número entero.',
+            'porcentaje.min' => 'El porcentaje debe ser al menos 1.',
+            'porcentaje.max' => 'El porcentaje no puede ser mayor a 100.',
+            'regex' => 'El campo :attribute tiene un formato inválido.',
+        ];
+            $validator = Validator::make($request->all(), $rules, $messages);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'message' => 'Datos no válidos',
+                'errors' => $validator->errors(),
+            ], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }        
 
         $criterio = Criterio::where('id_criterio', $id_criterio)->first();
 

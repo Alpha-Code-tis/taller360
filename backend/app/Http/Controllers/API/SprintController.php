@@ -23,7 +23,8 @@ class SprintController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    private function validarCampoNumerico($valor, $nombreCampo) {
+    private function validarCampoNumerico($valor, $nombreCampo)
+    {
         if (!trim($valor)) {
             return "El campo \"$nombreCampo\" no puede estar vacío.";
         }
@@ -33,7 +34,8 @@ class SprintController extends Controller
         return null;
     }
 
-    private function validarCampoTexto($valor, $nombreCampo) {
+    private function validarCampoTexto($valor, $nombreCampo)
+    {
         if (!trim($valor)) {
             return "El campo \"$nombreCampo\" no puede estar vacío.";
         }
@@ -90,9 +92,9 @@ class SprintController extends Controller
         $sprints = Sprint::query()
             ->when(
                 isset($empresaId),
-                fn ($q) => $q->whereHas(
+                fn($q) => $q->whereHas(
                     'planificacion',
-                    fn ($q) => $q->where('id_empresa', $empresaId)
+                    fn($q) => $q->where('id_empresa', $empresaId)
                 )
             )
             ->get();
@@ -110,51 +112,18 @@ class SprintController extends Controller
         $messages = [
             'requerimiento.regex' => 'El campo requerimiento no debe contener tres caracteres consecutivos idénticos.',
             'tareas.*.nombre.regex' => 'El nombre de una tarea no debe contener tres caracteres consecutivos idénticos.',
-        ];        
+        ];
         $validator = Validator::make($request->all(), [
             'nro_sprint' => 'required|integer|min:1',
             'color' => ['required', 'string', 'regex:/^#[0-9A-Fa-f]{6}$/'],
             'fecha_inicio' => 'required|date_format:d/m/Y',
             'fecha_fin' => 'required|date_format:d/m/Y|after_or_equal:fecha_inicio',
-            'requerimiento' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'requerimiento' => ['required', 'string', 'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'porcentaje' => 'required|integer',
             'tareas' => 'required|array',
-            'tareas.*.nombre' => ['required','string','regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
+            'tareas.*.nombre' => ['required', 'string', 'regex:/^(?!.*(.)\1{2})[\w\sñáéíóúüÑÁÉÍÓÚÜ]+$/u'],
             'tareas.*.estimacion' => 'required|integer|min:1',
         ], $messages);
-
-        $validator->after(function ($validator) use ($request) {
-            
-            // Validar porcentaje (si se le quiere aplicar las mismas reglas que a cobro)
-            $error = $this->validarCampoNumerico($request->porcentaje, 'Porcentaje');
-            if ($error) {
-                $validator->errors()->add('porcentaje', $error);
-            }
-
-            // Validar requerimiento
-            $error = $this->validarCampoTexto($request->requerimiento, 'Requerimiento');
-            if ($error) {
-                $validator->errors()->add('requerimiento', $error);
-            }
-
-            // Validar tareas (nombre)
-            if (is_array($request->tareas)) {
-                foreach ($request->tareas as $index => $tarea) {
-                    if (isset($tarea['nombre'])) {
-                        $error = $this->validarCampoTexto($tarea['nombre'], "Nombre de la tarea");
-                        if ($error) {
-                            $validator->errors()->add("tareas.$index.nombre", $error);
-                        }
-                    }
-                    if (isset($tarea['estimacion'])) {
-                        $error = $this->validarCampoNumerico($tarea['estimacion'], "Estimación de la tarea");
-                        if ($error) {
-                            $validator->errors()->add("tareas.$index.estimacion", $error);
-                        }
-                    }
-                }
-            }
-        });
 
         if ($validator->fails()) {
             return response()->json([
@@ -199,6 +168,19 @@ class SprintController extends Controller
                     'message' => 'Hay solapamientos de fechas',
                 ], Response::HTTP_CONFLICT);
             }
+            $siguienteSprintInvalido = Sprint::where('id_planificacion', $id_planificacion)
+                ->where('nro_sprint', '<', $validated['nro_sprint']) // Verificar solo los sprints anteriores
+                ->where(function ($query) use ($validated) {
+                    $query->where('fecha_fin', '>=', Carbon::createFromFormat('d/m/Y', $validated['fecha_inicio'])->format('Y-m-d'));
+                })
+                ->exists();
+
+            if ($siguienteSprintInvalido) {
+                DB::rollBack();
+                return response()->json([
+                    'message' => 'La fecha de inicio del sprint no debe ser menor que la fecha de finalización de los sprints anteriores.',
+                ], Response::HTTP_CONFLICT);
+            }
             $colorExistente = Sprint::where('id_planificacion', $id_planificacion)
                 ->where('color', $validated['color'])
                 ->exists();
@@ -234,7 +216,7 @@ class SprintController extends Controller
 
                 if ($totalPorcentaje + $validated['porcentaje'] > 100) {
                     DB::rollBack();
-                    return response()->json(['message' => 'El total de los porcentajes no debe exceder el 100% - tu total es: ' .$totalPorcentaje . '.'], Response::HTTP_CONFLICT);
+                    return response()->json(['message' => 'El total de los porcentajes no debe exceder el 100% - tu total es: ' . $totalPorcentaje . '.'], Response::HTTP_CONFLICT);
                 }
                 $sprint = new Sprint;
                 $sprint->nro_sprint = $validated['nro_sprint'];

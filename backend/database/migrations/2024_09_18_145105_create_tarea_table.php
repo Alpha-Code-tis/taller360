@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('nombre_tarea', 35)->nullable();
             $table->string('estado', 12)->default('Pendiente');
             $table->string('progreso', 6)->default('0 %');
-            $table->string('avances', 50)->nullable(); 
+            $table->text('avances')->nullable()->change(); 
             $table->integer('estimacion')->nullable();
             $table->integer('calificacion')->nullable();
             $table->string('observaciones', 50)->nullable(); 

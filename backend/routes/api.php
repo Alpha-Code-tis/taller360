@@ -138,9 +138,10 @@ Route::middleware('auth:sanctum')->group(function () {
     //Planilla-Docente
     Route::get('/planilla/empresas', [PlanillaDocenteController::class, 'mostrarEmpresas']);
     Route::get('/planilla/empresas/{empresaId}/sprints', [PlanillaDocenteController::class, 'mostrarSprints']);
-    Route::get('/planilla/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']);
+    Route::get('/planilla/empresas/{empresaId}/sprints/{sprintId}/tareas', [PlanillaDocenteController::class, 'mostrarTareas']);
     Route::put('/planilla/tareas/{tareaId}/actualizar-progreso', [PlanillaDocenteController::class, 'actualizarProgreso']);
     Route::get('/planilla/tareas/{tareaId}/ver-avances', [PlanillaDocenteController::class, 'verAvances']);
+    Route::get('/evaluation/reviewed-week/{sprintId}/{week}', [EvaluacionController::class, 'getReviewedWeek']);
 
     //Planilla-Representante
     Route::get('/sprints', [PlanillaController::class, 'mostrarSprints']);

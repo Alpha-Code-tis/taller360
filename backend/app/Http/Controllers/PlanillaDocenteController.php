@@ -15,20 +15,6 @@ class PlanillaDocenteController extends Controller
     public function mostrarEmpresas()
     {
         // Obtener el docente autenticado
-
-        $docente = Auth::user();
-
-        // Obtener las empresas asociadas a los grupos que el docente tiene asignados
-        $empresas = Empresa::whereHas('grupos', function ($query) use ($docente) {
-            $query->where('id_docente', $docente->id_docente);
-        })->get();
-
-        return response()->json($empresas);
-    }
-
-    public function mostrarSprints($empresaId)
-    {
-        // Obtener el docente autenticado
         $docente = Auth::user();
         // Verificar si el docente está autenticado
         if (!$docente) {
@@ -38,7 +24,6 @@ class PlanillaDocenteController extends Controller
         }
 
         $empresas = Estudiante::whereNotNull('id_empresa')
-            ->whereNotNull('id_representante')
             ->where('id_grupo', $docente->id_grupo)
             ->pluck('id_empresa')
             ->unique();
@@ -55,6 +40,17 @@ class PlanillaDocenteController extends Controller
         return response()->json([
             'empresas' => $detallesEmpresas
         ]);
+    }
+
+    public function mostrarSprints($empresaId)
+    {
+        $sprints = Sprint::whereIn('id_planificacion', function ($query) use ($empresaId) {
+            $query->select('id_planificacion')
+                ->from('planificacion')
+                ->where('id_empresa', $empresaId);
+        })->get();
+
+        return response()->json($sprints);
     }
 
     // Obtener los sprints de una empresa seleccionada

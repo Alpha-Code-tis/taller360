@@ -157,19 +157,19 @@ const CriterioEvaluacion = () => {
   
   const validateForm = () => {
     const errors = {};
-    const regexNombreDescripcion = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,]{5,50}$/;
+    const regexNombreDescripcion = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,\.]{5,80}$/;
     console.log('Validando formulario con valores:', formValues);
   
     if (!formValues.nombre) {
       errors.nombre = 'El nombre es obligatorio.';
     } else if (!regexNombreDescripcion.test(formValues.nombre)) {
-      errors.nombre = 'El nombre debe contener entre 5 y 50 letras, sin números ni caracteres especiales.';
+      errors.nombre = 'El nombre debe contener entre 5 y 80 letras, sin números ni caracteres especiales.';
     }
   
     if (!formValues.descripción) {
       errors.descripción = 'La descripción es obligatoria.';
     } else if(!regexNombreDescripcion.test(formValues.descripción)) {
-      errors.descripción = 'La descripción debe contener entre 5 y 50 letras, sin números ni caracteres especiales.';
+      errors.descripción = 'La descripción debe contener entre 5 y 80 letras, sin números ni caracteres especiales.';
     }
 
     if (formValues.porcentaje < 0 || formValues.porcentaje > 100) {
