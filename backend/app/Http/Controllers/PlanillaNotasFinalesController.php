@@ -58,7 +58,7 @@ class PlanillaNotasFinalesController extends Controller
             ], 400);
         }
 
-        if (($notaValorSprint + $notaValorCruzada) == 100) {
+        if (($notaValorSprint + $notaValorCruzada) == 101) {
             return response()->json([
                 'error' => 'La suma de Nota Sprint y Evaluación Cruzada no debe superar 100.'
             ], 400);
