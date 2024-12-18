@@ -389,6 +389,7 @@ export default function PersistentDrawerLeft() {
   const handleSettingsMenuClose = () => {
     setSettingsMenuAnchor(null);
   };
+
   const validateForm = () => {
     const newErrors = {};
   

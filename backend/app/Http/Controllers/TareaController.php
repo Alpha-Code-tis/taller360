@@ -54,31 +54,6 @@ class TareaController extends Controller
 
         return response()->json($tareasDelEstudiante);
     }
-    public function mostrarTarea($sprintId)
-{
-    // Obtener el estudiante autenticado
-    $estudiante = auth()->guard('sanctum')->user();
-
-    if (!$estudiante) {
-        return response()->json(['error' => 'No autenticado'], 401);
-    }
-
-    // Verificar que el sprint pertenece a la empresa del estudiante
-    $planificacion = Planificacion::where('id_empresa', $estudiante->id_empresa)->first();
-    $sprint = Sprint::where('id_sprint', $sprintId)
-        ->where('id_planificacion', $planificacion->id_planificacion)
-        ->first();
-
-    if (!$sprint) {
-        return response()->json(['error' => 'Sprint no encontrado o no pertenece a la empresa del estudiante'], 404);
-    }
-
-    $tareas = $estudiante->tareas()
-                       ->whereIn('id_alcance', $sprint->alcances->pluck('id_alcance'))
-                       ->get();
-
-        return response()->json($tareas);
-    }
 
     public function subirAvance(Request $request, $tareaId)
     {

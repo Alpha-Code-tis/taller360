@@ -20,7 +20,7 @@ function GenerarPlanilla() {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const response = await axios.get(`${API_URL}evaluation/form`);
+        const response = await axios.get(`${API_URL}planilla/empresas`);
         setTeams(response.data.empresas);
         console.log('Equipos:', response.data.empresas);
       } catch (error) {
@@ -35,7 +35,7 @@ function GenerarPlanilla() {
     if (team) {
       const fetchSprints = async () => {
         try {
-          const response = await axios.get(`${API_URL}evaluation/sprints/${team}`);
+          const response = await axios.get(`${API_URL}planilla/empresas/${team}/sprints`);
           setSprints(response.data);
           console.log('Sprints:', response.data);
         } catch (error) {
@@ -54,7 +54,7 @@ function GenerarPlanilla() {
     if (sprint) {
       const fetchTasks = async () => {
         try {
-          const response = await axios.get(`${API_URL}evaluation/tareas/${team}/sprint/${sprint}`);
+          const response = await axios.get(`${API_URL}planilla/empresas/${team}/sprints/${sprint}/tareas`);
           setTasks(response.data);
           console.log('Tareas:', response.data);
 
@@ -81,7 +81,7 @@ function GenerarPlanilla() {
 
   // Función para actualizar el progreso de una tarea
   const actualizarProgreso = (index, idTarea, nuevoProgreso) => {
-    axios.put(`${API_URL}evaluation/planilla/tareas/${idTarea}/actualizar-progreso`, { progreso: nuevoProgreso })
+    axios.put(`${API_URL}planilla/tareas/${idTarea}/actualizar-progreso`, { progreso: nuevoProgreso })
       .then(response => {
         // Update the tasks state after successful update
         const updatedTasks = [...tasks];
@@ -106,7 +106,7 @@ function GenerarPlanilla() {
 
   // Función para ver enlaces de un documento relacionado a una tarea
   const verImagenes = (idTarea) => {
-    axios.get(`${API_URL}evaluation/planilla/tareas/${idTarea}/ver-avances`)
+    axios.get(`${API_URL}planilla/tareas/${idTarea}/ver-avances`)
       .then(response => {
         setImagenes(response.data); // Assuming response.data contains an array of document URLs
         setMostrarModal(true);
