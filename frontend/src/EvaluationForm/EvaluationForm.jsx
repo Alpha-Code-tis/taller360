@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { API_URL } from '../config';
+import { toast } from 'react-hot-toast';
 
 const EvaluationForm = () => {
   const [teams, setTeams] = useState([]);
@@ -41,9 +42,19 @@ const EvaluationForm = () => {
           setSprints(response.data);
         } catch (error) {
           console.error('Error al obtener sprints:', error);
+          toast.error('No se pudieron cargar los sprints.');
         }
       };
       fetchSprints();
+    } else {
+      // Resetear estados si no hay equipo seleccionado
+      setSprints([]);
+      setSprint('');
+      setWeeks([]);
+      setWeek('');
+      setTasks([]);
+      setMembers([]);
+      setIsReviewed(false);
     }
   }, [team]);
 
@@ -56,6 +67,7 @@ const EvaluationForm = () => {
           setPercentage(response.data.porcentaje);
         } catch (error) {
           console.error('Error al obtener el porcentaje del sprint:', error);
+          toast.error('No se pudo obtener el porcentaje del sprint.');
         }
       };
       fetchSprintPercentage();
@@ -71,65 +83,126 @@ const EvaluationForm = () => {
           setWeeks(response.data);
         } catch (error) {
           console.error('Error al obtener semanas:', error);
+          toast.error('No se pudieron cargar las semanas.');
+          setError('No se pudieron cargar las semanas.');
         }
       };
       fetchWeeks();
+    } else {
+      setWeeks([]);
+      setWeek('');
     }
   }, [sprint]);
 
   useEffect(() => {
     const loadData = async () => {
       if (team && sprint && week) {
-        // Convertir week a número si reviewedWeeks son números
-        const weekNumber = parseInt(week, 10);
-setReviewedWeeks(prev => {
-  if (!prev.includes(weekNumber)) {
-    return [...prev, weekNumber];
-  }
-  return prev;
-});
-        if (reviewedWeeks.includes(weekNumber)) {
-          // Semana revisada: cargar datos guardados
-          try {
-            const response = await axios.get(`${API_URL}evaluation/reviewed-week/${sprint}/${weekNumber}`);
-            const reviewedMembers = response.data.map(detalle => ({
-              id_tarea: detalle.id_tarea,
-              name: detalle.nom_estudiante,
-              tasks: detalle.nom_tarea,
-              score: parseInt(detalle.calificacion_tarea.split(' / ')[0], 10),
-              comments: detalle.observaciones_tarea,
-              reviewed: detalle.revisado_tarea ? true : false
-            }));
-            setMembers(reviewedMembers);
-          } catch (error) {
+        try {
+          const response = await axios.get(`${API_URL}evaluation/reviewed-week/${sprint}/${week}`);
+          // Si la semana está revisada, establecer los datos en modo de solo lectura
+          const reviewedData = response.data;
+          const reviewedMembers = reviewedData.map(detalle => ({
+            id_tarea: detalle.id_tarea,
+            name: detalle.nom_estudiante,
+            tasks: detalle.nom_tarea,
+            score: parseInt(detalle.calificacion_tarea.split(' / ')[0], 10),
+            comments: detalle.observaciones_tarea,
+            reviewed: detalle.revisado_tarea ? true : false
+          }));
+          setMembers(reviewedMembers);
+          setIsReviewed(true);
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            // Si la semana no está revisada, permitir la edición
+            try {
+              const response = await axios.get(`${API_URL}evaluation/tareas/${team}/sprint/${sprint}`);
+              const fetchedTasks = response.data;
+              setTasks(fetchedTasks);
+              setMembers(fetchedTasks.map(task => ({
+                id_tarea: task.id_tarea,
+                name: task.responsables,
+                tasks: task.nombre_tarea,
+                score: '',
+                comments: '',
+                reviewed: false,
+              })));
+              setIsReviewed(false);
+            } catch (tasksError) {
+              console.error('Error al obtener tareas:', tasksError);
+              toast.error('No se pudieron cargar las tareas.');
+              setError('No se pudieron cargar las tareas.');
+            }
+          } else {
             console.error('Error al obtener la semana revisada:', error);
-          }
-        } else {
-          // Semana no revisada: cargar tareas y mostrarlas vacías
-          try {
-            const response = await axios.get(`${API_URL}evaluation/tareas/${team}/sprint/${sprint}`);
-            const fetchedTasks = response.data;
-            setTasks(fetchedTasks);
-            setMembers(fetchedTasks.map(task => ({
-              id_tarea: task.id_tarea,
-              name: task.responsables,
-              tasks: task.nombre_tarea,
-              score: '',
-              comments: '',
-              reviewed: false,
-            })));
-          } catch (error) {
-            console.error('Error al obtener tareas:', error);
+            toast.error('No se pudo cargar la información de la semana revisada.');
+            setError('No se pudo cargar la información de la semana revisada.');
           }
         }
+      } else {
+        setMembers([]);
+        setIsReviewed(false);
       }
     };
 
     loadData();
     // Elimina `tasks` de las dependencias
-  }, [week, reviewedWeeks, team, sprint, API_URL]);
+  }, [week, team, sprint, API_URL]);
+
+  // Función para validar que solo se ingresen números positivos y no excedan el porcentaje
+  const validateScore = (score) => {
+    if (isNaN(score)) {
+      toast.error('La calificación debe ser un número.');
+      return false;
+    }
+    const numericScore = Number(score);
+    if (numericScore < 0) {
+      toast.error('La calificación debe ser un número positivo.');
+      return false;
+    }
+    if (percentage !== null && numericScore > percentage) {
+      toast.error(`La calificación no puede exceder el porcentaje de ${percentage}.`);
+      return false;
+    }
+    return true;
+  };
+
+  // Función para validar comentarios
+  const validateComments = (comments) => {
+    // Permitir solo letras, números y espacios
+    const regex = /^[A-Za-z\s]+$/;
+    if (!regex.test(comments)) {
+      toast.error('Los comentarios solo pueden contener letras.');
+      return false;
+    }
+    // No permitir tres letras iguales consecutivas
+    const tripleLetterRegex = /(.)\1\1/;
+    if (tripleLetterRegex.test(comments)) {
+      toast.error('Los comentarios no pueden contener tres letras iguales consecutivas.');
+      return false;
+    }
+    return true;
+  };
 
   const handleSave = async () => {
+
+    if (isReviewed) {
+      toast.error('No se puede modificar una semana ya revisada.');
+      return;
+    }
+
+    // Validaciones antes de guardar
+    for (let i = 0; i < members.length; i++) {
+      const member = members[i];
+      // Validar score
+      if (!validateScore(member.score)) {
+        return; // Detener el guardado si hay un error
+      }
+      // Validar comentarios
+      if (!validateComments(member.comments)) {
+        return; // Detener el guardado si hay un error
+      }
+    }
+
     const incomplete = members.some(member => !member.tasks || !member.score || !member.comments);
     if (!team || !week || !sprint || incomplete) {
       setError('Por favor, complete todos los campos.');
@@ -145,36 +218,44 @@ setReviewedWeeks(prev => {
           score: member.score,
           comments: member.comments,
           calificacion: parseInt(member.score, 10),
-          revisado: member.reviewed ? true : false,
+          revisado: member.reviewed,
         })),
         sprint_id: sprint,
-        week: week,
-        week_revisado: isReviewed,
+        week: parseInt(week, 10),
+        week_revisado: true,
       });
-      alert('¡Evaluación guardada con éxito!');
+      toast.success('¡Evaluación guardada con éxito!');
 
       // Agregar semana revisada localmente
-      setReviewedWeeks(prev => {
-        if (!prev.includes(week)) {
-          return [...prev, week];
-        }
-        return prev;
-      });
+      setIsReviewed(true);
     } catch (error) {
       console.error('Error al guardar la evaluación:', error);
+      if (error.response && error.response.data && error.response.data.error) {
+        toast.error(error.response.data.error);
+      } else {
+        toast.error('Error al guardar la evaluación.');
+      }
     }
   };
 
   const handleCancel = () => {
-    alert('Cambios cancelados');
+    toast('Cambios cancelados');
   };
 
   const handleMemberChange = (index, field, value) => {
+    if (isReviewed) return; // Evitar cambios si la semana está revisada
     const newMembers = [...members];
     if (field === 'reviewed') {
       newMembers[index][field] = value === true || value === 'true';
     } else {
       newMembers[index][field] = value;
+      // Validaciones en tiempo real
+      if (field === 'score') {
+        validateScore(value);
+      }
+      if (field === 'comments') {
+        validateComments(value);
+      }
     }
     setMembers(newMembers);
   };
@@ -336,5 +417,4 @@ setReviewedWeeks(prev => {
     </div>
   );
 };
-
 export default EvaluationForm;

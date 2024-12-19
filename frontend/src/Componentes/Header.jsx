@@ -1027,24 +1027,25 @@ export default function PersistentDrawerLeft() {
 
 
               <ListItem disablePadding>
-                <ListItemButton
-                  component={Link}
-                  to="/EvaluationForm"
-                  onClick={() => handleButtonClick('EvaluationForm')}
-                  sx={{
-                    borderRadius: '8px',
-                    backgroundColor: selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
-                    '&:hover': {
-                      backgroundColor: '#1A3254',
-                    },
-                  }}
-                >
-                  <ListItemIcon sx={{ color: 'white' }}>
-                    <AssignmentTurnedInIcon />
-                  </ListItemIcon>
-                  <ListItemText primary="Formulario de Evaluación" sx={{ color: 'white' }} />
-                </ListItemButton>
-              </ListItem>
+                    <ListItemButton
+                      component={Link}
+                      to="/PlanillasSemanales"
+                      onClick={() => handleButtonClick('planillasSemanales')}
+                      sx={{
+                        pl: 4,
+                        borderRadius: '8px',
+                        backgroundColor: selectedButton === 'planillasSemanales' ? '#1A3254' : 'transparent',
+                        '&:hover': {
+                          backgroundColor: '#1A3254',
+                        },
+                      }}
+                    >
+                      <ListItemIcon sx={{ color: 'white' }}>
+                        <CalendarMonthIcon />
+                      </ListItemIcon>
+                      <ListItemText primary="Formulario de Evaluacion" sx={{ color: 'white' }} />
+                    </ListItemButton>
+                  </ListItem>
 
                 {/* Evaluación */}
                 <ListItem disablePadding>
@@ -1158,27 +1159,26 @@ export default function PersistentDrawerLeft() {
               {/* Submenú planillas */}
               <Collapse in={planillasOpen} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {/* Planilla Semanales */}
+                
                   <ListItem disablePadding>
-                    <ListItemButton
-                      component={Link}
-                      to="/PlanillasSemanales"
-                      onClick={() => handleButtonClick('planillasSemanales')}
-                      sx={{
-                        pl: 4,
-                        borderRadius: '8px',
-                        backgroundColor: selectedButton === 'planillasSemanales' ? '#1A3254' : 'transparent',
-                        '&:hover': {
-                          backgroundColor: '#1A3254',
-                        },
-                      }}
-                    >
-                      <ListItemIcon sx={{ color: 'white' }}>
-                        <CalendarMonthIcon />
-                      </ListItemIcon>
-                      <ListItemText primary="Planillas Semanales" sx={{ color: 'white' }} />
-                    </ListItemButton>
-                  </ListItem>
+                <ListItemButton
+                  component={Link}
+                  to="/EvaluationForm"
+                  onClick={() => handleButtonClick('EvaluationForm')}
+                  sx={{
+                    borderRadius: '8px',
+                    backgroundColor: selectedButton === 'EvaluationForm' ? '#1A3254' : 'transparent',
+                    '&:hover': {
+                      backgroundColor: '#1A3254',
+                    },
+                  }}
+                >
+                  <ListItemIcon sx={{ color: 'white' }}>
+                    <AssignmentTurnedInIcon />
+                  </ListItemIcon>
+                  <ListItemText primary="Planilla Semanal" sx={{ color: 'white' }} />
+                </ListItemButton>
+              </ListItem>
                   <ListItem disablePadding>
                     <ListItemButton
                       component={Link}
