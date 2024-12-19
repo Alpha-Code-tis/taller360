@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('detalle_tarea', function (Blueprint $table) {
             $table->id('id_detalle_tarea'); // Clave primaria autoincremental
-            $table->integer('id_tarea'); // Clave foránea
+            $table->integer('id_tarea')->nullable()->index('tiene_suss_fk');
             $table->string('nom_estudiante', 35)->nullable();
             $table->string('nom_tarea', 35)->nullable();
             $table->string('calificacion_tarea')->nullable();
@@ -20,6 +20,7 @@ return new class extends Migration
             $table->integer('semana_sprint')->nullable();
             $table->timestamps();
 
+            $table->unique(['id_detalle_tarea'], 'detalle_tarea_pk');
         });
     }
 

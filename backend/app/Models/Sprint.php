@@ -36,7 +36,8 @@ class Sprint extends Model
 		'fecha_inicio' => 'datetime',
 		'fecha_fin' => 'datetime',
 		'nro_sprint' => 'int',
-		'semanas_cant' => 'int'
+		'semanas_cant' => 'int',
+		'revisado_semanas' => 'array'
 	];
 
 	protected $fillable = [
@@ -46,7 +47,8 @@ class Sprint extends Model
 		'color',
 		'nro_sprint',
 		'porcentaje',
-		'semanas_cant'
+		'semanas_cant',
+		'revisado_semanas'
 	];
 
 	public function planificacion()

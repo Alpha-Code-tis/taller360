@@ -119,10 +119,15 @@ class EvaluacionController extends Controller
         $request->validate([
             'sprint_id' => 'required|exists:sprint,id_sprint'
         ]);
-    
+
         $sprint = Sprint::findOrFail($request->sprint_id);
         $porcentajeMaximo = $sprint->porcentaje;
-    
+
+        $sprintWeeks = json_decode($sprint->revisado_semanas, true) ?? [];
+        if (in_array((int)$request->week, $sprintWeeks)) {
+            return response()->json(['error' => 'Esta semana ya ha sido revisada y no se puede modificar.'], 422);
+        }
+
         // Validación de datos de entrada
         $request->validate([
             'tareas' => 'required|array',
@@ -139,30 +144,30 @@ class EvaluacionController extends Controller
             'week' => 'required|integer|min:1',
             'week_revisado' => 'required|boolean'
         ]);
-    
+
         // Obtenemos de nuevo el sprint (opcional, ya lo tenemos arriba)
         $sprint = Sprint::findOrFail($request->sprint_id);
         $porcentajeMaximo = $sprint->porcentaje;
-    
+
         try {
             DB::beginTransaction();
-    
+
             foreach ($request->tareas as $tareaData) {
                 $calificacion = (int) $tareaData['calificacion'];
-    
+
                 // Validar que la calificación no exceda el porcentaje máximo
                 if ($calificacion > $porcentajeMaximo) {
                     return response()->json([
                         'error' => "La calificación no puede exceder el valor máximo permitido del sprint: $porcentajeMaximo"
                     ], 422);
                 }
-    
+
                 $tarea = Tarea::findOrFail($tareaData['id_tarea']);
                 $tarea->calificacion = $calificacion;
                 $tarea->observaciones = $tareaData['comments'] ?? null;
                 $tarea->revisado = $tareaData['revisado'];
                 $tarea->save();
-    
+
                 $estudiantes = EstudianteTarea::where('id_tarea', $tarea->id_tarea)->with('estudiante')->get();
                 foreach ($estudiantes as $estudianteTarea) {
                     DetalleTarea::updateOrCreate(
@@ -178,7 +183,7 @@ class EvaluacionController extends Controller
                     );
                 }
             }
-    
+
             // Después de guardar todas las tareas, actualizar las semanas revisadas del sprint
             $sprintWeeks = json_decode($sprint->revisado_semanas, true) ?? [];
             if ($request->week_revisado && !in_array((int)$request->week, $sprintWeeks)) {
@@ -186,16 +191,16 @@ class EvaluacionController extends Controller
                 $sprint->revisado_semanas = json_encode($sprintWeeks);
                 $sprint->save();
             }
-    
+
             DB::commit();
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json(['error' => 'Error al guardar la evaluación: ' . $e->getMessage()], 500);
         }
-    
+
         return response()->json(['message' => 'Evaluación guardada con éxito.']);
     }
-    
+
 
 
     // Obtener la evaluación de una semana que ya fue revisada

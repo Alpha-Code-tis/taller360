@@ -22,6 +22,7 @@ return new class extends Migration
             $table->integer('nro_sprint')->nullable();
             $table->integer('porcentaje')->nullable();
             $table->integer('semanas_cant')->nullable();
+            $table->json('revisado_semanas')->nullable();
             $table->unique(['id_sprint'], 'sprint_pk');
         });
     }
