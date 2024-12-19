@@ -69,7 +69,7 @@ class PlanillaController extends Controller
         }
 
         // Asignar los estudiantes a la tarea sin quitar los anteriores (usando syncWithoutDetaching)
-        $tarea->estudiantes()->syncWithoutDetaching($estudiantesIds);
+        $tarea->estudiantes()->sync($estudiantesIds);
 
         return response()->json(['message' => 'Estudiantes asignados correctamente']);
     }
